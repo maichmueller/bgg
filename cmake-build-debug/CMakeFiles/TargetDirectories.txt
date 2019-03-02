@@ -1,0 +1,3 @@
+/cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/cmake-build-debug/CMakeFiles/edit_cache.dir
+/cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/cmake-build-debug/CMakeFiles/Stratego_CPP.dir

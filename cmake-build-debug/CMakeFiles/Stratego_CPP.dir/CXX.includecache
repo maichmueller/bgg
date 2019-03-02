@@ -1,0 +1,40 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/Board.cpp
+Board.h
+/cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/Board.h
+
+/cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/Board.h
+map
+/cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/map
+array
+/cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/array
+vector
+/cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/vector
+memory
+/cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/memory
+Piece.h
+/cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/Piece.h
+GameDeclarations.h
+/cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/GameDeclarations.h
+
+/cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/GameDeclarations.h
+array
+/cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/array
+vector
+/cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/vector
+map
+/cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/map
+
+/cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/Piece.h
+array
+/cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/array
+GameDeclarations.h
+/cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/GameDeclarations.h
+

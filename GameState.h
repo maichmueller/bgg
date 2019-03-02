@@ -1,0 +1,52 @@
+//
+// Created by Michael on 21/02/2019.
+//
+
+#ifndef STRATEGO_CPP_GAMESTATE_H
+#define STRATEGO_CPP_GAMESTATE_H
+
+#include "Board.h"
+#include "Piece.h"
+#include "GameDeclarations.h"
+#include "StrategoLogic.h"
+#include "map"
+
+
+class GameState {
+
+    Board board;
+    array<map<int, int>, 2> dead_pieces;
+
+    int terminal;
+    bool terminal_checked;
+
+    int move_count;
+
+    vector<vector<pos_type >> move_history;
+    vector<vector<shared_ptr<Piece>>> piece_history;
+    vector<bool> move_equals_prev_move;
+    unsigned int rounds_without_fight;
+
+    bool canonical_teams;
+
+public:
+    explicit GameState(int game_dim);
+    GameState(Board& board, int move_count);
+    GameState(Board& board, array<map<int, int>, 2>& dead_pieces, int move_count);
+    void check_terminal(bool flag_only=false, int turn=0);
+    int do_move(vector<pos_type>& move);
+    int fight(Piece& attacker, Piece& defender);
+    int is_terminal(bool force_reload=false, int turn=0);
+    int get_canonical_team(Piece& piece);
+    pos_type get_canonical_pos(Piece& piece);
+    void canonical_board(int player);
+
+    void set_board(Board& board) {this->board = board;}
+    Board get_board() {return board;}
+    int get_move_count() {return move_count;}
+    bool is_canonical() {return canonical_teams;}
+
+};
+
+
+#endif //STRATEGO_CPP_GAMESTATE_H
