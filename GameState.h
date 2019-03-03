@@ -30,7 +30,7 @@ class GameState {
     bool canonical_teams;
 
 public:
-    explicit GameState(int game_dim);
+    explicit GameState(int game_len);
     GameState(Board& board, int move_count);
     GameState(Board& board, array<map<int, int>, 2>& dead_pieces, int move_count);
     void check_terminal(bool flag_only=false, int turn=0);

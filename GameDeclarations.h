@@ -96,11 +96,11 @@ struct ActionRep {
         return 0;
     }
 
-    static auto const & get_available_types(int game_dim) {
-        if(game_dim == 5) return available_types_s;
-        else if(game_dim == 7) return available_types_m;
-        else if(game_dim == 10) return available_types_l;
-        else throw invalid_argument("Game dim not in [5, 7, 10].");
+    static auto const & get_available_types(int game_len) {
+        if(game_len == 5) return available_types_s;
+        else if(game_len == 7) return available_types_m;
+        else if(game_len == 10) return available_types_l;
+        else throw invalid_argument("Game len not in [5, 7, 10].");
     }
 
 };

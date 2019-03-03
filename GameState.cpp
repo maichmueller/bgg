@@ -5,8 +5,8 @@
 #include "GameState.h"
 
 
-GameState::GameState(int game_dim)
-: board(game_dim), terminal(404), terminal_checked(true),
+GameState::GameState(int game_len)
+: board(game_len), terminal(404), terminal_checked(true),
   move_count(0), canonical_teams(true)
 {
     map<int, int> team0_dead;
@@ -21,10 +21,10 @@ GameState::GameState(Board &board, int move_count)
     map<int, int> team_0_dead;
     map<int, int> team_1_dead;
     dead_pieces = array<map<int, int>, 2> {team_0_dead, team_1_dead};
-    int dim = board.get_board_dim_size();
+    int len = board.get_board_len_size();
     vector<int> avail_types;
     // copy the available types
-    avail_types = ActionRep::get_available_types(dim);
+    avail_types = ActionRep::get_available_types(len);
     for(auto type: avail_types) {
         team_0_dead[type] += 1;
         team_1_dead[type] += 1;
@@ -116,10 +116,10 @@ pos_type GameState::get_canonical_pos(Piece& piece){
         return piece.get_position();
     }
     else {
-        int dim = board.get_board_dim_size();
+        int len = board.get_board_len_size();
         pos_type pos = piece.get_position();
-        pos[0] = dim-1-pos[0];
-        pos[1] = dim-1-pos[1];
+        pos[0] = len-1-pos[0];
+        pos[1] = len-1-pos[1];
         return pos;
     }
 }

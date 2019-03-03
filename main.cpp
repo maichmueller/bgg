@@ -6,11 +6,11 @@
 #include "random"
 
 int main() {
-    int board_dim = 5;
-    //std::cout << "Insert game dimension:";
-    //std::cin >> board_dim;
+    int board_len = 5;
+    //std::cout << "Insert game lenension:";
+    //std::cin >> board_len;
 
-    Board board(board_dim);
+    Board board(board_len);
     bool a = 3 < 5 < 7;
     std::cout << "Reached here.";
 

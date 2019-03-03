@@ -32,4 +32,7 @@
 *.app
 
 cmake-build-debug/*
-.idea
+cmake-build-debug
+.idea/*
+.idea/workspace.xml
+cmake-build-debug/CMakeFiles/Stratego_CPP.dir/CXX.includecache
