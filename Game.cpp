@@ -37,14 +37,25 @@ int Game::run_game(bool show) {
     //    print_board = []
 
     while(!game_over) {
-        print_board(game_state.get_board());
+        print_board(*game_state.get_board());
         rewards = run_step();
         if(rewards != 404)
             game_over = true;
-
-    print_board(game_state.get_board());
-    return rewards;
-
     }
+    print_board(*game_state.get_board());
+    return rewards;
 }
 
+int Game::run_step() {
+    int turn = game_state.get_move_count() % 2;  // # player 1 or player 0
+    vector<pos_type > move;
+    if(turn == 1)
+        move = agent_1->decide_move(*game_state.get_board());
+    else
+        move = agent_0->decide_move(*game_state.get_board());
+
+    game_state.do_move(move);
+    // test for terminality
+    int terminal = game_state.is_terminal();
+    return terminal;
+}

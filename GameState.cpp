@@ -192,7 +192,7 @@ int GameState::do_move(vector<pos_type> &move) {
         board.update_board(from, null_piece);
         board.update_board(to, piece_from);
     }
-    move_count += 1;
+    inc_move_count();
     return fight_outcome;
 }
 

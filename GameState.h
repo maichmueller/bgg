@@ -38,6 +38,8 @@ public:
     int fight(Piece& attacker, Piece& defender);
     int is_terminal(bool force_reload=false, int turn=0);
 
+    void inc_move_count() {move_count += 1;}
+
     void restore_to_round(int round);
     void undo_last_n_rounds(int n);
 
@@ -48,7 +50,10 @@ public:
 
     void canonical_board(int player);
     void set_board(Board board) {this->board = std::move(board);}
-    Board get_board() {return board;}
+    Board* get_board() {
+        Board* b = &board;
+        return b;
+    }
 
 };
 
