@@ -123,6 +123,33 @@ Stratego_CPP/fast:
 	$(MAKE) -f CMakeFiles/Stratego_CPP.dir/build.make CMakeFiles/Stratego_CPP.dir/build
 .PHONY : Stratego_CPP/fast
 
+Agent.o: Agent.cpp.o
+
+.PHONY : Agent.o
+
+# target to build an object file
+Agent.cpp.o:
+	$(MAKE) -f CMakeFiles/Stratego_CPP.dir/build.make CMakeFiles/Stratego_CPP.dir/Agent.cpp.o
+.PHONY : Agent.cpp.o
+
+Agent.i: Agent.cpp.i
+
+.PHONY : Agent.i
+
+# target to preprocess a source file
+Agent.cpp.i:
+	$(MAKE) -f CMakeFiles/Stratego_CPP.dir/build.make CMakeFiles/Stratego_CPP.dir/Agent.cpp.i
+.PHONY : Agent.cpp.i
+
+Agent.s: Agent.cpp.s
+
+.PHONY : Agent.s
+
+# target to generate assembly for a file
+Agent.cpp.s:
+	$(MAKE) -f CMakeFiles/Stratego_CPP.dir/build.make CMakeFiles/Stratego_CPP.dir/Agent.cpp.s
+.PHONY : Agent.cpp.s
+
 Board.o: Board.cpp.o
 
 .PHONY : Board.o
@@ -149,6 +176,33 @@ Board.s: Board.cpp.s
 Board.cpp.s:
 	$(MAKE) -f CMakeFiles/Stratego_CPP.dir/build.make CMakeFiles/Stratego_CPP.dir/Board.cpp.s
 .PHONY : Board.cpp.s
+
+Game.o: Game.cpp.o
+
+.PHONY : Game.o
+
+# target to build an object file
+Game.cpp.o:
+	$(MAKE) -f CMakeFiles/Stratego_CPP.dir/build.make CMakeFiles/Stratego_CPP.dir/Game.cpp.o
+.PHONY : Game.cpp.o
+
+Game.i: Game.cpp.i
+
+.PHONY : Game.i
+
+# target to preprocess a source file
+Game.cpp.i:
+	$(MAKE) -f CMakeFiles/Stratego_CPP.dir/build.make CMakeFiles/Stratego_CPP.dir/Game.cpp.i
+.PHONY : Game.cpp.i
+
+Game.s: Game.cpp.s
+
+.PHONY : Game.s
+
+# target to generate assembly for a file
+Game.cpp.s:
+	$(MAKE) -f CMakeFiles/Stratego_CPP.dir/build.make CMakeFiles/Stratego_CPP.dir/Game.cpp.s
+.PHONY : Game.cpp.s
 
 GameDeclarations.o: GameDeclarations.cpp.o
 
@@ -294,9 +348,15 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... Stratego_CPP"
+	@echo "... Agent.o"
+	@echo "... Agent.i"
+	@echo "... Agent.s"
 	@echo "... Board.o"
 	@echo "... Board.i"
 	@echo "... Board.s"
+	@echo "... Game.o"
+	@echo "... Game.i"
+	@echo "... Game.s"
 	@echo "... GameDeclarations.o"
 	@echo "... GameDeclarations.i"
 	@echo "... GameDeclarations.s"

@@ -6,17 +6,7 @@
 
 #IncludeRegexTransform: 
 
-/cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/Board.h
-map
-/cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/map
-array
-/cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/array
-vector
-/cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/vector
-memory
-/cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/memory
-Piece.h
-/cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/Piece.h
+/cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/GameDeclarations.cpp
 GameDeclarations.h
 /cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/GameDeclarations.h
 
@@ -27,48 +17,4 @@ vector
 /cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/vector
 map
 /cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/map
-
-/cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/GameState.cpp
-GameState.h
-/cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/GameState.h
-
-/cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/GameState.h
-Board.h
-/cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/Board.h
-Piece.h
-/cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/Piece.h
-GameDeclarations.h
-/cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/GameDeclarations.h
-StrategoLogic.h
-/cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/StrategoLogic.h
-map
-/cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/map
-
-/cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/Piece.h
-array
-/cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/array
-GameDeclarations.h
-/cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/GameDeclarations.h
-
-/cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/StrategoLogic.cpp
-StrategoLogic.h
-/cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/StrategoLogic.h
-
-/cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/StrategoLogic.h
-Board.h
-/cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/Board.h
-
-/cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/main.cpp
-iostream
--
-Board.h
-/cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/Board.h
-Piece.h
-/cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/Piece.h
-GameState.h
-/cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/GameState.h
-vector
-/cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/vector
-random
-/cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/random
 

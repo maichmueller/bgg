@@ -23,13 +23,12 @@ private:
     int type;
     int version;
     bool hidden;
-    bool alive;
     bool has_moved;
     bool can_move;
 
 public:
     Piece(int team, int type, pos_type& pos, int version,
-          bool hidden, bool alive, bool has_moved, bool can_move);
+          bool hidden, bool has_moved, bool can_move);
     Piece(int team, int type, pos_type& pos, int version);
     explicit Piece(pos_type& pos);
     Piece();
@@ -45,11 +44,10 @@ public:
     int get_type() {return type;}
     int get_version() {return version;}
     bool get_flag_hidden() {return hidden;}
-    bool get_flag_alive() {return alive;}
     bool get_flag_has_moved() {return has_moved;}
     bool get_flag_can_move() {return can_move;}
 
-    void change_piece(int team, int type, bool hidden=true, bool alive=true);
+    void change_piece(int team, int type, bool hidden=true);
 
 
 };

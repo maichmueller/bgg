@@ -134,15 +134,25 @@ int GameState::do_move(vector<pos_type> &move) {
     pos_type to = move[1];
     int fight_outcome = 404;
 
+    // save the access to the pieces in question
+    // (removes redundant searching in board later)
     shared_ptr<Piece> piece_from = board[from];
     shared_ptr<Piece> piece_to = board[to];
     piece_from->set_flag_has_moved();
 
     // save all info to the history
     move_history.push_back(move);
-    vector<shared_ptr<Piece>> pieces_in_move = {piece_from, piece_to};
-    piece_history.push_back(pieces_in_move);
+    if(move_equals_prev_move.empty())
+        move_equals_prev_move.push_back(false);
+    else {
+        auto last_move = *move_history.end();
+        move_equals_prev_move.push_back(move[0] == last_move[0] && move[1] == last_move[1]);
+    }
+    // copying the pieces here, bc this way they can be fully restored (even with altered flags further on)
+    // later on (needed e.g. in undoing last rounds)
+    piece_history.push_back({std::make_shared<Piece>(*piece_from), std::make_shared<Piece>(*piece_to)});
 
+    // enact the move
     if(!piece_to->is_null()) {
         // unhide participant pieces
         piece_from->set_flag_unhidden();
@@ -186,3 +196,24 @@ int GameState::do_move(vector<pos_type> &move) {
     return fight_outcome;
 }
 
+
+void GameState::undo_last_n_rounds(int n) {
+    for(int i = 0; i < n; ++i) {
+        vector<pos_type > move = *move_history.end();
+        auto move_pieces = *piece_history.end();
+
+        move_history.pop_back();
+        piece_history.pop_back();
+        move_equals_prev_move.pop_back();
+
+        pos_type from = move[0];
+        pos_type to = move[1];
+        board[from] = move_pieces[0];
+        board[to] = move_pieces[1];
+    }
+    move_count -= n;
+}
+
+void GameState::restore_to_round(int round) {
+    undo_last_n_rounds(move_count - round);
+}

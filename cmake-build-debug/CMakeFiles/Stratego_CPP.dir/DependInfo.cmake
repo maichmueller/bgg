@@ -4,7 +4,9 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
+  "/cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/Agent.cpp" "/cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/cmake-build-debug/CMakeFiles/Stratego_CPP.dir/Agent.cpp.o"
   "/cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/Board.cpp" "/cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/cmake-build-debug/CMakeFiles/Stratego_CPP.dir/Board.cpp.o"
+  "/cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/Game.cpp" "/cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/cmake-build-debug/CMakeFiles/Stratego_CPP.dir/Game.cpp.o"
   "/cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/GameDeclarations.cpp" "/cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/cmake-build-debug/CMakeFiles/Stratego_CPP.dir/GameDeclarations.cpp.o"
   "/cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/GameState.cpp" "/cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/cmake-build-debug/CMakeFiles/Stratego_CPP.dir/GameState.cpp.o"
   "/cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/Piece.cpp" "/cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/cmake-build-debug/CMakeFiles/Stratego_CPP.dir/Piece.cpp.o"

@@ -70,9 +70,22 @@ CMakeFiles/Stratego_CPP.dir/GameState.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Stratego_CPP.dir/GameState.cpp.s"
 	/usr/bin/c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/GameState.cpp -o CMakeFiles/Stratego_CPP.dir/GameState.cpp.s
 
+CMakeFiles/Stratego_CPP.dir/Game.cpp.o: CMakeFiles/Stratego_CPP.dir/flags.make
+CMakeFiles/Stratego_CPP.dir/Game.cpp.o: ../Game.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/Stratego_CPP.dir/Game.cpp.o"
+	/usr/bin/c++.exe  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/Stratego_CPP.dir/Game.cpp.o -c /cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/Game.cpp
+
+CMakeFiles/Stratego_CPP.dir/Game.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/Stratego_CPP.dir/Game.cpp.i"
+	/usr/bin/c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/Game.cpp > CMakeFiles/Stratego_CPP.dir/Game.cpp.i
+
+CMakeFiles/Stratego_CPP.dir/Game.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Stratego_CPP.dir/Game.cpp.s"
+	/usr/bin/c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/Game.cpp -o CMakeFiles/Stratego_CPP.dir/Game.cpp.s
+
 CMakeFiles/Stratego_CPP.dir/Piece.cpp.o: CMakeFiles/Stratego_CPP.dir/flags.make
 CMakeFiles/Stratego_CPP.dir/Piece.cpp.o: ../Piece.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/Stratego_CPP.dir/Piece.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/Stratego_CPP.dir/Piece.cpp.o"
 	/usr/bin/c++.exe  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/Stratego_CPP.dir/Piece.cpp.o -c /cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/Piece.cpp
 
 CMakeFiles/Stratego_CPP.dir/Piece.cpp.i: cmake_force
@@ -85,7 +98,7 @@ CMakeFiles/Stratego_CPP.dir/Piece.cpp.s: cmake_force
 
 CMakeFiles/Stratego_CPP.dir/Board.cpp.o: CMakeFiles/Stratego_CPP.dir/flags.make
 CMakeFiles/Stratego_CPP.dir/Board.cpp.o: ../Board.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/Stratego_CPP.dir/Board.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/Stratego_CPP.dir/Board.cpp.o"
 	/usr/bin/c++.exe  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/Stratego_CPP.dir/Board.cpp.o -c /cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/Board.cpp
 
 CMakeFiles/Stratego_CPP.dir/Board.cpp.i: cmake_force
@@ -96,35 +109,9 @@ CMakeFiles/Stratego_CPP.dir/Board.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Stratego_CPP.dir/Board.cpp.s"
 	/usr/bin/c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/Board.cpp -o CMakeFiles/Stratego_CPP.dir/Board.cpp.s
 
-CMakeFiles/Stratego_CPP.dir/StrategoLogic.cpp.o: CMakeFiles/Stratego_CPP.dir/flags.make
-CMakeFiles/Stratego_CPP.dir/StrategoLogic.cpp.o: ../StrategoLogic.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/Stratego_CPP.dir/StrategoLogic.cpp.o"
-	/usr/bin/c++.exe  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/Stratego_CPP.dir/StrategoLogic.cpp.o -c /cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/StrategoLogic.cpp
-
-CMakeFiles/Stratego_CPP.dir/StrategoLogic.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/Stratego_CPP.dir/StrategoLogic.cpp.i"
-	/usr/bin/c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/StrategoLogic.cpp > CMakeFiles/Stratego_CPP.dir/StrategoLogic.cpp.i
-
-CMakeFiles/Stratego_CPP.dir/StrategoLogic.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Stratego_CPP.dir/StrategoLogic.cpp.s"
-	/usr/bin/c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/StrategoLogic.cpp -o CMakeFiles/Stratego_CPP.dir/StrategoLogic.cpp.s
-
-CMakeFiles/Stratego_CPP.dir/main.cpp.o: CMakeFiles/Stratego_CPP.dir/flags.make
-CMakeFiles/Stratego_CPP.dir/main.cpp.o: ../main.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/Stratego_CPP.dir/main.cpp.o"
-	/usr/bin/c++.exe  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/Stratego_CPP.dir/main.cpp.o -c /cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/main.cpp
-
-CMakeFiles/Stratego_CPP.dir/main.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/Stratego_CPP.dir/main.cpp.i"
-	/usr/bin/c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/main.cpp > CMakeFiles/Stratego_CPP.dir/main.cpp.i
-
-CMakeFiles/Stratego_CPP.dir/main.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Stratego_CPP.dir/main.cpp.s"
-	/usr/bin/c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/main.cpp -o CMakeFiles/Stratego_CPP.dir/main.cpp.s
-
 CMakeFiles/Stratego_CPP.dir/GameDeclarations.cpp.o: CMakeFiles/Stratego_CPP.dir/flags.make
 CMakeFiles/Stratego_CPP.dir/GameDeclarations.cpp.o: ../GameDeclarations.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/Stratego_CPP.dir/GameDeclarations.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/Stratego_CPP.dir/GameDeclarations.cpp.o"
 	/usr/bin/c++.exe  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/Stratego_CPP.dir/GameDeclarations.cpp.o -c /cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/GameDeclarations.cpp
 
 CMakeFiles/Stratego_CPP.dir/GameDeclarations.cpp.i: cmake_force
@@ -135,27 +122,70 @@ CMakeFiles/Stratego_CPP.dir/GameDeclarations.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Stratego_CPP.dir/GameDeclarations.cpp.s"
 	/usr/bin/c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/GameDeclarations.cpp -o CMakeFiles/Stratego_CPP.dir/GameDeclarations.cpp.s
 
+CMakeFiles/Stratego_CPP.dir/StrategoLogic.cpp.o: CMakeFiles/Stratego_CPP.dir/flags.make
+CMakeFiles/Stratego_CPP.dir/StrategoLogic.cpp.o: ../StrategoLogic.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/Stratego_CPP.dir/StrategoLogic.cpp.o"
+	/usr/bin/c++.exe  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/Stratego_CPP.dir/StrategoLogic.cpp.o -c /cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/StrategoLogic.cpp
+
+CMakeFiles/Stratego_CPP.dir/StrategoLogic.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/Stratego_CPP.dir/StrategoLogic.cpp.i"
+	/usr/bin/c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/StrategoLogic.cpp > CMakeFiles/Stratego_CPP.dir/StrategoLogic.cpp.i
+
+CMakeFiles/Stratego_CPP.dir/StrategoLogic.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Stratego_CPP.dir/StrategoLogic.cpp.s"
+	/usr/bin/c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/StrategoLogic.cpp -o CMakeFiles/Stratego_CPP.dir/StrategoLogic.cpp.s
+
+CMakeFiles/Stratego_CPP.dir/Agent.cpp.o: CMakeFiles/Stratego_CPP.dir/flags.make
+CMakeFiles/Stratego_CPP.dir/Agent.cpp.o: ../Agent.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/Stratego_CPP.dir/Agent.cpp.o"
+	/usr/bin/c++.exe  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/Stratego_CPP.dir/Agent.cpp.o -c /cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/Agent.cpp
+
+CMakeFiles/Stratego_CPP.dir/Agent.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/Stratego_CPP.dir/Agent.cpp.i"
+	/usr/bin/c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/Agent.cpp > CMakeFiles/Stratego_CPP.dir/Agent.cpp.i
+
+CMakeFiles/Stratego_CPP.dir/Agent.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Stratego_CPP.dir/Agent.cpp.s"
+	/usr/bin/c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/Agent.cpp -o CMakeFiles/Stratego_CPP.dir/Agent.cpp.s
+
+CMakeFiles/Stratego_CPP.dir/main.cpp.o: CMakeFiles/Stratego_CPP.dir/flags.make
+CMakeFiles/Stratego_CPP.dir/main.cpp.o: ../main.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object CMakeFiles/Stratego_CPP.dir/main.cpp.o"
+	/usr/bin/c++.exe  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/Stratego_CPP.dir/main.cpp.o -c /cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/main.cpp
+
+CMakeFiles/Stratego_CPP.dir/main.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/Stratego_CPP.dir/main.cpp.i"
+	/usr/bin/c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/main.cpp > CMakeFiles/Stratego_CPP.dir/main.cpp.i
+
+CMakeFiles/Stratego_CPP.dir/main.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Stratego_CPP.dir/main.cpp.s"
+	/usr/bin/c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/main.cpp -o CMakeFiles/Stratego_CPP.dir/main.cpp.s
+
 # Object files for target Stratego_CPP
 Stratego_CPP_OBJECTS = \
 "CMakeFiles/Stratego_CPP.dir/GameState.cpp.o" \
+"CMakeFiles/Stratego_CPP.dir/Game.cpp.o" \
 "CMakeFiles/Stratego_CPP.dir/Piece.cpp.o" \
 "CMakeFiles/Stratego_CPP.dir/Board.cpp.o" \
+"CMakeFiles/Stratego_CPP.dir/GameDeclarations.cpp.o" \
 "CMakeFiles/Stratego_CPP.dir/StrategoLogic.cpp.o" \
-"CMakeFiles/Stratego_CPP.dir/main.cpp.o" \
-"CMakeFiles/Stratego_CPP.dir/GameDeclarations.cpp.o"
+"CMakeFiles/Stratego_CPP.dir/Agent.cpp.o" \
+"CMakeFiles/Stratego_CPP.dir/main.cpp.o"
 
 # External object files for target Stratego_CPP
 Stratego_CPP_EXTERNAL_OBJECTS =
 
 Stratego_CPP.exe: CMakeFiles/Stratego_CPP.dir/GameState.cpp.o
+Stratego_CPP.exe: CMakeFiles/Stratego_CPP.dir/Game.cpp.o
 Stratego_CPP.exe: CMakeFiles/Stratego_CPP.dir/Piece.cpp.o
 Stratego_CPP.exe: CMakeFiles/Stratego_CPP.dir/Board.cpp.o
-Stratego_CPP.exe: CMakeFiles/Stratego_CPP.dir/StrategoLogic.cpp.o
-Stratego_CPP.exe: CMakeFiles/Stratego_CPP.dir/main.cpp.o
 Stratego_CPP.exe: CMakeFiles/Stratego_CPP.dir/GameDeclarations.cpp.o
+Stratego_CPP.exe: CMakeFiles/Stratego_CPP.dir/StrategoLogic.cpp.o
+Stratego_CPP.exe: CMakeFiles/Stratego_CPP.dir/Agent.cpp.o
+Stratego_CPP.exe: CMakeFiles/Stratego_CPP.dir/main.cpp.o
 Stratego_CPP.exe: CMakeFiles/Stratego_CPP.dir/build.make
 Stratego_CPP.exe: CMakeFiles/Stratego_CPP.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Linking CXX executable Stratego_CPP.exe"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Linking CXX executable Stratego_CPP.exe"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/Stratego_CPP.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.

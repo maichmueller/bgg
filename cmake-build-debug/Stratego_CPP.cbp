@@ -80,10 +80,22 @@
 				</MakeCommands>
 			</Target>
 		</Build>
+		<Unit filename="/cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/Agent.cpp">
+			<Option target="Stratego_CPP"/>
+		</Unit>
+		<Unit filename="/cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/Agent.h">
+			<Option target="Stratego_CPP"/>
+		</Unit>
 		<Unit filename="/cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/Board.cpp">
 			<Option target="Stratego_CPP"/>
 		</Unit>
 		<Unit filename="/cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/Board.h">
+			<Option target="Stratego_CPP"/>
+		</Unit>
+		<Unit filename="/cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/Game.cpp">
+			<Option target="Stratego_CPP"/>
+		</Unit>
+		<Unit filename="/cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/Game.h">
 			<Option target="Stratego_CPP"/>
 		</Unit>
 		<Unit filename="/cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/GameDeclarations.cpp">
@@ -102,6 +114,9 @@
 			<Option target="Stratego_CPP"/>
 		</Unit>
 		<Unit filename="/cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/Piece.h">
+			<Option target="Stratego_CPP"/>
+		</Unit>
+		<Unit filename="/cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/RandomSelector.h">
 			<Option target="Stratego_CPP"/>
 		</Unit>
 		<Unit filename="/cygdrive/c/Users/Michael/Documents/GitHub/Stratego_CPP/StrategoLogic.cpp">
