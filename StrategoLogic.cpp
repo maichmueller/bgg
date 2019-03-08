@@ -66,7 +66,7 @@ bool StrategoLogic::is_legal_move(Board &board, vector<pos_type> &move, bool fli
         canonize_team = &StrategoLogic::team_invert;
     }
 
-    int board_len = board.get_board_len_size();
+    int board_len = board.get_board_len();
 
     pos_type pos_before = move[0];
     pos_type pos_after = move[1];
@@ -137,7 +137,7 @@ vector<vector<pos_type>> StrategoLogic::get_poss_moves(Board &board, int player,
         canonize_team = &StrategoLogic::team_invert;
     }
 
-    int board_len = board.get_board_len_size();
+    int board_len = board.get_board_len();
     vector<vector<pos_type >> moves_possible;
     for( auto elem = board.begin(); elem != board.end(); ++elem) {
         shared_ptr<Piece> piece = elem->second;
@@ -194,7 +194,7 @@ vector<vector<pos_type>> StrategoLogic::get_poss_moves(Board &board, int player,
 
 bool StrategoLogic::has_poss_moves(Board &board, int player) {
 
-    int board_len = board.get_board_len_size();
+    int board_len = board.get_board_len();
     for( auto elem = board.begin(); elem != board.end(); ++elem) {
         shared_ptr<Piece> piece = elem->second;
         if(!piece->is_null() && piece->get_team() == player && piece->get_flag_can_move()) {
@@ -293,7 +293,7 @@ vector<int> StrategoLogic::get_action_mask(Board &board, vector<vector<int>>& ac
         map<vector<int>, vector<int>>& piece_act_map, int player) {
 
     vector<int> action_mask(action_arr.size(), 0);
-    int board_len = board.get_board_len_size();
+    int board_len = board.get_board_len();
 
     for( auto elem = board.begin(); elem != board.end(); ++elem) {
         shared_ptr<Piece> piece = elem->second;

@@ -38,7 +38,7 @@ public:
     shared_ptr<Piece> operator[] (const pos_type a) const;
     iterator begin();
     iterator end();
-    int get_board_len_size() {return board_len;}
+    int get_board_len() {return board_len;}
     map<pos_type, shared_ptr<Piece>, key_comp>& get_board_map() {return board_map;}
     vector<pos_type>& get_keys() {return keys;}
     void update_board(pos_type& pos, shared_ptr<Piece> pc);

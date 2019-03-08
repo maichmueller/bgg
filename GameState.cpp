@@ -21,7 +21,7 @@ GameState::GameState(Board &board, int move_count)
     map<int, int> team_0_dead;
     map<int, int> team_1_dead;
     dead_pieces = array<map<int, int>, 2> {team_0_dead, team_1_dead};
-    int len = board.get_board_len_size();
+    int len = board.get_board_len();
     vector<int> avail_types;
     // copy the available types
     avail_types = ActionRep::get_available_types(len);
@@ -116,7 +116,7 @@ pos_type GameState::get_canonical_pos(Piece& piece){
         return piece.get_position();
     }
     else {
-        int len = board.get_board_len_size();
+        int len = board.get_board_len();
         pos_type pos = piece.get_position();
         pos[0] = len-1-pos[0];
         pos[1] = len-1-pos[1];
