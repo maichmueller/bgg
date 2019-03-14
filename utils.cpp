@@ -35,5 +35,5 @@ std::string utils::center(const std::string &str, int width, const char* fillcha
     int diff = width - len;
     int pad1 = diff/2;
     int pad2 = diff - pad1;
-    return std::string(pad1, *fillchar) + str + std::string(pad2, *fillchar);
+    return std::string(pad2, *fillchar) + str + std::string(pad1, *fillchar);
 }

@@ -101,7 +101,7 @@ Board::Board(int len, std::map<pos_type, int> setup_0, std::map<pos_type, int> s
         // piece. Afterwards it will keep count correctly for us.
         version_count_1[piece_type] += 1;
         int version = version_count_1[piece_type];
-        auto piece = std::make_shared<Piece> (0, piece_type, pos, version);
+        auto piece = std::make_shared<Piece> (1, piece_type, pos, version);
         board_map[pos] = std::move(piece);
     }
 }

@@ -15,7 +15,7 @@
 
 
 using namespace std;
-using namespace GameTypes;
+using namespace GameDeclarations;
 
 class Board
 {

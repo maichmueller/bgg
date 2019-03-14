@@ -29,7 +29,7 @@ namespace utils {
     void print_board(Board &board) {
 
         int H_SIZE_PER_PIECE = 9;
-        int V_SIZE_PER_PIECE = 5;
+        int V_SIZE_PER_PIECE = 3;
         // the space needed to assign row indices to the rows and add a splitting bar "|"
         int row_ind_space = 4;
 
@@ -48,60 +48,83 @@ namespace utils {
 
         // piece string lambda function that throws out a str of the sort "-1:10.1"
         auto create_piece_str = [&H_SIZE_PER_PIECE] (Piece& piece) {
+            if(piece.is_null())
+                return std::string(static_cast<unsigned long> (H_SIZE_PER_PIECE), ' ');
             int type = piece.get_type();
             int version = piece.get_version();
             int team = piece.get_team();
-            std::string hidden = (piece.get_flag_hidden()) ? "+" : "-";
+            std::string hidden = (piece.get_flag_hidden()) ? "?" : "!";
             std::stringstream piece_str;
-            piece_str << hidden << team << ":" << type << "." << version;
+            piece_str << hidden << " " << team << ":" << type << "." << version;
             return center(piece_str.str(), H_SIZE_PER_PIECE, " ");
         };
 
         std::stringstream board_print;
+        board_print << "\n";
         // column width for the row index plus vertical dash
         board_print << std::string(static_cast<unsigned long> (row_ind_space), ' ');
         // print the column index rows
-        for(int i = 0; i < nr_pieces; ++i) {
-            board_print << center(std::to_string(i), H_SIZE_PER_PIECE, " ");
+        for(int i = 0; i < dim; ++i) {
+            board_print << center(std::to_string(i), H_SIZE_PER_PIECE + 1, " ");
         }
+        board_print << "\n";
 
         std::string init_space = std::string(static_cast<unsigned long> (row_ind_space), ' ');
-        std::string h_border = std::string(static_cast<unsigned long> (nr_pieces * H_SIZE_PER_PIECE), '-');
+        std::string h_border = std::string(static_cast<unsigned long> (dim * (H_SIZE_PER_PIECE+1)), '-');
 
-        board_print << "\n" << init_space << h_border  << "\n";
-
+        board_print << init_space << h_border << "\n";
+        std::string init = board_print.str();
         std::shared_ptr<Piece> curr_piece;
-        int mid = V_SIZE_PER_PIECE / 2 + 1;
+        int mid = V_SIZE_PER_PIECE / 2;
 
-        for(int k = 0; k < dim; ++k) {
-            for(int i = 0; i < V_SIZE_PER_PIECE; ++i) {
+        // row means row of the board. not actual rows of console output.
+        for(int row = 0; row < dim; ++row) {
+            // per piece we have V_SIZE_PER_PIECE many lines to fill consecutively.
+            // Iterate over every column and append the new segment to the right line.
+            std::vector<std::stringstream> line_streams(static_cast<unsigned int> (V_SIZE_PER_PIECE));
 
-                if (i != mid) {
-                    std::string p = "|" + std::string(static_cast<unsigned long> (H_SIZE_PER_PIECE), ' ') + "|";
-                    board_print << std::string(static_cast<unsigned long> (row_ind_space), ' ') << p * nr_pieces;
-                }
-                else {
-                    // this happens when i == mid
-                    if (i < 10) {
-                        board_print << " " << i;
-                    } else {
-                        board_print << i;
+            for (int col = 0; col < dim; ++col) {
+
+                curr_piece = board[{row, col}];
+
+                for(int i = 0; i < V_SIZE_PER_PIECE; ++i) {
+
+                    std::stringstream curr_stream;
+
+                    if (i != mid) {
+                        if(col == 0) {
+                            curr_stream << std::string(static_cast<unsigned long> (row_ind_space), ' ');
+                        }
+                        std::string p = "|" +  std::string(static_cast<unsigned long> (H_SIZE_PER_PIECE), ' ');
+                        curr_stream << p;
                     }
+                    else {
+                        // i == mid
+                        if(col == 0) {
+                            if (row < 10)
+                                curr_stream << " " << row;
+                            else
+                                curr_stream << row;
 
-                    board_print << std::string(static_cast<unsigned long> (row_ind_space - 3), ' ') << "|";
-
-                    // iterate over all pieces of the board to get info and print to str
-                    for (int j = 0; j < dim; ++j) {
-                        curr_piece = board[{k, j}];
-                        board_print << "|" + create_piece_str(*curr_piece) + "|";
+                            curr_stream << std::string(static_cast<unsigned long> (row_ind_space - 2), ' ') << "|";
+                        }
+                        curr_stream << create_piece_str(*curr_piece);
+                        if(col != dim -1)
+                            curr_stream << "|";
                     }
+                    // extend the current line i by the new information
+                    line_streams[i] << curr_stream.str();
                 }
             }
-            board_print << "\n" << init_space << h_border  << "\n";
+            for(auto& stream : line_streams) {
+                board_print << stream.str() << "|\n";
+            }
+            board_print << init_space << h_border  << "\n";
         }
 
         std::string output = board_print.str();
         std::cout << output << std::endl;
+        int p = 3;
     }
 };
 
