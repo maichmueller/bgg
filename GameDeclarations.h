@@ -10,13 +10,24 @@
 #include "map"
 
 
-namespace GameTypes {
+namespace GameDeclarations {
     // should be of length 2 only however!
     using pos_type = std::vector<int>;
+
+    const std::vector<pos_type > obstacle_pos_s = {{2, 2}};
+    const std::vector<pos_type > obstacle_pos_m = {{3, 1}, {3, 5}};
+    const std::vector<pos_type > obstacle_pos_l = {{4, 2}, {5, 2}, {4, 3}, {5, 3}, {4, 6}, {5, 6}, {4, 7}, {5, 7}};
+
+    auto const & get_obstacle_pos(int game_len) {
+        if(game_len == 5) return obstacle_pos_s;
+        else if(game_len == 7) return obstacle_pos_m;
+        else if(game_len == 10) return obstacle_pos_l;
+        else throw std::invalid_argument("Game len not in [5, 7, 10].");
+    }
 }
 
 using namespace std;
-using namespace GameTypes;
+using namespace GameDeclarations;
 
 struct key_comp {
     bool operator() (const pos_type& lhs, const pos_type& rhs) const

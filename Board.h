@@ -29,6 +29,7 @@ private:
     map<pos_type, shared_ptr<Piece>, key_comp> board_map;
 
     bool check_pos_integrity(pos_type pos);
+    void place_obstacles();
 
 public:
     explicit Board(int board_len);

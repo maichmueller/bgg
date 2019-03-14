@@ -4,6 +4,10 @@
 
 #include "Board.h"
 
+void Board::place_obstacles() {
+    auto obs_pos = GameDeclarations::get_obstacle_pos(board_len);
+}
+
 
 Board::Board(int len)
         : board_len(len),
@@ -104,6 +108,8 @@ Board::Board(int len, std::map<pos_type, int> setup_0, std::map<pos_type, int> s
         auto piece = std::make_shared<Piece> (1, piece_type, pos, version);
         board_map[pos] = std::move(piece);
     }
+
+    for(auto& obs_pos : GameDeclarations::)
 }
 
 shared_ptr<Piece>& Board::operator[] (pos_type a)
