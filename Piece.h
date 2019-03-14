@@ -29,8 +29,8 @@ private:
 public:
     Piece(int team, int type, pos_type& pos, int version,
           bool hidden, bool has_moved, bool can_move);
-    Piece(int team, int type, pos_type& pos, int version);
-    explicit Piece(pos_type& pos);
+    Piece(int team, int type, const pos_type& pos, int version);
+    explicit Piece(const pos_type& pos);
     Piece();
 
     void set_version(int v) {version = v;}

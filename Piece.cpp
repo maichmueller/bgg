@@ -17,7 +17,7 @@ Piece::Piece(int team, int type, pos_type& pos, int version=1,
     null_piece = false;
 }
 
-Piece::Piece(int team, int type, pos_type& pos, int version=1)
+Piece::Piece(int team, int type, const pos_type& pos, int version=1)
         : null_piece(false), team(team), type(type),
           pos(pos), version(version),
           hidden(true), has_moved(false),
@@ -30,7 +30,7 @@ Piece::Piece(int team, int type, pos_type& pos, int version=1)
 }
 
 // a Null Piece Constructor
-Piece::Piece(pos_type& pos)
+Piece::Piece(const pos_type& pos)
         : null_piece(true), pos(pos), team(-1), type(-1), version(-1),
           hidden(false), has_moved(false),
           can_move(false)

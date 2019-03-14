@@ -5,7 +5,10 @@
 #include "Board.h"
 
 void Board::place_obstacles() {
-    auto obs_pos = GameDeclarations::get_obstacle_pos(board_len);
+    for(auto op : GameDeclarations::get_obstacle_pos(board_len)) {
+        auto obs = std::make_shared<Piece>(99, 99, op, -1, true, false, true);
+        board_map[op] = obs;
+    }
 }
 
 
@@ -26,6 +29,8 @@ Board::Board(int len)
             board_map[pos] = piece;
         }
     }
+
+    place_obstacles();
 }
 
 Board::Board(int len, vector<shared_ptr<Piece>> setup_0, vector<shared_ptr<Piece>> setup_1)
@@ -58,6 +63,8 @@ Board::Board(int len, vector<shared_ptr<Piece>> setup_0, vector<shared_ptr<Piece
         seen_pos_1[pos] = 1;
         board_map[pos] = piece;
     }
+
+    place_obstacles();
 }
 
 Board::Board(int len, std::map<pos_type, int> setup_0, std::map<pos_type, int> setup_1)
@@ -109,7 +116,7 @@ Board::Board(int len, std::map<pos_type, int> setup_0, std::map<pos_type, int> s
         board_map[pos] = std::move(piece);
     }
 
-    for(auto& obs_pos : GameDeclarations::)
+    place_obstacles();
 }
 
 shared_ptr<Piece>& Board::operator[] (pos_type a)

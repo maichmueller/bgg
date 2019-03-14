@@ -5,10 +5,6 @@
 #include "GameDeclarations.h"
 
 
-const vector<pos_type > GameDeclarations::obstacle_pos_s = {{2, 2}};
-const vector<pos_type > GameDeclarations::obstacle_pos_m = {{3, 1}, {3, 5}};
-const vector<pos_type > GameDeclarations::obstacle_pos_l = {{4, 2}, {5, 2}, {4, 3}, {5, 3}, {4, 6}, {5, 6}, {4, 7}, {5, 7}};
-
 const vector<int> ActionRep::available_types_s = {0, 1, 2, 2, 2, 3, 3, 10, 11, 11};
 const vector<int> ActionRep::available_types_m = {0, 1, 2, 2, 2, 2, 2, 3, 3, 3, 4,
                                                      4, 4, 5, 5, 6, 10, 11, 11, 11, 11};
