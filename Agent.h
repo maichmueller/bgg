@@ -18,6 +18,10 @@ class Agent {
     bool is_learner;
 
 public:
+    explicit Agent(int team, bool learner=false)
+    : team(team), is_learner(learner)
+    {
+    }
     std::vector<pos_type> decide_move(Board& board) {
         vector<vector<pos_type >> poss_moves = StrategoLogic::get_poss_moves(board, team);
         random_selector<> selector{};

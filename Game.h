@@ -8,6 +8,7 @@
 
 #include "GameState.h"
 #include "Agent.h"
+#include "utils.h"
 
 class Game {
 
@@ -23,9 +24,11 @@ class Game {
     bool fixed_setups;
 
 public:
-    Game(int board_len, std::shared_ptr<Agent> ag0, std::shared_ptr<Agent> ag1, bool fixed_setups=false);
-    Game(int board_len, std::shared_ptr<Agent> ag0, std::shared_ptr<Agent> ag1,
-            std::vector<std::shared_ptr<Piece>> setup_0, std::vector<std::shared_ptr<Piece>> setup_1);
+    Game(int board_l, const std::shared_ptr<Agent>& ag0, const std::shared_ptr<Agent>& ag1, bool f_setups);
+    Game(int board_l, const std::shared_ptr<Agent>& ag0, const std::shared_ptr<Agent>& ag1,
+         const std::vector<std::shared_ptr<Piece>>& setup_0,
+         const std::vector<std::shared_ptr<Piece>>& setup_1);
+    Game(int board_len, const std::shared_ptr<Agent>& ag0, const std::shared_ptr<Agent>& ag1, Board& board);
 
     void reset(bool fixed_setups= false);
 

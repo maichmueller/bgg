@@ -3,7 +3,9 @@ project(Stratego_CPP)
 
 set(CMAKE_CXX_STANDARD 17)
 
-set(COMMON_SOURCES GameState.cpp Game.cpp Piece.cpp Board.cpp GameDeclarations.cpp StrategoLogic.cpp Agent.cpp RandomSelector.h utils.cpp utils.h)
+set(COMMON_SOURCES utils.cpp GameState.cpp Game.cpp Piece.cpp
+        Board.cpp GameDeclarations.cpp StrategoLogic.cpp Agent.cpp
+        RandomSelector.h)
 set(TARGET_SOURCES main.cpp)
 # set(TEST_SOURCES  run_tests.cpp test_file1.cpp test_file2.cpp)
 add_executable(Stratego_CPP ${COMMON_SOURCES} ${TARGET_SOURCES})

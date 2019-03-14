@@ -50,11 +50,7 @@ public:
 
     void canonical_board(int player);
     void set_board(Board board) {this->board = std::move(board);}
-    Board* get_board() {
-        Board* b = &board;
-        return b;
-    }
-
+    Board* get_board() {return &board;}
 };
 
 

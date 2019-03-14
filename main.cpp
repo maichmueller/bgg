@@ -2,6 +2,7 @@
 #include "Board.h"
 #include "Piece.h"
 #include "GameState.h"
+#include "Game.h"
 #include "vector"
 #include "random"
 
@@ -33,13 +34,14 @@ int main() {
     setup_1[{3,3}] = 3;
     setup_1[{3,4}] = 2;
 
-    Board board_std(board_len);
     Board board_from_setups(board_len, setup_0, setup_1);
 
-    auto p = board_std[{2,1}];
-    pos_type new_pos = {1,1};
-    board_std.update_board(new_pos, p);
     std::cout << "Initialized boards.";
+
+    auto ag0 = std::make_shared<Agent> (0);
+    auto ag1 = std::make_shared<Agent> (1);
+    Game game(board_len, ag0, ag1, board_from_setups);
+    game.run_game(true);
 
     return 0;
 }

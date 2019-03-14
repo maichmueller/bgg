@@ -4,6 +4,28 @@
 
 #include "utils.h"
 
+using namespace utils;
+
+std::string utils::repeat(std::string str, const std::size_t n)
+{
+    if (n == 0) {
+        str.clear();
+        str.shrink_to_fit();
+        return str;
+    } else if (n == 1 || str.empty()) {
+        return str;
+    }
+    const auto period = str.size();
+    if (period == 1) {
+        str.append(n - 1, str.front());
+        return str;
+    }
+    str.reserve(period * n);
+    std::size_t m {2};
+    for (; m < n; m *= 2) str += str;
+    str.append(str.c_str(), (n - (m / 2)) * period);
+    return str;
+}
 
 std::string utils::center(const std::string &str, int width, const char* fillchar) {
 
@@ -14,33 +36,4 @@ std::string utils::center(const std::string &str, int width, const char* fillcha
     int pad1 = diff/2;
     int pad2 = diff - pad1;
     return std::string(pad1, *fillchar) + str + std::string(pad2, *fillchar);
-}
-
-template <typename Board>
-void utils::print_board(Board &board) {
-
-    int H_SIZE_PER_PIECE = 7;
-    int V_SIZE_PER_PIECE = 7;
-
-    int dim = board.get_board_len();
-    unsigned short multiplier = 2;
-    if(dim == 7)
-        multiplier = 3;
-    else if(dim == 10)
-        multiplier = 4;
-    else
-        throw std::invalid_argument("Board dimension not supported.");
-
-    std::stringstream board_print;
-    // column width for the row index plus vertical dash
-    board_print << std::string(4, ' ');
-    // print the column index rows
-    for(int i = 0; i < dim * multiplier; ++i) {
-        board_print << center(std::to_string(i), SIZE_PER_PIECE, " ");
-    }
-    board_print << "\n" << std::string(dim * SIZE_PER_PIECE, '-')  << "\n";
-
-
-    std::string output = board_print.str();
-    std::cout << output << std::endl;
 }
