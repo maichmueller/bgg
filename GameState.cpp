@@ -7,16 +7,18 @@
 
 GameState::GameState(int game_len)
 : board(game_len), terminal(404), terminal_checked(true),
-  move_count(0), canonical_teams(true)
+  move_count(0), canonical_teams(true), rounds_without_fight(0),
+  move_equals_prev_move(0), move_history(0)
 {
     map<int, int> team0_dead;
     map<int, int> team1_dead;
     dead_pieces = {team0_dead, team1_dead};
 }
 
-GameState::GameState(Board &board, int move_count)
+GameState::GameState(const Board &board, int move_count)
 : board(board), move_count(move_count), terminal(404), terminal_checked(false),
-    canonical_teams(true)
+  canonical_teams(true), rounds_without_fight(0), move_equals_prev_move(0),
+  move_history(0)
 {
     map<int, int> team_0_dead;
     map<int, int> team_1_dead;
@@ -37,12 +39,12 @@ GameState::GameState(Board &board, int move_count)
                 team_1_dead[piece.second->get_type()] -= 1;
         }
     }
-    check_terminal();
 }
 
-GameState::GameState(Board& board, array<map<int, int>, 2>& dead_pieces, int move_count)
+GameState::GameState(const Board& board, array<map<int, int>, 2>& dead_pieces, int move_count)
 : board(board), dead_pieces(dead_pieces), move_count(move_count),
-    terminal_checked(false), terminal(404), canonical_teams(true)
+  terminal_checked(false), terminal(404), canonical_teams(true), rounds_without_fight(0),
+  move_equals_prev_move(0), move_history(0)
 {
 }
 
@@ -68,16 +70,11 @@ void GameState::check_terminal(bool flag_only, int turn) {
     // committing draw rules here
     // Rule 1: If the moves of both players have been repeated 3 times.
     if(move_history.size() >= 6) {
-        auto last_move_0 = move_equals_prev_move.end();
-        bool last_move_1 = *(last_move_0 - 1);
-        bool last_move_2 = *(last_move_0 - 2);
-        bool last_move_3 = *(last_move_0 - 3);
-        bool last_move_4 = *(last_move_0 - 4);
-        bool last_move_5 = *(last_move_0 - 5);
+        auto move_end = move_equals_prev_move.end();
         // check if the moves of the one player are equal for the past 3 rounds
-        bool all_equal_0 = *last_move_0 && last_move_2 && last_move_4;
+        bool all_equal_0 = *(move_end - 2) && *(move_end - 4) && *(move_end - 6);
         // now check it for the other player
-        bool all_equal_1 = last_move_1 && last_move_3 && last_move_5;
+        bool all_equal_1 = *(move_end - 1) && *(move_end - 3)&& *(move_end - 5);
         if(all_equal_0 && all_equal_1)
             // players simply repeated their last 3 moves -> draw
             terminal = 0;
@@ -89,8 +86,8 @@ void GameState::check_terminal(bool flag_only, int turn) {
     terminal_checked = true;
 }
 
-int GameState::is_terminal(bool force_reload, int turn) {
-    if(!terminal_checked)
+int GameState::is_terminal(bool force_check, int turn) {
+    if(!terminal_checked || force_check)
         check_terminal(false, turn);
     return terminal;
 }
@@ -141,13 +138,13 @@ int GameState::do_move(vector<pos_type> &move) {
     piece_from->set_flag_has_moved();
 
     // save all info to the history
-    move_history.push_back(move);
     if(move_equals_prev_move.empty())
         move_equals_prev_move.push_back(false);
     else {
-        auto last_move = *move_history.end();
-        move_equals_prev_move.push_back(move[0] == last_move[0] && move[1] == last_move[1]);
+        auto& last_move = move_history.back();
+        move_equals_prev_move.push_back((move[0] == last_move[0]) && (move[1] == last_move[1]));
     }
+    move_history.push_back(move);
     // copying the pieces here, bc this way they can be fully restored (even with altered flags further on)
     // later on (needed e.g. in undoing last rounds)
     piece_history.push_back({std::make_shared<Piece>(*piece_from), std::make_shared<Piece>(*piece_to)});
@@ -157,6 +154,8 @@ int GameState::do_move(vector<pos_type> &move) {
         // unhide participant pieces
         piece_from->set_flag_unhidden();
         piece_to->set_flag_unhidden();
+
+        rounds_without_fight = 0;
 
         // engage in fight, since piece_to is not a null piece
         fight_outcome = fight(*piece_from, *piece_to);
@@ -191,8 +190,11 @@ int GameState::do_move(vector<pos_type> &move) {
         auto null_piece = std::make_shared<Piece> (from);
         board.update_board(from, null_piece);
         board.update_board(to, piece_from);
+
+        rounds_without_fight += 1;
     }
-    inc_move_count();
+    move_count += 1;
+    terminal_checked = false;
     return fight_outcome;
 }
 

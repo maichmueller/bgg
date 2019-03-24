@@ -6,6 +6,10 @@
 #define STRATEGO_CPP_GAME_H
 
 
+#include <random>
+#include <algorithm>
+#include <iterator>
+
 #include "GameState.h"
 #include "Agent.h"
 #include "utils.h"
@@ -30,7 +34,7 @@ public:
          const std::vector<std::shared_ptr<Piece>>& setup_1);
     Game(int board_len, const std::shared_ptr<Agent>& ag0, const std::shared_ptr<Agent>& ag1, Board& board);
 
-    void reset(bool fixed_setups= false);
+    void reset();
 
     int run_game(bool show);
     int run_step();
@@ -40,8 +44,7 @@ public:
     std::shared_ptr<Agent> get_agent_0() {return agent_0;}
     std::shared_ptr<Agent> get_agent_1() {return agent_1;}
 
-
-
+    std::map<pos_type, int > draw_random_setup(int team);
 };
 
 

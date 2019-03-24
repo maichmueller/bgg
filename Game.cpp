@@ -48,6 +48,8 @@ int Game::run_game(bool show=true) {
             game_over = true;
     }
     print_board(*game_state.get_board());
+
+    std::cout << "Status: " << game_state.is_terminal() << std::endl;
     return rewards;
 }
 
@@ -61,7 +63,57 @@ int Game::run_step() {
         move = agent_0->decide_move(*game_state.get_board());
 
     game_state.do_move(move);
+    std::cout << "Move: (" << move[0][0] << ", " << move[0][1] << ") -> (" << move[1][0] << ", " << move[1][1] << ")" << std::endl;
+
+    auto board = game_state.get_board();
+    int nr_team_0 = 0;
+    int nr_team_1 = 0;
+    for(auto& piece : *board) {
+        if(!piece.second->is_null()) {
+            if(piece.second->get_team() == 0)
+                nr_team_0 += 1;
+            else if(piece.second->get_team() == 1)
+                nr_team_1 += 1;
+        }
+    }
+
     // test for terminality
     int terminal = game_state.is_terminal();
+
+    std::cout << "Status: " << terminal << std::endl;
     return terminal;
+}
+
+
+void Game::reset() {
+    auto setup_0 = draw_random_setup(0);
+    auto setup_1 = draw_random_setup(1);
+    Board
+}
+
+
+std::map<pos_type, int > Game::draw_random_setup(int team) {
+    auto avail_types = GameDeclarations::get_available_types(board_len);
+
+    std::vector<pos_type > poss_pos = GameDeclarations::get_start_positions(board_len, team);
+
+    std::map<pos_type, int > setup_out;
+
+    std::random_device rd;
+    std::mt19937 rng(rd());
+
+    std::shuffle(poss_pos.begin(), poss_pos.end(), rng);
+    std::shuffle(avail_types.begin(), avail_types.end(), rng);
+
+    while(!poss_pos.empty()) {
+        auto& pos = poss_pos.back();
+        auto& type = avail_types.back();
+
+        setup_out[pos] = type;
+
+        poss_pos.pop_back();
+        avail_types.pop_back();
+    }
+
+    return setup_out;
 }

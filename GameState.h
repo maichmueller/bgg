@@ -31,14 +31,13 @@ class GameState {
 
 public:
     explicit GameState(int game_len);
-    GameState(Board& board, int move_count=0);
-    GameState(Board& board, array<map<int, int>, 2>& dead_pieces, int move_count);
+    GameState(const Board& board, int move_count=0);
+    GameState(const Board& board, array<map<int, int>, 2>& dead_pieces, int move_count);
+    GameState(int len, std::map<pos_type, int> setup_0, std::map<pos_type, int> setup_1);
     void check_terminal(bool flag_only=false, int turn=0);
     int do_move(vector<pos_type>& move);
     int fight(Piece& attacker, Piece& defender);
-    int is_terminal(bool force_reload=false, int turn=0);
-
-    void inc_move_count() {move_count += 1;}
+    int is_terminal(bool force_check=false, int turn=0);
 
     void restore_to_round(int round);
     void undo_last_n_rounds(int n);

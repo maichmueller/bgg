@@ -12,6 +12,7 @@
 
 #include "Piece.h"
 #include "GameDeclarations.h"
+#include "utils.h"
 
 
 using namespace std;
@@ -43,6 +44,7 @@ public:
     map<pos_type, shared_ptr<Piece>, key_comp>& get_board_map() {return board_map;}
     vector<pos_type>& get_keys() {return keys;}
     void update_board(pos_type& pos, shared_ptr<Piece> pc);
+    void print_board();
 
 };
 

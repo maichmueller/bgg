@@ -38,9 +38,10 @@ int main() {
 
     std::cout << "Initialized boards.";
 
-    auto ag0 = std::make_shared<Agent> (0);
-    auto ag1 = std::make_shared<Agent> (1);
+    auto ag0 = std::make_shared<RandomAgent<>> (0);
+    auto ag1 = std::make_shared<RandomAgent<>> (1);
     Game game(board_len, ag0, ag1, board_from_setups);
+    board_from_setups.print_board();
     game.run_game(true);
 
     return 0;

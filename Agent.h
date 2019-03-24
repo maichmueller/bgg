@@ -13,7 +13,7 @@
 
 
 class Agent {
-
+protected:
     int team;
     bool is_learner;
 
@@ -22,13 +22,30 @@ public:
     : team(team), is_learner(learner)
     {
     }
-    std::vector<pos_type> decide_move(Board& board) {
-        vector<vector<pos_type >> poss_moves = StrategoLogic::get_poss_moves(board, team);
-        random_selector<> selector{};
-        return selector(poss_moves);
-    }
+
+    virtual std::vector<pos_type> decide_move(Board& board) = 0;
 
 };
 
+template <typename RDev = std::random_device>
+class RandomAgent : public Agent {
 
+    RDev dev;
+    std::mt19937 rng;
+
+
+public:
+
+    explicit RandomAgent(int team)
+    : Agent(team), rng(dev())
+    {}
+
+    std::vector<pos_type> decide_move(Board &board) {
+        vector<vector<pos_type >> poss_moves = StrategoLogic::get_poss_moves(board, team);
+
+        std::uniform_int_distribution<std::mt19937::result_type> dist(0, poss_moves.size()-1);
+
+        return poss_moves[dist(rng)];
+    }
+};
 #endif //STRATEGO_CPP_AGENT_H

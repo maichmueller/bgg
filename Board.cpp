@@ -155,10 +155,10 @@ typename Board::iterator Board::end()
 
 bool Board::check_pos_integrity(pos_type pos)
 {
-    if(pos[0] < 0 || pos[0] >= board_len) {
+    if(pos[0] < 0 || board_len <= pos[0]) {
         return false;
     }
-    else if(pos[1] < 0 || pos[1] >= board_len) {
+    else if(pos[1] < 0 || board_len <= pos[1]) {
         return false;
     }
     else {
@@ -174,4 +174,8 @@ void Board::update_board(pos_type& pos, shared_ptr<Piece> pc_ptr)
         board_map[pos] = pc_ptr;
     else
         throw invalid_argument("Supplied position out of bounds.");
+}
+
+void Board::print_board() {
+    utils::print_board<Board, Piece>(*this);
 }

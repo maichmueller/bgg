@@ -13,7 +13,7 @@ map<array<int,2>, int> StrategoLogic::initialize_battle_matrix() {
     for(int i = 1; i < 11; ++i) {
         bm[{i, i}] = 0;
         for(int j = i+1; j < 11; ++j) {
-            bm[{i, i}] = -1;
+            bm[{i, j}] = -1;
             bm[{j, i}] = 1;
         }
         bm[{i, 0}] = 1;
@@ -33,7 +33,7 @@ pos_type StrategoLogic::pos_ident(int &len, pos_type& pos) {
 }
 
 pos_type StrategoLogic::pos_invert(int &len, pos_type &pos) {
-    pos_type p = {len - 1 - pos[0], len - 1 - pos[1]};
+    pos_type p = {len - pos[0], len - pos[1]};
     return p;
 }
 
@@ -66,7 +66,7 @@ bool StrategoLogic::is_legal_move(Board &board, vector<pos_type> &move, bool fli
         canonize_team = &StrategoLogic::team_invert;
     }
 
-    int board_len = board.get_board_len();
+    int board_len = board.get_board_len() - 1;
 
     pos_type pos_before = move[0];
     pos_type pos_after = move[1];
@@ -81,7 +81,7 @@ bool StrategoLogic::is_legal_move(Board &board, vector<pos_type> &move, bool fli
         return false;
 
     shared_ptr<Piece> p_b = board[pos_before];
-    shared_ptr<Piece> p_a = board[pos_before];
+    shared_ptr<Piece> p_a = board[pos_after];
 
     pos_before = canonize_pos(board_len, move[0]);
     pos_after = canonize_pos(board_len, move[1]);
@@ -114,7 +114,7 @@ bool StrategoLogic::is_legal_move(Board &board, vector<pos_type> &move, bool fli
             int dist = pos_after[0] - pos_before[0];
             int sign = (dist >= 0) ? 1 : -1;
             for(int i = pos_before[0] + sign; i < pos_after[0]; i = i + sign) {
-                pos_type pos = {pos_before[1], i};
+                pos_type pos = {i, pos_before[1]};
                 if(!board[canonize_pos(board_len, pos)]->is_null())
                     return false;
             }
@@ -281,8 +281,8 @@ void StrategoLogic::enable_legal_action(vector<int>& action_mask, Board& board,
         // if the move is legal we want to set the action_mask at the
         // right index to 1
         pos_type action_base = {pos_to[0] - pos[0], pos_to[1] - pos[1]};
-        vector<vector<int>> slice;
-        for(int& idx : act_range) {slice.push_back(action_arr[idx]);}
+        vector<vector<int>> slice(act_range.size());
+        for(int& idx : act_range) {slice[idx] = action_arr[idx];}
         int idx = StrategoLogic::find_action_idx(slice, action_base);
         action_mask[idx] = 1;
     }
