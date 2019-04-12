@@ -34,15 +34,25 @@ int main() {
     setup_1[{3,3}] = 3;
     setup_1[{3,4}] = 2;
 
-    Board board_from_setups(board_len, setup_0, setup_1);
+    // Board board_from_setups(board_len, setup_0, setup_1);
 
-    std::cout << "Initialized boards.";
+    std::cout << "Initialized boards." << endl;
 
-    auto ag0 = std::make_shared<RandomAgent<>> (0);
-    auto ag1 = std::make_shared<RandomAgent<>> (1);
-    Game game(board_len, ag0, ag1, board_from_setups);
-    board_from_setups.print_board();
-    game.run_game(true);
+    std::random_device r;
+    for(int i=0; i < 50; ++i) {
+        std::cout<< r() << endl;
+    }
+
+//
+//    auto ag0 = std::make_shared<RandomAgent<>> (0);
+//    auto ag1 = std::make_shared<RandomAgent<>> (1);
+//    Game game(board_len, ag0, ag1);
+//    for(int i = 0; i < 50; ++i) {
+//        std::cout << "Game: " << i << std::endl;
+//        game.run_game(false);
+//        game.reset();
+//        //utils::print_board<Board, Piece>(*game.get_gamestate().get_board());
+//    }
 
     return 0;
 }

@@ -31,7 +31,7 @@ GameState::GameState(const Board &board, int move_count)
         team_0_dead[type] += 1;
         team_1_dead[type] += 1;
     }
-    for(auto& piece : board) {
+    for(const auto& piece : board) {
         if( !(piece.second->is_null()) ) {
             if(piece.second->get_team() == 0)
                 team_0_dead[piece.second->get_type()] -= 1;
@@ -46,6 +46,16 @@ GameState::GameState(const Board& board, array<map<int, int>, 2>& dead_pieces, i
   terminal_checked(false), terminal(404), canonical_teams(true), rounds_without_fight(0),
   move_equals_prev_move(0), move_history(0)
 {
+}
+
+GameState::GameState(int len, const std::map<pos_type, int>& setup_0, const std::map<pos_type, int>& setup_1)
+: board(len, setup_0, setup_1), dead_pieces(), move_count(0),
+  terminal_checked(false), terminal(404), canonical_teams(true), rounds_without_fight(0),
+  move_equals_prev_move(0), move_history(0)
+{
+    map<int, int> team0_dead;
+    map<int, int> team1_dead;
+    dead_pieces = {team0_dead, team1_dead};
 }
 
 void GameState::check_terminal(bool flag_only, int turn) {

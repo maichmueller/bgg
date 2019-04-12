@@ -25,15 +25,14 @@ Board::Board(int len)
         for(int j = 0; j < board_len; j++) {
             pos_type pos = {i, j};
             keys[i * board_len + j] = pos;
-            auto piece = std::make_shared<Piece> (pos);
-            board_map[pos] = piece;
+            board_map[pos] = std::make_shared<Piece> (pos);
         }
     }
 
     place_obstacles();
 }
 
-Board::Board(int len, vector<shared_ptr<Piece>> setup_0, vector<shared_ptr<Piece>> setup_1)
+Board::Board(int len, const vector<shared_ptr<Piece>>& setup_0, const vector<shared_ptr<Piece>>& setup_1)
         : Board(len)
 {
     map<pos_type, int, key_comp> seen_pos_0;
@@ -47,7 +46,7 @@ Board::Board(int len, vector<shared_ptr<Piece>> setup_0, vector<shared_ptr<Piece
         }
 
         seen_pos_0[pos] = 1;
-        board_map[pos] = std::move(piece);
+        board_map[pos] = piece;
     }
 
     map<pos_type, int, key_comp> seen_pos_1;
@@ -67,7 +66,7 @@ Board::Board(int len, vector<shared_ptr<Piece>> setup_0, vector<shared_ptr<Piece
     place_obstacles();
 }
 
-Board::Board(int len, std::map<pos_type, int> setup_0, std::map<pos_type, int> setup_1)
+Board::Board(int len, const std::map<pos_type, int>& setup_0, const std::map<pos_type, int>& setup_1)
         : Board(len)
 {
     map<pos_type, int, key_comp> seen_pos_0;
@@ -103,7 +102,7 @@ Board::Board(int len, std::map<pos_type, int> setup_0, std::map<pos_type, int> s
         if(it != seen_pos_1.end())
         {
             //element found
-            throw invalid_argument("Parameter setup 0 has duplicate piece positions.");
+            throw invalid_argument("Parameter setup 1 has duplicate piece positions.");
         }
 
         seen_pos_1[pos] = 1;
@@ -149,6 +148,16 @@ typename Board::iterator Board::begin()
 
 
 typename Board::iterator Board::end()
+{
+    return board_map.end();
+}
+
+typename Board::const_iterator Board::begin() const
+{
+    return board_map.begin();
+}
+
+typename Board::const_iterator Board::end() const
 {
     return board_map.end();
 }

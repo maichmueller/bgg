@@ -33,7 +33,7 @@ public:
     explicit GameState(int game_len);
     GameState(const Board& board, int move_count=0);
     GameState(const Board& board, array<map<int, int>, 2>& dead_pieces, int move_count);
-    GameState(int len, std::map<pos_type, int> setup_0, std::map<pos_type, int> setup_1);
+    GameState(int len, const std::map<pos_type, int>& setup_0, const std::map<pos_type, int>& setup_1);
     void check_terminal(bool flag_only=false, int turn=0);
     int do_move(vector<pos_type>& move);
     int fight(Piece& attacker, Piece& defender);

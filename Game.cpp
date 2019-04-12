@@ -8,30 +8,21 @@
 Game::Game(int board_l, const std::shared_ptr<Agent>& ag0, const std::shared_ptr<Agent>& ag1, bool f_setups)
     : board_len(board_l), game_state(board_l),
       agent_0(ag0), agent_1(ag1), fixed_setups(f_setups),
-      setup_0(0), setup_1(0)
-{}
+      setup_0(), setup_1()
+{
+    reset();
+}
 
 Game::Game(int board_l, const std::shared_ptr<Agent>& ag0, const std::shared_ptr<Agent>& ag1,
-           const std::vector<std::shared_ptr<Piece>>& setup_0,
-           const std::vector<std::shared_ptr<Piece>>& setup_1)
-    : board_len(board_l), game_state(board_l),
+           const std::map<pos_type, int>& setup_0,
+           const std::map<pos_type, int>& setup_1)
+    : board_len(board_l), game_state(board_l, setup_0, setup_1),
       agent_0(ag0), agent_1(ag1), fixed_setups(true),
       setup_0(setup_0), setup_1(setup_1)
-{
-    Board board(board_len);
-
-    for(auto const & piece : setup_0)
-        board[piece->get_position()] = piece;
-
-    for(auto const & piece : setup_1)
-        board[piece->get_position()] = piece;
-
-    game_state = GameState(board);
-}
+{}
 
 Game::Game(int board_len, const std::shared_ptr<Agent>& ag0, const std::shared_ptr<Agent>& ag1, Board &board)
     : board_len(board_len), agent_0(ag0), agent_1(ag1), game_state(board, 0)
-
 {}
 
 int Game::run_game(bool show=true) {
@@ -44,7 +35,7 @@ int Game::run_game(bool show=true) {
     while(!game_over) {
         print_board(*game_state.get_board());
         rewards = run_step();
-        if(rewards != 404)
+        if(rewards != 404) 
             game_over = true;
     }
     print_board(*game_state.get_board());
@@ -86,13 +77,17 @@ int Game::run_step() {
 
 
 void Game::reset() {
-    auto setup_0 = draw_random_setup(0);
-    auto setup_1 = draw_random_setup(1);
-    Board
+    auto setup_team_0 = setup_0;
+    auto setup_team_1 = setup_1;
+    if(!fixed_setups) {
+        setup_team_0 = draw_random_setup(0);
+        setup_team_1 = draw_random_setup(1);
+    }
+    game_state = GameState(board_len, setup_team_0, setup_team_1);
 }
 
 
-std::map<pos_type, int > Game::draw_random_setup(int team) {
+std::map<pos_type, int> Game::draw_random_setup(int team) {
     auto avail_types = GameDeclarations::get_available_types(board_len);
 
     std::vector<pos_type > poss_pos = GameDeclarations::get_start_positions(board_len, team);
@@ -101,7 +96,6 @@ std::map<pos_type, int > Game::draw_random_setup(int team) {
 
     std::random_device rd;
     std::mt19937 rng(rd());
-
     std::shuffle(poss_pos.begin(), poss_pos.end(), rng);
     std::shuffle(avail_types.begin(), avail_types.end(), rng);
 
