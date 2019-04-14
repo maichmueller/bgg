@@ -26,7 +26,7 @@ GameState::GameState(const Board &board, int move_count)
     int len = board.get_board_len();
     vector<int> avail_types;
     // copy the available types
-    avail_types = ActionRep::get_available_types(len);
+    avail_types = GameDeclarations::get_available_types(len);
     for(auto type: avail_types) {
         team_0_dead[type] += 1;
         team_1_dead[type] += 1;

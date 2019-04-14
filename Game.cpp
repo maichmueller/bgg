@@ -28,17 +28,17 @@ Game::Game(int board_len, const std::shared_ptr<Agent>& ag0, const std::shared_p
 int Game::run_game(bool show=true) {
     int game_over = false;
     int rewards = 404;
-    std::function<void(Board&)> print_board = [](Board& board) -> void {return;};
+    std::function<void(Board&, bool, bool)> print_board = [](Board& board, bool n, bool m) -> void {return;};
     if(show)
         print_board = &utils::print_board<Board, Piece>;
 
     while(!game_over) {
-        print_board(*game_state.get_board());
+        print_board(*game_state.get_board(), false, false);
         rewards = run_step();
         if(rewards != 404) 
             game_over = true;
     }
-    print_board(*game_state.get_board());
+    print_board(*game_state.get_board(), false, false);
 
     std::cout << "Status: " << game_state.is_terminal() << std::endl;
     return rewards;

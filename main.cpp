@@ -38,20 +38,16 @@ int main() {
 
     std::cout << "Initialized boards." << endl;
 
-    std::random_device r;
-    for(int i=0; i < 50; ++i) {
-        std::cout<< r() << endl;
-    }
-
-//
-//    auto ag0 = std::make_shared<RandomAgent<>> (0);
-//    auto ag1 = std::make_shared<RandomAgent<>> (1);
-//    Game game(board_len, ag0, ag1);
+    auto ag0 = std::make_shared<RandomAgent<>> (0);
+    auto ag1 = std::make_shared<RandomAgent<>> (1);
+    Game game(board_len, ag0, ag1);
+    utils::print_board<Board, Piece>(*game.get_gamestate()->get_board());
+    utils::print_board<Board, Piece>(*game.get_gamestate()->get_board(), true);
 //    for(int i = 0; i < 50; ++i) {
 //        std::cout << "Game: " << i << std::endl;
-//        game.run_game(false);
+//        utils::print_board<Board, Piece>(*game.get_gamestate()->get_board());
+//        game.run_game(true);
 //        game.reset();
-//        //utils::print_board<Board, Piece>(*game.get_gamestate().get_board());
 //    }
 
     return 0;

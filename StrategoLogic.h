@@ -6,6 +6,7 @@
 #define STRATEGO_CPP_STRATEGOLOGIC_H
 
 #include "Board.h"
+#include <functional>
 
 class StrategoLogic {
 

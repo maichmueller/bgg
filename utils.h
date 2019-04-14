@@ -24,46 +24,44 @@ namespace utils {
         return repeat(std::move(str), n);
     }
 
-
     template <typename Board, typename Piece>
-    void print_board(Board &board) {
-
+    std::string board_str_rep(Board& board, bool flip_board=false, bool hide_unknowns=false) {
         int H_SIZE_PER_PIECE = 9;
         int V_SIZE_PER_PIECE = 3;
-        // the space needed to assign row indices to the rows and add a splitting bar "|"
+        // the space needed to assign row indices to the rows and to add a splitting bar "|"
         int row_ind_space = 4;
 
         int mid = V_SIZE_PER_PIECE / 2;
 
         int dim = board.get_board_len();
-        unsigned short multiplier = 2;
-        if(dim == 5)
-            ;
-        else if(dim == 7)
-            multiplier = 3;
-        else if(dim == 10)
-            multiplier = 4;
-        else
+
+        if(dim != 5 && dim != 7 && dim != 10)
             throw std::invalid_argument("Board dimension not supported.");
 
-        int nr_pieces = dim * multiplier;
-
-        // piece string lambda function that throws out a str of the sort "-1:10.1"
-        auto create_piece_str = [&H_SIZE_PER_PIECE, &mid] (Piece& piece, int line) {
+        // piece string lambda function that returns a str of the sort "-1 \n 10.1 \n 1"
+        auto create_piece_str = [&H_SIZE_PER_PIECE, &mid, &flip_board, &hide_unknowns] (Piece& piece, int line) {
             if(piece.is_null())
                 return std::string(static_cast<unsigned long> (H_SIZE_PER_PIECE), ' ');
             if(piece.get_team() == 99)
                 return center("X", H_SIZE_PER_PIECE, " ");
             if(line == mid-1) {
-                std::string h = piece.get_flag_hidden() ? "?" : "!";
+                // hidden info line
+                std::string h = piece.get_flag_hidden() ? "?" : " ";
                 return center(h, H_SIZE_PER_PIECE, " ");
             }
-            else if(line == mid)
+            else if(line == mid) {
+                // type and version info line
+                if(hide_unknowns && piece.get_flag_hidden() && piece.get_team(flip_board)){
+                    return std::string(static_cast<unsigned long> (H_SIZE_PER_PIECE), ' ');
+                }
                 return center(std::to_string(piece.get_type()) + '.' + std::to_string(piece.get_version()),
-                        H_SIZE_PER_PIECE, " ");
+                              H_SIZE_PER_PIECE, " ");
+            }
             else if(line == mid+1)
-                return center(std::to_string(piece.get_team()), H_SIZE_PER_PIECE, " ");
+                // team info line
+                return center(std::to_string(piece.get_team(flip_board)), H_SIZE_PER_PIECE, " ");
             else
+                // empty line
                 return std::string(static_cast<unsigned long> (H_SIZE_PER_PIECE), ' ');
 
         };
@@ -93,7 +91,11 @@ namespace utils {
 
             for (int col = 0; col < dim; ++col) {
 
-                curr_piece = board[{row, col}];
+                if(flip_board) {
+                    curr_piece = board[{dim - 1 - row, dim - 1 - col}];
+                }
+                else
+                    curr_piece = board[{row, col}];
 
                 for(int i = 0; i < V_SIZE_PER_PIECE; ++i) {
 
@@ -129,9 +131,13 @@ namespace utils {
             board_print << init_space << h_border  << "\n";
         }
 
-        std::string output = board_print.str();
+        return board_print.str();
+    }
+
+    template <typename Board, typename Piece>
+    void print_board(Board &board, bool flip_board=false, bool hide_unknowns=false) {
+        std::string output = board_str_rep<Board, Piece>(board, flip_board, hide_unknowns);
         std::cout << output << std::endl;
-        int p = 3;
     }
 
 //    template <typename Board, typename Piece>

@@ -9,6 +9,7 @@
 #include <random>
 #include <algorithm>
 #include <iterator>
+#include <functional>
 
 #include "GameState.h"
 #include "Agent.h"
@@ -48,7 +49,7 @@ public:
 
     std::shared_ptr<Agent> get_agent_0() {return agent_0;}
     std::shared_ptr<Agent> get_agent_1() {return agent_1;}
-    auto& get_gamestate() {return game_state;}
+    auto* get_gamestate() {return &game_state;}
 
     std::map<pos_type, int > draw_random_setup(int team);
 };

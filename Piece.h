@@ -39,8 +39,14 @@ public:
     void set_position(pos_type& p) {pos = p;}
 
     bool is_null() {return null_piece;}
-    pos_type get_position() {return pos;}
-    int get_team() {return team;}
+    pos_type get_position(bool flip_position=false, int dim=0) {
+        if(flip_position) {
+            return {dim - pos[0], dim - pos[1]};
+        }
+        else
+            return pos;
+    }
+    int get_team(bool flip_team=false) {return (flip_team) ? 1 - team : team;}
     int get_type() {return type;}
     int get_version() {return version;}
     bool get_flag_hidden() {return hidden;}

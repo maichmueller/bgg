@@ -176,11 +176,18 @@ struct ActionRep {
         return 0;
     }
 
-    static auto const & get_available_types(int game_len) {
-        if(game_len == 5) return available_types_s;
-        else if(game_len == 7) return available_types_m;
-        else if(game_len == 10) return available_types_l;
-        else throw invalid_argument("Game len not in [5, 7, 10].");
+    static auto const & get_act_rep(int game_len) {
+        if(game_len == 5) return action_ar_s;
+        else if(game_len == 7) return action_ar_m;
+        else if(game_len == 10) return action_ar_l;
+        else throw invalid_argument("Game length not in [5, 7, 10].");
+    }
+
+    static auto const & get_act_map(int game_len) {
+        if(game_len == 5) return piece_act_map_s;
+        else if(game_len == 7) return piece_act_map_m;
+        else if(game_len == 10) return piece_act_map_l;
+        else throw invalid_argument("Game length not in [5, 7, 10].");
     }
 
 };
