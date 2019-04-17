@@ -16,13 +16,13 @@
 
 struct StringIntHasher {
     std::hash<std::string> hasher;
-    size_t operator()(std::tuple<std::string, int>& s) {
+    size_t operator()(const std::tuple<std::string, int>& s) const {
         return hasher(std::get<0>(s) + std::to_string(std::get<1>(s)));
     }
 };
 
 struct StringIntEqCompare {
-    bool operator()(const std::tuple<std::string, int>& s1, const std::tuple<std::string, int>& s2) {
+    bool operator()(const std::tuple<std::string, int>& s1, const std::tuple<std::string, int>& s2) const {
         return (std::get<0>(s1) == std::get<0>(s2)) && (std::get<1>(s1) == std::get<1>(s2));
     }
 };
@@ -38,12 +38,11 @@ class MCTS {
     std::unordered_map<std::tuple<std::string, int>, int, StringIntHasher, StringIntEqCompare> Qsa;
     std::unordered_map<std::tuple<std::string, int>, int, StringIntHasher, StringIntEqCompare> Nsa;
 
-    // for consistency reasons the tuple is being kept here
     // maps for visit counts (N), initial policy (P), terminality (E), valid actions (V) per state s
-    std::unordered_map<std::tuple<std::string>, int> Ns;
-    std::unordered_map<std::tuple<std::string>, int> Ps;
-    std::unordered_map<std::tuple<std::string>, int> Es;
-    std::unordered_map<std::tuple<std::string>, int> Vs;
+    std::unordered_map<std::string, int> Ns;
+    std::unordered_map<std::string, int> Ps;
+    std::unordered_map<std::string, int> Es;
+    std::unordered_map<std::string, int> Vs;
 
 public:
 

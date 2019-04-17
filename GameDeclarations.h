@@ -99,7 +99,6 @@ namespace GameDeclarations {
     }
 }
 
-using namespace std;
 using namespace GameDeclarations;
 
 struct key_comp {
@@ -125,23 +124,29 @@ struct key_comp {
 
 struct ActionRep {
 
-    static const vector<vector<int>> action_ar_s;
-    static const vector<vector<int>> action_ar_m;
-    static const vector<vector<int>> action_ar_l;
+    static const std::vector<std::vector<int>> action_ar_s;
+    static const std::vector<std::vector<int>> action_ar_m;
+    static const std::vector<std::vector<int>> action_ar_l;
 
-    static const map<vector<int>, vector<int>> piece_act_map_s;
-    static const map<vector<int>, vector<int>> piece_act_map_m;
-    static const map<vector<int>, vector<int>> piece_act_map_l;
+    static const std::map<std::vector<int>, std::vector<int>> piece_act_map_s;
+    static const std::map<std::vector<int>, std::vector<int>> piece_act_map_m;
+    static const std::map<std::vector<int>, std::vector<int>> piece_act_map_l;
 
     static int fill_act_vector(
-            vector<vector<int>>& action_ar,
-            vector<int> const & available_types,
-            map<vector<int>, vector<int>>& piece_act_map
+            std::vector<std::vector<int>>& action_ar,
+            std::vector<int> const & available_types,
+            std::map<std::vector<int>, std::vector<int>>& piece_act_map
     )
     {
         int curr_idx = 0;
         int curr_type = -1;
         int curr_version = -1;
+        /*
+            we want to iterate over every type of piece (as often as this type exists)
+            and add the move-changes, i.e. the pos-vector that needs to be added to the
+            current position of the piece. These quasi-moves for each type are added in
+            sequence to the action_arr.
+        */
         for(auto& type : available_types) {
             if(0 < type && type < 11) {
                 if(curr_type != type) {
@@ -153,12 +158,13 @@ struct ActionRep {
 
                 int temp_idx = curr_idx;
 
+                // if its of type 2 it can reach further -> encoded in the stop_len
                 int stop_len;
                 if(type != 2)
                     stop_len = 2;
                 else
                     stop_len = 5;
-
+                // add all four directions in which the piece can walk
                 for(int i = 1; i < stop_len; ++i) {
                     action_ar[curr_idx] = {0, i};
                     action_ar[curr_idx + 1] = {i, 0};
@@ -166,8 +172,9 @@ struct ActionRep {
                     action_ar[curr_idx + 3] = {0, -i};
                     curr_idx += 4;
                 }
-
-                vector<int> this_asign(static_cast<unsigned long> (curr_idx - temp_idx));
+                // here we remember the index numbers of the moves, that are assigned to this
+                // specific piece-type and version.
+                std::vector<int> this_asign(static_cast<unsigned long> (curr_idx - temp_idx));
                 for(int i = 0; i < this_asign.size(); ++i)
                     this_asign[i] = temp_idx + i;
                 piece_act_map[{curr_type, curr_version}] = this_asign;
@@ -180,14 +187,14 @@ struct ActionRep {
         if(game_len == 5) return action_ar_s;
         else if(game_len == 7) return action_ar_m;
         else if(game_len == 10) return action_ar_l;
-        else throw invalid_argument("Game length not in [5, 7, 10].");
+        else throw std::invalid_argument("Game length not in [5, 7, 10].");
     }
 
     static auto const & get_act_map(int game_len) {
         if(game_len == 5) return piece_act_map_s;
         else if(game_len == 7) return piece_act_map_m;
         else if(game_len == 10) return piece_act_map_l;
-        else throw invalid_argument("Game length not in [5, 7, 10].");
+        else throw std::invalid_argument("Game length not in [5, 7, 10].");
     }
 
 };

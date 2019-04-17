@@ -9,8 +9,6 @@
 #include "GameDeclarations.h"
 
 
-using namespace std;
-
 using namespace GameDeclarations;
 
 

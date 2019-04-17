@@ -15,19 +15,22 @@ std::vector<double> MCTS::get_action_probs(StateType& state, int player, double 
     std::vector counts(ActionRep::get_act_rep(state->get_board()->get_board_len()).size());
     //
     double sum_counts = 0;
-    double highest_prob = 0;
+    double highest_count = 0;
     int best_act = 0;
     for(int a = 0; a < counts.size(); ++a) {
-        auto count = Nsa.find(std::make_tuple(state_rep, a));
-        if (count == Nsa.end()) {
+        auto count_entry = Nsa.find(std::make_tuple(state_rep, a));
+        if (count_entry == Nsa.end()) {
             // not found
             counts[a] = 0;
         } else {
             // found
-            counts[a] = *count;
-            sum_counts += *count;
-            if (*count > highest_prob)
+            int& count = count_entry->second;
+            counts[a] = count;
+            sum_counts += count;
+            if (count > highest_count) {
                 best_act = a;
+                highest_count = count;
+            }
         }
     }
     if(sum_counts == 0) {
@@ -62,13 +65,13 @@ int MCTS::search(StateType& state, int player, bool root) {
     auto state_end_found = Es.find(state_rep);
     if(state_end_found == Es.end())
         Es[state_rep] = state.is_terminal();
-    else if(*state_end_found != 404)
-        return - *state_end_found;
+    else if(state_end_found->second != 404)
+        return - state_end_found->second;
 
     auto state_pi_found = Ps.find(state_rep);
-    if(state_pi_found == Ps.end()) {
-        auto prediction = nnet->predict()
-    }
+//    if(state_pi_found == Ps.end()) {
+//        auto prediction = nnet->predict();
+//    }
     //
     //
     //

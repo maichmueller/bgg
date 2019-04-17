@@ -23,7 +23,8 @@ public:
     {
     }
 
-    virtual std::vector<pos_type> decide_move(Board& board) = 0;
+    virtual std::vector<pos_type> decide_move(const Board& board) = 0;
+    virtual void install_board(const Board& board) {}
 
 };
 
@@ -40,12 +41,15 @@ public:
     : Agent(team), rng(dev())
     {}
 
-    std::vector<pos_type> decide_move(Board &board) {
-        vector<vector<pos_type >> poss_moves = StrategoLogic::get_poss_moves(board, team);
+    std::vector<pos_type> decide_move(const Board &board) {
+        std::vector<std::vector<pos_type >> poss_moves = StrategoLogic::get_poss_moves(board, team);
 
         std::uniform_int_distribution<std::mt19937::result_type> dist(0, poss_moves.size()-1);
 
         return poss_moves[dist(rng)];
     }
 };
+
+
+
 #endif //STRATEGO_CPP_AGENT_H

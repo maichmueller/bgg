@@ -10,8 +10,8 @@ GameState::GameState(int game_len)
   move_count(0), canonical_teams(true), rounds_without_fight(0),
   move_equals_prev_move(0), move_history(0)
 {
-    map<int, int> team0_dead;
-    map<int, int> team1_dead;
+    std::map<int, int> team0_dead;
+    std::map<int, int> team1_dead;
     dead_pieces = {team0_dead, team1_dead};
 }
 
@@ -20,11 +20,11 @@ GameState::GameState(const Board &board, int move_count)
   canonical_teams(true), rounds_without_fight(0), move_equals_prev_move(0),
   move_history(0)
 {
-    map<int, int> team_0_dead;
-    map<int, int> team_1_dead;
-    dead_pieces = array<map<int, int>, 2> {team_0_dead, team_1_dead};
+    std::map<int, int> team_0_dead;
+    std::map<int, int> team_1_dead;
+    dead_pieces = std::array<std::map<int, int>, 2> {team_0_dead, team_1_dead};
     int len = board.get_board_len();
-    vector<int> avail_types;
+    std::vector<int> avail_types;
     // copy the available types
     avail_types = GameDeclarations::get_available_types(len);
     for(auto type: avail_types) {
@@ -41,7 +41,7 @@ GameState::GameState(const Board &board, int move_count)
     }
 }
 
-GameState::GameState(const Board& board, array<map<int, int>, 2>& dead_pieces, int move_count)
+GameState::GameState(const Board& board, std::array<std::map<int, int>, 2>& dead_pieces, int move_count)
 : board(board), dead_pieces(dead_pieces), move_count(move_count),
   terminal_checked(false), terminal(404), canonical_teams(true), rounds_without_fight(0),
   move_equals_prev_move(0), move_history(0)
@@ -53,8 +53,8 @@ GameState::GameState(int len, const std::map<pos_type, int>& setup_0, const std:
   terminal_checked(false), terminal(404), canonical_teams(true), rounds_without_fight(0),
   move_equals_prev_move(0), move_history(0)
 {
-    map<int, int> team0_dead;
-    map<int, int> team1_dead;
+    std::map<int, int> team0_dead;
+    std::map<int, int> team1_dead;
     dead_pieces = {team0_dead, team1_dead};
 }
 
@@ -135,7 +135,7 @@ int GameState::fight(Piece &attacker, Piece &defender) {
     return StrategoLogic::fight_outcome(attacker.get_type(), defender.get_type());
 }
 
-int GameState::do_move(vector<pos_type> &move) {
+int GameState::do_move(std::vector<pos_type> &move) {
     // preliminaries
     pos_type from = move[0];
     pos_type to = move[1];
@@ -143,8 +143,8 @@ int GameState::do_move(vector<pos_type> &move) {
 
     // save the access to the pieces in question
     // (removes redundant searching in board later)
-    shared_ptr<Piece> piece_from = board[from];
-    shared_ptr<Piece> piece_to = board[to];
+    std::shared_ptr<Piece> piece_from = board[from];
+    std::shared_ptr<Piece> piece_to = board[to];
     piece_from->set_flag_has_moved();
 
     // save all info to the history
@@ -211,7 +211,7 @@ int GameState::do_move(vector<pos_type> &move) {
 
 void GameState::undo_last_n_rounds(int n) {
     for(int i = 0; i < n; ++i) {
-        vector<pos_type > move = *move_history.end();
+        std::vector<pos_type > move = *move_history.end();
         auto move_pieces = *piece_history.end();
 
         move_history.pop_back();

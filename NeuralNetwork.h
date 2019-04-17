@@ -24,7 +24,7 @@ public:
 
     void to_device();
     template<typename Board>
-    void train(std::vector<std::tuple<Board, std::vector<double>, int, int>> train_examples,
+    void train(std::vector<std::tuple<torch::Tensor, std::vector<double>, int, int>> train_examples,
             int epochs, int batch_size=128);
 
     template<typename Board>

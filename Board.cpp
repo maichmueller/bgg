@@ -18,7 +18,7 @@ Board::Board(int len)
           board_map()
 {
     if(len != 5 && len != 7 && len != 10) {
-        throw invalid_argument("Game lenension not in [5, 7, 10].");
+        throw std::invalid_argument("Game lenension not in [5, 7, 10].");
     }
 
     for(int i = 0; i < board_len; i++) {
@@ -32,31 +32,31 @@ Board::Board(int len)
     place_obstacles();
 }
 
-Board::Board(int len, const vector<shared_ptr<Piece>>& setup_0, const vector<shared_ptr<Piece>>& setup_1)
+Board::Board(int len, const std::vector<std::shared_ptr<Piece>>& setup_0, const std::vector<std::shared_ptr<Piece>>& setup_1)
         : Board(len)
 {
-    map<pos_type, int, key_comp> seen_pos_0;
+    std::map<pos_type, int, key_comp> seen_pos_0;
     for (auto& piece : setup_0) {
         pos_type pos = piece->get_position();
         auto it = seen_pos_0.find(pos);
         if(it != seen_pos_0.end())
         {
             //element found
-            throw invalid_argument("Parameter setup 0 has duplicate piece positions.");
+            throw std::invalid_argument("Parameter setup 0 has duplicate piece positions.");
         }
 
         seen_pos_0[pos] = 1;
         board_map[pos] = piece;
     }
 
-    map<pos_type, int, key_comp> seen_pos_1;
+    std::map<pos_type, int, key_comp> seen_pos_1;
     for (auto& piece : setup_1) {
         pos_type pos = piece->get_position();
         auto it = seen_pos_1.find(pos);
         if(it != seen_pos_1.end())
         {
             //element found
-            throw invalid_argument("Parameter setup 1 has duplicate piece positions.");
+            throw std::invalid_argument("Parameter setup 1 has duplicate piece positions.");
         }
 
         seen_pos_1[pos] = 1;
@@ -69,8 +69,8 @@ Board::Board(int len, const vector<shared_ptr<Piece>>& setup_0, const vector<sha
 Board::Board(int len, const std::map<pos_type, int>& setup_0, const std::map<pos_type, int>& setup_1)
         : Board(len)
 {
-    map<pos_type, int, key_comp> seen_pos_0;
-    map<int, int> version_count_0;
+    std::map<pos_type, int, key_comp> seen_pos_0;
+    std::map<int, int> version_count_0;
     for (auto& elem : setup_0) {
         pos_type pos = elem.first;
         int piece_type = elem.second;
@@ -79,7 +79,7 @@ Board::Board(int len, const std::map<pos_type, int>& setup_0, const std::map<pos
         if(it != seen_pos_0.end())
         {
             //element found
-            throw invalid_argument("Parameter setup 0 has duplicate piece positions.");
+            throw std::invalid_argument("Parameter setup 0 has duplicate piece positions.");
         }
 
         seen_pos_0[pos] = 1;
@@ -92,8 +92,8 @@ Board::Board(int len, const std::map<pos_type, int>& setup_0, const std::map<pos
         board_map[pos] = std::move(piece);
     }
 
-    map<pos_type, int, key_comp> seen_pos_1;
-    map<int, int> version_count_1;
+    std::map<pos_type, int, key_comp> seen_pos_1;
+    std::map<int, int> version_count_1;
     for (auto& elem : setup_1) {
         pos_type pos = elem.first;
         int piece_type = elem.second;
@@ -102,7 +102,7 @@ Board::Board(int len, const std::map<pos_type, int>& setup_0, const std::map<pos
         if(it != seen_pos_1.end())
         {
             //element found
-            throw invalid_argument("Parameter setup 1 has duplicate piece positions.");
+            throw std::invalid_argument("Parameter setup 1 has duplicate piece positions.");
         }
 
         seen_pos_1[pos] = 1;
@@ -118,25 +118,25 @@ Board::Board(int len, const std::map<pos_type, int>& setup_0, const std::map<pos
     place_obstacles();
 }
 
-shared_ptr<Piece>& Board::operator[] (pos_type a)
+std::shared_ptr<Piece>& Board::operator[] (pos_type a)
 {
     if(a[0] >= board_len) {
-        throw invalid_argument( "Row index out of bounds." );
+        throw std::invalid_argument( "Row index out of bounds." );
     }
     if(a[1] >= board_len) {
-        throw invalid_argument( "Column index out of bounds." );
+        throw std::invalid_argument( "Column index out of bounds." );
     }
     return board_map[a];
 }
 
 
-shared_ptr<Piece> Board::operator[] (const pos_type a) const
+std::shared_ptr<Piece> Board::operator[] (const pos_type a) const
 {
     if(a[0] >= board_len) {
-        throw invalid_argument( "Row index out of bounds." );
+        throw std::invalid_argument( "Row index out of bounds." );
     }
     if(a[1] >= board_len) {
-        throw invalid_argument( "Column index out of bounds." );
+        throw std::invalid_argument( "Column index out of bounds." );
     }
     return board_map.find(a)->second;
 }
@@ -175,14 +175,14 @@ bool Board::check_pos_integrity(pos_type pos)
     }
 }
 
-void Board::update_board(pos_type& pos, shared_ptr<Piece> pc_ptr)
+void Board::update_board(pos_type& pos, std::shared_ptr<Piece> pc_ptr)
 {
     bool valid_pos = check_pos_integrity(pos);
     pc_ptr->set_position(pos);
     if(valid_pos)
         board_map[pos] = pc_ptr;
     else
-        throw invalid_argument("Supplied position out of bounds.");
+        throw std::invalid_argument("Supplied position out of bounds.");
 }
 
 void Board::print_board() {

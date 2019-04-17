@@ -15,16 +15,16 @@
 class GameState {
 
     Board board;
-    array<map<int, int>, 2> dead_pieces;
+    std::array<std::map<int, int>, 2> dead_pieces;
 
     int terminal;
     bool terminal_checked;
 
     int move_count;
 
-    vector<vector<pos_type >> move_history;
-    vector<vector<shared_ptr<Piece>>> piece_history;
-    vector<bool> move_equals_prev_move;
+    std::vector<std::vector<pos_type >> move_history;
+    std::vector<std::vector<std::shared_ptr<Piece>>> piece_history;
+    std::vector<bool> move_equals_prev_move;
     unsigned int rounds_without_fight;
 
     bool canonical_teams;
@@ -32,10 +32,10 @@ class GameState {
 public:
     explicit GameState(int game_len);
     GameState(const Board& board, int move_count=0);
-    GameState(const Board& board, array<map<int, int>, 2>& dead_pieces, int move_count);
+    GameState(const Board& board, std::array<std::map<int, int>, 2>& dead_pieces, int move_count);
     GameState(int len, const std::map<pos_type, int>& setup_0, const std::map<pos_type, int>& setup_1);
     void check_terminal(bool flag_only=false, int turn=0);
-    int do_move(vector<pos_type>& move);
+    int do_move(std::vector<pos_type>& move);
     int fight(Piece& attacker, Piece& defender);
     int is_terminal(bool force_check=false, int turn=0);
 

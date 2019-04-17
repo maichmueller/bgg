@@ -47,7 +47,7 @@ int Game::run_game(bool show=true) {
 int Game::run_step() {
     int turn = game_state.get_move_count() % 2;  // # player 1 or player 0
     
-    vector<pos_type > move;
+    std::vector<pos_type > move;
     if(turn == 1)
         move = agent_1->decide_move(*game_state.get_board());
     else
