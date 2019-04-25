@@ -10,8 +10,9 @@ set(CMAKE_PREFIX_PATH /home/michael/GitHub/Stratego_CPP/libtorch)
 find_package(Torch REQUIRED)
 
 set(COMMON_SOURCES tqdm_utils.cpp GameState.cpp Game.cpp Piece.cpp
-        Board.cpp GameDeclarations.cpp StrategoLogic.cpp Agent.cpp
-        RandomSelector.h MCTS.cpp NeuralNetwork.cpp tqdm/tqdm.h AgentReinforce.cpp)
+                   Board.cpp GameDeclarations.cpp StrategoLogic.cpp Agent.cpp
+                   RandomSelector.h MCTS.cpp NeuralNetwork.cpp tqdm/tqdm.h
+                   AgentReinforce.cpp torch_utils.cpp)
 set(TARGET_SOURCES main.cpp)
 # set(TEST_SOURCES  run_tests.cpp test_file1.cpp test_file2.cpp)
 add_executable(Stratego_CPP ${COMMON_SOURCES} ${TARGET_SOURCES})

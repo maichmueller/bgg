@@ -39,6 +39,8 @@ void NeuralNetwork::train(std::vector<std::tuple<torch::Tensor, std::vector<doub
         nnet->train();
 
         for(int b = 0; b < static_cast<int> (train_examples.size() / batch_size); ++b) {
+
+            // get a randomly drawn sample index batch
             auto sample_ids = _sample_without_replacement(train_examples.size(), batch_size);
 
             std::vector<torch::Tensor> board_batch(batch_size);
@@ -46,13 +48,14 @@ void NeuralNetwork::train(std::vector<std::tuple<torch::Tensor, std::vector<doub
             std::vector<int> v_batch(batch_size);
 
             // fill the batch vectors with the respective part of the sample-tuple
-            for(auto& i : sample_ids) {
+            for(const auto& i : sample_ids) {
                 auto& sample = train_examples[i];
                 board_batch.push_back(std::get<0>(sample));
                 pi_batch.push_back(std::get<1>(sample));
                 v_batch.push_back(std::get<2>(sample));
             }
-            //torch::Tensor pi_tensor = torch::from_blob(pi_batch);
+
+//            torch::Tensor pi_tensor = torch::from_blob(pi_batch.data());
         }
     }
     bar.finish();
