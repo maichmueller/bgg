@@ -62,47 +62,13 @@
 #include <vector>
 #include <set>
 #include <type_traits>
+#include "torch_utils.h"
 
-template<class T1,class T2>
-struct compare_template_class : std::false_type {};
-
-template<template<class...> class T,class... Args1, class... Args2>
-struct compare_template_class<T<Args1...>,T<Args2...>> : std::true_type {};
-
-template<class T>
-struct number_of_nested_classes
-{
-    static const int value = 0;
-
-    static void sizes(const T&, std::vector<size_t>&) {}
-};
-
-// remember that std::vector has two arguments! so you have to deduce the two of them
-template<template<class,class...> class TT,class T,class... Args>
-struct number_of_nested_classes<TT<T,Args...> >
-{
-    static const int value_before = number_of_nested_classes<T>::value;
-    static const int value = compare_template_class<TT<T,Args...>,T>::value ? 1 + value_before : value_before;
-
-    static void sizes(const TT<T,Args...>& v, std::vector<size_t>& size)
-    {
-        size.push_back(v.size());
-        number_of_nested_classes<T>::sizes(v[0],size);
-    }
-};
 
 
 int main(int argc, char const *argv[])
 {
 
-    // std::cout << compare_template_class<std::vector<int>,int >::value << std::endl;
-    // std::cout << compare_template_class<std::vector<int>,std::vector<std::vector<int> > >::value << std::endl;
-
-    // std::cout << number_of_nested_classes<int >::value << std::endl;
-    // std::cout << number_of_nested_classes<std::vector<int > >::value << std::endl;
-    // std::cout << number_of_nested_classes<std::vector<std::vector<int > > >::value << std::endl;
-    // std::cout << number_of_nested_classes<std::vector<std::vector<std::vector<int> > > >::value << std::endl;
-    // std::cout << number_of_nested_classes<std::vector<std::set<std::vector<std::vector<int>> > > >::value << std::endl;
 
     using V1 = std::vector<int>;
     using V2 = std::vector<V1>;
@@ -111,17 +77,13 @@ int main(int argc, char const *argv[])
     using V5 = std::vector<V4>;
 
     std::vector<size_t> size;
-    V1 v1(10);
+    V1 v1(10, 1);
     V2 v2({v1,v1,v1,v1,v1});
     V3 v3({v2,v2,v2});
     V4 v4({v3,v3,v3,v3});
     V5 v5({v4});
-    // std::cout << v5.size() << std::endl;
-    number_of_nested_classes<V5>::sizes(v5,size);
-    for (auto s : size)
-    {
-        std::cout << s << std::endl;
-    }
+    torch::Tensor t;
+    torch_utils::fill_tensor_from_vector_(v2, t);
 
 
     return 0;

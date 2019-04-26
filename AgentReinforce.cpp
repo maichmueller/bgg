@@ -182,7 +182,7 @@ torch::Tensor AlphaZeroAgent::board_to_state_rep(const Board &board) {
         }
     }
     // send the tensor to the global device
-    board_state_rep.to(torch_utils::GLOBAL_DEVICE);
+    board_state_rep.to(torch_utils::GLOBAL_DEVICE::get_device());
 
     return board_state_rep;
 }
@@ -196,7 +196,7 @@ void AlphaZeroAgent::install_board(const Board &board) {
 
 
 std::vector<pos_type > AlphaZeroAgent::decide_move(const Board &board) {
-    model->to(torch_utils::get_global_device());
+    model->to(torch_utils::GLOBAL_DEVICE::get_device());
     torch::Tensor board_state = board_to_state_rep(board);
 //    auto pred = model->predict();
 }
