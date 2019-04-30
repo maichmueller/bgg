@@ -26,7 +26,6 @@ private:
     typedef typename std::map<pos_type, std::shared_ptr<Piece>, key_comp>::iterator iterator;
     typedef typename std::map<pos_type, std::shared_ptr<Piece>, key_comp>::const_iterator const_iterator;
     int board_len;
-    std::vector<pos_type> keys;
     std::map<pos_type, std::shared_ptr<Piece>, key_comp> board_map;
 
     bool check_pos_integrity(pos_type pos);
@@ -44,7 +43,7 @@ public:
     const_iterator end() const;
     int get_board_len() const {return board_len;}
     std::map<pos_type, std::shared_ptr<Piece>, key_comp>& get_board_map() {return board_map;}
-    std::vector<pos_type>& get_keys() {return keys;}
+
     void update_board(pos_type& pos, std::shared_ptr<Piece> pc);
     void print_board();
 

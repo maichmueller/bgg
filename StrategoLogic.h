@@ -20,8 +20,8 @@ class StrategoLogic {
     static pos_type pos_ident(int& len, const pos_type & pos);
     static pos_type pos_invert(int& len, const pos_type & pos);
 
-    static std::vector<pos_type> move_ident(int& len, const std::vector<pos_type> & move);
-    static std::vector<pos_type> move_invert(int& len, const std::vector<pos_type> & move);
+    static move_type move_ident(int& len, const move_type & move);
+    static move_type move_invert(int& len, const move_type & move);
 
     static int team_ident(int team);
     static int team_invert(int team);
@@ -30,8 +30,8 @@ public:
 
     static const std::map<std::array<int,2>, int> battle_matrix;
     static std::map<std::array<int,2>, int> initialize_battle_matrix();
-    static bool is_legal_move(const Board& board, const std::vector<pos_type>& move, bool flip_teams=false);
-    static std::vector<std::vector<pos_type>> get_poss_moves(const Board& board, int player, bool flip_teams=false);
+    static bool is_legal_move(const Board& board, const move_type& move, bool flip_teams=false);
+    static std::vector<move_type> get_poss_moves(const Board& board, int player, bool flip_teams=false);
     static bool has_poss_moves(const Board& board, int player);
     static std::vector<int> get_action_mask(const Board& board, const std::vector<std::vector<int>>& action_arr,
                                        const std::map<std::vector<int>, std::vector<int>>& piece_act_map, int player);

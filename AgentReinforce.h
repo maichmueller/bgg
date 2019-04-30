@@ -38,7 +38,7 @@ protected:
     // the neural network
     std::shared_ptr<NetworkWrapper> model;
 
-    std::vector<pos_type > _action_to_move(int action);
+    move_type _action_to_move(int action);
 
     std::map<int, unsigned int> counter(const std::vector<int>& vals);
 
@@ -59,7 +59,7 @@ public:
 
     void install_board(const Board& board) override;
     torch::Tensor board_to_state_rep(const Board& board) override;
-    std::vector<pos_type > decide_move(const Board& board) override;
+    move_type decide_move(const Board& board) override;
 
 };
 

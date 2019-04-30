@@ -5,7 +5,7 @@
 #include "AgentReinforce.h"
 
 
-std::vector<pos_type > AgentReinforceBase::_action_to_move(int action) {
+move_type AgentReinforceBase::_action_to_move(int action) {
 
     if(action < 0 || action >= action_dim)
         throw std::invalid_argument("Action index out of range.");
@@ -32,7 +32,7 @@ std::vector<pos_type > AgentReinforceBase::_action_to_move(int action) {
     pos_type move_change = ActionRep::get_act_rep(board_len)[action];
     pos_type curr_pos = actor->get_position();
     pos_type new_pos = {curr_pos[0] + move_change[0], curr_pos[1] + move_change[1]};
-    std::vector<pos_type > move {curr_pos, new_pos};
+    move_type move {curr_pos, new_pos};
     return move;
 }
 
@@ -195,14 +195,14 @@ void AlphaZeroAgent::install_board(const Board &board) {
 }
 
 
-std::vector<pos_type > AlphaZeroAgent::decide_move(const Board &board) {
+move_type AlphaZeroAgent::decide_move(const Board &board) {
     model->to(torch_utils::GLOBAL_DEVICE::get_device());
     torch::Tensor board_state = board_to_state_rep(board);
     auto [pi, v] = model->predict(board_state);
 
     int action = pi.argmax().item<int64_t>();
 
-    std::vector<pos_type> move = _action_to_move(action);
+    move_type move = _action_to_move(action);
 
     return move;
 }

@@ -135,7 +135,7 @@ int GameState::fight(Piece &attacker, Piece &defender) {
     return StrategoLogic::fight_outcome(attacker.get_type(), defender.get_type());
 }
 
-int GameState::do_move(std::vector<pos_type> &move) {
+int GameState::do_move(move_type &move) {
     // preliminaries
     pos_type from = move[0];
     pos_type to = move[1];
@@ -211,7 +211,7 @@ int GameState::do_move(std::vector<pos_type> &move) {
 
 void GameState::undo_last_n_rounds(int n) {
     for(int i = 0; i < n; ++i) {
-        std::vector<pos_type > move = *move_history.end();
+        move_type move = *move_history.end();
         auto move_pieces = *piece_history.end();
 
         move_history.pop_back();

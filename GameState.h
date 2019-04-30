@@ -22,7 +22,7 @@ class GameState {
 
     int move_count;
 
-    std::vector<std::vector<pos_type >> move_history;
+    std::vector<move_type> move_history;
     std::vector<std::vector<std::shared_ptr<Piece>>> piece_history;
     std::vector<bool> move_equals_prev_move;
     unsigned int rounds_without_fight;
@@ -35,7 +35,7 @@ public:
     GameState(const Board& board, std::array<std::map<int, int>, 2>& dead_pieces, int move_count);
     GameState(int len, const std::map<pos_type, int>& setup_0, const std::map<pos_type, int>& setup_1);
     void check_terminal(bool flag_only=false, int turn=0);
-    int do_move(std::vector<pos_type>& move);
+    int do_move(move_type& move);
     int fight(Piece& attacker, Piece& defender);
     int is_terminal(bool force_check=false, int turn=0);
 

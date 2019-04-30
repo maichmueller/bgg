@@ -4,6 +4,26 @@
 
 #include "NeuralNetwork.h"
 
+Convolutional::Convolutional(int channels, std::vector<int> filter_sizes, std::vector<int> kernel_sizes_vec,
+                             std::vector<bool> maxpool_used_vec, std::vector<float> dropout_probs)
+: channels_in(channels), filter_sizes(std::move(filter_sizes)),
+  kernel_sizes(std::move(kernel_sizes_vec)), maxpool_used_vec(std::move(maxpool_used_vec)),
+  droput_prop_per_layer(std::move(dropout_probs))
+{
+    int nr_conv_layers = filter_sizes.size();
+
+}
+
+template <typename prim_type>
+Convolutional::Convolutional(int channels,
+        const std::vector<int> & filter_sizes,
+        const std::vector<int> & kernel_sizes_vec,
+        const std::vector<bool> & maxpool_used_vec,
+        prim_type dropout_prob_for_all)
+        : Convolutional(channels, filter_sizes,
+                kernel_sizes_vec, maxpool_used_vec,
+                std::vector<float> (4, static_cast<float> (dropout_prob_for_all)) ) {}
+
 std::vector<int> NetworkWrapper::_sample_without_replacement(int pool_len, int sample_len) {
     // fill the pool with ints from 0 to pool_len
     std::vector<int> pool(pool_len);

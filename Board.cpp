@@ -14,7 +14,6 @@ void Board::place_obstacles() {
 
 Board::Board(int len)
         : board_len(len),
-          keys(static_cast<unsigned long> (len*len)),
           board_map()
 {
     if(len != 5 && len != 7 && len != 10) {
@@ -24,7 +23,6 @@ Board::Board(int len)
     for(int i = 0; i < board_len; i++) {
         for(int j = 0; j < board_len; j++) {
             pos_type pos = {i, j};
-            keys[i * board_len + j] = pos;
             board_map[pos] = std::make_shared<Piece> (pos);
         }
     }

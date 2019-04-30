@@ -17,7 +17,7 @@
 class Convolutional : torch::nn::Module {
 
     int channels_in;
-    std::vector<int> filter_amounts;
+    std::vector<int> filter_sizes;
     std::vector<int> kernel_sizes;
     std::vector<bool> maxpool_used_vec;
     std::vector<float> droput_prop_per_layer;
@@ -27,9 +27,35 @@ class Convolutional : torch::nn::Module {
 public:
 
     Convolutional(int channels,
-            const std::vector<int> & kernel_sizes_vec = std::vector<int> {3, 3, 3, 3},
-            const std::vector<bool> & maxpool_used_vec = std::vector<bool> {false, false, false, false},
-            const std::vector<float> & dropout_probs = std::vector<float> {0.0, 0.0, 0.0, 0.0});
+                  std::vector<int> filter_sizes,
+                  std::vector<int> kernel_sizes_vec = std::vector<int> {3, 3, 3, 3},
+                  std::vector<bool> maxpool_used_vec = std::vector<bool> {false, false, false, false},
+                  std::vector<float> dropout_probs = std::vector<float> {0.0, 0.0, 0.0, 0.0});
+
+    template <typename prim_type>
+    Convolutional(int channels,
+                  const std::vector<int> & filter_sizes,
+                  const std::vector<int> & kernel_sizes_vec = std::vector<int> {3, 3, 3, 3},
+                  const std::vector<bool> & maxpool_used_vec = std::vector<bool> {false, false, false, false},
+                  prim_type dropout_prob_for_all = 0);
+
+    torch::Tensor forward (const torch::Tensor & input);
+
+};
+
+class FullyConnected : torch::nn::Module {
+
+    int channels_in;
+    std::vector<int> filter_amounts;
+    std::vector<int> kernel_sizes;
+    std::vector<bool> maxpool_used_vec;
+    std::vector<float> droput_prop_per_layer;
+
+    std::vector<torch::nn::Linear> linear_layers;
+
+public:
+
+    FullyConnected(int nr_lin_layers);
 
     torch::Tensor forward (const torch::Tensor & input);
 
