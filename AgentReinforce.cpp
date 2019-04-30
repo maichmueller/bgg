@@ -198,5 +198,11 @@ void AlphaZeroAgent::install_board(const Board &board) {
 std::vector<pos_type > AlphaZeroAgent::decide_move(const Board &board) {
     model->to(torch_utils::GLOBAL_DEVICE::get_device());
     torch::Tensor board_state = board_to_state_rep(board);
-//    auto pred = model->predict();
+    auto [pi, v] = model->predict(board_state);
+
+    int action = pi.argmax().item<int64_t>();
+
+    std::vector<pos_type> move = _action_to_move(action);
+
+    return move;
 }

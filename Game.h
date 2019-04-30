@@ -38,7 +38,7 @@ public:
     void reset();
 
     int run_game(bool show);
-    int run_step();
+    void run_step();
 
     void set_flag_fixed_setups(bool f_s) {fixed_setups = f_s;}
 

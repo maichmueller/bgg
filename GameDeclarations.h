@@ -13,6 +13,7 @@
 namespace GameDeclarations {
     // should be of length 2 only however!
     using pos_type = std::vector<int>;
+    using move_type = std::array<pos_type, 2>;
 
     const std::vector<int> available_types_s = {0, 1, 2, 2, 2, 3, 3, 10, 11, 11};
     const std::vector<int> available_types_m = {0, 1, 2, 2, 2, 2, 2, 3, 3, 3, 4,

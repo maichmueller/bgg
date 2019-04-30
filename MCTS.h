@@ -30,7 +30,7 @@ struct StringIntEqCompare {
 
 class MCTS {
 
-    std::shared_ptr<NeuralNetwork> nnet_wrapper_sptr;
+    std::shared_ptr<NetworkWrapper> nnet_wrapper_sptr;
     double cpuct;
     int num_mcts_sims;
 

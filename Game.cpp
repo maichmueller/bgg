@@ -27,24 +27,32 @@ Game::Game(int board_len, const std::shared_ptr<Agent>& ag0, const std::shared_p
 
 int Game::run_game(bool show=true) {
     int game_over = false;
-    int rewards = 404;
+    int terminal = 404;
     std::function<void(Board&, bool, bool)> print_board = [](Board& board, bool n, bool m) -> void {return;};
     if(show)
         print_board = &utils::print_board<Board, Piece>;
 
     while(!game_over) {
         print_board(*game_state.get_board(), false, false);
-        rewards = run_step();
-        if(rewards != 404) 
+
+        // test for terminality
+        terminal = game_state.is_terminal();
+
+        std::cout << "Status: " << terminal << std::endl;
+
+        if(terminal != 404)
             game_over = true;
+        else
+            run_step();
+
     }
     print_board(*game_state.get_board(), false, false);
 
     std::cout << "Status: " << game_state.is_terminal() << std::endl;
-    return rewards;
+    return terminal;
 }
 
-int Game::run_step() {
+void Game::run_step() {
     int turn = game_state.get_move_count() % 2;  // # player 1 or player 0
     
     std::vector<pos_type > move;
@@ -56,23 +64,6 @@ int Game::run_step() {
     game_state.do_move(move);
     std::cout << "Move: (" << move[0][0] << ", " << move[0][1] << ") -> (" << move[1][0] << ", " << move[1][1] << ")" << std::endl;
 
-    auto board = game_state.get_board();
-    int nr_team_0 = 0;
-    int nr_team_1 = 0;
-    for(auto& piece : *board) {
-        if(!piece.second->is_null()) {
-            if(piece.second->get_team() == 0)
-                nr_team_0 += 1;
-            else if(piece.second->get_team() == 1)
-                nr_team_1 += 1;
-        }
-    }
-
-    // test for terminality
-    int terminal = game_state.is_terminal();
-
-    std::cout << "Status: " << terminal << std::endl;
-    return terminal;
 }
 
 

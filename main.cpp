@@ -68,8 +68,17 @@
 
 int main(int argc, char const *argv[])
 {
-
-
+    torch::Tensor t1 = torch::ones({2, 3});
+    auto argm = t1.argmax();
+    int ll = argm.item<int64_t >();
+    std::cout << argm;
+    t1[0][0] = 0;
+    t1[0][1] = 1;
+    t1[0][2] = 2;
+    t1[1][0] = 3;
+    t1[1][1] = 4;
+    t1[1][2] = 5;
+    std::cout << t1 << '\n';
     using V1 = std::vector<int>;
     using V2 = std::vector<V1>;
     using V3 = std::vector<V2>;
@@ -77,14 +86,28 @@ int main(int argc, char const *argv[])
     using V5 = std::vector<V4>;
 
     std::vector<size_t> size;
-    V1 v1(10, 1);
-    V2 v2({v1,v1,v1,v1,v1});
+
+    V1 v1(3, 1);
+    for(int i = 0; i < v1.size(); ++i){
+        v1[i] = i;
+    }
+    V2 v2({v1,v1});
     V3 v3({v2,v2,v2});
     V4 v4({v3,v3,v3,v3});
     V5 v5({v4});
-    torch::Tensor t;
-    torch_utils::fill_tensor_from_vector_(v2, t);
+//    std::cout << torch_utils::NestedVectorManip<V1>::dimension;
+//    std::cout << torch_utils::NestedVectorManip<V2>::dimension;
+//    std::cout << torch_utils::NestedVectorManip<V3>::dimension;
+//    std::cout << torch_utils::NestedVectorManip<V4>::dimension;
+//    std::cout << torch_utils::NestedVectorManip<V5>::dimension;
 
+    torch::Tensor t = torch_utils::tensor_from_vector(v2);
+    std::cout << t;
+//    std::cout << t;
+//    auto shit = t.numel();
+//    for(auto val = t.data<int64_t >(); val != t.data<int64_t >() + t.numel(); ++val) {
+//        std::cout << val << '\n';
+//    }
 
     return 0;
 }

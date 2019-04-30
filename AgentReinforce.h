@@ -9,6 +9,7 @@
 
 #include "Agent.h"
 #include "Piece.h"
+#include "NeuralNetwork.h"
 #include "torch_utils.h"
 #include "torch/torch.h"
 
@@ -35,7 +36,7 @@ protected:
     // member that stores {type, version} -> Piece-Obj information
     std::unordered_map<std::vector<int>, std::shared_ptr<Piece>, VecIntHasher> actors;
     // the neural network
-    std::shared_ptr<torch::nn::Module> model;
+    std::shared_ptr<NetworkWrapper> model;
 
     std::vector<pos_type > _action_to_move(int action);
 
