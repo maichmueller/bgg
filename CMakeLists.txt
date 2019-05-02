@@ -6,10 +6,10 @@ set(CMAKE_CXX_STANDARD 17)
 include_directories(${CMAKE_SOURCE_DIR}/libtorch/include)
 
 if(UNIX)
-    set(CMAKE_PREFIX_PATH /home/michael/GitHub/Stratego_CPP/libtorch)
+    set(CMAKE_PREFIX_PATH /home/michael/GitHub/Torch_build/libtorch_linux)
 ENDIF(UNIX)
 IF(WIN32)
-    set(CMAKE_PREFIX_PATH C:/Users/Michael/Documents/GitHub/Stratego_CPP/libtorch)
+    set(CMAKE_PREFIX_PATH C:/Users/Michael/Documents/GitHub/Torch_build/libtorch_win)
 ENDIF(WIN32)
 find_package(Torch REQUIRED)
 

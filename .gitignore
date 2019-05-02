@@ -33,8 +33,9 @@
 
 cmake-build-debug/*
 cmake-build-debug
+.vs
 .idea/*
 .idea/workspace.xml
 cmake-build-debug/CMakeFiles/Stratego_CPP.dir/CXX.includecache
 cmake-build-debug/Stratego_CPP.cbp
-libtorch
+
