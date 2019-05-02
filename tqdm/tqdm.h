@@ -1,6 +1,14 @@
 #ifndef TQDM_H
 #define TQDM_H
+
+#ifdef _WIN32
+// no unistd.h on windows
+#endif
+
+#ifdef LINUX
 #include <unistd.h>
+#endif
+
 #include <chrono>
 #include <ctime>
 #include <numeric>
@@ -160,7 +168,7 @@ public:
                 }
             }
             for (int i = 0; i < ifills; i++) std::cout << bars[8];
-            if (!in_screen and (curr != tot)) printf("%s",bars[(int)(8.0*(fills-ifills))]);
+            if (!in_screen && (curr != tot)) printf("%s",bars[(int)(8.0*(fills-ifills))]);
             for (int i = 0; i < width-ifills-1; i++) std::cout << bars[0];
             printf("%s ", right_pad.c_str());
             if (use_colors) printf("\033[1m\033[31m");

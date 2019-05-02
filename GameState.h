@@ -23,7 +23,7 @@ class GameState {
     int move_count;
 
     std::vector<move_type> move_history;
-    std::vector<std::vector<std::shared_ptr<Piece>>> piece_history;
+    std::vector<std::array<std::shared_ptr<Piece>, 2>> piece_history;
     std::vector<bool> move_equals_prev_move;
     unsigned int rounds_without_fight;
 

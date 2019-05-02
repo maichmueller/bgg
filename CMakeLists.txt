@@ -5,8 +5,12 @@ set(CMAKE_CXX_STANDARD 17)
 
 include_directories(${CMAKE_SOURCE_DIR}/libtorch/include)
 
-set(CMAKE_PREFIX_PATH /home/michael/GitHub/Stratego_CPP/libtorch)
-
+if(UNIX)
+    set(CMAKE_PREFIX_PATH /home/michael/GitHub/Stratego_CPP/libtorch)
+ENDIF(UNIX)
+IF(WIN32)
+    set(CMAKE_PREFIX_PATH C:/Users/Michael/Documents/GitHub/Stratego_CPP/libtorch)
+ENDIF(WIN32)
 find_package(Torch REQUIRED)
 
 set(COMMON_SOURCES tqdm_utils.cpp GameState.cpp Game.cpp Piece.cpp
