@@ -22,22 +22,23 @@ class Convolutional : torch::nn::Module {
     std::vector<bool> maxpool_used_vec;
     std::vector<float> droput_prop_per_layer;
 
-    std::vector<torch::nn::Conv2d> conv_layers;
+    torch::nn::Sequential layers;
 
 public:
-
     Convolutional(int channels,
                   std::vector<int> filter_sizes,
                   std::vector<int> kernel_sizes_vec = std::vector<int> {3, 3, 3, 3},
                   std::vector<bool> maxpool_used_vec = std::vector<bool> {false, false, false, false},
-                  std::vector<float> dropout_probs = std::vector<float> {0.0, 0.0, 0.0, 0.0});
+                  std::vector<float> dropout_probs = std::vector<float> {0.0, 0.0, 0.0, 0.0},
+                  const torch::nn::Functional & activation_function=torch::nn::Functional(torch::relu));
 
     template <typename prim_type>
     Convolutional(int channels,
                   const std::vector<int> & filter_sizes,
                   const std::vector<int> & kernel_sizes_vec = std::vector<int> {3, 3, 3, 3},
                   const std::vector<bool> & maxpool_used_vec = std::vector<bool> {false, false, false, false},
-                  prim_type dropout_prob_for_all = 0);
+                  prim_type dropout_prob_for_all = 0,
+                  const torch::nn::Functional & activation_function=torch::nn::Functional(torch::relu));
 
     torch::Tensor forward (const torch::Tensor & input);
 
@@ -45,22 +46,22 @@ public:
 
 class FullyConnected : torch::nn::Module {
 
-    int channels_in;
-    std::vector<int> filter_amounts;
-    std::vector<int> kernel_sizes;
-    std::vector<bool> maxpool_used_vec;
-    std::vector<float> droput_prop_per_layer;
+    int D_in;
+    int D_out;
+    int start_exponent;
+    int nr_lin_layers;
 
-    std::vector<torch::nn::Linear> linear_layers;
+    torch::nn::Sequential layers;
 
 public:
-
-    FullyConnected(int nr_lin_layers);
+    FullyConnected()
+    : layers(nullptr) {}
+    FullyConnected(int D_in, int D_out, int nr_lin_layers=2, int start_expo=8,
+                   const torch::nn::Functional & activation_function=torch::nn::Functional(torch::relu));
 
     torch::Tensor forward (const torch::Tensor & input);
 
 };
-
 
 class AlphaZeroInterface : public torch::nn::Module {
 
@@ -69,7 +70,28 @@ public:
     virtual std::tuple<torch::Tensor, torch::Tensor> forward(const torch::Tensor & input) = 0;
 };
 
+class StrategoAlphaZero : public AlphaZeroInterface {
 
+    int D_in;
+    Convolutional convo_layers;
+    FullyConnected linear_layers;
+    torch::nn::Linear pi_act_layer;
+    torch::nn::Linear v_act_layer;
+
+public:
+
+    StrategoAlphaZero(int D_in, int D_out,
+                      int nr_lin_layers, int start_exponent,
+                      int channels,
+                      std::vector<int> filter_sizes,
+                      std::vector<int> kernel_sizes_vec = std::vector<int> {3, 3, 3, 3},
+                      std::vector<bool> maxpool_used_vec = std::vector<bool> {false, false, false, false},
+                      std::vector<float> dropout_probs = std::vector<float> {0.0, 0.0, 0.0, 0.0},
+                      const torch::nn::Functional & activation_function=torch::nn::Functional(torch::relu));
+
+    std::tuple<torch::Tensor, torch::Tensor> forward(const torch::Tensor & input) override;
+
+};
 
 class NetworkWrapper {
 
