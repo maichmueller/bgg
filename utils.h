@@ -140,7 +140,19 @@ namespace utils {
         std::string output = board_str_rep<Board, Piece>(board, flip_board, hide_unknowns);
         std::cout << output << std::endl;
     }
+
+    std::map<int, unsigned int> counter(const std::vector<int>& vals) {
+        std::map<int, unsigned int> rv;
+
+        for(auto val = vals.begin(); val != vals.end(); ++val) {
+            rv[*val]++;
+        }
+
+        return rv;
+    }
+
 };
+
 
 
 #endif //STRATEGO_CPP_UTILS_H

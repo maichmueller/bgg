@@ -40,7 +40,7 @@ move_type AgentReinforceBase::_action_to_move(int action) {
 void AgentReinforceBase::install_board(const Board &board) {
     board_len = board.get_board_len();
     auto avail_types = GameDeclarations::get_available_types(board_len);
-    type_counter = counter(avail_types);
+    type_counter = utils::counter(avail_types);
 
     for(auto& entry: board) {
         auto piece = entry.second;
@@ -55,136 +55,23 @@ void AgentReinforceBase::install_board(const Board &board) {
             avail_types.erase(entry_it);
         }
         else {
-            // something is logically wrong. We have too many pieces of this type
+            // reaching here means something is wrong with the logic. We have too many pieces of this type
             std::string err_msg = "Too many pieces of type " + std::to_string(piece->get_type()) + " found.";
             throw std::logic_error(err_msg);
         }
     }
 }
 
-
-std::map<int, unsigned int> AgentReinforceBase::counter(const std::vector<int>& vals) {
-    std::map<int, unsigned int> rv;
-
-    for(auto val = vals.begin(); val != vals.end(); ++val) {
-        rv[*val]++;
-    }
-
-    return rv;
+/// Forwarders to the overarching state rep
+bool AlphaZeroAgent::check_condition(const std::shared_ptr<Piece> &piece, int team, int type, int version,
+                                     bool hidden) {
+    return torch_utils::StateRep::check_condition(piece, team, type, version, hidden);
 }
-
-
-bool AlphaZeroAgent::check_condition(const std::shared_ptr<Piece>& piece,
-                                     int team,
-                                     int type,
-                                     int version,
-                                     bool hidden) const {
-
-    if(team == 0) {
-        if(!hidden){
-            // if it is about team 0, the 'hidden' status is unimportant
-            // (since the alpha zero agent alwazs plays from the perspective
-            // of player 0, therefore it can see all its own pieces).
-            bool eq_team = piece->get_team() == team;
-            bool eq_type = piece->get_type() == type;
-            bool eq_vers = piece->get_version() == version;
-            return eq_team && eq_type && eq_vers;
-        }
-        else {
-            // 'hidden' is only important for the single condition that specifically
-            // checks for this property (information about own pieces visible or not).
-            bool eq_team = piece->get_team() == team;
-            bool hide = piece->get_flag_hidden() == hidden;
-            return eq_team && hide;
-        }
-    }
-    else if(team == 1) {
-        // for team 1 we only get the info about type and version if it isn't hidden
-        // otherwise it will fall into the 'hidden' layer
-        if(!hidden) {
-            if(piece->get_flag_hidden())
-                return false;
-            else {
-                bool eq_team = piece->get_team() == team;
-                bool eq_type = piece->get_type() == type;
-                bool eq_vers = piece->get_version() == version;
-                return eq_team && eq_type && eq_vers;
-            }
-        }
-        else {
-            bool eq_team = piece->get_team() == team;
-            bool hide = piece->get_flag_hidden() == hidden;
-            return eq_team && hide;
-        }
-    }
-    else {
-        // only the obstacle should reach here
-        return piece->get_team() == team;
-    }
-}
-
-
 std::vector<std::tuple<int, int, int, bool>> AlphaZeroAgent::create_conditions() {
-
-    std::vector<std::tuple<int, int, int, bool>> conditions(21);
-
-    // own team 0
-    // flag, 1, 2, 3, 4, ..., 10, bombs UNHIDDEN
-    for(auto entry : type_counter) {
-        int type = entry.second;
-        for (int version = 1; version <= entry.second; ++version) {
-            conditions.emplace_back(std::make_tuple(0, type, version, false));
-        }
-    }
-    // all own pieces HIDDEN
-    // Note: type and version info are being "short-circuited" (unused)
-    // in the check in this case (thus -1)
-    conditions.emplace_back(std::make_tuple(0, -1, -1, false));
-
-    // enemy team 1
-    // flag, 1, 2, 3, 4, ..., 10, bombs UNHIDDEN
-    for(auto entry : type_counter) {
-        int type = entry.second;
-        for (int version = 1; version <= entry.second; ++version) {
-            conditions.emplace_back(std::make_tuple(1, type, version, false));
-        }
-    }
-    // all enemy pieces HIDDEN
-    // Note: type and version info are being "short-circuited" (unused)
-    // in the check in this case (thus -1)
-    conditions.emplace_back(std::make_tuple(1, -1, -1, false));
-
-    return conditions;
+    return torch_utils::StateRep::create_conditions(type_counter, team);
 }
-
 torch::Tensor AlphaZeroAgent::board_to_state_rep(const Board &board) {
-    /*
-     * We are trying to build a state representation of a Stratego board.
-     * To this end, i will define conditions that are evaluated for each
-     * piece on the board. These conditions are checked in sequence.
-     * Each condition receives its own layer with 0's everywhere, except
-     * for where the specific condition was true, a 1.
-     * In short: x conditions -> x layers (one for each condition)
-     */
-
-    torch::Tensor board_state_rep = torch::zeros({1, state_dim, board_len, board_len});
-    auto board_state_access = board_state_rep.accessor<int, 4> ();
-    for(const auto& pos_piece : board) {
-        pos_type pos = pos_piece.first;
-        std::shared_ptr<Piece> piece = pos_piece.second;
-        if(!piece->is_null()) {
-            for(auto [i, cond_it] = std::make_pair(0, conditions.begin()); cond_it != conditions.end(); ++i, ++cond_it) {
-                // unpack the condition
-                auto [team, type, vers, hidden] = *cond_it;
-                // write the result of the condition check to the tensor
-                board_state_access[0][i][pos[0]][pos[1]] = check_condition(piece, team, type, vers, hidden);
-            }
-        }
-    }
-    // send the tensor to the global device
-    board_state_rep.to(torch_utils::GLOBAL_DEVICE::get_device());
-
-    return board_state_rep;
+    return torch_utils::StateRep::b2s_cond_check(board, state_dim, board_len, conditions);
 }
 
 

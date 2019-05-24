@@ -29,11 +29,11 @@ class Game {
     bool fixed_setups;
 
 public:
-    Game(int board_l, const std::shared_ptr<Agent>& ag0, const std::shared_ptr<Agent>& ag1, bool f_setups=false);
-    Game(int board_l, const std::shared_ptr<Agent>& ag0, const std::shared_ptr<Agent>& ag1,
+    Game(int board_l, std::shared_ptr<Agent> ag0, std::shared_ptr<Agent> ag1, bool f_setups=false);
+    Game(int board_l, std::shared_ptr<Agent> ag0, std::shared_ptr<Agent> ag1,
          const std::map<pos_type, int>& setup_0,
          const std::map<pos_type, int>& setup_1);
-    Game(int board_len, const std::shared_ptr<Agent>& ag0, const std::shared_ptr<Agent>& ag1, Board& board);
+    Game(int board_len, std::shared_ptr<Agent> ag0, std::shared_ptr<Agent> ag1, Board& board);
 
     void reset();
 

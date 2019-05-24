@@ -40,8 +40,6 @@ protected:
 
     move_type _action_to_move(int action);
 
-    std::map<int, unsigned int> counter(const std::vector<int>& vals);
-
 public:
 
     virtual torch::Tensor board_to_state_rep(const Board& board) = 0;
@@ -51,8 +49,7 @@ public:
 
 class AlphaZeroAgent : public AgentReinforceBase {
 
-
-    bool check_condition(const std::shared_ptr<Piece>& piece, int team, int type, int version, bool hidden) const;
+    static bool check_condition(const std::shared_ptr<Piece>& piece, int team, int type, int version, bool hidden);
     std::vector<std::tuple<int, int, int, bool>> create_conditions();
 
 public:

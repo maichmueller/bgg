@@ -5,24 +5,24 @@
 #include "Game.h"
 
 
-Game::Game(int board_l, const std::shared_ptr<Agent>& ag0, const std::shared_ptr<Agent>& ag1, bool f_setups)
+Game::Game(int board_l, std::shared_ptr<Agent> ag0, std::shared_ptr<Agent> ag1, bool f_setups)
     : board_len(board_l), game_state(board_l),
-      agent_0(ag0), agent_1(ag1), fixed_setups(f_setups),
+      agent_0(std::move(ag0)), agent_1(std::move(ag1)), fixed_setups(f_setups),
       setup_0(), setup_1()
 {
     reset();
 }
 
-Game::Game(int board_l, const std::shared_ptr<Agent>& ag0, const std::shared_ptr<Agent>& ag1,
+Game::Game(int board_l, std::shared_ptr<Agent> ag0, std::shared_ptr<Agent> ag1,
            const std::map<pos_type, int>& setup_0,
            const std::map<pos_type, int>& setup_1)
     : board_len(board_l), game_state(board_l, setup_0, setup_1),
-      agent_0(ag0), agent_1(ag1), fixed_setups(true),
+      agent_0(std::move(ag0)), agent_1(std::move(ag1)), fixed_setups(true),
       setup_0(setup_0), setup_1(setup_1)
 {}
 
-Game::Game(int board_len, const std::shared_ptr<Agent>& ag0, const std::shared_ptr<Agent>& ag1, Board &board)
-    : board_len(board_len), agent_0(ag0), agent_1(ag1), game_state(board, 0)
+Game::Game(int board_len, std::shared_ptr<Agent> ag0, std::shared_ptr<Agent> ag1, Board &board)
+    : board_len(board_len), agent_0(std::move(ag0)), agent_1(std::move(ag1)), game_state(board, 0)
 {}
 
 int Game::run_game(bool show=true) {

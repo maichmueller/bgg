@@ -70,6 +70,7 @@ int MCTS::search(StateType& state, int player, bool root) {
 
     auto state_pi_found = Ps.find(state_rep);
     if(state_pi_found == Ps.end()) {
+        // if the state wasn't found (thus == end)
         auto prediction = nnet_sptr->predict();
     }
 
