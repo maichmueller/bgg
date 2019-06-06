@@ -103,22 +103,22 @@ class NetworkWrapper {
 
 public:
 
-    NetworkWrapper(const std::shared_ptr<AlphaZeroInterface> & net, int board_len, int action_len)
+    NetworkWrapper(std::shared_ptr<AlphaZeroInterface> net, int board_len, int action_len)
     : nnet(net), board_dim(board_len), action_dim(action_len) {}
 
     void to_device(torch::Device dev);
 
-    static torch::Tensor loss_pi(const torch::Tensor& targets, const torch::Tensor& outputs);
-    static torch::Tensor loss_v(const torch::Tensor& targets, const torch::Tensor& outputs);
+    static inline torch::Tensor loss_pi(const torch::Tensor& targets, const torch::Tensor& outputs);
+    static inline torch::Tensor loss_v(const torch::Tensor& targets, const torch::Tensor& outputs);
 
-
-    void train(std::vector<std::tuple<torch::Tensor, std::vector<double>, int, int>> train_examples,
+    template <typename TrainExampleContainer>
+    void train(TrainExampleContainer train_examples,
             int epochs, int batch_size=128);
 
-    std::tuple<torch::Tensor, double> predict(torch::Tensor& board_tensor);
+    std::tuple<torch::Tensor, double> predict(const torch::Tensor& board_tensor);
 
-    void save_checkpoint(std::string folder, std::string filename);
-    void load_checkpoint(std::string folder, std::string filename);
+    void save_checkpoint(std::string const & folder, std::string const & filename);
+    void load_checkpoint(std::string const & folder, std::string const & filename);
 
 
     /// Forwarding methods for torch::nn::Module within nnet

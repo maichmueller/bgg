@@ -4,6 +4,8 @@
 
 #include "NeuralNetwork.h"
 
+#include "filesystem"
+
 Convolutional::Convolutional(int channels, std::vector<int> filter_sizes, std::vector<int> kernel_sizes_vec,
                              std::vector<bool> maxpool_used_vec, std::vector<float> dropout_probs,
                              const torch::nn::Functional & activation_function)
@@ -190,13 +192,13 @@ void NetworkWrapper::to_device(torch::Device dev) {
 }
 
 
-
-void NetworkWrapper::train(std::vector<std::tuple<torch::Tensor, std::vector<double>, int, int>> train_examples, int epochs,
+template <typename TrainExampleContainer>
+void NetworkWrapper::train(TrainExampleContainer train_examples, int epochs,
                           int batch_size) {
     // send model to the right device
     to_device(torch_utils::GLOBAL_DEVICE::get_device());
 
-    auto optimizer = torch::optim::Adam(nnet->parameters(), /*lr=*/0.01);
+    auto optimizer = torch::optim::Adam(nnet->parameters(), torch::optim::AdamOptions(/*learning_rate=*/0.01));
 
     tqdm bar;
     for(int epoch = 0; epoch < epochs; ++epoch) {
@@ -216,9 +218,9 @@ void NetworkWrapper::train(std::vector<std::tuple<torch::Tensor, std::vector<dou
             // fill the batch vectors with the respective part of the sample-tuple
             for(const auto& i : sample_ids) {
                 auto& sample = train_examples[i];
-                board_batch.push_back(std::get<0>(sample));
-                pi_batch.push_back(std::get<1>(sample));
-                v_batch.push_back(std::get<2>(sample));
+                board_batch.push_back(sample.get_tensor());
+                pi_batch.push_back(sample.get_policy());
+                v_batch.push_back(sample.get_evaluation());
             }
 
             torch::TensorOptions options_int = torch::TensorOptions()
@@ -251,10 +253,11 @@ void NetworkWrapper::train(std::vector<std::tuple<torch::Tensor, std::vector<dou
 }
 
 
-std::tuple<torch::Tensor, double> NetworkWrapper::predict(torch::Tensor & board_tensor) {
+std::tuple<torch::Tensor, double> NetworkWrapper::predict(const torch::Tensor & board_tensor) {
     nnet->eval();
 
     // We dont want gradient updates here, so we need the NoGradGuard
+
     torch::NoGradGuard no_grad;
     auto [pi_tensor, v_tensor] = nnet->forward(board_tensor);
 
@@ -265,6 +268,34 @@ std::tuple<torch::Tensor, double> NetworkWrapper::predict(torch::Tensor & board_
 //        pi_vec[i] = pi_acc[i];
 //    }
 
-
     return std::make_tuple(pi_tensor, v_tensor.item<float>());
+}
+
+
+void NetworkWrapper::save_checkpoint(std::string const & folder, std::string const & filename) {
+    namespace fs = std::filesystem;
+    fs::path dir(folder);
+    fs::path file (filename);
+    fs::path full_path = dir / file;
+    // if directory doesnt exist, create it
+    if(!fs::exists(dir)) {
+        std::cout << "Checkpoint directory doesn't exists yet. Creating it." << std::endl;
+        fs::create_directory(dir);
+    }
+
+    torch::save(nnet, full_path);
+}
+
+void NetworkWrapper::load_checkpoint(std::string const &folder, std::string const &filename) {
+    namespace fs = std::filesystem;
+    fs::path dir(folder);
+    fs::path file (filename);
+    fs::path full_path = dir / file;
+    // if file doesnt exist, raise an error
+    if(!fs::exists(full_path)) {
+        std::cout << "Checkpoint directory doesn't exists yet. Creating it." << std::endl;
+        throw std::invalid_argument("No file found for filename " + filename + ".");
+    }
+
+    torch::load(nnet, full_path);
 }

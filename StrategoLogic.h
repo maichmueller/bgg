@@ -17,14 +17,14 @@ class StrategoLogic {
 
     static int find_action_idx(std::vector<std::vector<int>>& vec_to_search, std::vector<int>& action_to_find);
 
-    static pos_type pos_ident(int& len, const pos_type & pos);
-    static pos_type pos_invert(int& len, const pos_type & pos);
+    static inline pos_type pos_ident(int& len, const pos_type & pos);
+    static inline pos_type pos_invert(int& len, const pos_type & pos);
 
-    static move_type move_ident(int& len, const move_type & move);
-    static move_type move_invert(int& len, const move_type & move);
+    static inline move_type move_ident(int& len, const move_type & move);
+    static inline move_type move_invert(int& len, const move_type & move);
 
-    static int team_ident(int team);
-    static int team_invert(int team);
+    static inline int team_ident(int team);
+    static inline int team_invert(int team);
 
 public:
 

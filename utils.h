@@ -5,7 +5,6 @@
 #ifndef STRATEGO_CPP_UTILS_H
 #define STRATEGO_CPP_UTILS_H
 
-#include "GameDeclarations.h"
 
 #include "string"
 #include "memory"
@@ -16,9 +15,37 @@
 
 namespace utils {
 
-    std::string center(const std::string &str, int width, const char* fillchar);
+    inline std::string repeat(std::string str, const std::size_t n)
+    {
+        if (n == 0) {
+            str.clear();
+            str.shrink_to_fit();
+            return str;
+        } else if (n == 1 || str.empty()) {
+            return str;
+        }
+        const auto period = str.size();
+        if (period == 1) {
+            str.append(n - 1, str.front());
+            return str;
+        }
+        str.reserve(period * n);
+        std::size_t m {2};
+        for (; m < n; m *= 2) str += str;
+        str.append(str.c_str(), (n - (m / 2)) * period);
+        return str;
+    }
 
-    std::string repeat(std::string str, const std::size_t n);
+    inline std::string center(const std::string &str, int width, const char* fillchar) {
+
+        int len = str.length();
+        if(width < len) { return str; }
+
+        int diff = width - len;
+        int pad1 = diff/2;
+        int pad2 = diff - pad1;
+        return std::string(pad2, *fillchar) + str + std::string(pad1, *fillchar);
+    }
 
     inline std::string operator*(std::string str, std::size_t n)
     {
@@ -136,12 +163,12 @@ namespace utils {
     }
 
     template <typename Board, typename Piece>
-    void print_board(Board &board, bool flip_board=false, bool hide_unknowns=false) {
+    inline void print_board(Board &board, bool flip_board=false, bool hide_unknowns=false) {
         std::string output = board_str_rep<Board, Piece>(board, flip_board, hide_unknowns);
         std::cout << output << std::endl;
     }
 
-    std::map<int, unsigned int> counter(const std::vector<int>& vals) {
+    inline std::map<int, unsigned int> counter(const std::vector<int>& vals) {
         std::map<int, unsigned int> rv;
 
         for(auto val = vals.begin(); val != vals.end(); ++val) {
@@ -151,7 +178,116 @@ namespace utils {
         return rv;
     }
 
+    struct StringIntHasher {
+        std::hash<std::string> hasher;
+        size_t operator()(const std::tuple<std::string, int>& s) const {
+            return hasher(std::get<0>(s) + std::to_string(std::get<1>(s)));
+        }
+    };
+
+    struct StringIntEqCompare {
+        bool operator()(const std::tuple<std::string, int>& s1, const std::tuple<std::string, int>& s2) const {
+            return (std::get<0>(s1) == std::get<0>(s2)) && (std::get<1>(s1) == std::get<1>(s2));
+        }
+    };
+
+
+
 };
+
+#include <tuple>
+
+namespace hash_tuple {
+
+    template<typename TT>
+    struct hash {
+        size_t
+        operator()(TT const &tt) const {
+            return std::hash<TT>()(tt);
+        }
+    };
+
+    namespace {
+        template<class T>
+        inline void hash_combine(std::size_t &seed, T const &v) {
+            seed ^= hash_tuple::hash<T>()(v) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+        }
+    }
+
+    namespace
+    {
+        // Recursive template code derived from Matthieu M.
+        template <class Tuple, size_t Index = std::tuple_size<Tuple>::value - 1>
+        struct HashValueImpl
+        {
+            static void apply(size_t& seed, Tuple const& tuple)
+            {
+                HashValueImpl<Tuple, Index-1>::apply(seed, tuple);
+                hash_combine(seed, std::get<Index>(tuple));
+            }
+        };
+
+        template <class Tuple>
+        struct HashValueImpl<Tuple,0>
+        {
+            static void apply(size_t& seed, Tuple const& tuple)
+            {
+                hash_combine(seed, std::get<0>(tuple));
+            }
+        };
+    }
+
+    template <typename ... TT>
+    struct hash<std::tuple<TT...>>
+    {
+        size_t
+        operator()(std::tuple<TT...> const& tt) const
+        {
+            size_t seed = 0;
+            HashValueImpl<std::tuple<TT...> >::apply(seed, tt);
+            return seed;
+        }
+    };
+}
+
+#include <utility>
+
+namespace eqcomp_tuple {
+
+
+    template < typename T , typename... Ts >
+    auto head( std::tuple<T,Ts...> const & t )
+    {
+        return  std::get<0>(t);
+    }
+
+    template < std::size_t... Ns , typename... Ts >
+    auto tail_impl( std::index_sequence<Ns...> const & , std::tuple<Ts...> const & t )
+    {
+        return  std::make_tuple( std::get<Ns+1u>(t)... );
+    }
+
+    template < typename... Ts >
+    auto tail( std::tuple<Ts...> const & t )
+    {
+        return  tail_impl( std::make_index_sequence<sizeof...(Ts) - 1u>() , t );
+    }
+
+    template <typename TT>
+    struct eqcomp {
+        bool operator()(TT const & tt1, TT const & tt2) const {
+            return ! ((tt1 < tt2) || (tt2 < tt1));
+        }
+    };
+
+    template <typename T1, typename ...TT>
+    struct eqcomp<std::tuple<T1, TT...>> {
+        bool operator()(std::tuple<T1, TT...> const & tuple1, std::tuple<T1, TT...> const & tuple2) const {
+            return eqcomp<T1>()(std::get<0>(tuple1), std::get<0>(tuple2)) &&
+                    eqcomp<std::tuple<TT...>>()(tail(tuple1), tail(tuple2));
+        }
+    };
+}
 
 
 

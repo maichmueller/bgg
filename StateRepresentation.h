@@ -1,0 +1,202 @@
+//
+// Created by michael on 30.05.19.
+//
+
+#ifndef STRATEGO_CPP_STATEREPRESENTATION_H
+#define STRATEGO_CPP_STATEREPRESENTATION_H
+
+#include <memory>
+#include "vector"
+#include "torch/torch.h"
+#include "torch_utils.h"
+#include "GameDeclarations.h"
+#include "Piece.h"
+
+
+namespace StateRepresentation {
+
+    inline pos_type pos_ident(int &len, const pos_type& pos) {
+        return pos;
+    }
+    inline pos_type pos_invert(int &len, const pos_type &pos) {
+        pos_type p = {len - pos[0], len - pos[1]};
+        return p;
+    }
+    inline int team_ident(int team) {
+        return team;
+    }
+    inline int team_invert(int team) {
+        return 1 - team;
+    }
+
+    template <typename Piece>
+    inline bool check_condition(const std::shared_ptr<Piece>& piece,
+                         int team,
+                         int type,
+                         int version,
+                         bool hidden,
+                         bool flip_teams = false) {
+
+        // if we flip the teams, we want pieces of team 1 to appear as team 0
+        // and vice versa
+        int team_piece = flip_teams ? 1 - piece->get_team() : piece->get_team();
+
+        if(team == 0) {
+            if(!hidden) {
+                // if it is about team 0, the 'hidden' status is unimportant
+                // (since the alpha zero agent always plays from the perspective
+                // of player 0, therefore it can see all its own pieces)
+                bool eq_team = team_piece == team;
+                bool eq_type = piece->get_type() == type;
+                bool eq_vers = piece->get_version() == version;
+                return eq_team && eq_type && eq_vers;
+            }
+            else {
+                // 'hidden' is only important for the single condition that specifically
+                // checks for this property (information about own pieces visible or not).
+                bool eq_team = team_piece == team;
+                bool hide = piece->get_flag_hidden() == hidden;
+                return eq_team && hide;
+            }
+        }
+        else if(team == 1) {
+            // for team 1 we only get the info about type and version if it isn't hidden
+            // otherwise it will fall into the 'hidden' layer
+            if(!hidden) {
+                if(piece->get_flag_hidden())
+                    return false;
+                else {
+                    bool eq_team = team_piece == team;
+                    bool eq_type = piece->get_type() == type;
+                    bool eq_vers = piece->get_version() == version;
+                    return eq_team && eq_type && eq_vers;
+                }
+            }
+            else {
+                bool eq_team = team_piece == team;
+                bool hide = piece->get_flag_hidden() == hidden;
+                return eq_team && hide;
+            }
+        }
+        else {
+            // only the obstacle should reach here
+            return team_piece == team;
+        }
+    }
+
+
+    template < typename Board>
+    inline torch::Tensor b2s_cond_check(const Board & board,
+                                 int state_dim,
+                                 int board_len,
+                                 const std::vector<std::tuple<int, int, int, bool>>& conditions,
+                                 int player = 0) {
+        /*
+         * We are trying to build a state representation of a Stratego board.
+         * To this end, i will define conditions that are evaluated for each
+         * piece on the board. These conditions are checked in sequence.
+         * Each condition receives its own layer with 0's everywhere, except
+         * for where the specific condition was true, which holds a 1.
+         * In short: x conditions -> x binary layers (one for each condition)
+         */
+
+        std::function<pos_type(int&, pos_type&)> canonize_pos = &pos_ident;
+        std::function<int(int)> canonize_team = &team_ident;
+
+        bool flip_teams = static_cast<bool> (player);
+
+        if(flip_teams) {
+            canonize_pos = &pos_invert;
+            canonize_team = &team_invert;
+        }
+
+        torch::Tensor board_state_rep = torch::zeros({1, state_dim, board_len, board_len});
+        auto board_state_access = board_state_rep.accessor<int, 4> ();
+        for(const auto& pos_piece : board) {
+            pos_type pos = pos_piece.first;
+            pos = canonize_pos(board_len, pos);
+            auto piece = pos_piece.second;
+            if(!piece->is_null()) {
+                // TODO: Check if rvalue ref here is suitable
+                for(auto&& [i, cond_it] = std::make_tuple(0, conditions.begin()); cond_it != conditions.end(); ++i, ++cond_it) {
+                    // unpack the condition
+                    auto [team, type, vers, hidden] = *cond_it;
+                    // write the result of the condition check to the tensor
+                    board_state_access[0][i][pos[0]][pos[1]] = check_condition(
+                            piece, team, type, vers, hidden,
+                            flip_teams);
+                }
+            }
+        }
+        // send the tensor to the global device for
+        // working with the GPU if possible
+        board_state_rep.to(torch_utils::GLOBAL_DEVICE::get_device());
+
+        return board_state_rep;
+    }
+
+    using cond_type = std::tuple<int, int, int, bool>;
+
+    inline std::vector<cond_type> create_conditions(const std::map<int, unsigned int>& type_counter,
+                                             int own_team) {
+
+        std::vector<std::tuple<int, int, int, bool>> conditions(21);
+
+        // own team 0
+        // [flag, 1, 2, 3, 4, ..., 10, bombs] UNHIDDEN
+        for(const auto& entry : type_counter) {
+            int type = entry.first;
+            for (int version = 1; version <= entry.second; ++version) {
+                conditions.emplace_back(std::make_tuple(own_team, type, version, false));
+            }
+        }
+        // [all own pieces] HIDDEN
+        // Note: type and version info are being "short-circuited" (unused)
+        // in the check in this case (thus -1)
+        conditions.emplace_back(std::make_tuple(own_team, -1, -1, false));
+
+        // enemy team 1
+        // [flag, 1, 2, 3, 4, ..., 10, bombs] UNHIDDEN
+        for(const auto& entry : type_counter) {
+            int type = entry.first;
+            for (int version = 1; version <= entry.second; ++version) {
+                conditions.emplace_back(std::make_tuple(1-own_team, type, version, false));
+            }
+        }
+        // [all enemy pieces] HIDDEN
+        // Note: type and version info are being "short-circuited" (unused)
+        // in the check in this case (thus -1)
+        conditions.emplace_back(std::make_tuple(1-own_team, -1, -1, false));
+
+        return conditions;
+    }
+
+    static std::vector<cond_type> state_torch_conv_conditions_0;
+    static std::vector<cond_type> state_torch_conv_conditions_1;
+
+    static bool conditions_set = false;
+
+    inline void set_state_rep_conditions(int game_len) {
+
+        if(conditions_set)
+            return;
+
+        auto t_count = utils::counter(GameDeclarations::get_available_types(game_len));
+
+        if (game_len == 5) {
+            state_torch_conv_conditions_0 = create_conditions(t_count, 0);
+            state_torch_conv_conditions_1 = create_conditions(t_count, 1);
+        } else if (game_len == 7) {
+            state_torch_conv_conditions_0 = create_conditions(t_count, 0);
+            state_torch_conv_conditions_1 = create_conditions(t_count, 1);
+        } else if (game_len == 10) {
+            state_torch_conv_conditions_1 = create_conditions(t_count, 1);
+            state_torch_conv_conditions_0 = create_conditions(t_count, 0);
+        }
+    }
+
+
+};
+
+
+#endif //STRATEGO_CPP_STATEREPRESENTATION_H

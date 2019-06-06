@@ -8,6 +8,11 @@
 #include "array"
 #include "vector"
 #include "map"
+#include "unordered_map"
+#include "algorithm"
+#include "memory"
+
+#include "utils.h"
 
 
 namespace GameDeclarations {
@@ -48,7 +53,7 @@ namespace GameDeclarations {
     const std::vector<pos_type > obstacle_pos_m = {{3, 1}, {3, 5}};
     const std::vector<pos_type > obstacle_pos_l = {{4, 2}, {5, 2}, {4, 3}, {5, 3}, {4, 6}, {5, 6}, {4, 7}, {5, 7}};
 
-    inline auto const & get_obstacle_pos(int game_len) {
+    constexpr inline auto const & get_obstacle_pos(int game_len) {
         if(game_len == 5)
             return obstacle_pos_s;
         else if(game_len == 7)
@@ -59,7 +64,7 @@ namespace GameDeclarations {
             throw std::invalid_argument("Game len not in [5, 7, 10].");
     }
 
-    inline auto const & get_available_types(int game_len) {
+    constexpr inline auto const & get_available_types(int game_len) {
         if(game_len == 5)
             return available_types_s;
         else if(game_len == 7)
@@ -70,7 +75,7 @@ namespace GameDeclarations {
             throw std::invalid_argument("Game len not in [5, 7, 10].");
     }
 
-    inline auto const & get_start_positions(int game_len, int team) {
+    constexpr inline auto const & get_start_positions(int game_len, int team) {
         if(game_len == 5) {
             if(team == 0)
                 return start_pos_0_s;
@@ -196,6 +201,41 @@ struct ActionRep {
         else if(game_len == 7) return piece_act_map_m;
         else if(game_len == 10) return piece_act_map_l;
         else throw std::invalid_argument("Game length not in [5, 7, 10].");
+    }
+
+    template <typename Piece>
+    static move_type action_to_move(int action, int action_dim, int board_len,
+                             std::unordered_map<std::tuple<int, int>,
+                                                std::shared_ptr<Piece>,
+                                                hash_tuple::hash<std::tuple<int, int> >,
+                                                eqcomp_tuple::eqcomp<std::tuple<int, int> > > const & actors) {
+
+        if(action < 0 || action >= action_dim)
+            throw std::invalid_argument("Action index out of range.");
+
+        int type = -1;
+        int version = -1;
+        // Iterate over the piece_action_map to find the type and the version of the
+        // piece belonging to this action index.
+        for( auto const& [type_ver_vec, ind_vec] : ActionRep::get_act_map(board_len)) {
+            auto find_action_ind = std::find(ind_vec.begin(), ind_vec.end(), action);
+            if(find_action_ind != ind_vec.end()) {
+                type = type_ver_vec[0];
+                version = type_ver_vec[1];
+                break;
+            }
+        }
+        // error checking. If we didn't find anything, then there is something wrong in the logic.
+        if(type == -1){
+            std::string err_msg = "Couldn't find type and version for action index " + std::to_string(action) + ".";
+            throw std::logic_error(err_msg);
+        }
+        std::shared_ptr<Piece> actor = actors.at(std::make_tuple(type, version));
+        pos_type move_change = ActionRep::get_act_rep(board_len)[action];
+        pos_type curr_pos = actor->get_position();
+        pos_type new_pos = {curr_pos[0] + move_change[0], curr_pos[1] + move_change[1]};
+        move_type move {curr_pos, new_pos};
+        return move;
     }
 
 };

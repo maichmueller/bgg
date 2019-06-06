@@ -3,6 +3,8 @@
 //
 
 #include "GameState.h"
+#include "torch_utils.h"
+#include "StateRepresentation.h"
 
 
 GameState::GameState(int game_len)
@@ -13,10 +15,11 @@ GameState::GameState(int game_len)
     std::map<int, int> team0_dead;
     std::map<int, int> team1_dead;
     dead_pieces = {team0_dead, team1_dead};
+    assign_actors(board);
 }
 
-GameState::GameState(const Board &board, int move_count)
-: board(board), move_count(move_count), terminal(404), terminal_checked(false),
+GameState::GameState(Board board, int move_count)
+: board(std::move(board)), move_count(move_count), terminal(404), terminal_checked(false),
   canonical_teams(true), rounds_without_fight(0), move_equals_prev_move(0),
   move_history(0)
 {
@@ -39,13 +42,15 @@ GameState::GameState(const Board &board, int move_count)
                 team_1_dead[piece.second->get_type()] -= 1;
         }
     }
+    assign_actors(board);
 }
 
-GameState::GameState(const Board& board, std::array<std::map<int, int>, 2>& dead_pieces, int move_count)
-: board(board), dead_pieces(dead_pieces), move_count(move_count),
+GameState::GameState(Board board, std::array<std::map<int, int>, 2>& dead_pieces, int move_count)
+: board(std::move(board)), dead_pieces(dead_pieces), move_count(move_count),
   terminal_checked(false), terminal(404), canonical_teams(true), rounds_without_fight(0),
   move_equals_prev_move(0), move_history(0)
 {
+    assign_actors(board);
 }
 
 GameState::GameState(int len, const std::map<pos_type, int>& setup_0, const std::map<pos_type, int>& setup_1)
@@ -56,6 +61,14 @@ GameState::GameState(int len, const std::map<pos_type, int>& setup_0, const std:
     std::map<int, int> team0_dead;
     std::map<int, int> team1_dead;
     dead_pieces = {team0_dead, team1_dead};
+    assign_actors(board);
+}
+
+void GameState::assign_actors(const Board &brd) {
+    for(const auto& entry: board) {
+        const auto& piece = entry.second;
+        actors[piece->get_team()][std::make_tuple(piece->get_type(), piece->get_version())] = piece;
+    }
 }
 
 void GameState::check_terminal(bool flag_only, int turn) {
@@ -228,4 +241,25 @@ void GameState::undo_last_n_rounds(int n) {
 
 void GameState::restore_to_round(int round) {
     undo_last_n_rounds(move_count - round);
+}
+
+torch::Tensor GameState::torch_represent(int player) {
+    if(!conditions_set) {
+        auto type_counter = utils::counter(GameDeclarations::get_available_types(board.get_board_len()));
+        conditions_torch_rep = StateRepresentation::create_conditions(type_counter, 0);
+        conditions_set = true;
+    }
+
+    return StateRepresentation::b2s_cond_check(
+            board,
+            conditions_torch_rep.size(),
+            board.get_board_len(),
+            conditions_torch_rep,
+            player);
+}
+
+move_type GameState::action_to_move(int action, int player) const {
+    int board_len = board.get_board_len();
+    int action_dim = ActionRep::get_act_rep(board_len).size();
+    return ActionRep::action_to_move(action, action_dim, board_len, actors.at(player));
 }

@@ -12,6 +12,7 @@
 #include "NeuralNetwork.h"
 #include "torch_utils.h"
 #include "torch/torch.h"
+#include "StateRepresentation.h"
 
 struct VecIntHasher {
     std::size_t operator()(std::vector<int> const& vec) const {
@@ -34,11 +35,13 @@ protected:
     std::map<int, unsigned int> type_counter;
 
     // member that stores {type, version} -> Piece-Obj information
-    std::unordered_map<std::vector<int>, std::shared_ptr<Piece>, VecIntHasher> actors;
+    using si_hasher = hash_tuple::hash<std::tuple<int, int>>;
+    using si_key = std::tuple<int, int>;
+    using si_eq_comp = eqcomp_tuple::eqcomp<si_key >;
+    std::unordered_map<si_key, std::shared_ptr<Piece>, si_hasher, si_eq_comp> actors;
     // the neural network
     std::shared_ptr<NetworkWrapper> model;
 
-    move_type _action_to_move(int action);
 
 public:
 
@@ -49,13 +52,13 @@ public:
 
 class AlphaZeroAgent : public AgentReinforceBase {
 
-    static bool check_condition(const std::shared_ptr<Piece>& piece, int team, int type, int version, bool hidden);
-    std::vector<std::tuple<int, int, int, bool>> create_conditions();
+    static inline bool check_condition(const std::shared_ptr<Piece>& piece, int team, int type, int version, bool hidden);
+    inline std::vector<std::tuple<int, int, int, bool>> create_conditions();
 
 public:
 
     void install_board(const Board& board) override;
-    torch::Tensor board_to_state_rep(const Board& board) override;
+    inline torch::Tensor board_to_state_rep(const Board& board) override;
     move_type decide_move(const Board& board) override;
 
 };
