@@ -77,7 +77,7 @@ void Coach::teach(bool from_prev_examples, bool load_current_best, bool skip_fir
         }
 
     if(load_current_best || checkpoint_found) {
-        load_train_examples(checkpoint_path);
+        load_train_examples(checkpoint_path.string());
         for(auto & example : m_train_examples)
             example.convert_board();
         if(fs::exists(fs::path(m_model_folder + "best.pth.tar"))) {
@@ -107,4 +107,11 @@ void Coach::teach(bool from_prev_examples, bool load_current_best, bool skip_fir
     }
 
     }
+}
+
+void Coach::save_train_examples(int iteration) {
+	return;
+}
+void Coach::load_train_examples(std::string examples_fname) {
+	return;
 }
