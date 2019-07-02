@@ -8,6 +8,8 @@
 
 double EPS = 10e-8;
 
+
+
 MCTS::MCTS(std::shared_ptr<NetworkWrapper> nnet_sptr, int num_mcts_sims, double cpuct)
         : m_nnet_sptr(std::move(nnet_sptr)),
           m_num_mcts_sims(num_mcts_sims),
@@ -20,14 +22,15 @@ MCTS::MCTS(std::shared_ptr<NetworkWrapper> nnet_sptr, int num_mcts_sims, double 
           m_Vs()
 {}
 
-template<typename StateType>
-std::vector<double> MCTS::get_action_probs(const StateType &state, int player, double expl_rate) {
+
+
+std::vector<double> MCTS::get_action_probs(const GameState &state, int player, double expl_rate) {
     for (int i = 0; i < m_num_mcts_sims; ++i) {
         search(state, player, true);
     }
 
-    std::string state_rep = utils::board_str_rep(state->get_board(), static_cast<bool>(player), true);
-    std::vector counts(ActionRep::get_act_rep(state->get_board()->get_board_len()).size());
+    std::string state_rep = utils::board_str_rep<Board, Piece>(*state.get_board(), static_cast<bool>(player), true);
+    std::vector<int> counts(ActionRep::get_act_rep(state.get_board()->get_board_len()).size());
     //
     double sum_counts = 0;
     double highest_count = 0;
@@ -39,7 +42,7 @@ std::vector<double> MCTS::get_action_probs(const StateType &state, int player, d
             counts[a] = 0;
         } else {
             // found
-            int &count = count_entry->second;
+            int const & count = count_entry->second;
             counts[a] = count;
             sum_counts += count;
             if (count > highest_count) {
@@ -70,12 +73,12 @@ std::vector<double> MCTS::get_action_probs(const StateType &state, int player, d
     return probs;
 }
 
-template<typename StateType>
-double MCTS::search(StateType state, int player, bool root) {
+
+double MCTS::search(GameState state, int player, bool root) {
     // for the state rep we flip the board if player == 1 and we dont if player == 0!
     // all the enemy hidden pieces wont be printed out -> unknown pieces are also hidden
     // for the neural net
-    std::string s = utils::board_str_rep(state->get_board(), static_cast<bool>(player), true);
+    std::string s = utils::board_str_rep<Board, Piece>(*state.get_board(), static_cast<bool>(player), true);
 
 
     if (auto state_end_found = m_Es.find(s); state_end_found == m_Es.end())
@@ -89,8 +92,12 @@ double MCTS::search(StateType state, int player, bool root) {
         const Board * board = state.get_board();
         int board_len = board->get_board_len();
         //convert board state to torch tensor
+        std::cout << s;
         const torch::Tensor state_tensor = state.torch_represent(player);
+        std::cout << state_tensor;
+
         auto [Ps, v] = m_nnet_sptr->predict(state_tensor);
+        Ps = Ps.view(-1); // flatten the tensor as the first dim is the batch size dim
         // mask for invalid actions
         auto action_mask = StrategoLogic::get_action_mask(
                 *board,
@@ -98,7 +105,7 @@ double MCTS::search(StateType state, int player, bool root) {
                 ActionRep::get_act_map(board_len),
                 player);
 
-        torch::TensorAccessor Ps_acc = Ps.accessor<float, 1>();
+        torch::TensorAccessor Ps_acc = Ps.template accessor<float, 1>();
         std::vector<float> Ps_filtered(action_mask.size());
         float Ps_sum = 0;
 

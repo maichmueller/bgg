@@ -16,7 +16,7 @@ namespace torch_utils {
 
     struct GLOBAL_DEVICE {
         // if CUDA is available, we are using it. Otherwise CPU
-        static inline const torch::DeviceType global_dev = torch::cuda::is_available() ? torch::kCPU : torch::kCUDA;
+        static inline const torch::DeviceType global_dev = torch::cuda::is_available() ? torch::kCUDA : torch::kCPU;
 
         static auto& get_device() {
             return global_dev;

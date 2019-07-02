@@ -6,65 +6,66 @@
 
 #include "filesystem"
 
-Convolutional::Convolutional(int channels, std::vector<int> filter_sizes, std::vector<int> kernel_sizes_vec,
-                             std::vector<bool> maxpool_used_vec, std::vector<float> dropout_probs,
+Convolutional::Convolutional(int channels_in, std::vector<int>&& filter_sizes, const std::vector<int>&& kernel_sizes_vec,
+                             const std::vector<bool>&& maxpool_used_vec, const std::vector<float>&& dropout_probs,
                              const torch::nn::Functional & activation_function)
-: channels_in(channels), layers(), filter_sizes(std::move(filter_sizes)),
-  kernel_sizes(std::move(kernel_sizes_vec)), maxpool_used_vec(std::move(maxpool_used_vec)),
-  droput_prop_per_layer(std::move(dropout_probs))
+: m_channels_in(channels_in), m_layers(), m_filter_sizes(filter_sizes),
+  m_kernel_sizes(kernel_sizes_vec), m_maxpool_used_vec(maxpool_used_vec),
+  m_droput_prop_per_layer(dropout_probs)
 {
     /// Constructor for a pre-defined Convultional Neural Network.
     /// Options allow for including maxpooling and dropout layers
     /// in the specified layer index if
     /// "maxpool_used_vec[index] = true" or "dropout_prob[index] > 0"
 
-    int nr_conv_layers = kernel_sizes.size();
+    int nr_conv_layers = m_kernel_sizes.size();
 
     std::vector<int> zero_paddings(nr_conv_layers, 0);
     for(int i = 0; i < nr_conv_layers; ++i) {
-        zero_paddings[i] = (kernel_sizes[i] - 1) / 2;
+        zero_paddings[i] = (m_kernel_sizes[i] - 1) / 2;
     }
 
-    filter_sizes.insert(filter_sizes.begin(), channels);
+    filter_sizes.insert(filter_sizes.begin(), channels_in);
 
     for(int k = 0; k < nr_conv_layers; ++k) {
-        // extend the layer sequential by a convolutional and a relu activation
-        layers->push_back(
-                torch::nn::Conv2d(
-                        torch::nn::Conv2dOptions(filter_sizes[k], filter_sizes[k+1], kernel_sizes[k])
-                                .stride(2).padding(zero_paddings[k]).with_bias(false))
-        );
+        // extend the layer sequential by a convolutional
+        auto options = torch::nn::Conv2dOptions(filter_sizes[k], filter_sizes[k+1], m_kernel_sizes[k])
+                .stride(1).padding(zero_paddings[k]).with_bias(false);
+        m_layers->push_back(torch::nn::Conv2d(options));
         // check for maxpool and/or dropout layer additions
         if(maxpool_used_vec[k]) {
-            layers->push_back( torch::nn::Functional(torch::max_pool2d,
+            m_layers->push_back( torch::nn::Functional(torch::max_pool2d,
                     /*kernel_size=*/3, /*stride=*/2, /*padding=*/0, /*dilation=*/1, false) );
         }
-        auto p_drop = droput_prop_per_layer[k];
+        auto p_drop = m_droput_prop_per_layer[k];
         if(p_drop > 0) {
-            layers->push_back( torch::nn::Functional(torch::dropout, /*p=*/p_drop, true) );
+            m_layers->push_back( torch::nn::Functional(torch::dropout, /*p=*/p_drop, true) );
         }
-        // finish this layer-segment with a relu layer activation
-        layers->push_back( activation_function );
+        // finish this layer-segment with a layer activation
+        m_layers->push_back( activation_function );
     }
 }
 
 template <typename prim_type>
-Convolutional::Convolutional(int channels,
+Convolutional::Convolutional(int channels_in,
         const std::vector<int> & filter_sizes,
         const std::vector<int> & kernel_sizes_vec,
         const std::vector<bool> & maxpool_used_vec,
         prim_type dropout_prob_for_all,
         const torch::nn::Functional & activation_function)
-        : Convolutional(channels, filter_sizes,
+        : Convolutional(channels_in, filter_sizes,
                         kernel_sizes_vec, maxpool_used_vec,
                         std::vector<float> (4, static_cast<float> (dropout_prob_for_all)),
-                        activation_function) {}
+                        activation_function)
+                        {}
 
 torch::Tensor Convolutional::forward(const torch::Tensor &input) {
 
     input.to(torch_utils::GLOBAL_DEVICE::get_device());
+    std::cout << "\nCONVOLUTIONAL INPUT\n";
+    std::cout << input;
 
-    return layers->forward(input);
+    return m_layers->forward(input);
 }
 
 FullyConnected::FullyConnected(int D_in, int D_out, int nr_lin_layers, int start_expo,
@@ -75,9 +76,12 @@ FullyConnected::FullyConnected(int D_in, int D_out, int nr_lin_layers, int start
     if(nr_lin_layers < 1) {
         throw std::invalid_argument("Less than 1 linear layer requested. Aborting.");
     }
+    else if(nr_lin_layers == 1) {
+        layers->push_back( torch::nn::Linear(torch::nn::LinearOptions(D_in, D_out)));
+    }
+    else {
 
     // note that 2 << N-1 == 2^N (exponentiating, not xor operator)
-
     int hidden_nodes = 2 << (start_expo - 1);
 
     layers->push_back( torch::nn::Linear(torch::nn::LinearOptions(D_in, hidden_nodes)));
@@ -85,7 +89,7 @@ FullyConnected::FullyConnected(int D_in, int D_out, int nr_lin_layers, int start
     // eg. layer1: Linear(128, 64)
     //     layer2: Linear( 64, 32)
     // ...
-    for(int i = 0; i < nr_lin_layers; ++i) {
+    for(int i = 0; i < nr_lin_layers-2; ++i) {
         int denom1;
         if(i==0)
             denom1 = 1;
@@ -93,12 +97,13 @@ FullyConnected::FullyConnected(int D_in, int D_out, int nr_lin_layers, int start
             denom1 = 2 << (i -1);
         int denom2 = 2 << (i);
 
-        layers->push_back( torch::nn::Linear(
-                torch::nn::LinearOptions(hidden_nodes / denom1, hidden_nodes / denom2)) );
+        auto options = torch::nn::LinearOptions(hidden_nodes / denom1, hidden_nodes / denom2);
+        layers->push_back( torch::nn::Linear(options));
         layers->push_back( activation_function );
     }
     layers->push_back( torch::nn::Linear(
             torch::nn::LinearOptions(hidden_nodes / (2 << (nr_lin_layers - 3)), D_out)) );
+    }
 }
 
 torch::Tensor FullyConnected::forward(const torch::Tensor &input) {
@@ -123,11 +128,11 @@ StrategoAlphaZero::StrategoAlphaZero(int D_in, int D_out,
                                        pi_act_layer(nullptr), v_act_layer(nullptr)
 {
     if(nr_lin_layers < 2) {
-        throw std::invalid_argument("Less than 2 linear layers requested. Aborting.");
+        throw std::invalid_argument("Less than 2 linear m_layers requested. Aborting.");
     }
 
     int hidden_nodes = 2 << (start_exponent - 1);
-    int substitute_d_out = hidden_nodes / (2 << (nr_lin_layers - 3));
+    int substitute_d_out = hidden_nodes / (2 << (nr_lin_layers - 4));
     linear_layers = FullyConnected(
             D_in,
             /*D_out=*/substitute_d_out,
@@ -142,7 +147,8 @@ StrategoAlphaZero::StrategoAlphaZero(int D_in, int D_out,
 
 std::tuple<torch::Tensor, torch::Tensor> StrategoAlphaZero::forward(const torch::Tensor &input) {
     input.to(torch_utils::GLOBAL_DEVICE::get_device());
-
+    std::cout << "\nALPHAZERO INPUT\n";
+    std::cout << input;
     torch::Tensor output = convo_layers.forward(input).view({-1, D_in});
     output = linear_layers.forward(output);
 
@@ -179,77 +185,8 @@ std::vector<int> NetworkWrapper::_sample_without_replacement(int pool_len, int s
     return sample;
 }
 
-torch::Tensor NetworkWrapper::loss_pi(const torch::Tensor &targets, const torch::Tensor &outputs) {
-    return -(targets * outputs).sum() / targets.size(1);
-}
-
-torch::Tensor NetworkWrapper::loss_v(const torch::Tensor &targets, const torch::Tensor &outputs) {
-    return (targets - outputs).pow(2).sum() / targets.size(1);
-}
-
 void NetworkWrapper::to_device(torch::Device dev) {
     nnet->to(dev);
-}
-
-
-template <typename TrainExampleContainer>
-void NetworkWrapper::train(TrainExampleContainer train_examples, int epochs,
-                          int batch_size) {
-    // send model to the right device
-    to_device(torch_utils::GLOBAL_DEVICE::get_device());
-
-    auto optimizer = torch::optim::Adam(nnet->parameters(), torch::optim::AdamOptions(/*learning_rate=*/0.01));
-
-    tqdm bar;
-    for(int epoch = 0; epoch < epochs; ++epoch) {
-        bar.progress(epoch, epochs);
-        // set the nnet into train mode (i.e. demands gradient updates for tensors)
-        nnet->train();
-
-        for(int b = 0; b < static_cast<int> (train_examples.size() / batch_size); ++b) {
-
-            // get a randomly drawn sample index batch
-            auto sample_ids = _sample_without_replacement(train_examples.size(), batch_size);
-
-            std::vector<torch::Tensor> board_batch(batch_size);
-            std::vector<std::vector<double>> pi_batch(batch_size);
-            std::vector<int> v_batch(batch_size);
-
-            // fill the batch vectors with the respective part of the sample-tuple
-            for(const auto& i : sample_ids) {
-                auto& sample = train_examples[i];
-                board_batch.push_back(sample.get_tensor());
-                pi_batch.push_back(sample.get_policy());
-                v_batch.push_back(sample.get_evaluation());
-            }
-
-            torch::TensorOptions options_int = torch::TensorOptions()
-                    .device(torch_utils::GLOBAL_DEVICE::get_device())
-                    .dtype(torch::kInt64)
-                    .requires_grad(false);
-
-            torch::TensorOptions options_float = torch::TensorOptions()
-                    .device(torch_utils::GLOBAL_DEVICE::get_device())
-                    .dtype(torch::kFloat)
-                    .requires_grad(true);
-
-
-            torch::Tensor board_tensor = torch::from_blob(board_batch.data(), board_batch.size(), options_int);
-            torch::Tensor target_pis = torch_utils::tensor_from_vector(pi_batch, options_float);
-            torch::Tensor target_vs = torch::from_blob(v_batch.data(), v_batch.size());
-
-            auto nnet_out = nnet->forward(board_tensor);
-            auto l_pi = loss_pi(target_pis, std::get<0>(nnet_out));
-            auto l_v = loss_v(target_vs, std::get<1>(nnet_out));
-            auto total_loss = l_pi + l_v;
-            total_loss.requires_grad();
-
-            optimizer.zero_grad();
-            total_loss.backward();
-            optimizer.step();
-        }
-    }
-    bar.finish();
 }
 
 
@@ -257,8 +194,9 @@ std::tuple<torch::Tensor, double> NetworkWrapper::predict(const torch::Tensor & 
     nnet->eval();
 
     // We dont want gradient updates here, so we need the NoGradGuard
-
+    std::cout << board_tensor;
     torch::NoGradGuard no_grad;
+    std::cout << board_tensor;
     auto [pi_tensor, v_tensor] = nnet->forward(board_tensor);
 
 //    // copy the pi tensor data into a std::vector
@@ -268,9 +206,8 @@ std::tuple<torch::Tensor, double> NetworkWrapper::predict(const torch::Tensor & 
 //        pi_vec[i] = pi_acc[i];
 //    }
 
-    return std::make_tuple(pi_tensor, v_tensor.item<float>());
+    return std::make_tuple(pi_tensor, v_tensor.template item<float>());
 }
-
 
 void NetworkWrapper::save_checkpoint(std::string const & folder, std::string const & filename) {
     namespace fs = std::filesystem;
@@ -279,12 +216,13 @@ void NetworkWrapper::save_checkpoint(std::string const & folder, std::string con
     fs::path full_path = dir / file;
     // if directory doesnt exist, create it
     if(!fs::exists(dir)) {
-        std::cout << "Checkpoint directory doesn't exists yet. Creating it." << std::endl;
+        std::cout << "Checkpoint directory doesn't exist yet. Creating it." << std::endl;
         fs::create_directory(dir);
     }
 
     torch::save(nnet, full_path);
 }
+
 
 void NetworkWrapper::load_checkpoint(std::string const &folder, std::string const &filename) {
     namespace fs = std::filesystem;

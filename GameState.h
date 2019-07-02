@@ -65,7 +65,7 @@ public:
 
     void canonical_board(int player);
     void set_board(Board brd) {this->board = std::move(brd);}
-    Board* get_board() {return &board;}
+    Board const * get_board() const {return &board;}
 };
 
 

@@ -15,7 +15,7 @@ GameState::GameState(int game_len)
     std::map<int, int> team0_dead;
     std::map<int, int> team1_dead;
     dead_pieces = {team0_dead, team1_dead};
-    assign_actors(board);
+    assign_actors(this->board);
 }
 
 GameState::GameState(Board board, int move_count)
@@ -42,7 +42,7 @@ GameState::GameState(Board board, int move_count)
                 team_1_dead[piece.second->get_type()] -= 1;
         }
     }
-    assign_actors(board);
+    assign_actors(this->board);
 }
 
 GameState::GameState(Board board, std::array<std::map<int, int>, 2>& dead_pieces, int move_count)
@@ -50,7 +50,7 @@ GameState::GameState(Board board, std::array<std::map<int, int>, 2>& dead_pieces
   terminal_checked(false), terminal(404), canonical_teams(true), rounds_without_fight(0),
   move_equals_prev_move(0), move_history(0)
 {
-    assign_actors(board);
+    assign_actors(this->board);
 }
 
 GameState::GameState(int len, const std::map<pos_type, int>& setup_0, const std::map<pos_type, int>& setup_1)
@@ -67,7 +67,8 @@ GameState::GameState(int len, const std::map<pos_type, int>& setup_0, const std:
 void GameState::assign_actors(const Board &brd) {
     for(const auto& entry: board) {
         const auto& piece = entry.second;
-        actors[piece->get_team()][std::make_tuple(piece->get_type(), piece->get_version())] = piece;
+        if(!piece->is_null() && piece->get_type() != 99)
+            actors[piece->get_team()][std::make_tuple(piece->get_type(), piece->get_version())] = piece;
     }
 }
 
@@ -117,7 +118,7 @@ int GameState::is_terminal(bool force_check, int turn) {
 
 
 void GameState::canonical_board(int player) {
-    // if the 0 player is team 1, then canonical is false,
+    // if the 0 player is m_team 1, then canonical is false,
     // if it is 0 otherwise, then the teams are canonical
     canonical_teams = bool(1 - player);
 }

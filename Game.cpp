@@ -28,7 +28,7 @@ Game::Game(int board_len, std::shared_ptr<Agent> ag0, std::shared_ptr<Agent> ag1
 int Game::run_game(bool show=true) {
     int game_over = false;
     int terminal = 404;
-    std::function<void(Board&, bool, bool)> print_board = [](Board& board, bool n, bool m) -> void {return;};
+    std::function<void(const Board&, bool, bool)> print_board = [](const Board& board, bool n, bool m) -> void {return;};
     if(show)
         print_board = &utils::print_board<Board, Piece>;
 

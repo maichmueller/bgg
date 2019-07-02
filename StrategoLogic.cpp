@@ -91,7 +91,7 @@ bool StrategoLogic::is_legal_move(const Board &board, const move_type &move_in, 
         return false;
     if(!p_a->is_null()) {
         if(p_a->get_team() == p_b->get_team())
-            return false; // cant fight pieces of own team
+            return false; // cant fight pieces of own m_team
         if(p_a->get_type() == 99)
             return false; // cant fight obstacle
     }
@@ -283,7 +283,9 @@ void StrategoLogic::enable_legal_action(std::vector<int>& action_mask, const Boa
         // right index to 1
         pos_type action_base = {pos_to[0] - pos[0], pos_to[1] - pos[1]};
         std::vector<std::vector<int>> slice(act_range.size());
-        for(const int& idx : act_range) {slice[idx] = action_arr[idx];}
+        for(int idx = 0; idx < slice.size(); ++idx) {
+            slice[idx] = action_arr[act_range[idx]];
+        }
         int idx = StrategoLogic::find_action_idx(slice, action_base);
         action_mask[idx] = 1;
     }

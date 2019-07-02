@@ -1,113 +1,46 @@
-//#include <iostream>
-//#include "Board.h"
-//#include "Piece.h"
-//#include "GameState.h"
-//#include "Game.h"
-//#include "vector"
-//#include "random"
-//#include "torch/torch.h"
-//
-//int main() {
-//    int board_len = 5;
-//
-//    std::map<pos_type, int> setup_0;
-//    std::map<pos_type, int> setup_1;
-//
-//    setup_0[{0,0}] = 0;
-//    setup_0[{0,1}] = 11;
-//    setup_0[{0,2}] = 3;
-//    setup_0[{0,3}] = 10;
-//    setup_0[{0,4}] = 1;
-//    setup_0[{1,0}] = 2;
-//    setup_0[{1,1}] = 2;
-//    setup_0[{1,2}] = 11;
-//    setup_0[{1,3}] = 3;
-//    setup_0[{1,4}] = 2;
-//
-//    setup_1[{4,0}] = 0;
-//    setup_1[{4,1}] = 11;
-//    setup_1[{4,2}] = 3;
-//    setup_1[{4,3}] = 10;
-//    setup_1[{4,4}] = 1;
-//    setup_1[{3,0}] = 2;
-//    setup_1[{3,1}] = 2;
-//    setup_1[{3,2}] = 11;
-//    setup_1[{3,3}] = 3;
-//    setup_1[{3,4}] = 2;
-//    // Board board_from_setups(board_len, setup_0, setup_1);
-//
-//    std::cout << "Initialized boards." << std::endl;
-//
-//    auto ag0 = std::make_shared<RandomAgent<>> (0);
-//    auto ag1 = std::make_shared<RandomAgent<>> (1);
-//    Game game(board_len, ag0, ag1);
-//    utils::print_board<Board, Piece>(*game.get_gamestate()->get_board());
-//    utils::print_board<Board, Piece>(*game.get_gamestate()->get_board(), true);
-////    for(int i = 0; i < 50; ++i) {
-////        std::cout << "Game: " << i << std::endl;
-////        utils::print_board<Board, Piece>(*game.get_gamestate()->get_board());
-////        game.run_game(true);
-////        game.reset();
-////    }
-//
-//    return 0;
-//
-//
-//
-//}
-
-
+#include <iostream>
+#include "Board.h"
+#include "Piece.h"
+#include "GameState.h"
+#include "Game.h"
+#include "NeuralNetwork.h"
+#include "Coach.h"
+#include "vector"
+#include "random"
+#include "torch/torch.h"
 
 #include <iostream>
 #include <vector>
 #include <set>
 #include <type_traits>
 #include "torch_utils.h"
-
+#include "AgentReinforce.h"
 
 
 int main(int argc, char const *argv[])
 {
-    torch::Tensor t1 = torch::ones({2, 3});
-    auto argm = t1.argmax();
-    int ll = argm.item<int64_t >();
-    std::cout << argm;
-    t1[0][0] = 0;
-    t1[0][1] = 1;
-    t1[0][2] = 2;
-    t1[1][0] = 3;
-    t1[1][1] = 4;
-    t1[1][2] = 5;
-    std::cout << t1 << '\n';
-    using V1 = std::vector<int>;
-    using V2 = std::vector<V1>;
-    using V3 = std::vector<V2>;
-    using V4 = std::vector<V3>;
-    using V5 = std::vector<V4>;
+    int board_size = 5;
+    int action_dim = ActionRep::get_act_rep(board_size).size();
+    StateRepresentation::set_state_rep_conditions(board_size);
+    std::vector<int> filters{128, 128, 128, 128};
+    auto alphazero_net_ptr = std::make_shared<StrategoAlphaZero>(
+            /*D_in=*/board_size * board_size * filters.front(),
+            /*D_out=*/action_dim,
+            /*nr_lin_layers=*/5,
+            /*start_exponent=*/10,
+            /*channels_in=*/StateRepresentation::state_torch_conv_conditions_0.size(),
+            filters,
+            std::vector<int> {3, 3, 3, 3},
+            std::vector<bool> {false, false, false, false},
+            std::vector<float> {0.0, 0.0, 0.0, 0.0});
 
-    std::vector<size_t> size;
-
-    V1 v1(3, 1);
-    for(int i = 0; i < v1.size(); ++i){
-        v1[i] = i;
-    }
-    V2 v2({v1,v1});
-    V3 v3({v2,v2,v2});
-    V4 v4({v3,v3,v3,v3});
-    V5 v5({v4});
-//    std::cout << torch_utils::NestedVectorManip<V1>::dimension;
-//    std::cout << torch_utils::NestedVectorManip<V2>::dimension;
-//    std::cout << torch_utils::NestedVectorManip<V3>::dimension;
-//    std::cout << torch_utils::NestedVectorManip<V4>::dimension;
-//    std::cout << torch_utils::NestedVectorManip<V5>::dimension;
-
-    torch::Tensor t = torch_utils::tensor_from_vector(v2);
-    std::cout << t;
-//    std::cout << t;
-//    auto shit = t.numel();
-//    for(auto val = t.data<int64_t >(); val != t.data<int64_t >() + t.numel(); ++val) {
-//        std::cout << val << '\n';
-//    }
+    auto network_0 = std::make_shared<NetworkWrapper>(alphazero_net_ptr, board_size, action_dim);
+    auto network_1 = std::make_shared<NetworkWrapper>(*network_0);
+    auto agent_0 = std::make_shared<AlphaZeroAgent>(0, true, network_0);
+    auto agent_1 = std::make_shared<AlphaZeroAgent>(1, true, network_1);
+    auto game = std::make_shared<Game>(5, agent_0, agent_1);
+    Coach coach(game, network_0, network_1);
+    coach.teach(false, false, false, false);
 
     return 0;
 }

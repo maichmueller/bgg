@@ -15,6 +15,7 @@
 #include "Board.h"
 #include "StateRepresentation.h"
 
+
 struct TrainingTurn {
     Board m_board;
     torch::Tensor m_board_tensor;
@@ -45,7 +46,9 @@ struct TrainingTurn {
                 0);
         converted = true;
     }
-
+    Board& get_board() {
+        return m_board;
+    }
     torch::Tensor& get_tensor() {
         return m_board_tensor;
     }
@@ -55,7 +58,12 @@ struct TrainingTurn {
     double get_evaluation() {
         return m_v;
     }
+    int get_player() {
+        return m_player;
+    }
+
 };
+
 
 class Coach {
 
@@ -74,6 +82,17 @@ class Coach {
     std::deque<TrainingTurn> m_train_examples;
 
 public:
+
+    Coach(std::shared_ptr<Game> game,
+            std::shared_ptr<NetworkWrapper> nnet,
+            std::shared_ptr<NetworkWrapper> opp_nnet,
+            int num_iters = 100,
+            float win_frac = 0.55,
+            int num_episodes = 100,
+            int num_mcts_sims = 100,
+            int num_iters_train_examples_hist = 10e5,
+            std::string model_folder = "checkpoints",
+            int exploration_rate = 100);
 
     std::vector<TrainingTurn> exec_ep(GameState state) const;
     void teach(bool from_prev_examples=false, bool load_current_best=false, bool skip_first_self_play=false,

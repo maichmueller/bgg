@@ -84,8 +84,8 @@ Board::Board(int len, const std::map<pos_type, int>& setup_0, const std::map<pos
         // null constructor of map is called on unplaced previous item (creates 0 int)
         // therefore the first time this is called, will get us to version 1, the first
         // piece. Afterwards it will keep count correctly for us.
-        version_count_0[piece_type] += 1;
         int version = version_count_0[piece_type];
+        version_count_0[piece_type] += 1;
         auto piece = std::make_shared<Piece> (0, piece_type, pos, version);
         board_map[pos] = std::move(piece);
     }
@@ -105,10 +105,10 @@ Board::Board(int len, const std::map<pos_type, int>& setup_0, const std::map<pos
 
         seen_pos_1[pos] = 1;
         // null constructor of map is called on unplaced previous item (creates 0 int)
-        // therefore the first time this is called, will get us to version 1, the first
+        // therefore the first time this is called, will get us to version 0, the first
         // piece. Afterwards it will keep count correctly for us.
-        version_count_1[piece_type] += 1;
         int version = version_count_1[piece_type];
+        version_count_1[piece_type] += 1;
         auto piece = std::make_shared<Piece> (1, piece_type, pos, version);
         board_map[pos] = std::move(piece);
     }

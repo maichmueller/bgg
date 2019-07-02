@@ -10,6 +10,7 @@
 
 #include "NeuralNetwork.h"
 #include "utils.h"
+#include "GameState.h"
 
 #include "StateRepresentation.h"
 #include "StrategoLogic.h"
@@ -31,16 +32,13 @@ class MCTS {
     std::unordered_map<std::string, int> m_Es;
     std::unordered_map<std::string, std::vector<int>> m_Vs;
 
-    template <typename StateType>
-    double search(StateType state, int player, bool root=false);
+    double search(GameState state, int player, bool root=false);
 
 public:
 
     MCTS(std::shared_ptr<NetworkWrapper> nnet_sptr, int num_mcts_sims, double cpuct=4);
 
-
-    template <typename StateType>
-    std::vector<double> get_action_probs(const StateType& state, int player, double expl_rate=1.);
+    std::vector<double> get_action_probs(const GameState& state, int player, double expl_rate=1.);
 
 
 

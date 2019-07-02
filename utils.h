@@ -53,7 +53,7 @@ namespace utils {
     }
 
     template <typename Board, typename Piece>
-    std::string board_str_rep(Board& board, bool flip_board=false, bool hide_unknowns=false) {
+    std::string board_str_rep(const Board& board, bool flip_board=false, bool hide_unknowns=false) {
         int H_SIZE_PER_PIECE = 9;
         int V_SIZE_PER_PIECE = 3;
         // the space needed to assign row indices to the rows and to add a splitting bar "|"
@@ -86,7 +86,7 @@ namespace utils {
                               H_SIZE_PER_PIECE, " ");
             }
             else if(line == mid+1)
-                // team info line
+                // m_team info line
                 return center(std::to_string(piece.get_team(flip_board)), H_SIZE_PER_PIECE, " ");
             else
                 // empty line
@@ -163,7 +163,7 @@ namespace utils {
     }
 
     template <typename Board, typename Piece>
-    inline void print_board(Board &board, bool flip_board=false, bool hide_unknowns=false) {
+    inline void print_board(const Board &board, bool flip_board=false, bool hide_unknowns=false) {
         std::string output = board_str_rep<Board, Piece>(board, flip_board, hide_unknowns);
         std::cout << output << std::endl;
     }

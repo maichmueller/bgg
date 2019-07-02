@@ -37,13 +37,13 @@ namespace StateRepresentation {
                          bool hidden,
                          bool flip_teams = false) {
 
-        // if we flip the teams, we want pieces of team 1 to appear as team 0
+        // if we flip the teams, we want pieces of m_team 1 to appear as m_team 0
         // and vice versa
         int team_piece = flip_teams ? 1 - piece->get_team() : piece->get_team();
 
         if(team == 0) {
             if(!hidden) {
-                // if it is about team 0, the 'hidden' status is unimportant
+                // if it is about m_team 0, the 'hidden' status is unimportant
                 // (since the alpha zero agent always plays from the perspective
                 // of player 0, therefore it can see all its own pieces)
                 bool eq_team = team_piece == team;
@@ -60,7 +60,7 @@ namespace StateRepresentation {
             }
         }
         else if(team == 1) {
-            // for team 1 we only get the info about type and version if it isn't hidden
+            // for m_team 1 we only get the info about type and version if it isn't hidden
             // otherwise it will fall into the 'hidden' layer
             if(!hidden) {
                 if(piece->get_flag_hidden())
@@ -93,11 +93,11 @@ namespace StateRepresentation {
                                  int player = 0) {
         /*
          * We are trying to build a state representation of a Stratego board.
-         * To this end, i will define conditions that are evaluated for each
-         * piece on the board. These conditions are checked in sequence.
+         * To this end, i will define m_conditions that are evaluated for each
+         * piece on the board. These m_conditions are checked in sequence.
          * Each condition receives its own layer with 0's everywhere, except
          * for where the specific condition was true, which holds a 1.
-         * In short: x conditions -> x binary layers (one for each condition)
+         * In short: x m_conditions -> x binary m_layers (one for each condition)
          */
 
         std::function<pos_type(int&, pos_type&)> canonize_pos = &pos_ident;
@@ -109,9 +109,14 @@ namespace StateRepresentation {
             canonize_pos = &pos_invert;
             canonize_team = &team_invert;
         }
-
-        torch::Tensor board_state_rep = torch::zeros({1, state_dim, board_len, board_len});
-        auto board_state_access = board_state_rep.accessor<int, 4> ();
+        auto options =
+                torch::TensorOptions()
+                        .dtype(torch::kFloat32)
+                        .layout(torch::kStrided)
+                        .device(torch_utils::GLOBAL_DEVICE::get_device())
+                        .requires_grad(true);
+        torch::Tensor board_state_rep = torch::zeros({1, state_dim, board_len, board_len}, options);
+        auto board_state_access = board_state_rep.accessor<float, 4> ();
         for(const auto& pos_piece : board) {
             pos_type pos = pos_piece.first;
             pos = canonize_pos(board_len, pos);
@@ -140,33 +145,33 @@ namespace StateRepresentation {
     inline std::vector<cond_type> create_conditions(const std::map<int, unsigned int>& type_counter,
                                              int own_team) {
 
-        std::vector<std::tuple<int, int, int, bool>> conditions(21);
+        std::vector<std::tuple<int, int, int, bool>> conditions(0);
 
-        // own team 0
+        // own m_team 0
         // [flag, 1, 2, 3, 4, ..., 10, bombs] UNHIDDEN
         for(const auto& entry : type_counter) {
             int type = entry.first;
-            for (int version = 1; version <= entry.second; ++version) {
+            for (int version = 0; version < entry.second; ++version) {
                 conditions.emplace_back(std::make_tuple(own_team, type, version, false));
             }
         }
         // [all own pieces] HIDDEN
-        // Note: type and version info are being "short-circuited" (unused)
+        // Note: type and version info are unused
         // in the check in this case (thus -1)
-        conditions.emplace_back(std::make_tuple(own_team, -1, -1, false));
+        conditions.emplace_back(std::make_tuple(own_team, -1, -1, true));
 
-        // enemy team 1
+        // enemy m_team 1
         // [flag, 1, 2, 3, 4, ..., 10, bombs] UNHIDDEN
         for(const auto& entry : type_counter) {
             int type = entry.first;
-            for (int version = 1; version <= entry.second; ++version) {
+            for (int version = 0; version < entry.second; ++version) {
                 conditions.emplace_back(std::make_tuple(1-own_team, type, version, false));
             }
         }
         // [all enemy pieces] HIDDEN
-        // Note: type and version info are being "short-circuited" (unused)
+        // Note: type and version info are unused
         // in the check in this case (thus -1)
-        conditions.emplace_back(std::make_tuple(1-own_team, -1, -1, false));
+        conditions.emplace_back(std::make_tuple(1-own_team, -1, -1, true));
 
         return conditions;
     }

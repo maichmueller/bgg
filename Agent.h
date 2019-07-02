@@ -14,12 +14,12 @@
 
 class Agent {
 protected:
-    int team;
-    bool is_learner;
+    int m_team;
+    bool m_is_learner;
 
 public:
     explicit Agent(int team, bool learner=false)
-    : team(team), is_learner(learner)
+    : m_team(team), m_is_learner(learner)
     {
     }
 
@@ -41,8 +41,8 @@ public:
     : Agent(team), rng(dev())
     {}
 
-    move_type decide_move(const Board &board) {
-        std::vector<move_type> poss_moves = StrategoLogic::get_poss_moves(board, team);
+    move_type decide_move(const Board &board) override {
+        std::vector<move_type> poss_moves = StrategoLogic::get_poss_moves(board, m_team);
 
         std::uniform_int_distribution<std::mt19937::result_type> dist(0, poss_moves.size()-1);
 
