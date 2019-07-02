@@ -93,9 +93,11 @@ void Coach::teach(bool from_prev_examples,
     }
 
     if(load_current_best || checkpoint_found) {
+
         //load_train_examples(checkpoint_path);
         //for(auto & example : m_train_examples)
         //    example.convert_board();
+
         if(fs::exists(fs::path(m_model_folder + "best.pth.tar"))) {
             m_nnet->load_checkpoint(m_model_folder, "best.pth.tar");
         }
@@ -142,4 +144,9 @@ void Coach::teach(bool from_prev_examples,
 
 void Coach::save_train_examples(int iteration) {
 // TODO: I need to find a serialization method ._.
+	return;
+}
+
+void Coach::load_train_examples(std::string examples_fname) {
+	return;
 }

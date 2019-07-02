@@ -220,7 +220,7 @@ void NetworkWrapper::save_checkpoint(std::string const & folder, std::string con
         fs::create_directory(dir);
     }
 
-    torch::save(nnet, full_path);
+    torch::save(nnet, full_path.string());
 }
 
 
@@ -235,5 +235,5 @@ void NetworkWrapper::load_checkpoint(std::string const &folder, std::string cons
         throw std::invalid_argument("No file found for filename " + filename + ".");
     }
 
-    torch::load(nnet, full_path);
+    torch::load(nnet, full_path.string());
 }

@@ -36,6 +36,7 @@ cmake-build-debug-clang/*
 cmake-build-minsizerel/*
 cmake-build-release/*
 cmake-build-relwithdebinfo/*
+out/*
 .vs
 .idea/*
 .idea/workspace.xml
