@@ -15,11 +15,11 @@
 
 namespace StateRepresentation {
 
-    inline pos_type pos_ident(int &len, const pos_type& pos) {
+    inline pos_t pos_ident(int &len, const pos_t& pos) {
         return pos;
     }
-    inline pos_type pos_invert(int &len, const pos_type &pos) {
-        pos_type p = {len - pos[0], len - pos[1]};
+    inline pos_t pos_invert(int &len, const pos_t &pos) {
+        pos_t p = {len - pos[0] - 1, len - pos[1] - 1};
         return p;
     }
     inline int team_ident(int team) {
@@ -87,47 +87,71 @@ namespace StateRepresentation {
 
     template < typename Board>
     inline torch::Tensor b2s_cond_check(const Board & board,
-                                 int state_dim,
-                                 int board_len,
-                                 const std::vector<std::tuple<int, int, int, bool>>& conditions,
-                                 int player = 0) {
-        /*
+                                        const std::vector<std::tuple<int, int, int, bool>>& conditions,
+                                        int player = 0) {
+        /**
          * We are trying to build a state representation of a Stratego board.
-         * To this end, i will define m_conditions that are evaluated for each
-         * piece on the board. These m_conditions are checked in sequence.
+         * To this end, 'conditions' are evaluated for each
+         * piece on the board. These 'conditions' are checked in sequence.
          * Each condition receives its own layer with 0's everywhere, except
          * for where the specific condition was true, which holds a 1.
-         * In short: x m_conditions -> x binary m_layers (one for each condition)
-         */
+         * |==========================================================================|
+         * |              In short: x conditions -> x binary layers                   |
+         * |                            (one for each condition)                      |
+         * |==========================================================================|
+         *
+         * Parameters
+         * ----------
+         * @param board, the board whose representation we want
+         * @param conditions, std::vector of tuples for the conditions,
+         *      on which to check the board
+         * @param player, int deciding which player's representation we're seeking
+         *
+         * Returns
+         * -------
+         * @return tensor of 0's and 1's on the positions for which the relevant condition was
+         *      true (1) or wrong (0)
+         **/
 
-        std::function<pos_type(int&, pos_type&)> canonize_pos = &pos_ident;
+        std::function<pos_t(int&, pos_t&)> canonize_pos = &pos_ident;
         std::function<int(int)> canonize_team = &team_ident;
 
+        int board_len = board.get_board_len();
+        int state_dim = conditions.size();
         bool flip_teams = static_cast<bool> (player);
 
         if(flip_teams) {
             canonize_pos = &pos_invert;
             canonize_team = &team_invert;
         }
+
         auto options =
                 torch::TensorOptions()
                         .dtype(torch::kFloat32)
                         .layout(torch::kStrided)
                         .device(torch_utils::GLOBAL_DEVICE::get_device())
                         .requires_grad(true);
+        // the dimensions here are as follows:
+        // 1 = batch_size (in this case obvciously only 1)
+        // state_dim = dimension of the state rep, i.e. how many m_layers of the conditions
+        // board_len = first board dimension
+        // board_len = second board dimension
         torch::Tensor board_state_rep = torch::zeros({1, state_dim, board_len, board_len}, options);
-        auto board_state_access = board_state_rep.accessor<float, 4> ();
+
+//        auto board_state_access = board_state_rep.accessor<float, 4> ();
         for(const auto& pos_piece : board) {
-            pos_type pos = pos_piece.first;
+            pos_t pos = pos_piece.first;
             pos = canonize_pos(board_len, pos);
             auto piece = pos_piece.second;
             if(!piece->is_null()) {
-                // TODO: Check if rvalue ref here is suitable
-                for(auto&& [i, cond_it] = std::make_tuple(0, conditions.begin()); cond_it != conditions.end(); ++i, ++cond_it) {
+                for(auto&& [i, cond_it] = std::make_tuple(0, conditions.begin());
+                    cond_it != conditions.end();
+                    ++i, ++cond_it)
+                {
                     // unpack the condition
                     auto [team, type, vers, hidden] = *cond_it;
                     // write the result of the condition check to the tensor
-                    board_state_access[0][i][pos[0]][pos[1]] = check_condition(
+                    board_state_rep[0][i][pos[0]][pos[1]] = check_condition(
                             piece, team, type, vers, hidden,
                             flip_teams);
                 }

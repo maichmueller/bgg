@@ -30,8 +30,6 @@ std::vector<std::tuple<int, int, int, bool>> AlphaZeroAgent::create_conditions()
 
 torch::Tensor AlphaZeroAgent::board_to_state_rep(const Board &board) {
     return StateRepresentation::b2s_cond_check(board,
-                                               Base::m_state_dim,
-                                               Base::m_board_len,
                                                Base::m_conditions);
 }
 
@@ -43,14 +41,13 @@ void AlphaZeroAgent::install_board(const Board &board) {
 }
 
 
-move_type AlphaZeroAgent::decide_move(const Board &board) {
-    Base::m_model->to(torch_utils::GLOBAL_DEVICE::get_device());
+move_t AlphaZeroAgent::decide_move(const Board &board) {
     torch::Tensor board_state = board_to_state_rep(board);
     auto [pi, v] = Base::m_model->predict(board_state);
 
     int action = pi.argmax().template item<int64_t>();
 
-    move_type move = ActionRep::action_to_move(action, Base::m_action_dim, Base::m_board_len, Base::m_actors);
+    move_t move = ActionRep::action_to_move(action, Base::m_action_dim, Base::m_board_len, Base::m_actors);
 
     return move;
 }

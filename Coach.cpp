@@ -24,7 +24,10 @@ Coach::Coach(std::shared_ptr<Game> game, std::shared_ptr<NetworkWrapper> nnet,
                       m_num_iters_train_examples_hist(num_iters_train_examples_hist),
                       m_num_mcts_simulations(num_mcts_sims), m_model_folder(std::move(model_folder)),
                       m_exploration_rate(exploration_rate)
-                      {}
+{
+    m_nnet->to_device(torch_utils::GLOBAL_DEVICE::get_device());
+    m_opp_nnet->to_device(torch_utils::GLOBAL_DEVICE::get_device());
+}
 
 
 std::vector<TrainingTurn> Coach::exec_ep(GameState state) const {
@@ -48,7 +51,7 @@ std::vector<TrainingTurn> Coach::exec_ep(GameState state) const {
         std::discrete_distribution<int> qs_sampler {pi.begin(), pi.end()};
 
         int action = qs_sampler(generator);
-        move_type move = state.action_to_move(action, turn);
+        move_t move = state.action_to_move(action, turn);
 
         ep_exs.emplace_back(TrainingTurn(*state.get_board(), pi, null_v, turn));
 

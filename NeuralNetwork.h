@@ -14,7 +14,7 @@
 #include "torch_utils.h"
 
 
-class Convolutional : torch::nn::Module {
+class Convolutional : public torch::nn::Module {
 
     int m_channels_in;
     std::vector<int> m_filter_sizes;
@@ -41,38 +41,44 @@ public:
                   const torch::nn::Functional & activation_function=torch::nn::Functional(torch::relu));
 
     torch::Tensor forward (const torch::Tensor & input);
+    void to(torch::Device dev) {
+        torch::nn::Module::to(dev);
+    }
 
 };
 
-class FullyConnected : torch::nn::Module {
+class FullyConnected : public torch::nn::Module {
 
-    int D_in;
-    int D_out;
-    int start_exponent;
-    int nr_lin_layers;
+    int m_D_in;
+    int m_D_out;
+    int m_start_exponent;
+    int m_nr_lin_layers;
 
-    torch::nn::Sequential layers;
+    torch::nn::Sequential m_layers;
 
 public:
     FullyConnected()
-    : layers(nullptr) {}
+    : m_layers(nullptr) {}
     FullyConnected(int D_in, int D_out, int nr_lin_layers=2, int start_expo=8,
                    const torch::nn::Functional & activation_function=torch::nn::Functional(torch::relu));
 
     torch::Tensor forward (const torch::Tensor & input);
-
+    void to(torch::Device dev) {
+        torch::nn::Module::to(dev);
+    }
 };
 
 class AlphaZeroInterface : public torch::nn::Module {
 public:
     virtual std::tuple<torch::Tensor, torch::Tensor> forward(const torch::Tensor & input) = 0;
+    virtual void to_device(torch::Device device) = 0;
 };
 
 class StrategoAlphaZero : public AlphaZeroInterface {
 
     int D_in;
-    Convolutional convo_layers;
-    FullyConnected linear_layers;
+    std::unique_ptr<Convolutional> convo_layers;
+    std::unique_ptr<FullyConnected> linear_layers;
     torch::nn::Linear pi_act_layer;
     torch::nn::Linear v_act_layer;
 
@@ -89,7 +95,7 @@ public:
                       const torch::nn::Functional & activation_function=torch::nn::Functional(torch::relu));
 
     std::tuple<torch::Tensor, torch::Tensor> forward(const torch::Tensor & input) override;
-
+    void to_device(torch::Device device) override;
 };
 
 class NetworkWrapper {
@@ -182,7 +188,7 @@ public:
 
 
     /// Forwarding methods for torch::nn::Module within nnet
-    auto to(torch::Device device) {nnet->to(device);}
+    auto to(torch::Device device) {nnet->to_device(device);}
 
 
 

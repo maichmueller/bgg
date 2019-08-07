@@ -13,10 +13,13 @@ Convolutional::Convolutional(int channels_in, std::vector<int>&& filter_sizes, c
   m_kernel_sizes(kernel_sizes_vec), m_maxpool_used_vec(maxpool_used_vec),
   m_droput_prop_per_layer(dropout_probs)
 {
-    /// Constructor for a pre-defined Convultional Neural Network.
-    /// Options allow for including maxpooling and dropout layers
-    /// in the specified layer index if
-    /// "maxpool_used_vec[index] = true" or "dropout_prob[index] > 0"
+    /**
+     * Constructor for a pre-defined Convolutional Neural Network.
+     * Options allow for including maxpooling and dropout layers
+     * in the specified layer index if
+     * "maxpool_used_vec[index] = true" and "dropout_prob[index] > 0"
+     * respectively
+     */
 
     int nr_conv_layers = m_kernel_sizes.size();
 
@@ -32,6 +35,7 @@ Convolutional::Convolutional(int channels_in, std::vector<int>&& filter_sizes, c
         auto options = torch::nn::Conv2dOptions(filter_sizes[k], filter_sizes[k+1], m_kernel_sizes[k])
                 .stride(1).padding(zero_paddings[k]).with_bias(false);
         m_layers->push_back(torch::nn::Conv2d(options));
+
         // check for maxpool and/or dropout layer additions
         if(maxpool_used_vec[k]) {
             m_layers->push_back( torch::nn::Functional(torch::max_pool2d,
@@ -41,6 +45,7 @@ Convolutional::Convolutional(int channels_in, std::vector<int>&& filter_sizes, c
         if(p_drop > 0) {
             m_layers->push_back( torch::nn::Functional(torch::dropout, /*p=*/p_drop, true) );
         }
+
         // finish this layer-segment with a layer activation
         m_layers->push_back( activation_function );
     }
@@ -60,31 +65,27 @@ Convolutional::Convolutional(int channels_in,
                         {}
 
 torch::Tensor Convolutional::forward(const torch::Tensor &input) {
-
     input.to(torch_utils::GLOBAL_DEVICE::get_device());
-    std::cout << "\nCONVOLUTIONAL INPUT\n";
-    std::cout << input;
-
     return m_layers->forward(input);
 }
 
 FullyConnected::FullyConnected(int D_in, int D_out, int nr_lin_layers, int start_expo,
                                const torch::nn::Functional & activation_function)
-:   D_in(D_in), D_out(D_out), nr_lin_layers(nr_lin_layers), start_exponent(start_expo), layers()
+: m_D_in(D_in), m_D_out(D_out), m_nr_lin_layers(nr_lin_layers), m_start_exponent(start_expo), m_layers()
 {
 
     if(nr_lin_layers < 1) {
         throw std::invalid_argument("Less than 1 linear layer requested. Aborting.");
     }
     else if(nr_lin_layers == 1) {
-        layers->push_back( torch::nn::Linear(torch::nn::LinearOptions(D_in, D_out)));
+        m_layers->push_back(torch::nn::Linear(torch::nn::LinearOptions(D_in, D_out)));
     }
     else {
 
     // note that 2 << N-1 == 2^N (exponentiating, not xor operator)
     int hidden_nodes = 2 << (start_expo - 1);
 
-    layers->push_back( torch::nn::Linear(torch::nn::LinearOptions(D_in, hidden_nodes)));
+    m_layers->push_back(torch::nn::Linear(torch::nn::LinearOptions(D_in, hidden_nodes)));
     // build a trickle down layer stack with halved number of nodes in each iteration
     // eg. layer1: Linear(128, 64)
     //     layer2: Linear( 64, 32)
@@ -98,10 +99,10 @@ FullyConnected::FullyConnected(int D_in, int D_out, int nr_lin_layers, int start
         int denom2 = 2 << (i);
 
         auto options = torch::nn::LinearOptions(hidden_nodes / denom1, hidden_nodes / denom2);
-        layers->push_back( torch::nn::Linear(options));
-        layers->push_back( activation_function );
+        m_layers->push_back(torch::nn::Linear(options));
+        m_layers->push_back(activation_function );
     }
-    layers->push_back( torch::nn::Linear(
+    m_layers->push_back(torch::nn::Linear(
             torch::nn::LinearOptions(hidden_nodes / (2 << (nr_lin_layers - 3)), D_out)) );
     }
 }
@@ -110,7 +111,7 @@ torch::Tensor FullyConnected::forward(const torch::Tensor &input) {
 
     input.to(torch_utils::GLOBAL_DEVICE::get_device());
 
-    return layers->forward(input);
+    return m_layers->forward(input);
 }
 
 
@@ -122,10 +123,21 @@ StrategoAlphaZero::StrategoAlphaZero(int D_in, int D_out,
                                      std::vector<bool> maxpool_used_vec,
                                      std::vector<float> dropout_probs,
                                      const torch::nn::Functional & activation_function)
-                                     : D_in(D_in), convo_layers(channels, std::move(filter_sizes),
-                                       std::move(kernel_sizes_vec), std::move(maxpool_used_vec),
-                                       std::move(dropout_probs), activation_function),
-                                       pi_act_layer(nullptr), v_act_layer(nullptr)
+: D_in(D_in),
+convo_layers(
+ std::move(
+     std::make_unique<Convolutional>
+     (
+         channels,
+         std::move(filter_sizes),
+         std::move(kernel_sizes_vec),
+         std::move(maxpool_used_vec),
+         std::move(dropout_probs),
+         activation_function
+     )
+ )
+),
+pi_act_layer(nullptr), v_act_layer(nullptr)
 {
     if(nr_lin_layers < 2) {
         throw std::invalid_argument("Less than 2 linear m_layers requested. Aborting.");
@@ -133,10 +145,12 @@ StrategoAlphaZero::StrategoAlphaZero(int D_in, int D_out,
 
     int hidden_nodes = 2 << (start_exponent - 1);
     int substitute_d_out = hidden_nodes / (2 << (nr_lin_layers - 4));
-    linear_layers = FullyConnected(
+    linear_layers = std::make_unique<FullyConnected>(
             D_in,
             /*D_out=*/substitute_d_out,
-            nr_lin_layers - 1, start_exponent, activation_function);
+            nr_lin_layers - 1,
+            start_exponent,
+            activation_function);
 
     pi_act_layer = torch::nn::Linear(
             torch::nn::LinearOptions(substitute_d_out, D_out));
@@ -147,15 +161,23 @@ StrategoAlphaZero::StrategoAlphaZero(int D_in, int D_out,
 
 std::tuple<torch::Tensor, torch::Tensor> StrategoAlphaZero::forward(const torch::Tensor &input) {
     input.to(torch_utils::GLOBAL_DEVICE::get_device());
-    std::cout << "\nALPHAZERO INPUT\n";
-    std::cout << input;
-    torch::Tensor output = convo_layers.forward(input).view({-1, D_in});
-    output = linear_layers.forward(output);
+//    std::cout << "\nALPHAZERO INPUT\n";
+//    std::cout << input;
+    torch::Tensor output = convo_layers->forward(input).view({-1, D_in});
+    output = linear_layers->forward(output);
 
     torch::Tensor pi = torch::log_softmax(pi_act_layer->forward(output), /*dim=*/1);
     torch::Tensor v = torch::tanh(v_act_layer->forward(output));
 
     return std::make_tuple(pi, v);
+}
+
+void StrategoAlphaZero::to_device(torch::Device device) {
+    this->to(device);
+    convo_layers->to(device);
+    linear_layers->to(device);
+    pi_act_layer->to(device);
+    v_act_layer->to(device);
 }
 
 
@@ -194,9 +216,7 @@ std::tuple<torch::Tensor, double> NetworkWrapper::predict(const torch::Tensor & 
     nnet->eval();
 
     // We dont want gradient updates here, so we need the NoGradGuard
-    std::cout << board_tensor;
     torch::NoGradGuard no_grad;
-    std::cout << board_tensor;
     auto [pi_tensor, v_tensor] = nnet->forward(board_tensor);
 
 //    // copy the pi tensor data into a std::vector
@@ -214,7 +234,7 @@ void NetworkWrapper::save_checkpoint(std::string const & folder, std::string con
     fs::path dir(folder);
     fs::path file (filename);
     fs::path full_path = dir / file;
-    // if directory doesnt exist, create it
+    // if directory doesn't exist, create it
     if(!fs::exists(dir)) {
         std::cout << "Checkpoint directory doesn't exist yet. Creating it." << std::endl;
         fs::create_directory(dir);

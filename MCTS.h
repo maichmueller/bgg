@@ -32,13 +32,14 @@ class MCTS {
     std::unordered_map<std::string, int> m_Es;
     std::unordered_map<std::string, std::vector<int>> m_Vs;
 
-    double search(GameState state, int player, bool root=false);
+    double search(GameState& state, int player, bool root=false);
+    std::tuple<std::vector<float>, std::vector<int>, double>  _evaluate_new_state(GameState & state, int player);
 
 public:
 
     MCTS(std::shared_ptr<NetworkWrapper> nnet_sptr, int num_mcts_sims, double cpuct=4);
 
-    std::vector<double> get_action_probs(const GameState& state, int player, double expl_rate=1.);
+    std::vector<double> get_action_probs(GameState& state, int player, double expl_rate=1.);
 
 
 

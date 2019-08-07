@@ -24,7 +24,7 @@ MCTS::MCTS(std::shared_ptr<NetworkWrapper> nnet_sptr, int num_mcts_sims, double 
 
 
 
-std::vector<double> MCTS::get_action_probs(const GameState &state, int player, double expl_rate) {
+std::vector<double> MCTS::get_action_probs(GameState &state, int player, double expl_rate) {
     for (int i = 0; i < m_num_mcts_sims; ++i) {
         search(state, player, true);
     }
@@ -73,12 +73,75 @@ std::vector<double> MCTS::get_action_probs(const GameState &state, int player, d
     return probs;
 }
 
+std::tuple<std::vector<float>, std::vector<int>, double> MCTS::_evaluate_new_state(GameState & state, int player) {
+    const Board * board = state.get_board();
+    int board_len = board->get_board_len();
+    // convert GameState to torch::tensor representation
+    const torch::Tensor state_tensor = state.torch_represent(player);
 
-double MCTS::search(GameState state, int player, bool root) {
+    auto [Ps, v] = m_nnet_sptr->predict(state_tensor);
+    Ps = Ps.view(-1); // flatten the tensor as the first dim is the batch size dim
+
+    // mask for invalid actions
+    auto action_mask = StrategoLogic::get_action_mask(
+            *board,
+            ActionRep::get_act_rep(board_len),
+            ActionRep::get_act_map(board_len),
+            player);
+
+    torch::TensorAccessor Ps_acc = Ps.template accessor<float, 1>();
+    std::vector<float> Ps_filtered(action_mask.size());
+    float Ps_sum = 0;
+
+    // mask invalid actions
+    for(int i = 0; i < action_mask.size(); ++i) {
+        auto temp = Ps_acc[i] * action_mask[i];
+        Ps_sum += temp;
+        Ps_filtered[i] = temp;
+    }
+    // normalize the likelihoods
+    for(int i = 0; i < Ps_filtered.size(); ++i) {
+        Ps_filtered[i] /= Ps_sum;
+    }
+    return std::make_tuple(Ps_filtered, action_mask, v);
+}
+
+std::vector<double> sample_dirichlet(size_t size) {
+    /** To receive 1 sample vector (x_1, ..., x_K) from a
+     * K-dimensional dirichlet(alpha_1, ..., alpha_K)
+     * distribution one can draw K samples (y_1, ..., y_K)
+     * from a gamma distribution with a density of
+     * Gamma(alpha_i, 1) and then set x_i = y_i / sum_j(y_j)
+     * Therefore, the following adds DIRICHLET noise to
+     * the root priors (not gammma noise!)
+     * Check: https://en.wikipedia.org/wiki/Dirichlet_distribution#Random_number_generation
+    */
+
+    std::default_random_engine generator{std::random_device()()};
+    std::gamma_distribution<double> distribution(0.5, 1.0);
+
+    std::vector<double> gamma_draws(size);
+
+    double gamma_sum = 0;
+    for(int i = 0; i < gamma_draws.size(); i++) {
+        auto draw = distribution(generator);
+        gamma_draws[i] = draw;
+        gamma_sum += draw;
+    }
+    // Normalize to gain Dirichlet noise
+    for (int i = 0; i < size; ++i) {gamma_draws[i] = gamma_draws[i] / gamma_sum;}
+    return gamma_draws;
+}
+
+double MCTS::search(GameState& state, int player, bool root) {
     // for the state rep we flip the board if player == 1 and we dont if player == 0!
     // all the enemy hidden pieces wont be printed out -> unknown pieces are also hidden
     // for the neural net
-    std::string s = utils::board_str_rep<Board, Piece>(*state.get_board(), static_cast<bool>(player), true);
+    std::string s = utils::board_str_rep<Board, Piece>(
+            *state.get_board(),
+            static_cast<bool>(player),
+            true
+    );
 
 
     if (auto state_end_found = m_Es.find(s); state_end_found == m_Es.end())
@@ -89,39 +152,10 @@ double MCTS::search(GameState state, int player, bool root) {
     if (auto state_pi_exists = m_Ps.find(s); state_pi_exists == m_Ps.end()) {
         // if the state wasn't found (== end)
 
-        const Board * board = state.get_board();
-        int board_len = board->get_board_len();
-        //convert board state to torch tensor
-        std::cout << s;
-        const torch::Tensor state_tensor = state.torch_represent(player);
-        std::cout << state_tensor;
-
-        auto [Ps, v] = m_nnet_sptr->predict(state_tensor);
-        Ps = Ps.view(-1); // flatten the tensor as the first dim is the batch size dim
-        // mask for invalid actions
-        auto action_mask = StrategoLogic::get_action_mask(
-                *board,
-                ActionRep::get_act_rep(board_len),
-                ActionRep::get_act_map(board_len),
-                player);
-
-        torch::TensorAccessor Ps_acc = Ps.template accessor<float, 1>();
-        std::vector<float> Ps_filtered(action_mask.size());
-        float Ps_sum = 0;
-
-        // mask invalid actions
-        for(int i = 0; i < action_mask.size(); ++i) {
-            auto temp = Ps_acc[i] * action_mask[i];
-            Ps_sum += temp;
-            Ps_filtered[i] = temp;
-        }
-
-        // normalize the likelihoods
-        for(int i = 0; i < Ps_filtered.size(); ++i) {
-            Ps_filtered[i] /= Ps_sum;
-        }
+        auto [Ps_filtered, action_mask, v] = std::move(_evaluate_new_state(state, player));
 
         // storing these found values for this state for later lookup
+        // && is fine to be passed here, since standard containers always copy their input
         this->m_Ps[s] = Ps_filtered;
         this->m_Vs[s] = action_mask;
         this->m_Ns[s] = 0;
@@ -130,40 +164,32 @@ double MCTS::search(GameState state, int player, bool root) {
     }
 
     std::vector<int> valids = m_Vs[s];
-    float curr_best = - std::numeric_limits<float>::infinity();
+
+    // DEBUG
+    std::vector<move_t > all_moves(valids.size());
+    std::cout  << utils::board_str_rep<Board, Piece>(*state.get_board(), static_cast<bool>(player), false) << "\n";
+    for(int i = 0; i < valids.size(); ++i) {
+        move_t move = state.action_to_move(i, player);
+        std::cout << "(" << move[0][0] << ", " << move[0][1] << ") -> (" << move[1][0] << ", " << move[1][1] << ") \t valid: " << valids[i] << "\n";
+    }
+
+
+    double curr_best = - std::numeric_limits<double>::infinity();
     int best_action = -1;
 
     std::vector<float> Ps = this->m_Ps[s];
 
     if(root) {
-        /* To receive 1 sample vector (x_1, ..., x_K) from a
-         * K-dimensional dirichlet(alpha_1, ..., alpha_K)
-         * distribution one can draw K samples (y_1, ..., y_K)
-         * from a gamma distribution with a density of
-         * Gamma(alpha_i, 1) and then set x_i = y_i / sum_j(y_j)
-         * Therefore, the following adds DIRICHLET noise to
-         * the root priors (not gammma noise!)
-         * Check: https://en.wikipedia.org/wiki/Dirichlet_distribution#Random_number_generation
-        */
-
-        std::default_random_engine generator{std::random_device()()};
-        std::gamma_distribution<double> distribution(0.5, 1.0);
-
-        std::vector<double> gamma_draws(valids.size());
-        double gamma_sum = 0;
-
-        for(int i = 0; i < gamma_draws.size(); i++) {
-            auto draw = distribution(generator);
-            gamma_draws[i] = draw;
-            gamma_sum += draw;
-        }
+        std::vector<double> dirichlet = sample_dirichlet(Ps.size());
         double new_sum_val = 0;
         for (int i = 0; i < Ps.size(); ++i) {
             // Check the alphazero paper for adding dirichlet noise to the priors.
-            double pi = (0.75 * Ps[i] + 0.25 * gamma_draws[i] / gamma_sum) * valids[i];
+            double pi = (0.75 * Ps[i] + 0.25 * dirichlet[i]) * valids[i];
             Ps[i] = pi;
             new_sum_val += pi;
         }
+        // Normalize
+        for (int i = 0; i < Ps.size(); ++i) {Ps[i] /= new_sum_val;}
     }
 
     for(int a = 0; a < Ps.size(); ++a) {
@@ -176,7 +202,6 @@ double MCTS::search(GameState state, int player, bool root) {
             else {
                 u = m_cpuct * Ps[a] * sqrt(m_Ns[s] + EPS);
             }
-
             if(u > curr_best) {
                 curr_best = u;
                 best_action = a;
@@ -185,11 +210,14 @@ double MCTS::search(GameState state, int player, bool root) {
     }
 
     int& a = best_action;
-    move_type move = state.action_to_move(a, 0);
+    move_t move = state.action_to_move(a, 0);
 
     state.do_move(move);
 
+    std::cout  << utils::board_str_rep<Board, Piece>(*state.get_board(), static_cast<bool>(player), false) << "\n";
     double v = search(state, (player + 1) % 2, /*root=*/false);
+    state.undo_last_rounds();
+    std::cout  << utils::board_str_rep<Board, Piece>(*state.get_board(), static_cast<bool>(player), false) << "\n";
     auto s_a = std::make_tuple(s, a);
     if( auto qs_found = m_Qsa.find(s_a); qs_found != m_Qsa.end()) {
         int n_sa = m_Nsa.at(s_a);
@@ -204,3 +232,4 @@ double MCTS::search(GameState state, int player, bool root) {
     m_Ns[s] += 1;
     return -v;
 }
+

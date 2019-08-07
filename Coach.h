@@ -30,7 +30,7 @@ struct TrainingTurn {
     {}
     void convert_board() {
         /*
-         * Coversion function for turning a Board object into a torch tensor.
+         * Conversion function for turning a Board object into a torch tensor.
          * This is needed, because the training turns are stored as original Board
          * objects, so that they can be reused, in case the state representation
          * changes later on, and thus rendering an already converted state tensor
@@ -40,8 +40,6 @@ struct TrainingTurn {
             return;
         m_board_tensor = StateRepresentation::b2s_cond_check(
                 m_board,
-                StateRepresentation::state_torch_conv_conditions_0.size(),
-                m_board.get_board_len(),
                 StateRepresentation::state_torch_conv_conditions_0,
                 0);
         converted = true;
@@ -100,6 +98,10 @@ public:
 
     void save_train_examples(int iteration);
     void load_train_examples(std::string examples_fname);
+
+    auto get_nnet() {return m_nnet;}
+    auto get_opp_nnet() {return m_opp_nnet;}
+    auto get_game() {return m_game;}
 
 };
 

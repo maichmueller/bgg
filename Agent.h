@@ -23,7 +23,7 @@ public:
     {
     }
 
-    virtual move_type decide_move(const Board& board) = 0;
+    virtual move_t decide_move(const Board& board) = 0;
     virtual void install_board(const Board& board) {}
 
 };
@@ -41,8 +41,8 @@ public:
     : Agent(team), rng(dev())
     {}
 
-    move_type decide_move(const Board &board) override {
-        std::vector<move_type> poss_moves = StrategoLogic::get_poss_moves(board, m_team);
+    move_t decide_move(const Board &board) override {
+        std::vector<move_t> poss_moves = StrategoLogic::get_poss_moves(board, m_team);
 
         std::uniform_int_distribution<std::mt19937::result_type> dist(0, poss_moves.size()-1);
 

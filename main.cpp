@@ -38,7 +38,47 @@ int main(int argc, char const *argv[])
     auto network_1 = std::make_shared<NetworkWrapper>(*network_0);
     auto agent_0 = std::make_shared<AlphaZeroAgent>(0, true, network_0);
     auto agent_1 = std::make_shared<AlphaZeroAgent>(1, true, network_1);
-    auto game = std::make_shared<Game>(5, agent_0, agent_1);
+    std::map<pos_t, int > setup0;
+    std::map<pos_t, int > setup1;
+    setup0[{0,0}] = 0;
+    setup0[{0,1}] = 11;
+    setup0[{0,2}] = 2;
+    setup0[{0,3}] = 2;
+    setup0[{0,4}] = 3;
+    setup0[{1,0}] = 11;
+    setup0[{1,1}] = 10;
+    setup0[{1,2}] = 3;
+    setup0[{1,3}] = 1;
+    setup0[{1,4}] = 2;
+    setup1[{3,0}] = 2;
+    setup1[{3,1}] = 2;
+    setup1[{3,2}] = 11;
+    setup1[{3,3}] = 2;
+    setup1[{3,4}] = 0;
+    setup1[{4,0}] = 3;
+    setup1[{4,1}] = 1;
+    setup1[{4,2}] = 11;
+    setup1[{4,3}] = 3;
+    setup1[{4,4}] = 10;
+
+    auto game = std::make_shared<Game>(5, agent_0, agent_1, setup0, setup1);
+//    auto * board = game->get_gamestate()->get_board();
+//    std::cout  << utils::board_str_rep<Board, Piece>(*board, false, false) << "\n";
+//    auto valids = StrategoLogic::get_action_mask(
+//            *board,
+//            ActionRep::get_act_rep(board->get_board_len()),
+//            ActionRep::get_act_map(board->get_board_len()),
+//            0);
+//    for(int i = 0; i < valids.size(); ++i) {
+//        move_t move = game->get_gamestate()->action_to_move(i, 0);
+//        std::cout << "(" << move[0][0] << ", " << move[0][1] << ") -> (" << move[1][0] << ", " << move[1][1] << ") \t valid: " << valids[i] << "\n";
+//    }
+//    auto action_mask = StrategoLogic::get_action_mask(
+//            *board,
+//            ActionRep::get_act_rep(board->get_board_len()),
+//            ActionRep::get_act_map(board->get_board_len()),
+//            0);
+
     Coach coach(game, network_0, network_1);
     coach.teach(false, false, false, false);
 

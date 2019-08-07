@@ -33,9 +33,9 @@ protected:
     std::vector<std::tuple<int, int, int, bool>> m_conditions;
     std::map<int, unsigned int> m_type_counter;
 
-    // member that stores {type, version} -> Piece-Obj information
-    using si_hasher = hash_tuple::hash<std::tuple<int, int>>;
+    // type that stores {type, version} -> Piece-Obj information
     using si_key = std::tuple<int, int>;
+    using si_hasher = hash_tuple::hash<si_key>;
     using si_eq_comp = eqcomp_tuple::eqcomp<si_key >;
     std::unordered_map<si_key, std::shared_ptr<Piece>, si_hasher, si_eq_comp> m_actors;
     // the neural network
@@ -64,7 +64,7 @@ public:
     {}
     void install_board(const Board& board) override;
     torch::Tensor board_to_state_rep(const Board& board) override;
-    move_type decide_move(const Board& board) override;
+    move_t decide_move(const Board& board) override;
 
 };
 
