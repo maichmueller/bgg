@@ -66,7 +66,10 @@ namespace utils {
         if(dim != 5 && dim != 7 && dim != 10)
             throw std::invalid_argument("Board dimension not supported.");
 
-        // piece string lambda function that returns a str of the sort "-1 \n 10.1 \n 1"
+        // piece string lambda function that returns a str of the sort
+        // "-1 \n
+        // 10.1 \n
+        //   1"
         auto create_piece_str = [&H_SIZE_PER_PIECE, &mid, &flip_board, &hide_unknowns] (Piece& piece, int line) {
             if(piece.is_null())
                 return std::string(static_cast<unsigned long> (H_SIZE_PER_PIECE), ' ');

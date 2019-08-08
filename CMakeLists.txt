@@ -29,7 +29,7 @@ find_package(Torch REQUIRED)
 set(COMMON_SOURCES GameState.cpp Game.cpp Piece.cpp
                    Board.cpp GameDeclarations.cpp StrategoLogic.cpp Agent.cpp
                    RandomSelector.h MCTS.cpp NeuralNetwork.cpp tqdm/tqdm.h
-                   AgentReinforce.cpp StateRepresentation.cpp Coach.cpp Arena.cpp)
+                   AgentReinforce.cpp StateRepresentation.cpp Coach.cpp Arena.cpp ActionRepresentation.cpp ActionRepresentation.h)
 set(TARGET_SOURCES main.cpp)
 # set(TEST_SOURCES  run_tests.cpp test_file1.cpp test_file2.cpp)
 add_executable(Stratego_CPP ${COMMON_SOURCES} ${TARGET_SOURCES})

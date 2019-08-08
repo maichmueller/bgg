@@ -3,6 +3,7 @@
 //
 
 #include "GameState.h"
+#include "ActionRepresentation.h"
 #include "torch_utils.h"
 #include "StateRepresentation.h"
 
@@ -266,5 +267,5 @@ torch::Tensor GameState::torch_represent(int player) {
 move_t GameState::action_to_move(int action, int player) const {
     int board_len = board.get_board_len();
     int action_dim = ActionRep::get_act_rep(board_len).size();
-    return ActionRep::action_to_move(action, action_dim, board_len, actors.at(player));
+    return ActionRep::action_to_move(action, action_dim, board_len, actors.at(player), player);
 }

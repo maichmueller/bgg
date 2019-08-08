@@ -8,6 +8,7 @@
 #include "vector"
 #include "random"
 #include "torch/torch.h"
+#include "ActionRepresentation.h"
 
 #include <iostream>
 #include <vector>
@@ -19,6 +20,30 @@
 
 int main(int argc, char const *argv[])
 {
+    printf("\n");
+    printf("\x1B[41m\x1B[30mTexting\033[0m\t\t");
+    printf("\x1B[32mTexting\033[0m\t\t");
+    printf("\x1B[33mTexting\033[0m\t\t");
+    printf("\x1B[34mTexting\033[0m\t\t");
+    printf("\x1B[35mTexting\033[0m\n");
+
+    printf("\x1B[36mTexting\033[0m\t\t");
+    printf("\x1B[36mTexting\033[0m\t\t");
+    printf("\x1B[36mTexting\033[0m\t\t");
+    printf("\x1B[37mTexting\033[0m\t\t");
+    printf("\x1B[93mTexting\033[0m\n");
+
+    printf("\033[3;42;30mTexting\033[0m\t\t");
+    printf("\033[3;43;30mTexting\033[0m\t\t");
+    printf("\033[3;44;30mTexting\033[0m\t\t");
+    printf("\033[3;104;30mTexting\033[0m\t\t");
+    printf("\033[3;100;30mTexting\033[0m\n");
+
+    printf("\033[3;47;35mTexting\033[0m\t\t");
+    printf("\033[2;47;35mTexting\033[0m\t\t");
+    printf("\033[1;47;35mTexting\033[0m\t\t");
+    printf("\t\t");
+    printf("\n");
     int board_size = 5;
     int action_dim = ActionRep::get_act_rep(board_size).size();
     StateRepresentation::set_state_rep_conditions(board_size);
@@ -41,15 +66,15 @@ int main(int argc, char const *argv[])
     std::map<pos_t, int > setup0;
     std::map<pos_t, int > setup1;
     setup0[{0,0}] = 0;
-    setup0[{0,1}] = 11;
+    setup0[{0,1}] = 1;
     setup0[{0,2}] = 2;
     setup0[{0,3}] = 2;
     setup0[{0,4}] = 3;
     setup0[{1,0}] = 11;
     setup0[{1,1}] = 10;
-    setup0[{1,2}] = 3;
-    setup0[{1,3}] = 1;
-    setup0[{1,4}] = 2;
+    setup0[{1,2}] = 2;
+    setup0[{1,3}] = 11;
+    setup0[{1,4}] = 3;
     setup1[{3,0}] = 2;
     setup1[{3,1}] = 2;
     setup1[{3,2}] = 11;

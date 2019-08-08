@@ -49,9 +49,9 @@ public:
     void set_position(pos_t& p) { pos = p;}
 
     bool is_null() {return null_piece;}
-    pos_t get_position(bool flip_position=false, int dim=0) {
+    pos_t get_position(bool flip_position=false, int dim=5) {
         if(flip_position) {
-            return {dim - pos[0], dim - pos[1]};
+            return {dim - pos[0] - 1, dim - pos[1] - 1};
         }
         else
             return pos;

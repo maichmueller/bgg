@@ -3,6 +3,7 @@
 //
 
 #include "AgentReinforce.h"
+#include "ActionRepresentation.h"
 
 void AgentReinforceBase::install_board(const Board &board) {
     m_board_len = board.get_board_len();
@@ -47,7 +48,7 @@ move_t AlphaZeroAgent::decide_move(const Board &board) {
 
     int action = pi.argmax().template item<int64_t>();
 
-    move_t move = ActionRep::action_to_move(action, Base::m_action_dim, Base::m_board_len, Base::m_actors);
+    move_t move = ActionRep::action_to_move(action, Base::m_action_dim, Base::m_board_len, Base::m_actors, m_team);
 
     return move;
 }
