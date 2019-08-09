@@ -19,11 +19,11 @@ class StrategoLogic {
 
     static int find_action_idx(std::vector<move_base_t > & vec_to_search, move_base_t & action_to_find);
 
-    static inline pos_t pos_ident(int & len, const pos_t & pos);
-    static inline pos_t pos_invert(int & len, const pos_t & pos);
+    static inline void pos_ident(int & len, const pos_t & pos);
+    static inline void pos_invert(int & len, pos_t & pos);
 
-    static inline move_t move_ident(int & len, const move_t & move);
-    static inline move_t move_invert(int & len, const move_t & move);
+    static inline void move_ident(int & len, const move_t & move);
+    static inline void move_invert(int & len, move_t & move);
 
     static inline int team_ident(int team);
     static inline int team_invert(int team);

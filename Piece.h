@@ -35,33 +35,53 @@ private:
     bool can_move;
 
 public:
-    Piece(int team, int type, pos_t& pos, int version,
-          bool hidden, bool has_moved, bool can_move);
-    Piece(int team, int type, const pos_t& pos, int version);
-    explicit Piece(const pos_t& pos);
+    Piece(int team,
+          int type,
+          pos_t pos,
+          int version,
+          bool hidden,
+          bool has_moved,
+          bool can_move);
+
+    Piece(int team,
+          int type,
+          pos_t pos,
+          int version);
+
+    explicit Piece(const pos_t &pos);
+
     Piece();
 
     // getter and setter methods here only
 
-    void set_version(int v) {version = v;}
-    void set_flag_has_moved() {has_moved = true;}
-    void set_flag_unhidden() {hidden = false;}
-    void set_position(pos_t& p) { pos = p;}
+    void set_version(int v) { version = v; }
 
-    bool is_null() {return null_piece;}
-    pos_t get_position(bool flip_position=false, int dim=5) {
-        if(flip_position) {
+    void set_flag_has_moved() { has_moved = true; }
+
+    void set_flag_unhidden() { hidden = false; }
+
+    void set_position(pos_t &p) { pos = p; }
+
+    bool is_null() { return null_piece; }
+
+    pos_t get_position(bool flip_position = false, int dim = 5) {
+        if (flip_position) {
             return {dim - pos[0] - 1, dim - pos[1] - 1};
-        }
-        else
+        } else
             return pos;
     }
-    int get_team(bool flip_team=false) {return (flip_team) ? 1 - team : team;}
-    int get_type() {return type;}
-    int get_version() {return version;}
-    bool get_flag_hidden() {return hidden;}
-    bool get_flag_has_moved() {return has_moved;}
-    bool get_flag_can_move() {return can_move;}
+
+    int get_team(bool flip_team = false) { return (flip_team) ? 1 - team : team; }
+
+    int get_type() { return type; }
+
+    int get_version() { return version; }
+
+    bool get_flag_hidden() { return hidden; }
+
+    bool get_flag_has_moved() { return has_moved; }
+
+    bool get_flag_can_move() { return can_move; }
 
 
 };

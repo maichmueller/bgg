@@ -81,6 +81,10 @@ std::tuple<std::vector<float>, std::vector<int>, double> MCTS::_evaluate_new_sta
     const torch::Tensor state_tensor = state.torch_represent(player);
 
     auto [Ps, v] = m_nnet_sptr->predict(state_tensor);
+
+    // DEBUG
+    // std::cout << torch::exp(Ps) << "\n";
+
     Ps = Ps.view(-1); // flatten the tensor as the first dim is the batch size dim
 
     // mask for invalid actions
@@ -145,6 +149,7 @@ double MCTS::search(GameState& state, int player, bool root) {
     );
 
 
+
     if (auto state_end_found = m_Es.find(s); state_end_found == m_Es.end())
         m_Es[s] = state.is_terminal();
     else if (state_end_found->second != 404)
@@ -167,13 +172,19 @@ double MCTS::search(GameState& state, int player, bool root) {
     std::vector<int> valids = m_Vs[s];
 
     // DEBUG
-    std::vector<move_t > all_moves(valids.size());
-    std::cout  << utils::board_str_rep<Board, Piece>(*state.get_board(), static_cast<bool>(player), false) << "\n";
-    for(int i = 0; i < valids.size(); ++i) {
-        move_t move = state.action_to_move(i, player);
-        std::cout << "(" << move[0][0] << ", " << move[0][1] << ") -> (" << move[1][0] << ", " << move[1][1] << ") \t valid: " << valids[i] << "\n";
-    }
-
+//    std::vector<move_t > all_moves(valids.size());
+//    std::cout  << utils::board_str_rep<Board, Piece>(*state.get_board(), static_cast<bool>(player), false) << "\n";
+//    for(int i = 0; i < valids.size(); ++i) {
+//        move_t move = state.action_to_move(i, player);
+//        std::cout << "Action: " << std::to_string(i) << "\t" << "(" << move[0][0] << ", " << move[0][1] << ") -> (" << move[1][0] << ", " << move[1][1] << ") \t valid: " << valids[i] << "\n";
+//    }
+//    const Board * board = state.get_board();
+//    int board_len = board->get_board_len();
+//    auto action_mask = StrategoLogic::get_action_mask(
+//            *board,
+//            ActionRep::get_act_rep(board_len),
+//            ActionRep::get_act_map(board_len),
+//            player);
 
     double curr_best = - std::numeric_limits<double>::infinity();
     int best_action = -1;
@@ -211,14 +222,30 @@ double MCTS::search(GameState& state, int player, bool root) {
     }
 
     int& a = best_action;
-    move_t move = state.action_to_move(a, 0);
+    // DEBUG
+    std::cout << "Player: "<< player << "\t"<< "Best action: " << a << "\t";
 
+    move_t move = state.action_to_move(a, player);
+
+    // TODO: flip the move for player 1
+    if(player) {
+        int board_len = state.get_board()->get_board_len();
+        for(auto & move_part: move)
+            for(auto & move_seg : move_part)
+                move_seg = board_len - 1 - move_seg;
+    }
+    // DEBUG
+    std::cout << "Move: (" << move[0][0] << ", " << move[0][1] << ") -> ("
+              << move[1][0] << ", " << move[1][1] << ")" << "\n";
     state.do_move(move);
+    // DEBUG
+    std::cout  << "Board after move done: \n" << utils::board_str_rep<Board, Piece>(*state.get_board(), static_cast<bool>(0), false) << "\n";
 
-    std::cout  << utils::board_str_rep<Board, Piece>(*state.get_board(), static_cast<bool>(player), false) << "\n";
     double v = search(state, (player + 1) % 2, /*root=*/false);
     state.undo_last_rounds();
-    std::cout  << utils::board_str_rep<Board, Piece>(*state.get_board(), static_cast<bool>(player), false) << "\n";
+    // DEBUG
+//    std::cout  << "Board after move undone: \n" << utils::board_str_rep<Board, Piece>(*state.get_board(), static_cast<bool>(player), false) << "\n";
+
     auto s_a = std::make_tuple(s, a);
     if( auto qs_found = m_Qsa.find(s_a); qs_found != m_Qsa.end()) {
         int n_sa = m_Nsa.at(s_a);

@@ -83,6 +83,27 @@ struct ActionRep {
         else throw std::invalid_argument("Game length not in [5, 7, 10].");
     }
 
+
+    /*!
+     * Method to convert from the action index @action to the associated move on the board.
+     * E.g. as the action input 45 will be converted to the position change (0,2) which will
+     * be added to the position of the associated piece to generate ((2,1),(2,3)) if the piece
+     * associated to action 45 was at position (2,1).
+     *
+     * The attribute @player decides which of the two agents on the board to map as being player 0.
+     * This is relevant for the current state representation for the neural network as it always evaluates
+     * a board state from the perspective of player 0. Thus actions of player 1 will be flipped in orientation
+     * to be moves as if it was player 0.
+     *
+     * @tparam Piece The piece type of the game. Relevant for later generalisation of the API
+     * @param action int, the index of the action.
+     * @param action_dim int, the total number of actions.
+     * @param board_len int, the length of the board of the game.
+     * @param actors std::unordered_map of int tuples to shared_ptr<Piece>. It maps from {piece_type, piece_version}
+     * attribute pairs to actual shared_ptr of pieces on the board currently.
+     * @param player int, the player for the state to move conversion. Flips the move essentially.
+     * @return move_t, the associated move.
+     */
     template<typename Piece>
     static move_t action_to_move(int action,
                                  int action_dim,

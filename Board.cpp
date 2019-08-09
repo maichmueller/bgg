@@ -165,12 +165,7 @@ bool Board::check_pos_integrity(pos_t pos)
     if(pos[0] < 0 || board_len <= pos[0]) {
         return false;
     }
-    else if(pos[1] < 0 || board_len <= pos[1]) {
-        return false;
-    }
-    else {
-        return true;
-    }
+    else return !(pos[1] < 0 || board_len <= pos[1]);
 }
 
 void Board::update_board(pos_t& pos, std::shared_ptr<Piece>& pc_ptr)

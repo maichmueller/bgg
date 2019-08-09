@@ -161,8 +161,7 @@ pi_act_layer(nullptr), v_act_layer(nullptr)
 
 std::tuple<torch::Tensor, torch::Tensor> StrategoAlphaZero::forward(const torch::Tensor &input) {
     input.to(torch_utils::GLOBAL_DEVICE::get_device());
-//    std::cout << "\nALPHAZERO INPUT\n";
-//    std::cout << input;
+
     torch::Tensor output = convo_layers->forward(input).view({-1, D_in});
     output = linear_layers->forward(output);
 

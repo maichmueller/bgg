@@ -73,24 +73,31 @@ namespace utils {
         auto create_piece_str = [&H_SIZE_PER_PIECE, &mid, &flip_board, &hide_unknowns] (Piece& piece, int line) {
             if(piece.is_null())
                 return std::string(static_cast<unsigned long> (H_SIZE_PER_PIECE), ' ');
+            std::string reset = "\x1B[0m";
+            std::string color = "\x1B[44m"; // blue by default (for player 1)
             if(piece.get_team() == 99)
-                return center("X", H_SIZE_PER_PIECE, " ");
+                return "\x1B[30;47m" + center("", H_SIZE_PER_PIECE, " ") + "\x1B[0m";
+            else if(piece.get_team(flip_board) == 0) {
+                color = "\x1B[41m"; // background red, text "white"
+            }
             if(line == mid-1) {
                 // hidden info line
-                std::string h = piece.get_flag_hidden() ? "?" : " ";
-                return center(h, H_SIZE_PER_PIECE, " ");
+                 std::string h = piece.get_flag_hidden() ? "?" : " ";
+                //return color + center(h, H_SIZE_PER_PIECE, " ") + reset;
+                return color + center(h, H_SIZE_PER_PIECE, " ") + reset;
             }
             else if(line == mid) {
                 // type and version info line
                 if(hide_unknowns && piece.get_flag_hidden() && piece.get_team(flip_board)){
-                    return std::string(static_cast<unsigned long> (H_SIZE_PER_PIECE), ' ');
+                    return color + std::string(static_cast<unsigned long> (H_SIZE_PER_PIECE), ' ') + reset;
                 }
-                return center(std::to_string(piece.get_type()) + '.' + std::to_string(piece.get_version()),
-                              H_SIZE_PER_PIECE, " ");
+                return color + center(std::to_string(piece.get_type()) + '.' + std::to_string(piece.get_version()),
+                              H_SIZE_PER_PIECE, " ") + reset ;
             }
             else if(line == mid+1)
                 // m_team info line
-                return center(std::to_string(piece.get_team(flip_board)), H_SIZE_PER_PIECE, " ");
+                // return color + center(std::to_string(piece.get_team(flip_board)), H_SIZE_PER_PIECE, " ") + reset;
+                return color + center("", H_SIZE_PER_PIECE, " ") + reset;
             else
                 // empty line
                 return std::string(static_cast<unsigned long> (H_SIZE_PER_PIECE), ' ');

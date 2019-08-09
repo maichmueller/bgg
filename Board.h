@@ -33,8 +33,12 @@ private:
 
 public:
     explicit Board(int board_len);
-    Board(int len, const std::vector<std::shared_ptr<Piece>>& setup_0, const std::vector<std::shared_ptr<Piece>>& setup_1);
-    Board(int len, const std::map<pos_t, int>& setup_0, const std::map<pos_t, int>& setup_1);
+    Board(int len,
+            const std::vector<std::shared_ptr<Piece>>& setup_0,
+            const std::vector<std::shared_ptr<Piece>>& setup_1);
+    Board(int len,
+            const std::map<pos_t, int>& setup_0,
+            const std::map<pos_t, int>& setup_1);
     std::shared_ptr<Piece>& operator[] (pos_t a);
     std::shared_ptr<Piece> operator[] (const pos_t a) const;
     iterator begin();

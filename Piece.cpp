@@ -5,7 +5,7 @@
 #include "Piece.h"
 
 
-Piece::Piece(int team, int type, pos_t& pos, int version=1,
+Piece::Piece(int team, int type, pos_t pos, int version=1,
              bool hidden=true, bool has_moved=false, bool can_move=true)
         : null_piece(false), team(team), type(type), pos(pos), version(version),
           hidden(hidden), has_moved(has_moved),
@@ -14,10 +14,9 @@ Piece::Piece(int team, int type, pos_t& pos, int version=1,
     if(type == 0 || type == 11) {
         this->can_move = false;
     }
-    null_piece = false;
 }
 
-Piece::Piece(int team, int type, const pos_t& pos, int version=1)
+Piece::Piece(int team, int type, pos_t pos, int version=1)
         : null_piece(false), team(team), type(type),
           pos(pos), version(version),
           hidden(true), has_moved(false),
@@ -26,7 +25,6 @@ Piece::Piece(int team, int type, const pos_t& pos, int version=1)
     if(type == 0 || type == 11) {
         this->can_move = false;
     }
-    null_piece = false;
 }
 
 // a Null Piece Constructor

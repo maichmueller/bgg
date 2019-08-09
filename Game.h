@@ -33,7 +33,7 @@ public:
     Game(int board_l, std::shared_ptr<Agent> ag0, std::shared_ptr<Agent> ag1,
          const std::map<pos_t, int>& setup_0,
          const std::map<pos_t, int>& setup_1);
-    Game(int board_len, std::shared_ptr<Agent> ag0, std::shared_ptr<Agent> ag1, Board& board);
+    Game(int board_len, std::shared_ptr<Agent> ag0, std::shared_ptr<Agent> ag1, Board& board, int move_count=0);
 
     void reset();
 

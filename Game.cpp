@@ -21,8 +21,8 @@ Game::Game(int board_l, std::shared_ptr<Agent> ag0, std::shared_ptr<Agent> ag1,
       setup_0(setup_0), setup_1(setup_1)
 {}
 
-Game::Game(int board_len, std::shared_ptr<Agent> ag0, std::shared_ptr<Agent> ag1, Board &board)
-    : board_len(board_len), agent_0(std::move(ag0)), agent_1(std::move(ag1)), game_state(board, 0)
+Game::Game(int board_len, std::shared_ptr<Agent> ag0, std::shared_ptr<Agent> ag1, Board &board, int move_count)
+    : board_len(board_len), agent_0(std::move(ag0)), agent_1(std::move(ag1)), game_state(board, move_count)
 {}
 
 int Game::run_game(bool show=true) {

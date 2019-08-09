@@ -20,30 +20,6 @@
 
 int main(int argc, char const *argv[])
 {
-    printf("\n");
-    printf("\x1B[41m\x1B[30mTexting\033[0m\t\t");
-    printf("\x1B[32mTexting\033[0m\t\t");
-    printf("\x1B[33mTexting\033[0m\t\t");
-    printf("\x1B[34mTexting\033[0m\t\t");
-    printf("\x1B[35mTexting\033[0m\n");
-
-    printf("\x1B[36mTexting\033[0m\t\t");
-    printf("\x1B[36mTexting\033[0m\t\t");
-    printf("\x1B[36mTexting\033[0m\t\t");
-    printf("\x1B[37mTexting\033[0m\t\t");
-    printf("\x1B[93mTexting\033[0m\n");
-
-    printf("\033[3;42;30mTexting\033[0m\t\t");
-    printf("\033[3;43;30mTexting\033[0m\t\t");
-    printf("\033[3;44;30mTexting\033[0m\t\t");
-    printf("\033[3;104;30mTexting\033[0m\t\t");
-    printf("\033[3;100;30mTexting\033[0m\n");
-
-    printf("\033[3;47;35mTexting\033[0m\t\t");
-    printf("\033[2;47;35mTexting\033[0m\t\t");
-    printf("\033[1;47;35mTexting\033[0m\t\t");
-    printf("\t\t");
-    printf("\n");
     int board_size = 5;
     int action_dim = ActionRep::get_act_rep(board_size).size();
     StateRepresentation::set_state_rep_conditions(board_size);
@@ -63,30 +39,53 @@ int main(int argc, char const *argv[])
     auto network_1 = std::make_shared<NetworkWrapper>(*network_0);
     auto agent_0 = std::make_shared<AlphaZeroAgent>(0, true, network_0);
     auto agent_1 = std::make_shared<AlphaZeroAgent>(1, true, network_1);
-    std::map<pos_t, int > setup0;
-    std::map<pos_t, int > setup1;
-    setup0[{0,0}] = 0;
-    setup0[{0,1}] = 1;
-    setup0[{0,2}] = 2;
-    setup0[{0,3}] = 2;
-    setup0[{0,4}] = 3;
-    setup0[{1,0}] = 11;
-    setup0[{1,1}] = 10;
-    setup0[{1,2}] = 2;
-    setup0[{1,3}] = 11;
-    setup0[{1,4}] = 3;
-    setup1[{3,0}] = 2;
-    setup1[{3,1}] = 2;
-    setup1[{3,2}] = 11;
-    setup1[{3,3}] = 2;
-    setup1[{3,4}] = 0;
-    setup1[{4,0}] = 3;
-    setup1[{4,1}] = 1;
-    setup1[{4,2}] = 11;
-    setup1[{4,3}] = 3;
-    setup1[{4,4}] = 10;
+//    std::map<pos_t, int > setup0;
+//    std::map<pos_t, int > setup1;
+//    setup0[{0,0}] = 0;
+//    setup0[{0,1}] = 1;
+//    setup0[{0,2}] = 2;
+//    setup0[{0,3}] = 2;
+//    setup0[{0,4}] = 3;
+//    setup0[{1,0}] = 11;
+//    setup0[{1,1}] = 10;
+//    setup0[{1,2}] = 2;
+//    setup0[{1,3}] = 11;
+//    setup0[{1,4}] = 3;
+//    setup1[{3,0}] = 2;
+//    setup1[{3,1}] = 2;
+//    setup1[{3,2}] = 11;
+//    setup1[{3,3}] = 2;
+//    setup1[{3,4}] = 0;
+//    setup1[{4,0}] = 3;
+//    setup1[{4,1}] = 1;
+//    setup1[{4,2}] = 11;
+//    setup1[{4,3}] = 3;
+//    setup1[{4,4}] = 10;
+    std::vector<std::shared_ptr<Piece>> setup0(10);
+    std::vector<std::shared_ptr<Piece>> setup1(9);
 
-    auto game = std::make_shared<Game>(5, agent_0, agent_1, setup0, setup1);
+    setup0[0] = std::make_shared<Piece>(0, 2, pos_t{0,0}, 2);
+    setup0[1] = std::make_shared<Piece>(0, 1, pos_t{0,1}, 0);
+    setup0[2] = std::make_shared<Piece>(0, 2, pos_t{0,2}, 0);
+    setup0[3] = std::make_shared<Piece>(0, 2, pos_t{0,3}, 1);
+    setup0[4] = std::make_shared<Piece>(0, 3, pos_t{0,4}, 0);
+    setup0[5] = std::make_shared<Piece>(0, 11, pos_t{1,0}, 0);
+    setup0[6] = std::make_shared<Piece>(0, 0, pos_t{1,4}, 0);
+    setup0[7] = std::make_shared<Piece>(0, 10, pos_t{3,1}, 0);
+    setup0[8] = std::make_shared<Piece>(0, 11, pos_t{1,2}, 1);
+    setup0[9] = std::make_shared<Piece>(0, 3, pos_t{1,3}, 1);
+    setup1[0] = std::make_shared<Piece>(1, 2, pos_t{3,0}, 0);
+    setup1[1] = std::make_shared<Piece>(1, 11, pos_t{3,2}, 0);
+    setup1[2] = std::make_shared<Piece>(1, 2, pos_t{3,3}, 1);
+    setup1[3] = std::make_shared<Piece>(1, 0, pos_t{3,4}, 0);
+    setup1[4] = std::make_shared<Piece>(1, 3, pos_t{4,0}, 0);
+    setup1[5] = std::make_shared<Piece>(1, 1, pos_t{4,1}, 0);
+    setup1[6] = std::make_shared<Piece>(1, 11, pos_t{4,2}, 0);
+    setup1[7] = std::make_shared<Piece>(1, 3, pos_t{4,3}, 1);
+    setup1[8] = std::make_shared<Piece>(1, 10, pos_t{4,4}, 0);
+    Board board(board_size, setup0, setup1);
+    auto game = std::make_shared<Game>(5, agent_0, agent_1, board, 1);
+//    auto game = std::make_shared<Game>(5, agent_0, agent_1, setup0, setup1);
 //    auto * board = game->get_gamestate()->get_board();
 //    std::cout  << utils::board_str_rep<Board, Piece>(*board, false, false) << "\n";
 //    auto valids = StrategoLogic::get_action_mask(
