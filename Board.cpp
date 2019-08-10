@@ -17,7 +17,7 @@ Board::Board(int len)
           board_map()
 {
     if(len != 5 && len != 7 && len != 10) {
-        throw std::invalid_argument("Game lenension not in [5, 7, 10].");
+        throw std::invalid_argument("Game length not in [5, 7, 10].");
     }
 
     for(int i = 0; i < board_len; i++) {
@@ -176,6 +176,8 @@ void Board::update_board(pos_t& pos, std::shared_ptr<Piece>& pc_ptr)
         board_map[pos] = pc_ptr;
     else
         throw std::invalid_argument("Supplied position out of bounds.");
+    if(board_map.size() > board_len * board_len)
+        auto x = 3;
 }
 
 void Board::print_board() {
