@@ -27,12 +27,15 @@ MCTS::MCTS(std::shared_ptr<NetworkWrapper> nnet_sptr, int num_mcts_sims, double 
 
 std::vector<double> MCTS::get_action_probs(GameState &state, int player, double expl_rate) {
     for (int i = 0; i < m_num_mcts_sims; ++i) {
-        search(state, player, true);
+        _search(state, player, true);
     }
 
-    std::string state_rep = utils::board_str_rep<Board, Piece>(*state.get_board(), static_cast<bool>(player), true);
+    std::string state_rep = utils::board_str_rep<Board, Piece>(
+            *state.get_board(),
+            static_cast<bool>(player),
+            true);
     std::vector<int> counts(ActionRep::get_act_rep(state.get_board()->get_board_len()).size());
-    //
+
     double sum_counts = 0;
     double highest_count = 0;
     int best_act = 0;
@@ -69,7 +72,7 @@ std::vector<double> MCTS::get_action_probs(GameState &state, int player, double 
     }
 
     for (int i = 0; i < counts.size(); ++i) {
-        probs[i] /= sum_counts;
+        probs[i] = counts[i] / sum_counts;
     }
     return probs;
 }
@@ -138,7 +141,16 @@ std::vector<double> sample_dirichlet(size_t size) {
     return gamma_draws;
 }
 
-double MCTS::search(GameState& state, int player, bool root) {
+move_t MCTS::flip_move(move_t move, int board_len) {
+    for(auto & move_part: move) {
+        for(auto & move_seg : move_part) {
+            move_seg = board_len - 1 - move_seg;
+        }
+    }
+    return move;
+}
+
+double MCTS::_search(GameState& state, int player, bool root) {
     // for the state rep we flip the board if player == 1 and we dont if player == 0!
     // all the enemy hidden pieces wont be printed out -> unknown pieces are also hidden
     // for the neural net
@@ -147,7 +159,6 @@ double MCTS::search(GameState& state, int player, bool root) {
             static_cast<bool>(player),
             true
     );
-
 
 
     if (auto state_end_found = m_Es.find(s); state_end_found == m_Es.end())
@@ -170,7 +181,6 @@ double MCTS::search(GameState& state, int player, bool root) {
     }
 
     std::vector<int> valids = m_Vs[s];
-
     // DEBUG
 //    std::vector<move_t > all_moves(valids.size());
 //    std::cout  << utils::board_str_rep<Board, Piece>(*state.get_board(), static_cast<bool>(player), false) << "\n";
@@ -220,28 +230,25 @@ double MCTS::search(GameState& state, int player, bool root) {
             }
         }
     }
-
     int& a = best_action;
     // DEBUG
-    std::cout << "Player: "<< player << "\t"<< "Best action: " << a << "\t";
+//    std::cout << "Player: "<< player << "\t"<< "Best action: " << a << "\t";
 
     move_t move = state.action_to_move(a, player);
 
-    // TODO: flip the move for player 1
+    // flip the move for player 1
     if(player) {
-        int board_len = state.get_board()->get_board_len();
-        for(auto & move_part: move)
-            for(auto & move_seg : move_part)
-                move_seg = board_len - 1 - move_seg;
+        move = flip_move(move, state.get_board()->get_board_len());
+
     }
     // DEBUG
-    std::cout << "Move: (" << move[0][0] << ", " << move[0][1] << ") -> ("
-              << move[1][0] << ", " << move[1][1] << ")" << "\n";
+//    std::cout << "Move: (" << move[0][0] << ", " << move[0][1] << ") -> ("
+//              << move[1][0] << ", " << move[1][1] << ")" << "\n";
     state.do_move(move);
     // DEBUG
-    std::cout  << "Board after move done: \n" << utils::board_str_rep<Board, Piece>(*state.get_board(), static_cast<bool>(0), false) << "\n";
-
-    double v = search(state, (player + 1) % 2, /*root=*/false);
+//    std::cout  << "Board after move done: \n" << utils::board_str_rep<Board, Piece>(*state.get_board(), static_cast<bool>(0), false) << "\n";
+//
+    double v = _search(state, (player + 1) % 2, /*root=*/false);
     state.undo_last_rounds();
     // DEBUG
 //    std::cout  << "Board after move undone: \n" << utils::board_str_rep<Board, Piece>(*state.get_board(), static_cast<bool>(player), false) << "\n";

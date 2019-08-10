@@ -62,26 +62,26 @@ public:
 
     void set_position(pos_t &p) { pos = p; }
 
-    bool is_null() { return null_piece; }
+    [[nodiscard]] bool is_null() const { return null_piece; }
 
-    pos_t get_position(bool flip_position = false, int dim = 5) {
+    [[nodiscard]] pos_t get_position(bool flip_position = false, int dim = 5) const {
         if (flip_position) {
             return {dim - pos[0] - 1, dim - pos[1] - 1};
         } else
             return pos;
     }
 
-    int get_team(bool flip_team = false) { return (flip_team) ? 1 - team : team; }
+    [[nodiscard]] int get_team(bool flip_team = false) const { return (flip_team) ? 1 - team : team; }
 
-    int get_type() { return type; }
+    [[nodiscard]] int get_type() const { return type; }
 
-    int get_version() { return version; }
+    [[nodiscard]] int get_version() const { return version; }
 
-    bool get_flag_hidden() { return hidden; }
+    [[nodiscard]] bool get_flag_hidden() const { return hidden; }
 
-    bool get_flag_has_moved() { return has_moved; }
+    [[nodiscard]] bool get_flag_has_moved() const { return has_moved; }
 
-    bool get_flag_can_move() { return can_move; }
+    [[nodiscard]] bool get_flag_can_move() const { return can_move; }
 
 
 };

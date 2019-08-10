@@ -32,7 +32,8 @@ class MCTS {
     std::unordered_map<std::string, int> m_Es;
     std::unordered_map<std::string, std::vector<int>> m_Vs;
 
-    double search(GameState& state, int player, bool root=false);
+    double _search(GameState& state, int player, bool root= false);
+
     std::tuple<std::vector<float>, std::vector<int>, double>  _evaluate_new_state(GameState & state, int player);
 
 public:
@@ -41,8 +42,7 @@ public:
 
     std::vector<double> get_action_probs(GameState& state, int player, double expl_rate=1.);
 
-
-
+    static move_t flip_move(move_t move, int board_len);
 
 };
 

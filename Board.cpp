@@ -176,10 +176,8 @@ void Board::update_board(pos_t& pos, std::shared_ptr<Piece>& pc_ptr)
         board_map[pos] = pc_ptr;
     else
         throw std::invalid_argument("Supplied position out of bounds.");
-    if(board_map.size() > board_len * board_len)
-        auto x = 3;
 }
 
-void Board::print_board() {
+void Board::print_board() const {
     utils::print_board<Board, Piece>(*this);
 }

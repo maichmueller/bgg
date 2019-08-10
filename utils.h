@@ -70,7 +70,7 @@ namespace utils {
         // "-1 \n
         // 10.1 \n
         //   1"
-        auto create_piece_str = [&H_SIZE_PER_PIECE, &mid, &flip_board, &hide_unknowns] (Piece& piece, int line) {
+        auto create_piece_str = [&H_SIZE_PER_PIECE, &mid, &flip_board, &hide_unknowns] (const Piece& piece, int line) {
             if(piece.is_null())
                 return std::string(static_cast<unsigned long> (H_SIZE_PER_PIECE), ' ');
             std::string reset = "\x1B[0m";

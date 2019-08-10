@@ -49,7 +49,10 @@ public:
     std::map<pos_t, std::shared_ptr<Piece>, key_comp>& get_board_map() {return board_map;}
 
     void update_board(pos_t& pos, std::shared_ptr<Piece>& pc);
-    void print_board();
+    void print_board() const;
+    [[nodiscard]] size_t size() const {
+        return board_map.size();
+    }
 
 };
 
