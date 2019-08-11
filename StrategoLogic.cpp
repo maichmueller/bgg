@@ -8,7 +8,7 @@
 // StrategoLogic
 
 
-std::map<pos_t, int> StrategoLogic::initialize_battle_matrix() {
+std::map<strat_pos_t, int> StrategoLogic::initialize_battle_matrix() {
     std::map<std::array<int,2>, int> bm;
     for(int i = 1; i < 11; ++i) {
         bm[{i, i}] = 0;
@@ -28,12 +28,12 @@ std::map<pos_t, int> StrategoLogic::initialize_battle_matrix() {
 
 const std::map<std::array<int, 2>, int> StrategoLogic::battle_matrix = StrategoLogic::initialize_battle_matrix();
 
-void StrategoLogic::_invert_pos(int &len, pos_t &pos) {
+void StrategoLogic::_invert_pos(int &len, strat_pos_t &pos) {
     pos[0] = len - 1 - pos[0];
     pos[1] = len - 1 - pos[1] ;
 }
 
-void StrategoLogic::_invert_move(move_t &move, int &len) {
+void StrategoLogic::_invert_move(strat_move_t &move, int &len) {
     StrategoLogic::_invert_pos(len, move[0]);
     StrategoLogic::_invert_pos(len, move[1]);
 }
@@ -43,7 +43,7 @@ int StrategoLogic::_invert_team(int team) {
 
 
 
-bool StrategoLogic::is_legal_move(const Board &board, const move_t &move) {
+bool StrategoLogic::is_legal_move(const Board &board, const strat_move_t &move) {
     int board_len = board.get_board_len() - 1;
 
     const auto & [pos_before, pos_after] = move;
@@ -78,7 +78,7 @@ bool StrategoLogic::is_legal_move(const Board &board, const move_t &move) {
             int dist = pos_after[1] - pos_before[1];
             int sign = (dist >= 0) ? 1 : -1;
             for(int i = 1; i < std::abs(dist); ++i) {
-                pos_t pos = {pos_before[0], pos_before[1] + sign*i};
+                strat_pos_t pos = {pos_before[0], pos_before[1] + sign * i};
                 if(!board[pos]->is_null())
                     return false;
             }
@@ -88,7 +88,7 @@ bool StrategoLogic::is_legal_move(const Board &board, const move_t &move) {
             int dist = pos_after[0] - pos_before[0];
             int sign = (dist >= 0) ? 1 : -1;
             for(int i = 1; i < std::abs(dist); ++i) {
-                pos_t pos = {pos_before[0] + sign*i, pos_before[1]};
+                strat_pos_t pos = {pos_before[0] + sign * i, pos_before[1]};
                 if(!board[pos]->is_null())
                     return false;
             }
@@ -101,9 +101,9 @@ bool StrategoLogic::is_legal_move(const Board &board, const move_t &move) {
 }
 
 
-//std::vector<move_t> StrategoLogic::get_poss_moves(const Board &board, int player, bool flip_teams) {
+//std::vector<strat_move_t> StrategoLogic::get_poss_moves(const Board &board, int player, bool flip_teams) {
 //
-//    std::function<void(int&, move_t&)> canonize_move = &StrategoLogic::move_ident;
+//    std::function<void(int&, strat_move_t&)> canonize_move = &StrategoLogic::move_ident;
 //    std::function<int(int)> canonize_team = &StrategoLogic::team_ident;
 //
 //    if(flip_teams) {
@@ -112,18 +112,18 @@ bool StrategoLogic::is_legal_move(const Board &board, const move_t &move) {
 //    }
 //
 //    int board_len = board.get_board_len();
-//    std::vector<move_t> moves_possible;
+//    std::vector<strat_move_t> moves_possible;
 //    for( auto elem = board.begin(); elem != board.end(); ++elem) {
 //        std::shared_ptr<Piece> piece = elem->second;
 //        if(!piece->is_null() && canonize_team(piece->get_team()) == player && piece->get_flag_can_move()) {
 //            // the position we are dealing with
-//            pos_t pos = piece->get_position();
+//            strat_pos_t pos = piece->get_position();
 //
 //            if(piece->get_type() == 2) {
 //                // all possible moves to the right until board ends
 //                for(int i = 1; i < board_len - pos[0]; ++i) {
-//                    pos_t pos_to = {pos[0] + i, pos[1]};
-//                    move_t move = {pos, pos_to};
+//                    strat_pos_t pos_to = {pos[0] + i, pos[1]};
+//                    strat_move_t move = {pos, pos_to};
 //                    if(is_legal_move(board, move, flip_teams)) {
 //                        canonize_move(board_len, move);
 //                        moves_possible.push_back(move);
@@ -131,8 +131,8 @@ bool StrategoLogic::is_legal_move(const Board &board, const move_t &move) {
 //                }
 //                // all possible moves to the top until board ends
 //                for(int i = 1; i < board_len - pos[1]; ++i) {
-//                    pos_t pos_to = {pos[0], pos[1] + i};
-//                    move_t move = {pos, pos_to};
+//                    strat_pos_t pos_to = {pos[0], pos[1] + i};
+//                    strat_move_t move = {pos, pos_to};
 //                    if(is_legal_move(board, move, flip_teams)) {
 //                        canonize_move(board_len, move);
 //                        moves_possible.push_back(move);
@@ -140,8 +140,8 @@ bool StrategoLogic::is_legal_move(const Board &board, const move_t &move) {
 //                }
 //                // all possible moves to the left until board ends
 //                for(int i = 1; i < pos[0] + 1; ++i) {
-//                    pos_t pos_to = {pos[0] - i, pos[1]};
-//                    move_t move = {pos, pos_to};
+//                    strat_pos_t pos_to = {pos[0] - i, pos[1]};
+//                    strat_move_t move = {pos, pos_to};
 //                    if(is_legal_move(board, move, flip_teams)) {
 //                        canonize_move(board_len, move);
 //                        moves_possible.push_back(move);
@@ -150,8 +150,8 @@ bool StrategoLogic::is_legal_move(const Board &board, const move_t &move) {
 //                }
 //                // all possible moves to the bottom until board ends
 //                for(int i = 1; i < pos[1] + 1; ++i) {
-//                    pos_t pos_to = {pos[0], pos[1] - i};
-//                    move_t move = {pos, pos_to};
+//                    strat_pos_t pos_to = {pos[0], pos[1] - i};
+//                    strat_move_t move = {pos, pos_to};
 //                    if(is_legal_move(board, move, flip_teams)) {
 //                        canonize_move(board_len, move);
 //                        moves_possible.push_back(move);
@@ -160,12 +160,12 @@ bool StrategoLogic::is_legal_move(const Board &board, const move_t &move) {
 //            }
 //            else {
 //                // all moves are 1 step to left, right, top, or bottom
-//                std::vector<pos_t> pos_tos = {{pos[0] + 1, pos[1]},
+//                std::vector<strat_pos_t> pos_tos = {{pos[0] + 1, pos[1]},
 //                                              {pos[0]  , pos[1]+1},
 //                                              {pos[0]-1,   pos[1]},
 //                                              {pos[0]  , pos[1]-1}};
 //                for(auto& pos_to : pos_tos) {
-//                    move_t move = {pos, pos_to};
+//                    strat_move_t move = {pos, pos_to};
 //                    if(is_legal_move(board, move, flip_teams)) {
 //                        canonize_move(board_len, move);
 //                        moves_possible.push_back(move);
@@ -177,36 +177,36 @@ bool StrategoLogic::is_legal_move(const Board &board, const move_t &move) {
 //    return moves_possible;
 //}
 
-std::vector<move_t> StrategoLogic::_get_poss_moves(const Board &board, int player) {
+std::vector<strat_move_t> StrategoLogic::_get_poss_moves(const Board &board, int player) {
     int board_len = board.get_board_len();
-    std::vector<move_t> moves_possible;
+    std::vector<strat_move_t> moves_possible;
     for( auto elem = board.begin(); elem != board.end(); ++elem) {
         std::shared_ptr<Piece> piece = elem->second;
         if(!piece->is_null() && piece->get_team() == player && piece->get_flag_can_move()) {
             // the position we are dealing with
-            pos_t pos = piece->get_position();
+            strat_pos_t pos = piece->get_position();
 
             if(piece->get_type() == 2) {
                 // all possible moves to the right until board ends
                 for(int i = 1; i < board_len - pos[0]; ++i) {
-                    pos_t pos_to = {pos[0] + i, pos[1]};
-                    move_t move = {pos, pos_to};
+                    strat_pos_t pos_to = {pos[0] + i, pos[1]};
+                    strat_move_t move = {pos, pos_to};
                     if(is_legal_move(board, move)) {
                         moves_possible.push_back(move);
                     }
                 }
                 // all possible moves to the top until board ends
                 for(int i = 1; i < board_len - pos[1]; ++i) {
-                    pos_t pos_to = {pos[0], pos[1] + i};
-                    move_t move = {pos, pos_to};
+                    strat_pos_t pos_to = {pos[0], pos[1] + i};
+                    strat_move_t move = {pos, pos_to};
                     if(is_legal_move(board, move)) {
                         moves_possible.push_back(move);
                     }
                 }
                 // all possible moves to the left until board ends
                 for(int i = 1; i < pos[0] + 1; ++i) {
-                    pos_t pos_to = {pos[0] - i, pos[1]};
-                    move_t move = {pos, pos_to};
+                    strat_pos_t pos_to = {pos[0] - i, pos[1]};
+                    strat_move_t move = {pos, pos_to};
                     if(is_legal_move(board, move)) {
                         moves_possible.push_back(move);
                     }
@@ -214,8 +214,8 @@ std::vector<move_t> StrategoLogic::_get_poss_moves(const Board &board, int playe
                 }
                 // all possible moves to the bottom until board ends
                 for(int i = 1; i < pos[1] + 1; ++i) {
-                    pos_t pos_to = {pos[0], pos[1] - i};
-                    move_t move = {pos, pos_to};
+                    strat_pos_t pos_to = {pos[0], pos[1] - i};
+                    strat_move_t move = {pos, pos_to};
                     if(is_legal_move(board, move)) {
                         moves_possible.push_back(move);
                     }
@@ -223,12 +223,12 @@ std::vector<move_t> StrategoLogic::_get_poss_moves(const Board &board, int playe
             }
             else {
                 // all moves are 1 step to left, right, top, or bottom
-                std::vector<pos_t> pos_tos = {{pos[0] + 1, pos[1]},
-                                              {pos[0]  , pos[1]+1},
-                                              {pos[0]-1,   pos[1]},
-                                              {pos[0]  , pos[1]-1}};
+                std::vector<strat_pos_t> pos_tos = {{pos[0] + 1, pos[1]},
+                                                    {pos[0]  , pos[1]+1},
+                                                    {pos[0]-1,   pos[1]},
+                                                    {pos[0]  , pos[1]-1}};
                 for(auto& pos_to : pos_tos) {
-                    move_t move = {pos, pos_to};
+                    strat_move_t move = {pos, pos_to};
                     if(is_legal_move(board, move)) {
                         moves_possible.push_back(move);
                     }
@@ -239,8 +239,8 @@ std::vector<move_t> StrategoLogic::_get_poss_moves(const Board &board, int playe
     return moves_possible;
 }
 
-std::vector<move_t> StrategoLogic::get_poss_moves(const Board &board, int player, bool flip_board) {
-    std::vector<move_t> moves = _get_poss_moves(board, player);
+std::vector<strat_move_t> StrategoLogic::get_poss_moves(const Board &board, int player, bool flip_board) {
+    std::vector<strat_move_t> moves = _get_poss_moves(board, player);
     if(flip_board) {
         int board_len = board.get_board_len();
         for(int i = 0; i < moves.size(); ++i) {
@@ -257,46 +257,46 @@ bool StrategoLogic::has_poss_moves(const Board &board, int player) {
         std::shared_ptr<Piece> piece = elem->second;
         if(!piece->is_null() && piece->get_team() == player && piece->get_flag_can_move()) {
             // the position we are dealing with
-            pos_t pos = piece->get_position();
+            strat_pos_t pos = piece->get_position();
 
             if(piece->get_type() == 2) {
                 // all possible moves to the right until board ends
                 for(int i = 1; i < board_len - pos[0]; ++i) {
-                    pos_t pos_to = {pos[0] + i, pos[1]};
-                    move_t move = {pos, pos_to};
+                    strat_pos_t pos_to = {pos[0] + i, pos[1]};
+                    strat_move_t move = {pos, pos_to};
                     if(is_legal_move(board, move))
                         return true;
                 }
                 // all possible moves to the top until board ends
                 for(int i = 1; i < board_len - pos[1]; ++i) {
-                    pos_t pos_to = {pos[0], pos[1] + i};
-                    move_t move = {pos, pos_to};
+                    strat_pos_t pos_to = {pos[0], pos[1] + i};
+                    strat_move_t move = {pos, pos_to};
                     if(is_legal_move(board, move))
                         return true;
                 }
                 // all possible moves to the left until board ends
                 for(int i = 1; i < pos[0] + 1; ++i) {
-                    pos_t pos_to = {pos[0] - i, pos[1]};
-                    move_t move = {pos, pos_to};
+                    strat_pos_t pos_to = {pos[0] - i, pos[1]};
+                    strat_move_t move = {pos, pos_to};
                     if(is_legal_move(board, move))
                         return true;
                 }
                 // all possible moves to the bottom until board ends
                 for(int i = 1; i < pos[1] + 1; ++i) {
-                    pos_t pos_to = {pos[0], pos[1] - i};
-                    move_t move = {pos, pos_to};
+                    strat_pos_t pos_to = {pos[0], pos[1] - i};
+                    strat_move_t move = {pos, pos_to};
                     if(is_legal_move(board, move))
                         return true;
                 }
             }
             else {
                 // all moves are 1 step to left, right, top, or bottom
-                std::vector<pos_t> pos_tos = {{pos[0] + 1, pos[1]},
-                                              {pos[0]  , pos[1]+1},
-                                              {pos[0]-1,   pos[1]},
-                                              {pos[0]  , pos[1]-1}};
+                std::vector<strat_pos_t> pos_tos = {{pos[0] + 1, pos[1]},
+                                                    {pos[0]  , pos[1]+1},
+                                                    {pos[0]-1,   pos[1]},
+                                                    {pos[0]  , pos[1]-1}};
                 for(auto& pos_to : pos_tos) {
-                    move_t move = {pos, pos_to};
+                    strat_move_t move = {pos, pos_to};
                     if(is_legal_move(board, move))
                         return true;
                 }
@@ -306,12 +306,12 @@ bool StrategoLogic::has_poss_moves(const Board &board, int player) {
     return false;
 }
 
-int StrategoLogic::_find_action_idx(std::vector<move_base_t> &vec_to_search, move_base_t &action_to_find) {
+int StrategoLogic::_find_action_idx(std::vector<strat_move_base_t> &vec_to_search, strat_move_base_t &action_to_find) {
 
     // func to find a specific vector in another (assuming types are all known)
 
     int idx = 0;
-    std::vector<move_base_t >::iterator entry;
+    std::vector<strat_move_base_t >::iterator entry;
     for(entry = vec_to_search.begin(); entry != vec_to_search.end(); ++entry) {
         if((*entry)[0] == action_to_find[0] && (*entry)[1] == action_to_find[1]) {
             // element has been found, exit the for-loop
@@ -354,21 +354,21 @@ int StrategoLogic::_find_action_idx(std::vector<move_base_t> &vec_to_search, mov
  */
 void StrategoLogic::enable_action_if_legal(std::vector<int>& action_mask, const Board& board,
                                            int act_range_start,
-                                           const std::vector<move_base_t >& action_arr,
+                                           const std::vector<strat_move_base_t >& action_arr,
                                            const std::vector<int>& act_range,
-                                           const pos_t& pos, const pos_t& pos_to,
+                                           const strat_pos_t& pos, const strat_pos_t& pos_to,
                                            const bool flip_board) {
 
-    move_t move = {pos, pos_to};
+    strat_move_t move = {pos, pos_to};
 
     if(is_legal_move(board, move)) {
-        move_base_t action_effect;
+        strat_move_base_t action_effect;
 
         if(flip_board)
             action_effect = {pos[0] - pos_to[0], pos[1] - pos_to[1]};
         else
             action_effect = {pos_to[0] - pos[0], pos_to[1] - pos[1]};
-        std::vector<move_base_t > slice(act_range.size());
+        std::vector<strat_move_base_t > slice(act_range.size());
         for(unsigned long idx = 0; idx < slice.size(); ++idx) {
             slice[idx] = action_arr[act_range[idx]];
         }
@@ -379,7 +379,7 @@ void StrategoLogic::enable_action_if_legal(std::vector<int>& action_mask, const 
 
 
 std::vector<int> StrategoLogic::get_action_mask(
-        const Board &board, const std::vector<move_base_t >& action_arr,
+        const Board &board, const std::vector<strat_move_base_t >& action_arr,
         const std::map<std::array<int, 2>, std::tuple<int, std::vector<int>>>& piece_act_map,
         int player) {
 
@@ -394,9 +394,9 @@ std::vector<int> StrategoLogic::get_action_mask(
             const auto& [start_idx, act_range] = piece_act_map.at(type_ver);
 
             // the position we are dealing with
-            pos_t pos = piece->get_position();
+            strat_pos_t pos = piece->get_position();
 
-            std::vector<pos_t> all_pos_targets(4);
+            std::vector<strat_pos_t> all_pos_targets(4);
             if(piece->get_type() == 2) {
                 all_pos_targets.resize(board_len - pos[0] - 1 + board_len - pos[1] - 1 + pos[0] + pos[1]);
                 auto all_pos_targets_it = all_pos_targets.begin();

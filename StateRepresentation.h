@@ -15,11 +15,11 @@
 
 namespace StateRepresentation {
 
-    inline pos_t pos_ident(int &len, const pos_t& pos) {
+    inline strat_pos_t pos_ident(int &len, const strat_pos_t& pos) {
         return pos;
     }
-    inline pos_t pos_invert(int &len, const pos_t &pos) {
-        pos_t p = {len - pos[0] - 1, len - pos[1] - 1};
+    inline strat_pos_t pos_invert(int &len, const strat_pos_t &pos) {
+        strat_pos_t p = {len - pos[0] - 1, len - pos[1] - 1};
         return p;
     }
     inline int team_ident(int team) {
@@ -113,7 +113,7 @@ namespace StateRepresentation {
          *      true (1) or wrong (0)
          **/
 
-        std::function<pos_t(int&, pos_t&)> canonize_pos = &pos_ident;
+        std::function<strat_pos_t(int&, strat_pos_t&)> canonize_pos = &pos_ident;
         std::function<int(int)> canonize_team = &team_ident;
 
         int board_len = board.get_board_len();
@@ -140,7 +140,7 @@ namespace StateRepresentation {
 
 //        auto board_state_access = board_state_rep.accessor<float, 4> ();
         for(const auto& pos_piece : board) {
-            pos_t pos = pos_piece.first;
+            strat_pos_t pos = pos_piece.first;
             pos = canonize_pos(board_len, pos);
             auto piece = pos_piece.second;
             if(!piece->is_null()) {

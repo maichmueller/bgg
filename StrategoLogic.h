@@ -12,29 +12,29 @@ class StrategoLogic {
 
     static void enable_action_if_legal(std::vector<int> & action_mask, const Board& board,
                                        int act_range_start,
-                                       const std::vector<move_base_t > & action_arr,
+                                       const std::vector<strat_move_base_t > & action_arr,
                                        const std::vector<int> & act_range,
-                                       const pos_t & pos, const pos_t & pos_to,
+                                       const strat_pos_t & pos, const strat_pos_t & pos_to,
                                        const bool flip_board=false);
 
-    static int _find_action_idx(std::vector<move_base_t> &vec_to_search, move_base_t &action_to_find);
+    static int _find_action_idx(std::vector<strat_move_base_t> &vec_to_search, strat_move_base_t &action_to_find);
 
-    static inline void _invert_pos(int &len, pos_t &pos);
-    static inline void _invert_move(move_t &move, int &len);
+    static inline void _invert_pos(int &len, strat_pos_t &pos);
+    static inline void _invert_move(strat_move_t &move, int &len);
     static inline int _invert_team(int team);
 
-    static std::vector<move_t> _get_poss_moves(const Board & board, int player);
+    static std::vector<strat_move_t> _get_poss_moves(const Board & board, int player);
 
 public:
 
     static const std::map<std::array<int,2>, int> battle_matrix;
     static std::map<std::array<int,2>, int> initialize_battle_matrix();
-    static bool is_legal_move(const Board & board, const move_t & move);
-    static std::vector<move_t> get_poss_moves(const Board & board, int player, bool flip_board=false);
+    static bool is_legal_move(const Board & board, const strat_move_t & move);
+    static std::vector<strat_move_t> get_poss_moves(const Board & board, int player, bool flip_board=false);
     static bool has_poss_moves(const Board & board, int player);
     static std::vector<int> get_action_mask(
             const Board& board,
-            const std::vector<move_base_t >& action_arr,
+            const std::vector<strat_move_base_t >& action_arr,
             const std::map<
                     std::array<int, 2>,
                     std::tuple<int, std::vector<int>>

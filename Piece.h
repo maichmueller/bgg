@@ -26,7 +26,7 @@ class Piece {
      **/
 private:
     bool null_piece = false;
-    pos_t pos;
+    strat_pos_t pos;
     int team;
     int type;
     int version;
@@ -37,7 +37,7 @@ private:
 public:
     Piece(int team,
           int type,
-          pos_t pos,
+          strat_pos_t pos,
           int version,
           bool hidden,
           bool has_moved,
@@ -45,10 +45,10 @@ public:
 
     Piece(int team,
           int type,
-          pos_t pos,
+          strat_pos_t pos,
           int version);
 
-    explicit Piece(const pos_t &pos);
+    explicit Piece(const strat_pos_t &pos);
 
     Piece();
 
@@ -60,11 +60,11 @@ public:
 
     void set_flag_unhidden() { hidden = false; }
 
-    void set_position(pos_t &p) { pos = p; }
+    void set_position(strat_pos_t &p) { pos = p; }
 
     [[nodiscard]] bool is_null() const { return null_piece; }
 
-    [[nodiscard]] pos_t get_position(bool flip_position = false, int dim = 5) const {
+    [[nodiscard]] strat_pos_t get_position(bool flip_position = false, int dim = 5) const {
         if (flip_position) {
             return {dim - pos[0] - 1, dim - pos[1] - 1};
         } else

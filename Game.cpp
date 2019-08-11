@@ -14,8 +14,8 @@ Game::Game(int board_l, std::shared_ptr<Agent> ag0, std::shared_ptr<Agent> ag1, 
 }
 
 Game::Game(int board_l, std::shared_ptr<Agent> ag0, std::shared_ptr<Agent> ag1,
-           const std::map<pos_t, int>& setup_0,
-           const std::map<pos_t, int>& setup_1)
+           const std::map<strat_pos_t, int>& setup_0,
+           const std::map<strat_pos_t, int>& setup_1)
     : board_len(board_l), game_state(board_l, setup_0, setup_1),
       agent_0(std::move(ag0)), agent_1(std::move(ag1)), fixed_setups(true),
       setup_0(setup_0), setup_1(setup_1)
@@ -55,7 +55,7 @@ int Game::run_game(bool show=true) {
 void Game::run_step() {
     int turn = game_state.get_move_count() % 2;  // # player 1 or player 0
     
-    move_t move;
+    strat_move_t move;
     if(turn == 1)
         move = agent_1->decide_move(*game_state.get_board());
     else
@@ -78,12 +78,12 @@ void Game::reset() {
 }
 
 
-std::map<pos_t, int> Game::draw_random_setup(int team) {
+std::map<strat_pos_t, int> Game::draw_random_setup(int team) {
     auto avail_types = GameDeclarations::get_available_types(board_len);
 
-    std::vector<pos_t > poss_pos = GameDeclarations::get_start_positions(board_len, team);
+    std::vector<strat_pos_t > poss_pos = GameDeclarations::get_start_positions(board_len, team);
 
-    std::map<pos_t, int > setup_out;
+    std::map<strat_pos_t, int > setup_out;
 
     std::random_device rd;
     std::mt19937 rng(rd());

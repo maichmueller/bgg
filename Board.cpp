@@ -22,7 +22,7 @@ Board::Board(int len)
 
     for(int i = 0; i < board_len; i++) {
         for(int j = 0; j < board_len; j++) {
-            pos_t pos = {i, j};
+            strat_pos_t pos = {i, j};
             board_map[pos] = std::make_shared<Piece> (pos);
         }
     }
@@ -33,9 +33,9 @@ Board::Board(int len)
 Board::Board(int len, const std::vector<std::shared_ptr<Piece>>& setup_0, const std::vector<std::shared_ptr<Piece>>& setup_1)
         : Board(len)
 {
-    std::map<pos_t, int, key_comp> seen_pos_0;
+    std::map<strat_pos_t, int, key_comp> seen_pos_0;
     for (auto& piece : setup_0) {
-        pos_t pos = piece->get_position();
+        strat_pos_t pos = piece->get_position();
         auto it = seen_pos_0.find(pos);
         if(it != seen_pos_0.end())
         {
@@ -47,9 +47,9 @@ Board::Board(int len, const std::vector<std::shared_ptr<Piece>>& setup_0, const 
         board_map[pos] = piece;
     }
 
-    std::map<pos_t, int, key_comp> seen_pos_1;
+    std::map<strat_pos_t, int, key_comp> seen_pos_1;
     for (auto& piece : setup_1) {
-        pos_t pos = piece->get_position();
+        strat_pos_t pos = piece->get_position();
         auto it = seen_pos_1.find(pos);
         if(it != seen_pos_1.end())
         {
@@ -64,13 +64,13 @@ Board::Board(int len, const std::vector<std::shared_ptr<Piece>>& setup_0, const 
     place_obstacles();
 }
 
-Board::Board(int len, const std::map<pos_t, int>& setup_0, const std::map<pos_t, int>& setup_1)
+Board::Board(int len, const std::map<strat_pos_t, int>& setup_0, const std::map<strat_pos_t, int>& setup_1)
         : Board(len)
 {
-    std::map<pos_t, int, key_comp> seen_pos_0;
+    std::map<strat_pos_t, int, key_comp> seen_pos_0;
     std::map<int, int> version_count_0;
     for (auto& elem : setup_0) {
-        pos_t pos = elem.first;
+        strat_pos_t pos = elem.first;
         int piece_type = elem.second;
 
         auto it = seen_pos_0.find(pos);
@@ -90,10 +90,10 @@ Board::Board(int len, const std::map<pos_t, int>& setup_0, const std::map<pos_t,
         board_map[pos] = std::move(piece);
     }
 
-    std::map<pos_t, int, key_comp> seen_pos_1;
+    std::map<strat_pos_t, int, key_comp> seen_pos_1;
     std::map<int, int> version_count_1;
     for (auto& elem : setup_1) {
-        pos_t pos = elem.first;
+        strat_pos_t pos = elem.first;
         int piece_type = elem.second;
 
         auto it = seen_pos_1.find(pos);
@@ -116,7 +116,7 @@ Board::Board(int len, const std::map<pos_t, int>& setup_0, const std::map<pos_t,
     place_obstacles();
 }
 
-std::shared_ptr<Piece>& Board::operator[] (pos_t a)
+std::shared_ptr<Piece>& Board::operator[] (strat_pos_t a)
 {
     if(a[0] >= board_len || a[0] < 0) {
         throw std::invalid_argument( "Row index out of bounds." );
@@ -128,7 +128,7 @@ std::shared_ptr<Piece>& Board::operator[] (pos_t a)
 }
 
 
-std::shared_ptr<Piece> Board::operator[] (const pos_t a) const
+std::shared_ptr<Piece> Board::operator[] (const strat_pos_t a) const
 {
     if(a[0] >= board_len || a[0] < 0) {
         throw std::invalid_argument( "Row index out of bounds." );
@@ -160,7 +160,7 @@ typename Board::const_iterator Board::end() const
     return board_map.end();
 }
 
-bool Board::check_pos_integrity(pos_t pos)
+bool Board::check_pos_integrity(strat_pos_t pos)
 {
     if(pos[0] < 0 || board_len <= pos[0]) {
         return false;
@@ -168,7 +168,7 @@ bool Board::check_pos_integrity(pos_t pos)
     else return !(pos[1] < 0 || board_len <= pos[1]);
 }
 
-void Board::update_board(pos_t& pos, std::shared_ptr<Piece>& pc_ptr)
+void Board::update_board(strat_pos_t& pos, std::shared_ptr<Piece>& pc_ptr)
 {
     bool valid_pos = check_pos_integrity(pos);
     pc_ptr->set_position(pos);

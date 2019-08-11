@@ -54,7 +54,7 @@ GameState::GameState(Board board, std::array<std::map<int, int>, 2>& dead_pieces
     assign_actors(this->board);
 }
 
-GameState::GameState(int len, const std::map<pos_t, int>& setup_0, const std::map<pos_t, int>& setup_1)
+GameState::GameState(int len, const std::map<strat_pos_t, int>& setup_0, const std::map<strat_pos_t, int>& setup_1)
 : board(len, setup_0, setup_1), dead_pieces(), move_count(0),
   terminal_checked(false), terminal(404), canonical_teams(true), rounds_without_fight(0),
   move_equals_prev_move(0), move_history(0)
@@ -133,13 +133,13 @@ int GameState::get_canonical_team(Piece& piece){
     }
 }
 
-pos_t GameState::get_canonical_pos(Piece& piece){
+strat_pos_t GameState::get_canonical_pos(Piece& piece){
     if(canonical_teams) {
         return piece.get_position();
     }
     else {
         int len = board.get_board_len();
-        pos_t pos = piece.get_position();
+        strat_pos_t pos = piece.get_position();
         pos[0] = len-1-pos[0];
         pos[1] = len-1-pos[1];
         return pos;
@@ -150,10 +150,10 @@ int GameState::fight(Piece &attacker, Piece &defender) {
     return StrategoLogic::fight_outcome(attacker.get_type(), defender.get_type());
 }
 
-int GameState::do_move(move_t &move) {
+int GameState::do_move(strat_move_t &move) {
     // preliminaries
-    pos_t from = move[0];
-    pos_t to = move[1];
+    strat_pos_t from = move[0];
+    strat_pos_t to = move[1];
     int fight_outcome = 404;
 
     // save the access to the pieces in question
@@ -226,15 +226,15 @@ int GameState::do_move(move_t &move) {
 
 void GameState::undo_last_rounds(int n) {
     for(int i = 0; i < n; ++i) {
-        move_t move = move_history.back();
+        strat_move_t move = move_history.back();
         auto move_pieces = piece_history.back();
 
         move_history.pop_back();
         piece_history.pop_back();
         move_equals_prev_move.pop_back();
 
-        pos_t from = move[0];
-        pos_t to = move[1];
+        strat_pos_t from = move[0];
+        strat_pos_t to = move[1];
         board.update_board(from, move_pieces[0]);
         board.update_board(to, move_pieces[1]);
         for(auto& piece: move_pieces) {
@@ -264,7 +264,7 @@ torch::Tensor GameState::torch_represent(int player) {
             player);
 }
 
-move_t GameState::action_to_move(int action, int player) const {
+strat_move_t GameState::action_to_move(int action, int player) const {
     int board_len = board.get_board_len();
     int action_dim = ActionRep::get_act_rep(board_len).size();
     return ActionRep::action_to_move(action, action_dim, board_len, actors.at(player), player);

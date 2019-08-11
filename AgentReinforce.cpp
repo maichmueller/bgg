@@ -42,13 +42,13 @@ void AlphaZeroAgent::install_board(const Board &board) {
 }
 
 
-move_t AlphaZeroAgent::decide_move(const Board &board) {
+strat_move_t AlphaZeroAgent::decide_move(const Board &board) {
     torch::Tensor board_state = board_to_state_rep(board);
     auto [pi, v] = Base::m_model->predict(board_state);
 
     int action = pi.argmax().template item<int64_t>();
 
-    move_t move = ActionRep::action_to_move(action, Base::m_action_dim, Base::m_board_len, Base::m_actors, m_team);
+    strat_move_t move = ActionRep::action_to_move(action, Base::m_action_dim, Base::m_board_len, Base::m_actors, m_team);
 
     return move;
 }

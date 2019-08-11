@@ -52,7 +52,7 @@ std::vector<TrainingTurn> Coach::exec_ep(GameState state) const {
         std::discrete_distribution<int> qs_sampler {pi.begin(), pi.end()};
 
         int action = qs_sampler(generator);
-        move_t move = state.action_to_move(action, turn);
+        strat_move_t move = state.action_to_move(action, turn);
         if(turn==1)
             move = MCTS::flip_move(move, state.get_board()->get_board_len());
 //        std::cout << "After action to move: " << state.get_board()->size()<< "\n";

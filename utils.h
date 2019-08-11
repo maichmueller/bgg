@@ -267,7 +267,6 @@ namespace hash_tuple {
 
 namespace eqcomp_tuple {
 
-
     template < typename T , typename... Ts >
     auto head( std::tuple<T,Ts...> const & t )
     {

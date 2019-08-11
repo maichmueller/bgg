@@ -33,7 +33,7 @@ class GameState {
     std::vector<cond_type> conditions_torch_rep;
     bool conditions_set = false;
 
-    std::vector<move_t> move_history;
+    std::vector<strat_move_t> move_history;
     std::vector<std::array<std::shared_ptr<Piece>, 2>> piece_history;
     std::vector<bool> move_equals_prev_move;
     unsigned int rounds_without_fight;
@@ -46,20 +46,20 @@ public:
     explicit GameState(int game_len);
     explicit GameState(Board board, int move_count=0);
     GameState(Board board, std::array<std::map<int, int>, 2>& dead_pieces, int move_count);
-    GameState(int len, const std::map<pos_t, int>& setup_0, const std::map<pos_t, int>& setup_1);
+    GameState(int len, const std::map<strat_pos_t, int>& setup_0, const std::map<strat_pos_t, int>& setup_1);
     void check_terminal(bool flag_only=false, int turn=0);
-    int do_move(move_t& move);
+    int do_move(strat_move_t& move);
     int fight(Piece& attacker, Piece& defender);
     int is_terminal(bool force_check=false, int turn=0);
 
     torch::Tensor torch_represent(int player);
-    move_t action_to_move(int actionl, int player) const;
+    strat_move_t action_to_move(int actionl, int player) const;
 
     void restore_to_round(int round);
     void undo_last_rounds(int n=1);
 
     int get_canonical_team(Piece& piece);
-    pos_t get_canonical_pos(Piece& piece);
+    strat_pos_t get_canonical_pos(Piece& piece);
     int get_move_count() {return move_count;}
     bool is_canonical() {return canonical_teams;}
 

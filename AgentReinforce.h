@@ -64,7 +64,7 @@ public:
     {}
     void install_board(const Board& board) override;
     torch::Tensor board_to_state_rep(const Board& board) override;
-    move_t decide_move(const Board& board) override;
+    strat_move_t decide_move(const Board& board) override;
 
 };
 

@@ -15,28 +15,54 @@
 #include "memory"
 
 
+template <typename action_effect_t, typename piece_ident_t>
 class Action {
     int index;
-    move_base_t move_change_0;
-    move_base_t move_change_1;
+    action_effect_t effect_0;
+    action_effect_t effect_1;
+    piece_ident_t piece_id;
 
+public:
+    Action(int idx, action_effect_t action, piece_ident_t piece_identifier)
+    : index(idx), effect_0(action), effect_1(action.invert()), piece_id(piece_identifier)
+    {
+    }
+    [[nodiscard]] int get_index() const {return index;}
+    [[nodiscard]] action_effect_t get_action(int player) const {
+        if(player) return effect_1;
+        else return effect_0;
+    }
+    [[nodiscard]] piece_ident_t get_piece_id() const {return piece_id;}
+
+    template <typename move_t, typename actor_map_t>
+    move_t to_move(int board_len,
+                   const actor_map_t & actors,
+                   int player) {
+
+    }
 };
 
-struct ActionRep {
+template <typename action_effect_t, typename move_t, typename piece_ident>
+class ActionRepBase {
+protected:
+    using ActionType = Action<action_effect_t, piece_ident>;
+    static const std::vector<ActionType > action_rep;
+public:
+    static auto const & get_act_rep() {
+        return action_rep;
+    }
+    virtual move_t action_to_move() = 0;
+};
 
-    static const std::vector<move_base_t > action_ar_s;
-    static const std::vector<move_base_t > action_ar_m;
-    static const std::vector<move_base_t > action_ar_l;
-
-    static const std::map<std::array<int, 2>, std::tuple<int, std::vector<int>>> piece_act_map_s;
-    static const std::map<std::array<int, 2>, std::tuple<int, std::vector<int>>> piece_act_map_m;
-    static const std::map<std::array<int, 2>, std::tuple<int, std::vector<int>>> piece_act_map_l;
-
-    static int fill_act_vector(
-            std::vector<move_base_t > &action_ar,
-            std::vector<int> const &available_types,
-            std::map<std::array<int, 2>, std::tuple<int, std::vector<int>>> &piece_act_map
+class StrategoActionRep : public ActionRepBase<strat_move_base_t, strat_move_t, std::tuple<int, int>>{
+    using ActionReprBase = ActionRepBase<strat_move_base_t, strat_move_t, std::tuple<int, int>>;
+    using ActionType = ActionReprBase::ActionType;
+private:
+    static int _fill_act_vector(
+            std::vector<ActionType > & action_ar,
+            int board_len
     ) {
+        const auto & available_types = GameDeclarations::get_available_types(board_len);
         int curr_idx = 0;
         int curr_type = -1;
         int curr_version = -1;
@@ -77,52 +103,37 @@ struct ActionRep {
         return 0;
     }
 
-    static auto const &get_act_rep(int game_len) {
-        if (game_len == 5) return action_ar_s;
-        else if (game_len == 7) return action_ar_m;
-        else if (game_len == 10) return action_ar_l;
-        else throw std::invalid_argument("Game length not in [5, 7, 10].");
-    }
-
-    static auto const &get_act_map(int game_len) {
-        if (game_len == 5) return piece_act_map_s;
-        else if (game_len == 7) return piece_act_map_m;
-        else if (game_len == 10) return piece_act_map_l;
-        else throw std::invalid_argument("Game length not in [5, 7, 10].");
-    }
-
-
     /*!
-     * Method to convert from the action index @action to the associated move on the board.
-     * E.g. as the action input 45 will be converted to the position change (0,2) which will
-     * be added to the position of the associated piece to generate ((2,1),(2,3)) if the piece
-     * associated to action 45 was at position (2,1).
-     *
-     * The attribute @player decides which of the two agents on the board to map as being player 0.
-     * This is relevant for the current state representation for the neural network as it always evaluates
-     * a board state from the perspective of player 0. Thus actions of player 1 will be flipped in orientation
-     * to be moves as if it was player 0.
-     *
-     * @tparam Piece The piece type of the game. Relevant for later generalisation of the API
-     * @param action int, the index of the action.
-     * @param action_dim int, the total number of actions.
-     * @param board_len int, the length of the board of the game.
-     * @param actors std::unordered_map of int tuples to shared_ptr<Piece>. It maps from {piece_type, piece_version}
-     * attribute pairs to actual shared_ptr of pieces on the board currently.
-     * @param player int, the player for the state to move conversion. Flips the move essentially.
-     * @return move_t, the associated move.
-     */
+ * Method to convert from the action index @action to the associated move on the board.
+ * E.g. as the action input 45 will be converted to the position change (0,2) which will
+ * be added to the position of the associated piece to generate ((2,1),(2,3)) if the piece
+ * associated to action 45 was at position (2,1).
+ *
+ * The attribute @player decides which of the two agents on the board to map as being player 0.
+ * This is relevant for the current state representation for the neural network as it always evaluates
+ * a board state from the perspective of player 0. Thus actions of player 1 will be flipped in orientation
+ * to be moves as if it was player 0.
+ *
+ * @tparam Piece The piece type of the game. Relevant for later generalisation of the API
+ * @param action int, the index of the action.
+ * @param action_dim int, the total number of actions.
+ * @param board_len int, the length of the board of the game.
+ * @param actors std::unordered_map of int tuples to shared_ptr<Piece>. It maps from {piece_type, piece_version}
+ * attribute pairs to actual shared_ptr of pieces on the board currently.
+ * @param player int, the player for the state to move conversion. Flips the move essentially.
+ * @return move_t, the associated move.
+ */
     template<typename Piece>
-    static move_t action_to_move(int action,
-                                 int action_dim,
-                                 int board_len,
-                                 const std::unordered_map<
-                                    std::tuple<int, int>,
-                                    std::shared_ptr<Piece>,
-                                    hash_tuple::hash<std::tuple<int, int> >,
-                                    eqcomp_tuple::eqcomp<std::tuple<int, int> >
-                                 > & actors,
-                                 int player) {
+    strat_move_t action_to_move(int action,
+                                int action_dim,
+                                int board_len,
+                                const std::unordered_map<
+                                        std::tuple<int, int>,
+                                        std::shared_ptr<Piece>,
+                                        hash_tuple::hash<std::tuple<int, int> >,
+                                        eqcomp_tuple::eqcomp<std::tuple<int, int> >
+                                > & actors,
+                                int player) {
 
         if (action < 0 || action >= action_dim)
             throw std::invalid_argument("Action index out of range.");
@@ -146,13 +157,12 @@ struct ActionRep {
             throw std::logic_error(err_msg);
         }
         std::shared_ptr<Piece> actor = actors.at(std::make_tuple(type, version));
-        pos_t move_change = ActionRep::get_act_rep(board_len)[action];
-        pos_t curr_pos = actor->get_position(player, board_len);
-        pos_t new_pos = {curr_pos[0] + move_change[0], curr_pos[1] + move_change[1]};
-        move_t move{curr_pos, new_pos};
+        strat_pos_t move_change = ActionRep::get_act_rep(board_len)[action];
+        strat_pos_t curr_pos = actor->get_position(player, board_len);
+        strat_pos_t new_pos = {curr_pos[0] + move_change[0], curr_pos[1] + move_change[1]};
+        strat_move_t move{curr_pos, new_pos};
         return move;
     }
-
 };
 
 

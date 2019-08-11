@@ -141,7 +141,7 @@ std::vector<double> sample_dirichlet(size_t size) {
     return gamma_draws;
 }
 
-move_t MCTS::flip_move(move_t move, int board_len) {
+strat_move_t MCTS::flip_move(strat_move_t move, int board_len) {
     for(auto & move_part: move) {
         for(auto & move_seg : move_part) {
             move_seg = board_len - 1 - move_seg;
@@ -181,10 +181,10 @@ double MCTS::_search(GameState& state, int player, bool root) {
 
     std::vector<int> valids = m_Vs[s];
     // DEBUG
-//    std::vector<move_t > all_moves(valids.size());
+//    std::vector<strat_move_t > all_moves(valids.size());
 //    std::cout  << utils::board_str_rep<Board, Piece>(*state.get_board(), static_cast<bool>(player), false) << "\n";
 //    for(int i = 0; i < valids.size(); ++i) {
-//        move_t move = state.action_to_move(i, player);
+//        strat_move_t move = state.action_to_move(i, player);
 //        std::cout << "Action: " << std::to_string(i) << "\t" << "(" << move[0][0] << ", " << move[0][1] << ") -> (" << move[1][0] << ", " << move[1][1] << ") \t valid: " << valids[i] << "\n";
 //    }
 //    const Board * board = state.get_board();
@@ -234,7 +234,7 @@ double MCTS::_search(GameState& state, int player, bool root) {
     // DEBUG
 //    std::cout << "Player: "<< player << "\t"<< "Best action: " << a << "\t";
 
-    move_t move = state.action_to_move(a, player);
+    strat_move_t move = state.action_to_move(a, player);
 
     // flip the move for player 1
     if(player) {

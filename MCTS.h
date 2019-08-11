@@ -42,7 +42,7 @@ public:
 
     std::vector<double> get_action_probs(GameState& state, int player, double expl_rate=1.);
 
-    static move_t flip_move(move_t move, int board_len);
+    static strat_move_t flip_move(strat_move_t move, int board_len);
 
 };
 
