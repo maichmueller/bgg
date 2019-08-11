@@ -28,41 +28,25 @@ std::map<pos_t, int> StrategoLogic::initialize_battle_matrix() {
 
 const std::map<std::array<int, 2>, int> StrategoLogic::battle_matrix = StrategoLogic::initialize_battle_matrix();
 
-void StrategoLogic::pos_ident(int &len, const pos_t& pos) {}
-void StrategoLogic::pos_invert(int &len, pos_t &pos) {
+void StrategoLogic::_invert_pos(int &len, pos_t &pos) {
     pos[0] = len - 1 - pos[0];
     pos[1] = len - 1 - pos[1] ;
 }
-void StrategoLogic::move_ident(int &len, const move_t &move) {
+
+void StrategoLogic::_invert_move(move_t &move, int &len) {
+    StrategoLogic::_invert_pos(len, move[0]);
+    StrategoLogic::_invert_pos(len, move[1]);
 }
-void StrategoLogic::move_invert(int &len, move_t &move) {
-    StrategoLogic::pos_invert(len, move[0]);
-    StrategoLogic::pos_invert(len, move[1]);
-}
-int StrategoLogic::team_ident(int team) {
-    return team;
-}
-int StrategoLogic::team_invert(int team) {
+int StrategoLogic::_invert_team(int team) {
     return 1 - team;
 }
 
 
 
-bool StrategoLogic::is_legal_move(const Board &board, const move_t &move_in, bool flip_teams) {
-
-    std::function<void(int&, pos_t&)> canonize_pos = &StrategoLogic::pos_ident;
-    std::function<int(int)> canonize_team = &StrategoLogic::team_ident;
-
-    if(flip_teams) {
-        canonize_pos = &StrategoLogic::pos_invert;
-        canonize_team = &StrategoLogic::team_invert;
-    }
-
+bool StrategoLogic::is_legal_move(const Board &board, const move_t &move) {
     int board_len = board.get_board_len() - 1;
 
-    move_t move(move_in);
-    pos_t& pos_before = move[0];
-    pos_t& pos_after = move[1];
+    const auto & [pos_before, pos_after] = move;
 
     if(pos_before[0] < 0 || pos_before[0] > board_len)
         return false;
@@ -75,9 +59,6 @@ bool StrategoLogic::is_legal_move(const Board &board, const move_t &move_in, boo
 
     std::shared_ptr<Piece> p_b = board[pos_before];
     std::shared_ptr<Piece> p_a = board[pos_after];
-
-    canonize_pos(board_len, move[0]);
-    canonize_pos(board_len, move[1]);
 
     if(p_b->is_null())
         return false;
@@ -98,7 +79,6 @@ bool StrategoLogic::is_legal_move(const Board &board, const move_t &move_in, boo
             int sign = (dist >= 0) ? 1 : -1;
             for(int i = 1; i < std::abs(dist); ++i) {
                 pos_t pos = {pos_before[0], pos_before[1] + sign*i};
-                canonize_pos(board_len, pos);
                 if(!board[pos]->is_null())
                     return false;
             }
@@ -109,7 +89,6 @@ bool StrategoLogic::is_legal_move(const Board &board, const move_t &move_in, boo
             int sign = (dist >= 0) ? 1 : -1;
             for(int i = 1; i < std::abs(dist); ++i) {
                 pos_t pos = {pos_before[0] + sign*i, pos_before[1]};
-                canonize_pos(board_len, pos);
                 if(!board[pos]->is_null())
                     return false;
             }
@@ -122,21 +101,88 @@ bool StrategoLogic::is_legal_move(const Board &board, const move_t &move_in, boo
 }
 
 
-std::vector<move_t> StrategoLogic::get_poss_moves(const Board &board, int player, bool flip_teams) {
+//std::vector<move_t> StrategoLogic::get_poss_moves(const Board &board, int player, bool flip_teams) {
+//
+//    std::function<void(int&, move_t&)> canonize_move = &StrategoLogic::move_ident;
+//    std::function<int(int)> canonize_team = &StrategoLogic::team_ident;
+//
+//    if(flip_teams) {
+//        canonize_move = &StrategoLogic::move_invert;
+//        canonize_team = &StrategoLogic::team_invert;
+//    }
+//
+//    int board_len = board.get_board_len();
+//    std::vector<move_t> moves_possible;
+//    for( auto elem = board.begin(); elem != board.end(); ++elem) {
+//        std::shared_ptr<Piece> piece = elem->second;
+//        if(!piece->is_null() && canonize_team(piece->get_team()) == player && piece->get_flag_can_move()) {
+//            // the position we are dealing with
+//            pos_t pos = piece->get_position();
+//
+//            if(piece->get_type() == 2) {
+//                // all possible moves to the right until board ends
+//                for(int i = 1; i < board_len - pos[0]; ++i) {
+//                    pos_t pos_to = {pos[0] + i, pos[1]};
+//                    move_t move = {pos, pos_to};
+//                    if(is_legal_move(board, move, flip_teams)) {
+//                        canonize_move(board_len, move);
+//                        moves_possible.push_back(move);
+//                    }
+//                }
+//                // all possible moves to the top until board ends
+//                for(int i = 1; i < board_len - pos[1]; ++i) {
+//                    pos_t pos_to = {pos[0], pos[1] + i};
+//                    move_t move = {pos, pos_to};
+//                    if(is_legal_move(board, move, flip_teams)) {
+//                        canonize_move(board_len, move);
+//                        moves_possible.push_back(move);
+//                    }
+//                }
+//                // all possible moves to the left until board ends
+//                for(int i = 1; i < pos[0] + 1; ++i) {
+//                    pos_t pos_to = {pos[0] - i, pos[1]};
+//                    move_t move = {pos, pos_to};
+//                    if(is_legal_move(board, move, flip_teams)) {
+//                        canonize_move(board_len, move);
+//                        moves_possible.push_back(move);
+//                    }
+//
+//                }
+//                // all possible moves to the bottom until board ends
+//                for(int i = 1; i < pos[1] + 1; ++i) {
+//                    pos_t pos_to = {pos[0], pos[1] - i};
+//                    move_t move = {pos, pos_to};
+//                    if(is_legal_move(board, move, flip_teams)) {
+//                        canonize_move(board_len, move);
+//                        moves_possible.push_back(move);
+//                    }
+//                }
+//            }
+//            else {
+//                // all moves are 1 step to left, right, top, or bottom
+//                std::vector<pos_t> pos_tos = {{pos[0] + 1, pos[1]},
+//                                              {pos[0]  , pos[1]+1},
+//                                              {pos[0]-1,   pos[1]},
+//                                              {pos[0]  , pos[1]-1}};
+//                for(auto& pos_to : pos_tos) {
+//                    move_t move = {pos, pos_to};
+//                    if(is_legal_move(board, move, flip_teams)) {
+//                        canonize_move(board_len, move);
+//                        moves_possible.push_back(move);
+//                    }
+//                }
+//            }
+//        }
+//    }
+//    return moves_possible;
+//}
 
-    std::function<void(int&, move_t&)> canonize_move = &StrategoLogic::move_ident;
-    std::function<int(int)> canonize_team = &StrategoLogic::team_ident;
-
-    if(flip_teams) {
-        canonize_move = &StrategoLogic::move_invert;
-        canonize_team = &StrategoLogic::team_invert;
-    }
-
+std::vector<move_t> StrategoLogic::_get_poss_moves(const Board &board, int player) {
     int board_len = board.get_board_len();
     std::vector<move_t> moves_possible;
     for( auto elem = board.begin(); elem != board.end(); ++elem) {
         std::shared_ptr<Piece> piece = elem->second;
-        if(!piece->is_null() && canonize_team(piece->get_team()) == player && piece->get_flag_can_move()) {
+        if(!piece->is_null() && piece->get_team() == player && piece->get_flag_can_move()) {
             // the position we are dealing with
             pos_t pos = piece->get_position();
 
@@ -145,8 +191,7 @@ std::vector<move_t> StrategoLogic::get_poss_moves(const Board &board, int player
                 for(int i = 1; i < board_len - pos[0]; ++i) {
                     pos_t pos_to = {pos[0] + i, pos[1]};
                     move_t move = {pos, pos_to};
-                    if(is_legal_move(board, move, flip_teams)) {
-                        canonize_move(board_len, move);
+                    if(is_legal_move(board, move)) {
                         moves_possible.push_back(move);
                     }
                 }
@@ -154,8 +199,7 @@ std::vector<move_t> StrategoLogic::get_poss_moves(const Board &board, int player
                 for(int i = 1; i < board_len - pos[1]; ++i) {
                     pos_t pos_to = {pos[0], pos[1] + i};
                     move_t move = {pos, pos_to};
-                    if(is_legal_move(board, move, flip_teams)) {
-                        canonize_move(board_len, move);
+                    if(is_legal_move(board, move)) {
                         moves_possible.push_back(move);
                     }
                 }
@@ -163,8 +207,7 @@ std::vector<move_t> StrategoLogic::get_poss_moves(const Board &board, int player
                 for(int i = 1; i < pos[0] + 1; ++i) {
                     pos_t pos_to = {pos[0] - i, pos[1]};
                     move_t move = {pos, pos_to};
-                    if(is_legal_move(board, move, flip_teams)) {
-                        canonize_move(board_len, move);
+                    if(is_legal_move(board, move)) {
                         moves_possible.push_back(move);
                     }
 
@@ -173,8 +216,7 @@ std::vector<move_t> StrategoLogic::get_poss_moves(const Board &board, int player
                 for(int i = 1; i < pos[1] + 1; ++i) {
                     pos_t pos_to = {pos[0], pos[1] - i};
                     move_t move = {pos, pos_to};
-                    if(is_legal_move(board, move, flip_teams)) {
-                        canonize_move(board_len, move);
+                    if(is_legal_move(board, move)) {
                         moves_possible.push_back(move);
                     }
                 }
@@ -187,8 +229,7 @@ std::vector<move_t> StrategoLogic::get_poss_moves(const Board &board, int player
                                               {pos[0]  , pos[1]-1}};
                 for(auto& pos_to : pos_tos) {
                     move_t move = {pos, pos_to};
-                    if(is_legal_move(board, move, flip_teams)) {
-                        canonize_move(board_len, move);
+                    if(is_legal_move(board, move)) {
                         moves_possible.push_back(move);
                     }
                 }
@@ -196,6 +237,17 @@ std::vector<move_t> StrategoLogic::get_poss_moves(const Board &board, int player
         }
     }
     return moves_possible;
+}
+
+std::vector<move_t> StrategoLogic::get_poss_moves(const Board &board, int player, bool flip_board) {
+    std::vector<move_t> moves = _get_poss_moves(board, player);
+    if(flip_board) {
+        int board_len = board.get_board_len();
+        for(int i = 0; i < moves.size(); ++i) {
+            _invert_move(moves[i], board_len);
+        }
+    }
+    return moves;
 }
 
 bool StrategoLogic::has_poss_moves(const Board &board, int player) {
@@ -254,7 +306,7 @@ bool StrategoLogic::has_poss_moves(const Board &board, int player) {
     return false;
 }
 
-int StrategoLogic::find_action_idx(std::vector<move_base_t > &vec_to_search, move_base_t  &action_to_find) {
+int StrategoLogic::_find_action_idx(std::vector<move_base_t> &vec_to_search, move_base_t &action_to_find) {
 
     // func to find a specific vector in another (assuming types are all known)
 
@@ -274,32 +326,53 @@ int StrategoLogic::find_action_idx(std::vector<move_base_t > &vec_to_search, mov
         return idx;
 }
 
+/**
+ * Method to check a move (as given by @pos and @pos_to) for validity on the @board. If the move
+ * is legal, its associated action will be enabled (vector position set to 1) in the provided @action_mask.
+ * The user needs to also provide the vector of the action representation and the vector of the action range
+ * that this action belongs to, in order to search for the correct index of the action.
+ * If @flip_board is true, the move change is inverted (multiplied comp. wise by -1). This becomes necessary,
+ * since the action representation will need to be consistent for the neural net. As such, the action_mask for
+ * player 1 needs to have the correct action associated for a flipped board. The example further demonstrates
+ * this need.
+ *
+ * Example:
+ * Imagine a board (table) in which the top row is index 0 and the leftmost column is index 0
+ *      For player 0: The move m := (0,4) -> (2,4) means 'move 2 rows DOWN' -> action effect (2,0)
+ *      For player 1: The move n := (4,0) -> (2,0) means 'move 2 rows UP'   -> action effect (-2,0)
+ * However as the NN needs its representation always from the perspective of player 0, the move n of player 1
+ * is translated to move m, and as such the action effect needs to be flipped.
+ *
+ * @param action_mask binary vector of action validity. Position i says action i is valid or invalid.
+ * @param board the game board depicting the current scenario to which the action mask is sought.
+ * @param act_range_start the start index of the action range that this potentially valid move falls into.
+ * @param action_arr the vector of the action representation.
+ * @param act_range the range of actions in which to search for the represented move.
+ * @param pos the starting positon.
+ * @param pos_to the target position.
+ * @param flip_board switch to flip the for player 1.
+ */
 void StrategoLogic::enable_action_if_legal(std::vector<int>& action_mask, const Board& board,
                                            int act_range_start,
                                            const std::vector<move_base_t >& action_arr,
                                            const std::vector<int>& act_range,
                                            const pos_t& pos, const pos_t& pos_to,
-                                           const bool flip_teams) {
-    //  func to check a new move for correctness, and if so, enable it in the mask
+                                           const bool flip_board) {
 
-    // the move to check for correctness
     move_t move = {pos, pos_to};
-    if(flip_teams && pos[0]==3 && pos[1]==0 && pos_to[0]==1 && pos_to[1]==0)
-        auto p = 3;
-    if(is_legal_move(board, move)) {
-        // if the move is legal we want to set the action_mask at the
-        // right index to 1
-        move_base_t move_change;
 
-        if(flip_teams)
-            move_change = {pos[0] - pos_to[0], pos[1] - pos_to[1]};
+    if(is_legal_move(board, move)) {
+        move_base_t action_effect;
+
+        if(flip_board)
+            action_effect = {pos[0] - pos_to[0], pos[1] - pos_to[1]};
         else
-            move_change = {pos_to[0] - pos[0], pos_to[1] - pos[1]};
+            action_effect = {pos_to[0] - pos[0], pos_to[1] - pos[1]};
         std::vector<move_base_t > slice(act_range.size());
         for(unsigned long idx = 0; idx < slice.size(); ++idx) {
             slice[idx] = action_arr[act_range[idx]];
         }
-        int idx = StrategoLogic::find_action_idx(slice, move_change);
+        int idx = StrategoLogic::_find_action_idx(slice, action_effect);
         action_mask[act_range_start + idx] = 1;
     }
 };
@@ -309,15 +382,6 @@ std::vector<int> StrategoLogic::get_action_mask(
         const Board &board, const std::vector<move_base_t >& action_arr,
         const std::map<std::array<int, 2>, std::tuple<int, std::vector<int>>>& piece_act_map,
         int player) {
-
-    std::function<move_base_t(move_base_t&&)> flip_if_necessary = [](move_base_t&& move_change) {return move_change;};
-    if(player) {
-        flip_if_necessary = [](move_base_t && move_change) {
-            move_change[0] = -move_change[0];
-            move_change[1] = -move_change[1];
-            return move_change;
-        };
-    }
 
     std::vector<int> action_mask(action_arr.size(), 0);
     int board_len = board.get_board_len();
@@ -331,34 +395,26 @@ std::vector<int> StrategoLogic::get_action_mask(
 
             // the position we are dealing with
             pos_t pos = piece->get_position();
-            std::vector<int> for_loop_conditions(4);
-            if(player == 0)
-                for_loop_conditions = {board_len - pos[0], board_len - pos[1], pos[0] + 1, pos[1] + 1};
-            else
-                for_loop_conditions = {pos[0] + 1, pos[1] + 1, board_len - pos[0], board_len - pos[1]};
+
             std::vector<pos_t> all_pos_targets(4);
             if(piece->get_type() == 2) {
                 all_pos_targets.resize(board_len - pos[0] - 1 + board_len - pos[1] - 1 + pos[0] + pos[1]);
                 auto all_pos_targets_it = all_pos_targets.begin();
                 // all possible moves to the top until board ends
-                for(int i = 1; i < for_loop_conditions[0]; ++i, ++all_pos_targets_it) {
-                    move_base_t pos_change(flip_if_necessary({i, 0}));
-                    *all_pos_targets_it = {pos[0] + pos_change[0], pos[1] + pos_change[1]};
+                for(int i = 1; i < board_len - pos[0]; ++i, ++all_pos_targets_it) {
+                    *all_pos_targets_it = {pos[0] + i, pos[1] + 0};
                 }
                 // all possible moves to the right until board ends
-                for(int i = 1; i < for_loop_conditions[1]; ++i, ++all_pos_targets_it) {
-                    move_base_t pos_change(flip_if_necessary({0, i}));
-                    *all_pos_targets_it = {pos[0] + pos_change[0], pos[1] + pos_change[1]};
+                for(int i = 1; i < board_len - pos[1]; ++i, ++all_pos_targets_it) {
+                    *all_pos_targets_it = {pos[0] + 0, pos[1] + i};
                 }
                 // all possible moves to the bottom until board ends
-                for(int i = 1; i < for_loop_conditions[2]; ++i, ++all_pos_targets_it) {
-                    move_base_t pos_change(flip_if_necessary({-i, 0}));
-                    *all_pos_targets_it = {pos[0] + pos_change[0], pos[1] + pos_change[1]};
+                for(int i = 1; i < pos[0] + 1; ++i, ++all_pos_targets_it) {
+                    *all_pos_targets_it = {pos[0] - i, pos[1] + 0};
                 }
                 // all possible moves to the left until board ends
-                for(int i = 1; i < for_loop_conditions[3]; ++i, ++all_pos_targets_it) {
-                    move_base_t pos_change(flip_if_necessary({0, -i}));
-                    *all_pos_targets_it = {pos[0] + pos_change[0], pos[1] + pos_change[1]};
+                for(int i = 1; i < pos[1] + 1; ++i, ++all_pos_targets_it) {
+                    *all_pos_targets_it = {pos[0] + 0, pos[1] -i};
                 }
             }
             else {

@@ -91,6 +91,8 @@ namespace utils {
                 if(hide_unknowns && piece.get_flag_hidden() && piece.get_team(flip_board)){
                     return color + std::string(static_cast<unsigned long> (H_SIZE_PER_PIECE), ' ') + reset;
                 }
+//                std::cout << "Piece: type " << piece.get_type() << "." << piece.get_version() << " at (" <<
+//                                                                                                          piece.get_position()[0] << ", " << piece.get_position()[1] <<") \n";
                 return color + center(std::to_string(piece.get_type()) + '.' + std::to_string(piece.get_version()),
                               H_SIZE_PER_PIECE, " ") + reset ;
             }
@@ -110,6 +112,7 @@ namespace utils {
         board_print << std::string(static_cast<unsigned long> (row_ind_space), ' ');
         // print the column index rows
         for(int i = 0; i < dim; ++i) {
+//            std::cout << i << "\n";
             board_print << center(std::to_string(i), H_SIZE_PER_PIECE + 1, " ");
         }
         board_print << "\n";

@@ -15,25 +15,22 @@ class StrategoLogic {
                                        const std::vector<move_base_t > & action_arr,
                                        const std::vector<int> & act_range,
                                        const pos_t & pos, const pos_t & pos_to,
-                                       const bool flip_teams=false);
+                                       const bool flip_board=false);
 
-    static int find_action_idx(std::vector<move_base_t > & vec_to_search, move_base_t & action_to_find);
+    static int _find_action_idx(std::vector<move_base_t> &vec_to_search, move_base_t &action_to_find);
 
-    static inline void pos_ident(int & len, const pos_t & pos);
-    static inline void pos_invert(int & len, pos_t & pos);
+    static inline void _invert_pos(int &len, pos_t &pos);
+    static inline void _invert_move(move_t &move, int &len);
+    static inline int _invert_team(int team);
 
-    static inline void move_ident(int & len, const move_t & move);
-    static inline void move_invert(int & len, move_t & move);
-
-    static inline int team_ident(int team);
-    static inline int team_invert(int team);
+    static std::vector<move_t> _get_poss_moves(const Board & board, int player);
 
 public:
 
     static const std::map<std::array<int,2>, int> battle_matrix;
     static std::map<std::array<int,2>, int> initialize_battle_matrix();
-    static bool is_legal_move(const Board & board, const move_t & move, bool flip_teams=false);
-    static std::vector<move_t> get_poss_moves(const Board & board, int player, bool flip_teams=false);
+    static bool is_legal_move(const Board & board, const move_t & move);
+    static std::vector<move_t> get_poss_moves(const Board & board, int player, bool flip_board=false);
     static bool has_poss_moves(const Board & board, int player);
     static std::vector<int> get_action_mask(
             const Board& board,

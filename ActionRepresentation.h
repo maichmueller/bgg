@@ -14,6 +14,14 @@
 #include "unordered_map"
 #include "memory"
 
+
+class Action {
+    int index;
+    move_base_t move_change_0;
+    move_base_t move_change_1;
+
+};
+
 struct ActionRep {
 
     static const std::vector<move_base_t > action_ar_s;

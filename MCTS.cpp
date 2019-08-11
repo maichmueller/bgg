@@ -160,7 +160,6 @@ double MCTS::_search(GameState& state, int player, bool root) {
             true
     );
 
-
     if (auto state_end_found = m_Es.find(s); state_end_found == m_Es.end())
         m_Es[s] = state.is_terminal();
     else if (state_end_found->second != 404)
@@ -230,7 +229,8 @@ double MCTS::_search(GameState& state, int player, bool root) {
             }
         }
     }
-    int& a = best_action;
+
+    int a = best_action;
     // DEBUG
 //    std::cout << "Player: "<< player << "\t"<< "Best action: " << a << "\t";
 
