@@ -15,39 +15,86 @@
 
 #include "utils.h"
 
-
+// forward declare class and operators in conjunction with number types
 template <typename len_t, int N>
-struct Position {
+struct Position;
+
+template <typename number_t, typename len_t, int N>
+Position<len_t, N> operator*(number_t n, Position<len_t, N> pos);
+
+template <typename number_t, typename len_t, int N>
+Position<len_t, N> operator/(number_t n, Position<len_t, N> pos);
+
+// actual class definition
+template <typename len_t, int N>
+class Position {
     std::array<len_t, N> coordinates;
+public:
     template <typename ...TT>
-    Position(TT args) : m_x(x), m_y(y) {}
-    len_t operator[](unsigned int index) {
-        if(index > N-1) throw std::out_of_range("Index" + std::to_string(index) +
-                                              " out of bounds (has to be <= 0 index <= 1).");
-        return coordinates[index];
+    explicit Position(TT ...args) : coordinates(args...) {}
+    explicit Position(std::array<len_t, N> coords) : coordinates(std::move(coords)) {};
+    explicit Position(std::vector<len_t> coords) : coordinates() {
+        if(coords.size() > N)
+            throw std::out_of_range("Vector passed to array is longer than Position dimension " + std::to_string(N));
+        for (int i = 0; i < N; ++i) {
+            coordinates[i] = coords[i];
+        }
+    };
+
+    len_t & operator[](unsigned int index) {len_t * val_ptr = coordinates[index]; return val_ptr;}
+
+    Position<len_t, N> operator+(const Position<len_t, N> & pos) const {
+        Position<len_t, N> p(*this);
+        for(int i = 0; i < N; ++i) {
+            p[i] += pos[i];
+        }
     }
-    Position<len_t> operator+(Position<len_t> pos) {return Position<len_t>(m_x + pos[0], m_y + pos[1]);}
-    Position<len_t> operator-(Position<len_t> pos) {return Position<len_t>(m_x - pos[0], m_y - pos[1]);}
-    Position<len_t> operator*(Position<len_t> pos) {return Position<len_t>(m_x * pos[0], m_y * pos[1]);}
-    Position<len_t> operator/(Position<len_t> pos) {return Position<len_t>(m_x / pos[0], m_y / pos[1]);}
+    Position<len_t, N> operator-(const Position<len_t, N> &  pos) const {return *this + (-1*pos);}
+    Position<len_t, N> operator*(const Position<len_t, N> & pos) const {
+        Position<len_t, N> p(*this);
+        for(int i = 0; i < coordinates.size(); ++i) {
+            p[i] *= pos[i];
+        }
+    }
+    Position<len_t, N> operator/(const Position<len_t, N> & pos) const {return *this * (1/pos);}
+
     template <typename number_t>
-    Position<len_t> operator+(number_t n) {return Position<len_t>(n + this->x, n + this->y);}
+    Position<len_t, N> operator+(const number_t & n) const {
+        Position<len_t, N> p(*this);
+        for(int i = 0; i < N; ++i) {
+            p[i] += n;
+        }
+    }
     template <typename number_t>
-    Position<len_t> operator-(number_t n) {return *this + (-n);}
+    Position<len_t, N> operator-(const number_t & n) const {return *this + (-n);}
+    template <typename number_t>
+    Position<len_t, N> operator*(const number_t & n) const {
+        Position<len_t, N> p(*this);
+        for(int i = 0; i < N; ++i) {
+            p[i] *= n;
+        }
+    }
+    template <typename number_t>
+    Position<len_t, N> operator/(const number_t & n) const {return *this * (1/n);}
 };
 
-template <typename number_t, typename len_t>
-Position<len_t> operator*(number_t n, Position<len_t> pos) {return Position<len_t>(n * pos[0], n * pos[1]);}
-template <typename number_t, typename len_t>
-Position<len_t> operator*(Position<len_t> pos, number_t n) {return n * pos;}
-template <typename number_t, typename len_t>
-Position<len_t> operator/(Position<len_t> pos, number_t n) {return 1/n * pos;}
+template <typename number_t, typename len_t, int N>
+Position<len_t, N> operator*(const number_t & n, const Position<len_t, N> & pos) {return pos * n;}
 
-template <typename len_t>
+template <typename number_t, typename len_t, int N>
+Position<len_t, N> operator/(const number_t & n, const Position<len_t, N> & pos) {
+    Position<len_t, N> p(pos);
+    for(int i = 0; i < N; ++i) {
+        p[i] /= n;
+    }
+}
+
+template <typename len_t, int N>
 class Move {
-    Position<len_t> x;
-    len_t y;
+    Position<len_t, N> pos_before;
+    Position<len_t, N> pos_after;
 public:
+
 
 };
 
