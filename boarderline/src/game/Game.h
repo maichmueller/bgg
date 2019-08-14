@@ -12,8 +12,8 @@
 #include <functional>
 
 #include "GameState.h"
-#include "Agent.h"
-#include "utils.h"
+#include "../agent/Agent.h"
+#include "../utils/utils.h"
 
 class Game {
 

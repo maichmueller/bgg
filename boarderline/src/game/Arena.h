@@ -9,7 +9,7 @@
 #include "vector"
 #include "memory"
 
-#include "Agent.h"
+#include "../agent/Agent.h"
 #include "Game.h"
 
 struct StatTrack {

@@ -5,10 +5,10 @@
 #ifndef STRATEGO_CPP_GAMESTATE_H
 #define STRATEGO_CPP_GAMESTATE_H
 
-#include "Board.h"
-#include "Piece.h"
+#include "../board/Board.h"
+#include "../board/Piece.h"
 #include "GameDeclarations.h"
-#include "StrategoLogic.h"
+#include "../logic/StrategoLogic.h"
 #include "unordered_map"
 #include "torch/torch.h"
 

@@ -5,7 +5,7 @@
 #ifndef STRATEGO_CPP_STRATEGOLOGIC_H
 #define STRATEGO_CPP_STRATEGOLOGIC_H
 
-#include "Board.h"
+#include "../board/Board.h"
 #include <functional>
 
 class StrategoLogic {

@@ -8,9 +8,9 @@
 #include <memory>
 #include "vector"
 #include "torch/torch.h"
-#include "torch_utils.h"
-#include "GameDeclarations.h"
-#include "Piece.h"
+#include "../../utils/torch_utils.h"
+#include "../../game/GameDeclarations.h"
+#include "../../board/Piece.h"
 
 
 namespace StateRepresentation {

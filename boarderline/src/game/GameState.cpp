@@ -3,9 +3,9 @@
 //
 
 #include "GameState.h"
-#include "ActionRepresentation.h"
-#include "torch_utils.h"
-#include "StateRepresentation.h"
+#include "../alphazero/ActionRepresentation.h"
+#include "../utils/torch_utils.h"
+#include "../nn/training/StateRepresentation.h"
 
 
 GameState::GameState(int game_len)

@@ -11,8 +11,8 @@
 #include "memory"
 
 #include "Piece.h"
-#include "GameDeclarations.h"
-#include "utils.h"
+#include "../game/GameDeclarations.h"
+#include "../utils/utils.h"
 
 
 using namespace GameDeclarations;
@@ -40,7 +40,7 @@ public:
             const std::map<strat_pos_t, int>& setup_0,
             const std::map<strat_pos_t, int>& setup_1);
     std::shared_ptr<Piece>& operator[] (strat_pos_t a);
-    std::shared_ptr<Piece> operator[] (const strat_pos_t a) const;
+    const std::shared_ptr<Piece> & operator[] (const strat_pos_t a) const;
     iterator begin();
     iterator end();
     [[nodiscard]] const_iterator begin() const;

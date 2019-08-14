@@ -6,7 +6,7 @@
 #define STRATEGO_CPP_PIECE_H
 
 #include "array"
-#include "GameDeclarations.h"
+#include "../game/GameDeclarations.h"
 
 
 using namespace GameDeclarations;

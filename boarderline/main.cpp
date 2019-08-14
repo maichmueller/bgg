@@ -1,21 +1,21 @@
 #include <iostream>
-#include "Board.h"
-#include "Piece.h"
-#include "GameState.h"
-#include "Game.h"
-#include "NeuralNetwork.h"
-#include "Coach.h"
+#include "board/Board.h"
+#include "board/Piece.h"
+#include "game/GameState.h"
+#include "game/Game.h"
+#include "nn/model/NeuralNetwork.h"
+#include "nn/training/Coach.h"
 #include "vector"
 #include "random"
 #include "torch/torch.h"
-#include "ActionRepresentation.h"
+#include "alphazero/ActionRepresentation.h"
 
 #include <iostream>
 #include <vector>
 #include <set>
 #include <type_traits>
-#include "torch_utils.h"
-#include "AgentReinforce.h"
+#include "utils/torch_utils.h"
+#include "agent/AgentReinforce.h"
 
 
 int main(int argc, char const *argv[])

@@ -5,10 +5,10 @@
 #ifndef STRATEGO_CPP_AGENT_H
 #define STRATEGO_CPP_AGENT_H
 
-#include "GameDeclarations.h"
-#include "StrategoLogic.h"
-#include "Board.h"
-#include "RandomSelector.h"
+#include "../game/GameDeclarations.h"
+#include "../logic/StrategoLogic.h"
+#include "../board/Board.h"
+#include "../utils/RandomSelector.h"
 #include "vector"
 
 
