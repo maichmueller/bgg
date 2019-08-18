@@ -157,9 +157,9 @@ private:
             throw std::logic_error(err_msg);
         }
         std::shared_ptr<Piece> actor = actors.at(std::make_tuple(type, version));
-        strat_pos_t move_change = ActionRep::get_act_rep(board_len)[action];
-        strat_pos_t curr_pos = actor->get_position(player, board_len);
-        strat_pos_t new_pos = {curr_pos[0] + move_change[0], curr_pos[1] + move_change[1]};
+        Position move_change = ActionRep::get_act_rep(board_len)[action];
+        Position curr_pos = actor->get_position(player, board_len);
+        Position new_pos = {curr_pos[0] + move_change[0], curr_pos[1] + move_change[1]};
         strat_move_t move{curr_pos, new_pos};
         return move;
     }

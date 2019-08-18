@@ -2,7 +2,7 @@
 // Created by michael on 13.08.19.
 //
 
-#include "A0agent.h"
+#include "AgentAlphazero.h"
 
 /// Forwarders to the overarching state rep
 

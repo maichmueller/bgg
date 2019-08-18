@@ -27,7 +27,7 @@ GameState::GameState(Board board, int move_count)
     std::map<int, int> team_0_dead;
     std::map<int, int> team_1_dead;
     dead_pieces = std::array<std::map<int, int>, 2> {team_0_dead, team_1_dead};
-    int len = board.get_board_len();
+    int len = board.get_shape();
     std::vector<int> avail_types;
     // copy the available types
     avail_types = GameDeclarations::get_available_types(len);
@@ -54,7 +54,7 @@ GameState::GameState(Board board, std::array<std::map<int, int>, 2>& dead_pieces
     assign_actors(this->board);
 }
 
-GameState::GameState(int len, const std::map<strat_pos_t, int>& setup_0, const std::map<strat_pos_t, int>& setup_1)
+GameState::GameState(int len, const std::map<Position, int>& setup_0, const std::map<Position, int>& setup_1)
 : board(len, setup_0, setup_1), dead_pieces(), move_count(0),
   terminal_checked(false), terminal(404), canonical_teams(true), rounds_without_fight(0),
   move_equals_prev_move(0), move_history(0)
@@ -133,13 +133,13 @@ int GameState::get_canonical_team(Piece& piece){
     }
 }
 
-strat_pos_t GameState::get_canonical_pos(Piece& piece){
+Position GameState::get_canonical_pos(Piece& piece){
     if(canonical_teams) {
         return piece.get_position();
     }
     else {
-        int len = board.get_board_len();
-        strat_pos_t pos = piece.get_position();
+        int len = board.get_shape();
+        Position pos = piece.get_position();
         pos[0] = len-1-pos[0];
         pos[1] = len-1-pos[1];
         return pos;
@@ -152,8 +152,8 @@ int GameState::fight(Piece &attacker, Piece &defender) {
 
 int GameState::do_move(strat_move_t &move) {
     // preliminaries
-    strat_pos_t from = move[0];
-    strat_pos_t to = move[1];
+    Position from = move[0];
+    Position to = move[1];
     int fight_outcome = 404;
 
     // save the access to the pieces in question
@@ -233,8 +233,8 @@ void GameState::undo_last_rounds(int n) {
         piece_history.pop_back();
         move_equals_prev_move.pop_back();
 
-        strat_pos_t from = move[0];
-        strat_pos_t to = move[1];
+        Position from = move[0];
+        Position to = move[1];
         board.update_board(from, move_pieces[0]);
         board.update_board(to, move_pieces[1]);
         for(auto& piece: move_pieces) {
@@ -253,7 +253,7 @@ void GameState::restore_to_round(int round) {
 
 torch::Tensor GameState::torch_represent(int player) {
     if(!conditions_set) {
-        auto type_counter = utils::counter(GameDeclarations::get_available_types(board.get_board_len()));
+        auto type_counter = utils::counter(GameDeclarations::get_available_types(board.get_shape()));
         conditions_torch_rep = StateRepresentation::create_conditions(type_counter, 0);
         conditions_set = true;
     }
@@ -265,7 +265,7 @@ torch::Tensor GameState::torch_represent(int player) {
 }
 
 strat_move_t GameState::action_to_move(int action, int player) const {
-    int board_len = board.get_board_len();
+    int board_len = board.get_shape();
     int action_dim = ActionRep::get_act_rep(board_len).size();
     return ActionRep::action_to_move(action, action_dim, board_len, actors.at(player), player);
 }

@@ -14,8 +14,8 @@ Game::Game(int board_l, std::shared_ptr<Agent> ag0, std::shared_ptr<Agent> ag1, 
 }
 
 Game::Game(int board_l, std::shared_ptr<Agent> ag0, std::shared_ptr<Agent> ag1,
-           const std::map<strat_pos_t, int>& setup_0,
-           const std::map<strat_pos_t, int>& setup_1)
+           const std::map<Position, int>& setup_0,
+           const std::map<Position, int>& setup_1)
     : board_len(board_l), game_state(board_l, setup_0, setup_1),
       agent_0(std::move(ag0)), agent_1(std::move(ag1)), fixed_setups(true),
       setup_0(setup_0), setup_1(setup_1)
@@ -78,12 +78,12 @@ void Game::reset() {
 }
 
 
-std::map<strat_pos_t, int> Game::draw_random_setup(int team) {
+std::map<Position, int> Game::draw_random_setup(int team) {
     auto avail_types = GameDeclarations::get_available_types(board_len);
 
-    std::vector<strat_pos_t > poss_pos = GameDeclarations::get_start_positions(board_len, team);
+    std::vector<Position > poss_pos = GameDeclarations::get_start_positions(board_len, team);
 
-    std::map<strat_pos_t, int > setup_out;
+    std::map<Position, int > setup_out;
 
     std::random_device rd;
     std::mt19937 rng(rd());

@@ -29,14 +29,29 @@ IF(WIN32)
 	ENDIF()
 ENDIF(WIN32)
 
-find_package(Torch REQUIRED)
+#find_package(Torch REQUIRED)
 
 
 set(PROJECT_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src")
-set(BL_SRCS src/game/GameState.cpp src/game/Game.cpp src/board/Piece.cpp
-		src/board/Board.cpp src/game/GameDeclarations.cpp src/logic/StrategoLogic.cpp src/agent/Agent.cpp
-		src/utils/RandomSelector.h src/nn/alphazero/MCTS.cpp src/nn/model/NeuralNetwork.cpp ../tqdm/tqdm.h
-		src/agent/AgentReinforce.cpp src/nn/training/StateRepresentation.cpp src/nn/training/Coach.cpp src/game/Arena.cpp src/nn/alphazero/ActionRepresentation.cpp src/nn/alphazero/ActionRepresentation.h src/board/Position.h src/board/Move.h)
+set(PROJECT_SOURCES
+		src/game/GameState.cpp
+		src/game/Game.cpp
+		src/game/GameDeclarations.cpp
+		src/logic/StrategoLogic.cpp
+		src/agent/Agent.cpp
+		src/utils/RandomSelector.h
+		src/nn/alphazero/MCTS.cpp
+		src/nn/model/NeuralNetwork.cpp
+		src/tqdm/tqdm.h
+		src/agent/AgentReinforce.cpp
+		src/nn/training/StateRepresentation.cpp
+		src/nn/training/Coach.cpp src/game/Arena.cpp
+		src/nn/alphazero/ActionRepresentation.cpp
+		src/nn/alphazero/AgentAlphazero.cpp
+		src/board/Board.h
+		src/board/Piece.h
+		src/board/Position.h
+		src/board/Move.h)
 set(TARGET_SOURCES main.cpp)
 # set(TEST_SOURCES  run_tests.cpp test_file1.cpp test_file2.cpp)
 
@@ -47,7 +62,7 @@ set(CMAKE_BINARY_DIR ${CMAKE_SOURCE_DIR}/bin)
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 
-add_executable(Stratego_CPP ${COMMON_SOURCES} ${TARGET_SOURCES})
+add_executable(Stratego_CPP ${PROJECT_SOURCES} ${TARGET_SOURCES})
 
 # set(SANITIZE_OPTIONS -fsanitize=address -fsanitize=undefined)
 set(SANITIZE_OPTIONS )

@@ -54,7 +54,7 @@ std::vector<TrainingTurn> Coach::exec_ep(GameState state) const {
         int action = qs_sampler(generator);
         strat_move_t move = state.action_to_move(action, turn);
         if(turn==1)
-            move = MCTS::flip_move(move, state.get_board()->get_board_len());
+            move = MCTS::flip_move(move, state.get_board()->get_shape());
 //        std::cout << "After action to move: " << state.get_board()->size()<< "\n";
         ep_exs.emplace_back(TrainingTurn(*state.get_board(), pi, null_v, turn));
 

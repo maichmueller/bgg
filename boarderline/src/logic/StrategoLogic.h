@@ -14,12 +14,12 @@ class StrategoLogic {
                                        int act_range_start,
                                        const std::vector<strat_move_base_t > & action_arr,
                                        const std::vector<int> & act_range,
-                                       const strat_pos_t & pos, const strat_pos_t & pos_to,
+                                       const Position & pos, const Position & pos_to,
                                        const bool flip_board=false);
 
     static int _find_action_idx(std::vector<strat_move_base_t> &vec_to_search, strat_move_base_t &action_to_find);
 
-    static inline void _invert_pos(int &len, strat_pos_t &pos);
+    static inline void _invert_pos(int &len, Position &pos);
     static inline void _invert_move(strat_move_t &move, int &len);
     static inline int _invert_team(int team);
 
