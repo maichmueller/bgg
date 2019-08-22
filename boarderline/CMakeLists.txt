@@ -33,10 +33,26 @@ find_package(Torch REQUIRED)
 
 
 set(PROJECT_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src")
-set(BL_SRCS src/game/GameState.cpp src/game/Game.cpp src/board/Piece.cpp
-		src/board/Board.cpp src/game/GameDeclarations.cpp src/logic/StrategoLogic.cpp src/agent/Agent.cpp
-		src/utils/RandomSelector.h src/nn/alphazero/MCTS.cpp src/nn/model/NeuralNetwork.cpp ../tqdm/tqdm.h
-		src/agent/AgentReinforce.cpp src/nn/training/StateRepresentation.cpp src/nn/training/Coach.cpp src/game/Arena.cpp src/nn/alphazero/ActionRepresentation.cpp src/nn/alphazero/ActionRepresentation.h src/board/Position.h src/board/Move.h)
+set(PROJECT_SOURCES
+		{$PROJECT_SOURCE_DIR}/game/GameState.cpp
+		{$PROJECT_SOURCE_DIR}/game/Game.cpp
+		{$PROJECT_SOURCE_DIR}/board/Piece.cpp
+		{$PROJECT_SOURCE_DIR}/board/Board.cpp
+		{$PROJECT_SOURCE_DIR}/game/GameDeclarations.cpp
+		{$PROJECT_SOURCE_DIR}/logic/StrategoLogic.cpp
+		{$PROJECT_SOURCE_DIR}/agent/Agent.cpp
+		{$PROJECT_SOURCE_DIR}/utils/RandomSelector.h
+		{$PROJECT_SOURCE_DIR}/nn/alphazero/MCTS.cpp
+		{$PROJECT_SOURCE_DIR}/nn/model/NeuralNetwork.cpp
+		{$PROJECT_SOURCE_DIR}/../tqdm/tqdm.h
+		{$PROJECT_SOURCE_DIR}/agent/AgentReinforce.cpp
+		{$PROJECT_SOURCE_DIR}/nn/training/StateRepresentation.cpp
+		{$PROJECT_SOURCE_DIR}/nn/training/Coach.cpp
+		{$PROJECT_SOURCE_DIR}/game/Arena.cpp
+		{$PROJECT_SOURCE_DIR}/nn/alphazero/ActionRepresentation.cpp
+		{$PROJECT_SOURCE_DIR}/nn/alphazero/ActionRepresentation.h
+		{$PROJECT_SOURCE_DIR}/board/Position.h
+		{$PROJECT_SOURCE_DIR}/board/Move.h)
 set(TARGET_SOURCES main.cpp)
 # set(TEST_SOURCES  run_tests.cpp test_file1.cpp test_file2.cpp)
 

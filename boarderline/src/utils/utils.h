@@ -11,6 +11,7 @@
 #include "iostream"
 #include "iomanip"
 #include <sstream>
+#include <utility>
 
 
 namespace utils {
@@ -204,7 +205,34 @@ namespace utils {
         }
     };
 
+    template<int N>
+    struct faculty {
+        static constexpr int n_faculty() {
+            return N * faculty<N - 1>::n_faculty();
+        }
+    };
 
+    template<>
+    struct faculty<0> {
+        static constexpr int n_faculty() {
+            return 1;
+        }
+    };
+
+    template<class first, class second, class... types>
+    auto min(first f, second s, types... t) {
+        return f < s ? min(f, t...) : min(s, t...);
+    }
+
+    template<class first, class second>
+    auto min(first f, second s) {
+        return f < s ? f : s;
+    }
+
+    template<typename Tuple, size_t... I>
+    auto call_min_from_tuple(Tuple &args, std::index_sequence<I...>) {
+        return min(std::get<I>(args)...);
+    }
 
 };
 
@@ -262,8 +290,6 @@ namespace hash_tuple {
         }
     };
 }
-
-#include <utility>
 
 namespace eqcomp_tuple {
 
