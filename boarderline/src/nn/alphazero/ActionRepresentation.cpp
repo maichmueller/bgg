@@ -5,9 +5,9 @@
 #include "ActionRepresentation.h"
 
 
-std::vector<strat_pos_t> action_ar_s_copy(64);
-std::vector<strat_pos_t> action_ar_m_copy(124);
-std::vector<strat_pos_t> action_ar_l_copy(228);
+std::vector<Position> action_ar_s_copy(64);
+std::vector<Position> action_ar_m_copy(124);
+std::vector<Position> action_ar_l_copy(228);
 std::map<std::array<int, 2>, std::tuple<int, std::vector<int>>> piece_act_map_s_copy;
 std::map<std::array<int, 2>, std::tuple<int, std::vector<int>>> piece_act_map_m_copy;
 std::map<std::array<int, 2>, std::tuple<int, std::vector<int>>> piece_act_map_l_copy;

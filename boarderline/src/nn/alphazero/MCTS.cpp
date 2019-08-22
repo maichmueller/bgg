@@ -34,7 +34,7 @@ std::vector<double> MCTS::get_action_probs(GameState &state, int player, double 
             *state.get_board(),
             static_cast<bool>(player),
             true);
-    std::vector<int> counts(ActionRep::get_act_rep(state.get_board()->get_board_len()).size());
+    std::vector<int> counts(ActionRep::get_act_rep(state.get_board()->get_shape()).size());
 
     double sum_counts = 0;
     double highest_count = 0;
@@ -79,7 +79,7 @@ std::vector<double> MCTS::get_action_probs(GameState &state, int player, double 
 
 std::tuple<std::vector<float>, std::vector<int>, double> MCTS::_evaluate_new_state(GameState & state, int player) {
     const Board * board = state.get_board();
-    int board_len = board->get_board_len();
+    int board_len = board->get_shape();
     // convert GameState to torch::tensor representation
     const torch::Tensor state_tensor = state.torch_represent(player);
 
@@ -88,7 +88,7 @@ std::tuple<std::vector<float>, std::vector<int>, double> MCTS::_evaluate_new_sta
     // DEBUG
     // std::cout << torch::exp(Ps) << "\n";
 
-    Ps = Ps.view(-1); // flatten the tensor as the first dim is the batch size dim
+    Ps = Ps.view(-1); // flatten the tensor as the first m_dim is the batch size m_dim
 
     // mask for invalid actions
     auto action_mask = StrategoLogic::get_action_mask(
@@ -188,11 +188,11 @@ double MCTS::_search(GameState& state, int player, bool root) {
 //        std::cout << "Action: " << std::to_string(i) << "\t" << "(" << move[0][0] << ", " << move[0][1] << ") -> (" << move[1][0] << ", " << move[1][1] << ") \t valid: " << valids[i] << "\n";
 //    }
 //    const Board * board = state.get_board();
-//    int board_len = board->get_board_len();
+//    int m_shape = board->get_shape();
 //    auto action_mask = StrategoLogic::get_action_mask(
 //            *board,
-//            ActionRep::get_act_rep(board_len),
-//            ActionRep::get_act_map(board_len),
+//            ActionRep::get_act_rep(m_shape),
+//            ActionRep::get_act_map(m_shape),
 //            player);
 
     double curr_best = - std::numeric_limits<double>::infinity();
@@ -238,7 +238,7 @@ double MCTS::_search(GameState& state, int player, bool root) {
 
     // flip the move for player 1
     if(player) {
-        move = flip_move(move, state.get_board()->get_board_len());
+        move = flip_move(move, state.get_board()->get_shape());
 
     }
     // DEBUG

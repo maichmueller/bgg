@@ -29,7 +29,7 @@ IF(WIN32)
 	ENDIF()
 ENDIF(WIN32)
 
-find_package(Torch REQUIRED)
+#find_package(Torch REQUIRED)
 
 
 set(PROJECT_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src")
@@ -53,6 +53,7 @@ set(PROJECT_SOURCES
 		{$PROJECT_SOURCE_DIR}/nn/alphazero/ActionRepresentation.h
 		{$PROJECT_SOURCE_DIR}/board/Position.h
 		{$PROJECT_SOURCE_DIR}/board/Move.h)
+
 set(TARGET_SOURCES main.cpp)
 # set(TEST_SOURCES  run_tests.cpp test_file1.cpp test_file2.cpp)
 
@@ -63,7 +64,7 @@ set(CMAKE_BINARY_DIR ${CMAKE_SOURCE_DIR}/bin)
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 
-add_executable(Stratego_CPP ${COMMON_SOURCES} ${TARGET_SOURCES})
+add_executable(Stratego_CPP ${PROJECT_SOURCES} ${TARGET_SOURCES})
 
 # set(SANITIZE_OPTIONS -fsanitize=address -fsanitize=undefined)
 set(SANITIZE_OPTIONS )

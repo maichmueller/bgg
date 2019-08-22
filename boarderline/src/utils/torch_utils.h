@@ -52,7 +52,7 @@ namespace torch_utils {
         }
     };
 
-    // specialized fill tensor function for the one dim case
+    // specialized fill tensor function for the one m_dim case
     template <template <class, class> class Container, typename Val_Type, typename Alloc>
     static void fill_tensor(const Container<Val_Type, Alloc>& vec,
                             torch::Tensor& tensor_to_fill) {
@@ -87,10 +87,10 @@ namespace torch_utils {
 
 //        // get the number of nested vector<vector<...<vector<TYPE>...>>
 //        int dimensions = NestedVectorManip<std::vector<DType>>::dimension;
-        // init a shape vector catching the sizes of each nested vector
+        // init a m_shape vector catching the sizes of each nested vector
         std::vector<int64_t > shape;
         NestedVectorManip<std::vector<DType>>::sizes(vec, shape);
-        // pass shape vector to ArrayRef (which is holding only the pointer to the vector)
+        // pass m_shape vector to ArrayRef (which is holding only the pointer to the vector)
         // for torch API
         torch::ArrayRef<int64_t> tensor_shape(shape);
         auto build_details = torch::TensorOptions()
@@ -111,10 +111,10 @@ namespace torch_utils {
 
 //        // get the number of nested vector<vector<...<vector<TYPE>...>>
 //        int dimensions = NestedVectorManip<std::vector<DType>>::dimension;
-        // init a shape vector catching the sizes of each nested vector
+        // init a m_shape vector catching the sizes of each nested vector
         std::vector<int64_t > shape;
         NestedVectorManip<std::vector<DType>>::sizes(vec, shape);
-        // pass shape vector to ArrayRef (which is holding only the pointer to the vector)
+        // pass m_shape vector to ArrayRef (which is holding only the pointer to the vector)
         // for torch API
         torch::ArrayRef<int64_t> tensor_shape(shape);
         options = options.device(torch_utils::GLOBAL_DEVICE::get_device());

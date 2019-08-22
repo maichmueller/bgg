@@ -39,8 +39,8 @@ int main(int argc, char const *argv[])
     auto network_1 = std::make_shared<NetworkWrapper>(*network_0);
     auto agent_0 = std::make_shared<AlphaZeroAgent>(0, true, network_0);
     auto agent_1 = std::make_shared<AlphaZeroAgent>(1, true, network_1);
-//    std::map<strat_pos_t, int > setup0;
-//    std::map<strat_pos_t, int > setup1;
+//    std::map<Position, int > setup0;
+//    std::map<Position, int > setup1;
 //    setup0[{0,0}] = 0;
 //    setup0[{0,1}] = 1;
 //    setup0[{0,2}] = 2;
@@ -90,8 +90,8 @@ int main(int argc, char const *argv[])
 //    std::cout  << utils::board_str_rep<Board, Piece>(*board, false, false) << "\n";
 //    auto valids = StrategoLogic::get_action_mask(
 //            *board,
-//            ActionRep::get_act_rep(board->get_board_len()),
-//            ActionRep::get_act_map(board->get_board_len()),
+//            ActionRep::get_act_rep(board->get_shape()),
+//            ActionRep::get_act_map(board->get_shape()),
 //            0);
 //    for(int i = 0; i < valids.size(); ++i) {
 //        strat_move_t move = game->get_gamestate()->action_to_move(i, 0);
@@ -99,8 +99,8 @@ int main(int argc, char const *argv[])
 //    }
 //    auto action_mask = StrategoLogic::get_action_mask(
 //            *board,
-//            ActionRep::get_act_rep(board->get_board_len()),
-//            ActionRep::get_act_map(board->get_board_len()),
+//            ActionRep::get_act_rep(board->get_shape()),
+//            ActionRep::get_act_map(board->get_shape()),
 //            0);
 
     Coach coach(game, network_0, network_1);

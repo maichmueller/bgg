@@ -6,7 +6,7 @@
 #include "../alphazero/ActionRepresentation.h"
 
 void AgentReinforceBase::install_board(const Board &board) {
-    m_board_len = board.get_board_len();
+    m_board_len = board.get_shape();
     m_type_counter = utils::counter(GameDeclarations::get_available_types(m_board_len));
 
     for(const auto& entry: board) {

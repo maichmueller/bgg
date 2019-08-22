@@ -31,11 +31,13 @@
 *.out
 *.app
 
-cmake-build-debug/*
-cmake-build-debug-clang/*
-cmake-build-minsizerel/*
-cmake-build-release/*
-cmake-build-relwithdebinfo/*
+
+
+boarderline/cmake-build-debug/*
+boarderline/cmake-build-debug-clang/*
+boarderline/cmake-build-minsizerel/*
+boarderline/cmake-build-release/*
+boarderline/cmake-build-relwithdebinfo/*
 out/*
 .vs
 .idea/*

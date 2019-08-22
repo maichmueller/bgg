@@ -165,7 +165,7 @@ std::tuple<torch::Tensor, torch::Tensor> StrategoAlphaZero::forward(const torch:
     torch::Tensor output = convo_layers->forward(input).view({-1, D_in});
     output = linear_layers->forward(output);
 
-    torch::Tensor pi = torch::log_softmax(pi_act_layer->forward(output), /*dim=*/1);
+    torch::Tensor pi = torch::log_softmax(pi_act_layer->forward(output), /*m_dim=*/1);
     torch::Tensor v = torch::tanh(v_act_layer->forward(output));
 
     return std::make_tuple(pi, v);

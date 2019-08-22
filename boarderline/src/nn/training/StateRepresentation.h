@@ -15,11 +15,11 @@
 
 namespace StateRepresentation {
 
-    inline strat_pos_t pos_ident(int &len, const strat_pos_t& pos) {
+    inline Position pos_ident(int &len, const Position& pos) {
         return pos;
     }
-    inline strat_pos_t pos_invert(int &len, const strat_pos_t &pos) {
-        strat_pos_t p = {len - pos[0] - 1, len - pos[1] - 1};
+    inline Position pos_invert(int &len, const Position &pos) {
+        Position p = {len - pos[0] - 1, len - pos[1] - 1};
         return p;
     }
     inline int team_ident(int team) {
@@ -113,7 +113,7 @@ namespace StateRepresentation {
          *      true (1) or wrong (0)
          **/
 
-        std::function<strat_pos_t(int&, strat_pos_t&)> canonize_pos = &pos_ident;
+        std::function<Position(int&, Position&)> canonize_pos = &pos_ident;
         std::function<int(int)> canonize_team = &team_ident;
 
         int board_len = board.get_board_len();
@@ -134,13 +134,13 @@ namespace StateRepresentation {
         // the dimensions here are as follows:
         // 1 = batch_size (in this case obvciously only 1)
         // state_dim = dimension of the state rep, i.e. how many m_layers of the conditions
-        // board_len = first board dimension
-        // board_len = second board dimension
+        // m_shape = first board dimension
+        // m_shape = second board dimension
         torch::Tensor board_state_rep = torch::zeros({1, state_dim, board_len, board_len}, options);
 
 //        auto board_state_access = board_state_rep.accessor<float, 4> ();
         for(const auto& pos_piece : board) {
-            strat_pos_t pos = pos_piece.first;
+            Position pos = pos_piece.first;
             pos = canonize_pos(board_len, pos);
             auto piece = pos_piece.second;
             if(!piece->is_null()) {
