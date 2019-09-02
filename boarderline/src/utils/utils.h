@@ -113,7 +113,6 @@ namespace utils {
         board_print << std::string(static_cast<unsigned long> (row_ind_space), ' ');
         // print the column index rows
         for(int i = 0; i < dim; ++i) {
-//            std::cout << i << "\n";
             board_print << center(std::to_string(i), H_SIZE_PER_PIECE + 1, " ");
         }
         board_print << "\n";

@@ -5,7 +5,7 @@
 #ifndef STRATEGO_CPP_ACTIONREPRESENTATION_H
 #define STRATEGO_CPP_ACTIONREPRESENTATION_H
 
-#include "../../game/GameDeclarations.h"
+#include "../../game/GameUtilsStratego.h"
 
 #include <numeric>
 #include "array"

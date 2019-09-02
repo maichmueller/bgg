@@ -9,7 +9,7 @@
 #include "vector"
 #include "torch/torch.h"
 #include "../../utils/torch_utils.h"
-#include "../../game/GameDeclarations.h"
+#include "../../game/GameUtilsStratego.h"
 #include "../../board/Piece.h"
 
 

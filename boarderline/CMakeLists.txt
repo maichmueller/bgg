@@ -34,25 +34,29 @@ ENDIF(WIN32)
 
 set(PROJECT_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src")
 set(PROJECT_SOURCES
-		{$PROJECT_SOURCE_DIR}/game/GameState.cpp
-		{$PROJECT_SOURCE_DIR}/game/Game.cpp
-		{$PROJECT_SOURCE_DIR}/board/Piece.cpp
-		{$PROJECT_SOURCE_DIR}/board/Board.cpp
-		{$PROJECT_SOURCE_DIR}/game/GameDeclarations.cpp
-		{$PROJECT_SOURCE_DIR}/logic/StrategoLogic.cpp
-		{$PROJECT_SOURCE_DIR}/agent/Agent.cpp
-		{$PROJECT_SOURCE_DIR}/utils/RandomSelector.h
-		{$PROJECT_SOURCE_DIR}/nn/alphazero/MCTS.cpp
-		{$PROJECT_SOURCE_DIR}/nn/model/NeuralNetwork.cpp
-		{$PROJECT_SOURCE_DIR}/../tqdm/tqdm.h
-		{$PROJECT_SOURCE_DIR}/agent/AgentReinforce.cpp
-		{$PROJECT_SOURCE_DIR}/nn/training/StateRepresentation.cpp
-		{$PROJECT_SOURCE_DIR}/nn/training/Coach.cpp
-		{$PROJECT_SOURCE_DIR}/game/Arena.cpp
-		{$PROJECT_SOURCE_DIR}/nn/alphazero/ActionRepresentation.cpp
-		{$PROJECT_SOURCE_DIR}/nn/alphazero/ActionRepresentation.h
-		{$PROJECT_SOURCE_DIR}/board/Position.h
-		{$PROJECT_SOURCE_DIR}/board/Move.h)
+		${PROJECT_SOURCE_DIR}/game/GameState.h
+		${PROJECT_SOURCE_DIR}/game/Game.cpp
+		${PROJECT_SOURCE_DIR}/board/Piece.h
+		${PROJECT_SOURCE_DIR}/board/Board.h
+		${PROJECT_SOURCE_DIR}/game/GameUtilsStratego.h
+		${PROJECT_SOURCE_DIR}/logic/StrategoLogic.cpp
+		${PROJECT_SOURCE_DIR}/agent/Agent.cpp
+		${PROJECT_SOURCE_DIR}/utils/RandomSelector.h
+		${PROJECT_SOURCE_DIR}/nn/alphazero/MCTS.cpp
+		${PROJECT_SOURCE_DIR}/nn/model/NeuralNetwork.cpp
+		${PROJECT_SOURCE_DIR}/tqdm/tqdm.h
+		${PROJECT_SOURCE_DIR}/agent/AgentReinforce.cpp
+		${PROJECT_SOURCE_DIR}/nn/training/StateRepresentation.cpp
+		${PROJECT_SOURCE_DIR}/nn/training/Coach.cpp
+		${PROJECT_SOURCE_DIR}/game/Arena.cpp
+		${PROJECT_SOURCE_DIR}/nn/alphazero/ActionRepresentation.cpp
+		${PROJECT_SOURCE_DIR}/nn/alphazero/ActionRepresentation.h
+		${PROJECT_SOURCE_DIR}/board/Position.h
+		${PROJECT_SOURCE_DIR}/board/Move.h
+
+		${PROJECT_SOURCE_DIR}/board/PieceStratego.h
+		${PROJECT_SOURCE_DIR}/game/GameStateStratego.h
+		${PROJECT_SOURCE_DIR}/board/BoardStratego.h)
 
 set(TARGET_SOURCES main.cpp)
 # set(TEST_SOURCES  run_tests.cpp test_file1.cpp test_file2.cpp)

@@ -5,7 +5,7 @@
 #ifndef STRATEGO_CPP_AGENT_H
 #define STRATEGO_CPP_AGENT_H
 
-#include "../game/GameDeclarations.h"
+#include "../game/GameUtilsStratego.h"
 #include "../logic/StrategoLogic.h"
 #include "../board/Board.h"
 #include "../utils/RandomSelector.h"
