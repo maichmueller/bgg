@@ -29,7 +29,7 @@ IF(WIN32)
 	ENDIF()
 ENDIF(WIN32)
 
-#find_package(Torch REQUIRED)
+find_package(Torch REQUIRED)
 
 
 set(PROJECT_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src")

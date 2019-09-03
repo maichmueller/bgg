@@ -8,9 +8,7 @@
 #include "GameState.h"
 
 
-class GameStateStratego : public GameState<Board,
-                                           typename BoardStratego::piece_type,
-                                           typename BoardStratego::position_type> {
+class GameStateStratego : public GameState<BoardStratego> {
 protected:
     board_type board;
     std::array<std::map<int, int>, 2> dead_pieces;
@@ -43,7 +41,7 @@ public:
     explicit GameState(board_type board, int move_count=0);
     GameState(board_type board, std::array<std::map<int, int>, 2>& dead_pieces, int move_count);
     GameState(int len, const std::map<Position, int>& setup_0, const std::map<Position, int>& setup_1);
-    void check_terminal(bool flag_only=false, int turn=0);
+    void check_terminal() override;
     int do_move(Move<Position>& move);
     int fight(Piece& attacker, Piece& defender);
     int is_terminal(bool force_check=false, int turn=0);
@@ -64,8 +62,8 @@ public:
     board_type const * get_board() const {return &board;}
 };
 
-template <template <class, class> class Board, typename Piece, typename Position>
-GameState<Board, Piece, Position>::GameState(int game_len)
+template <class Board>
+GameState<Board>::GameState(int game_len)
         : board(game_len), terminal(404), terminal_checked(true),
           move_count(0), canonical_teams(true), rounds_without_fight(0),
           move_equals_prev_move(0), move_history(0)
@@ -76,8 +74,8 @@ GameState<Board, Piece, Position>::GameState(int game_len)
     assign_actors(this->board);
 }
 
-template <template <class, class> class Board, typename Piece, typename Position>
-GameState<Board, Piece, Position>::GameState(board_type board, int move_count)
+template <class Board>
+GameState<Board>::GameState(board_type board, int move_count)
         : board(std::move(board)), move_count(move_count), terminal(404), terminal_checked(false),
           canonical_teams(true), rounds_without_fight(0), move_equals_prev_move(0),
           move_history(0)
@@ -104,8 +102,8 @@ GameState<Board, Piece, Position>::GameState(board_type board, int move_count)
     assign_actors(this->board);
 }
 
-template <template <class, class> class Board, typename Piece, typename Position>
-GameState<Board, Piece, Position>::GameState(board_type board, std::array<std::map<int, int>, 2>& dead_pieces, int move_count)
+template <class Board>
+GameState<Board>::GameState(board_type board, std::array<std::map<int, int>, 2>& dead_pieces, int move_count)
         : board(std::move(board)), dead_pieces(dead_pieces), move_count(move_count),
           terminal_checked(false), terminal(404), canonical_teams(true), rounds_without_fight(0),
           move_equals_prev_move(0), move_history(0)
@@ -113,8 +111,8 @@ GameState<Board, Piece, Position>::GameState(board_type board, std::array<std::m
     assign_actors(this->board);
 }
 
-template <template <class, class> class Board, typename Piece, typename Position>
-GameState<Board, Piece, Position>::GameState(int len, const std::map<Position, int>& setup_0, const std::map<Position, int>& setup_1)
+template <class Board>
+GameState<Board>::GameState(int len, const std::map<Position, int>& setup_0, const std::map<Position, int>& setup_1)
         : board(len, setup_0, setup_1), dead_pieces(), move_count(0),
           terminal_checked(false), terminal(404), canonical_teams(true), rounds_without_fight(0),
           move_equals_prev_move(0), move_history(0)
@@ -125,8 +123,8 @@ GameState<Board, Piece, Position>::GameState(int len, const std::map<Position, i
     assign_actors(board);
 }
 
-template <template <class, class> class Board, typename Piece, typename Position>
-void GameState<Board, Piece, Position>::assign_actors(const board_type &board) {
+template <class Board>
+void GameState<Board>::assign_actors(const board_type &board) {
     for(const auto& entry: board) {
         const auto& piece = entry.second;
         if(!piece->is_null() && piece->get_type() != 99)
@@ -134,8 +132,8 @@ void GameState<Board, Piece, Position>::assign_actors(const board_type &board) {
     }
 }
 
-template <template <class, class> class Board, typename Piece, typename Position>
-void GameState<Board, Piece, Position>::check_terminal(bool flag_only, int turn) {
+template <class Board>
+void GameState<Board>::check_terminal() {
     if(dead_pieces[0][0] == 1) {
         terminal = -1;
         return;
@@ -145,14 +143,12 @@ void GameState<Board, Piece, Position>::check_terminal(bool flag_only, int turn)
         return;
     }
 
-    if(!flag_only) {
-        if (!StrategoLogic::has_poss_moves(board, turn)) {
-            terminal = ((turn == 1) ? 1 : -1) * 2;
-            return;
-        } else if (!StrategoLogic::has_poss_moves(board, (turn + 1) % 2)) {
-            terminal = ((turn == 0) ? 1 : -1) * 2;
-            return;
-        }
+    if (!StrategoLogic::has_poss_moves(board, 0)) {
+        terminal = -2;
+        return;
+    } else if (!StrategoLogic::has_poss_moves(board, 1)) {
+        terminal = 2;
+        return;
     }
     // committing draw rules here
     // Rule 1: If the moves of both players have been repeated 3 times.
@@ -173,22 +169,22 @@ void GameState<Board, Piece, Position>::check_terminal(bool flag_only, int turn)
     terminal_checked = true;
 }
 
-template <template <class, class> class Board, typename Piece, typename Position>
-int GameState<Board, Piece, Position>::is_terminal(bool force_check, int turn) {
+template <class Board>
+int GameState<Board>::is_terminal(bool force_check, int turn) {
     if(!terminal_checked || force_check)
         check_terminal(false, turn);
     return terminal;
 }
 
-template <template <class, class> class Board, typename Piece, typename Position>
-void GameState<Board, Piece, Position>::canonical_board(int player) {
+template <class Board>
+void GameState<Board>::canonical_board(int player) {
     // if the 0 player is m_team 1, then canonical is false,
     // if it is 0 otherwise, then the teams are canonical
     canonical_teams = bool(1 - player);
 }
 
-template <template <class, class> class Board, typename Piece, typename Position>
-int GameState<Board, Piece, Position>::get_canonical_team(Piece& piece){
+template <class Board>
+int GameState<Board>::get_canonical_team(Piece& piece){
     if(canonical_teams) {
         return piece.get_team();
     }
@@ -197,8 +193,8 @@ int GameState<Board, Piece, Position>::get_canonical_team(Piece& piece){
     }
 }
 
-template <template <class, class> class Board, typename Piece, typename Position>
-Position GameState<Board, Piece, Position>::get_canonical_pos(Piece& piece){
+template <class Board>
+Position GameState<Board>::get_canonical_pos(Piece& piece){
     if(canonical_teams) {
         return piece.get_position();
     }
@@ -211,13 +207,13 @@ Position GameState<Board, Piece, Position>::get_canonical_pos(Piece& piece){
     }
 }
 
-template <template <class, class> class Board, typename Piece, typename Position>
-int GameState<Board, Piece, Position>::fight(Piece &attacker, Piece &defender) {
+template <class Board>
+int GameState<Board>::fight(Piece &attacker, Piece &defender) {
     return StrategoLogic::fight_outcome(attacker.get_type(), defender.get_type());
 }
 
-template <template <class, class> class Board, typename Piece, typename Position>
-int GameState<Board, Piece, Position>::do_move(move_type &move) {
+template <class Board>
+int GameState<Board>::do_move(move_type &move) {
     // preliminaries
     Position from = move[0];
     Position to = move[1];
@@ -290,37 +286,8 @@ int GameState<Board, Piece, Position>::do_move(move_type &move) {
     return fight_outcome;
 }
 
-template <template <class, class> class Board, typename Piece, typename Position>
-void GameState<Board, Piece, Position>::undo_last_rounds(int n) {
-    for(int i = 0; i < n; ++i) {
-        move_type move = move_history.back();
-        auto move_pieces = piece_history.back();
-
-        move_history.pop_back();
-        piece_history.pop_back();
-        move_equals_prev_move.pop_back();
-
-        Position from = move[0];
-        Position to = move[1];
-        board.update_board(from, move_pieces[0]);
-        board.update_board(to, move_pieces[1]);
-        for(auto& piece: move_pieces) {
-            int type = piece->get_type();
-            int version = piece->get_version();
-            if(0 < type && type < 11 && version != -1)
-                actors[piece->get_team()][{piece->get_type(), piece->get_version()}] = piece;
-        }
-    }
-    move_count -= n;
-}
-
-template <template <class, class> class Board, typename Piece, typename Position>
-void GameState<Board, Piece, Position>::restore_to_round(int round) {
-    undo_last_rounds(move_count - round);
-}
-
-template <template <class, class> class Board, typename Piece, typename Position>
-torch::Tensor GameState<Board, Piece, Position>::torch_represent(int player) {
+template <class Board>
+torch::Tensor GameState<Board>::torch_represent(int player) {
     if(!conditions_set) {
         auto type_counter = utils::counter(GameDeclarations::get_available_types(board.get_shape()));
         conditions_torch_rep = StateRepresentation::create_conditions(type_counter, 0);
@@ -333,9 +300,9 @@ torch::Tensor GameState<Board, Piece, Position>::torch_represent(int player) {
             player);
 }
 
-template <template <class, class> class Board, typename Piece, typename Position>
-typename GameState<Board, Piece, Position>::move_type
-GameState<Board, Piece, Position>::action_to_move(int action, int player) const {
+template <class Board>
+typename GameState<Board>::move_type
+GameState<Board>::action_to_move(int action, int player) const {
     int board_len = board.get_shape();
     int action_dim = ActionRep::get_act_rep(board_len).size();
     return ActionRep::action_to_move(action, action_dim, board_len, actors.at(player), player);

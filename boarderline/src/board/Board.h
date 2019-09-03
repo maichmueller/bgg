@@ -17,7 +17,6 @@
 template<typename Piece, typename Position>
 class Board {
 public:
-    // comparator for 2-tuple keys
     using piece_type = Piece;
     using position_type = Position;
     using MapType = std::map<Position, std::shared_ptr<Piece>>;
