@@ -17,7 +17,7 @@ set(CMAKE_CXX_STANDARD 17)
 
 
 if(UNIX)
-    set(CMAKE_PREFIX_PATH ../../Torch_build/libtorch)
+    set(CMAKE_PREFIX_PATH ../deps/libtorch)
 	set(CUDNN_LIBRARY /usr/local/cuda/lib64/libcudnn.so)
 	set(CUDNN_INCLUDE_DIR /usr/local/cuda/include)
 ENDIF(UNIX)
@@ -49,8 +49,7 @@ set(PROJECT_SOURCES
 		${PROJECT_SOURCE_DIR}/nn/training/StateRepresentation.cpp
 		${PROJECT_SOURCE_DIR}/nn/training/Coach.cpp
 		${PROJECT_SOURCE_DIR}/game/Arena.cpp
-		${PROJECT_SOURCE_DIR}/nn/alphazero/ActionRepresentation.cpp
-		${PROJECT_SOURCE_DIR}/nn/alphazero/ActionRepresentation.h
+		${PROJECT_SOURCE_DIR}/nn/model/ActionRepresentation.h
 		${PROJECT_SOURCE_DIR}/board/Position.h
 		${PROJECT_SOURCE_DIR}/board/Move.h
 

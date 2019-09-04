@@ -43,3 +43,5 @@ out/*
 .idea/*
 .idea/workspace.xml
 picklingtools
+
+cmake-build-debug/*
