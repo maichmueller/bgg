@@ -55,7 +55,7 @@ set(PROJECT_SOURCES
 
 		${PROJECT_SOURCE_DIR}/board/PieceStratego.h
 		${PROJECT_SOURCE_DIR}/game/GameStateStratego.h
-		${PROJECT_SOURCE_DIR}/board/BoardStratego.h)
+		${PROJECT_SOURCE_DIR}/board/BoardStratego.h src/utils/UniversallyUniqueId.h)
 
 set(TARGET_SOURCES main.cpp)
 # set(TEST_SOURCES  run_tests.cpp test_file1.cpp test_file2.cpp)

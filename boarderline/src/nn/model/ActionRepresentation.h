@@ -3,7 +3,6 @@
 //
 
 #pragma once
-#include "../../game/GameUtilsStratego.h"
 
 #include <numeric>
 #include "array"
@@ -46,15 +45,15 @@ public:
     }
 };
 
-class GameState;
 
-template <typename Action, typename Move>
+template <typename Action, typename GameState>
 class ActionRepBase {
 
 public:
     using action_type = Action;
-    using move_type = Move;
     using piece_id_type = typename Action::piece_id_type;
+    using piece_type = typename GameState::piece_type;
+    using move_type = typename GameState::move_type;
 
 protected:
     static const std::vector<action_type > action_rep_vector;
