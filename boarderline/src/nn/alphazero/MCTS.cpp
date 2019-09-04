@@ -5,7 +5,7 @@
 #include "MCTS.h"
 #include "random"
 #include "../../agent/AgentReinforce.h"
-#include "ActionRepresentation.h"
+#include "../model/ActionRepresentation.h"
 
 double EPS = 10e-8;
 

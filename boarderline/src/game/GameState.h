@@ -12,8 +12,10 @@
 #include "unordered_map"
 #include "torch/torch.h"
 
+class ActionRepNull {};
 
-template <class Board>
+
+template <class Board, class ActionRepType = ActionRepNull>
 class GameState {
 
 public:
@@ -24,22 +26,16 @@ public:
     using cond_type = std::tuple<int, int, int, bool>;
 
 protected:
-    board_type board;
-    std::array<std::map<int, int>, 2> dead_pieces;
+    friend ActionRepType;
 
+    board_type board;
+
+    std::array<std::map<int, int>, 2> dead_pieces;
     int terminal;
+
     bool terminal_checked;
 
     int move_count;
-
-    using ii_key = std::tuple<int, int>;
-    using ii_hasher = hash_tuple::hash<ii_key >;
-    using ii_eq_comp = eqcomp_tuple::eqcomp<ii_key >;
-    using ii_ptr_map = std::unordered_map<ii_key, std::shared_ptr<piece_type>, ii_hasher, ii_eq_comp>;
-    std::array<ii_ptr_map, 2> actors{ii_ptr_map{}, ii_ptr_map{}};
-
-    std::vector<cond_type> conditions_torch_rep;
-    bool conditions_set = false;
 
     std::vector<move_type> move_history;
     std::vector<std::array<std::shared_ptr<piece_type>, 2>> piece_history;
@@ -75,8 +71,9 @@ public:
     board_type const * get_board() const {return &board;}
 };
 
-template <class Board>
-GameState<Board>::GameState(const board_type & board, std::array<std::map<int, int>, 2>& dead_pieces, int move_count)
+
+template <class Board, class ActionRepType>
+GameState<Board, ActionRepType>::GameState(const board_type & board, std::array<std::map<int, int>, 2>& dead_pieces, int move_count)
         : board(board), dead_pieces(dead_pieces), move_count(move_count),
           terminal_checked(false), terminal(404), canonical_teams(true), rounds_without_fight(0),
           move_equals_prev_move(0), move_history(0)
@@ -84,25 +81,25 @@ GameState<Board>::GameState(const board_type & board, std::array<std::map<int, i
     assign_actors(this->board);
 }
 
-template <class Board>
-GameState<Board>::GameState(const board_type & board, int move_count)
+template <class Board, class ActionRepType>
+GameState<Board, ActionRepType>::GameState(const board_type & board, int move_count)
         : GameState(board, {std::map<int, int>(), std::map<int, int>()}, move_count)
 {}
 
-template <class Board>
-GameState<Board>::GameState(int len, const std::map<position_type, int>& setup_0, const std::map<position_type, int>& setup_1)
+template <class Board, class ActionRepType>
+GameState<Board, ActionRepType>::GameState(int len, const std::map<position_type, int>& setup_0, const std::map<position_type, int>& setup_1)
         : board(len, setup_0, setup_1),
           GameState(board, 0)
 {}
 
-template <class Board>
-GameState<Board>::GameState(int game_len)
+template <class Board, class ActionRepType>
+GameState<Board, ActionRepType>::GameState(int game_len)
         : board(game_len),
           GameState(board, 0)
 {}
 
-template <class Board>
-void GameState<Board>::assign_actors(const board_type &brd) {
+template <class Board, class ActionRepType>
+void GameState<Board, ActionRepType>::assign_actors(const board_type &brd) {
     for(const auto& entry: brd) {
         const auto& piece = entry.second;
         if(!piece->is_null() && piece->get_type() != 99)
@@ -110,22 +107,25 @@ void GameState<Board>::assign_actors(const board_type &brd) {
     }
 }
 
-template <class Board>
-int GameState<Board>::is_terminal(bool force_check) {
+
+template <class Board, class ActionRepType>
+int GameState<Board, ActionRepType>::is_terminal(bool force_check) {
     if(!terminal_checked || force_check)
         check_terminal(false);
     return terminal;
 }
 
-template <class Board>
-void GameState<Board>::canonical_board(int player) {
+
+template <class Board, class ActionRepType>
+void GameState<Board, ActionRepType>::canonical_board(int player) {
     // if the 0 player is team 1, then canonical is false,
     // if it is 0 otherwise, then the teams are canonical
     canonical_teams = bool(1 - player);
 }
 
-template <class Board>
-int GameState<Board>::get_canonical_team(piece_type & piece){
+
+template <class Board, class ActionRepType>
+int GameState<Board, ActionRepType>::get_canonical_team(piece_type & piece){
     if(canonical_teams) {
         return piece.get_team();
     }
@@ -135,8 +135,9 @@ int GameState<Board>::get_canonical_team(piece_type & piece){
 }
 
 // TODO: Update to new position type
-template <class Board>
-typename GameState<Board>::position_type GameState<Board>::get_canonical_pos(piece_type & piece){
+
+template <class Board, class ActionRepType>
+typename GameState<Board, ActionRepType>::position_type GameState<Board, ActionRepType>::get_canonical_pos(piece_type & piece){
     if(canonical_teams) {
         return piece.get_position();
     }
@@ -149,8 +150,9 @@ typename GameState<Board>::position_type GameState<Board>::get_canonical_pos(pie
     }
 }
 
-template <class Board>
-void GameState<Board>::undo_last_rounds(int n) {
+
+template <class Board, class ActionRepType>
+void GameState<Board, ActionRepType>::undo_last_rounds(int n) {
     for(int i = 0; i < n; ++i) {
         move_type move = move_history.back();
         auto move_pieces = piece_history.back();
@@ -173,13 +175,15 @@ void GameState<Board>::undo_last_rounds(int n) {
     move_count -= n;
 }
 
-template <class Board>
-void GameState<Board>::restore_to_round(int round) {
+
+template <class Board, class ActionRepType>
+void GameState<Board, ActionRepType>::restore_to_round(int round) {
     undo_last_rounds(move_count - round);
 }
 
-template <class Board>
-torch::Tensor GameState<Board>::torch_represent(int player) {
+
+template <class Board, class ActionRepType>
+torch::Tensor GameState<Board, ActionRepType>::torch_represent(int player) {
     if(!conditions_set) {
         auto type_counter = utils::counter(GameDeclarations::get_available_types(board.get_shape()));
         conditions_torch_rep = StateRepresentation::create_conditions(type_counter, 0);
@@ -192,9 +196,10 @@ torch::Tensor GameState<Board>::torch_represent(int player) {
             player);
 }
 
-template <class Board>
-typename GameState<Board>::move_type
-GameState<Board>::action_to_move(int action, int player) const {
+
+template <class Board, class ActionRepType>
+typename GameState<Board, ActionRepType>::move_type
+GameState<Board, ActionRepType>::action_to_move(int action, int player) const {
     int board_len = board.get_shape();
     int action_dim = ActionRep::get_act_rep(board_len).size();
     return ActionRep::action_to_move(action, action_dim, board_len, actors.at(player), player);

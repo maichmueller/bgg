@@ -2,9 +2,7 @@
 // Created by michael on 08.08.19.
 //
 
-#ifndef STRATEGO_CPP_ACTIONREPRESENTATION_H
-#define STRATEGO_CPP_ACTIONREPRESENTATION_H
-
+#pragma once
 #include "../../game/GameUtilsStratego.h"
 
 #include <numeric>
@@ -15,43 +13,64 @@
 #include "memory"
 
 
-template <typename action_effect_t, typename piece_ident_t>
+template <typename Vector, typename PieceIDType>
 class Action {
-    int index;
-    action_effect_t effect_0;
-    action_effect_t effect_1;
-    piece_ident_t piece_id;
 
 public:
-    Action(int idx, action_effect_t action, piece_ident_t piece_identifier)
-    : index(idx), effect_0(action), effect_1(action.invert()), piece_id(piece_identifier)
-    {
-    }
-    [[nodiscard]] int get_index() const {return index;}
-    [[nodiscard]] action_effect_t get_action(int player) const {
-        if(player) return effect_1;
-        else return effect_0;
-    }
-    [[nodiscard]] piece_ident_t get_piece_id() const {return piece_id;}
+    using vector_type = Vector;
+    using piece_id_type = PieceIDType;
 
-    template <typename move_t, typename actor_map_t>
-    move_t to_move(int board_len,
-                   const actor_map_t & actors,
-                   int player) {
+protected:
+    int index;
+    vector_type effect_pl_0;
+    vector_type effect_pl_1;
+    piece_id_type piece_id;
+
+public:
+    Action(int idx, vector_type action, piece_id_type piece_identifier)
+    : index(idx), effect_pl_0(action), effect_pl_1(action.invert()), piece_id(piece_identifier)
+    {}
+
+    [[nodiscard]] int get_index() const {return index;}
+    [[nodiscard]] vector_type get_action(int player) const {
+        if(player) return effect_pl_1;
+        else return effect_pl_0;
+    }
+    [[nodiscard]] piece_id_type get_piece_id() const {return piece_id;}
+
+    template <typename Move, typename ActorMapType>
+    Move to_move(int board_len,
+                 const ActorMapType & actors,
+                 int player) {
 
     }
 };
 
-template <typename action_effect_t, typename move_t, typename piece_ident>
+class GameState;
+
+template <typename Action, typename Move>
 class ActionRepBase {
+
+public:
+    using action_type = Action;
+    using move_type = Move;
+    using piece_id_type = typename Action::piece_id_type;
+
 protected:
-    using ActionType = Action<action_effect_t, piece_ident>;
-    static const std::vector<ActionType > action_rep;
+    static const std::vector<action_type > action_rep_vector;
+    using ii_key = std::tuple<int, int>;
+    using ii_hasher = hash_tuple::hash<ii_key >;
+    using ii_eq_comp = eqcomp_tuple::eqcomp<ii_key >;
+    using ii_ptr_map = std::unordered_map<ii_key, std::shared_ptr<piece_type>, ii_hasher, ii_eq_comp>;
+    std::array<ii_ptr_map, 2> actors{ii_ptr_map{}, ii_ptr_map{}};
+
+    std::vector<cond_type> conditions_torch_rep;
+    bool conditions_set = false;
 public:
     static auto const & get_act_rep() {
-        return action_rep;
+        return action_rep_vector;
     }
-    virtual move_t action_to_move() = 0;
+    virtual move_type action_to_move() = 0;
 };
 
 class StrategoActionRep : public ActionRepBase<strat_move_base_t, strat_move_t, std::tuple<int, int>>{
@@ -164,6 +183,3 @@ private:
         return move;
     }
 };
-
-
-#endif //STRATEGO_CPP_ACTIONREPRESENTATION_H
