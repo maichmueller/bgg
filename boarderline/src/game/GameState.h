@@ -30,9 +30,8 @@ protected:
 
     board_type board;
 
-    std::array<std::map<int, int>, 2> dead_pieces;
+    std::array<std::vector<piece_type::, 2> dead_pieces;
     int terminal;
-
     bool terminal_checked;
 
     int move_count;

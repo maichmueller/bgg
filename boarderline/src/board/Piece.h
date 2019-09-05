@@ -8,7 +8,7 @@
 #include "../game/GameUtilsStratego.h"
 
 
-template <typename Position, typename TypeType>
+template <typename Position, typename CharacterType>
 class Piece {
     /**
      * A typical Piece class holding the most relevant data to describe a piece.
@@ -21,21 +21,23 @@ class Piece {
      * since every position on a board needs a piece at any time (for simpler iteration code).
      *
      **/
+
+public:
+    using position_type = Position;
+    using character_type = CharacterType;
+
 protected:
     bool m_null_piece = false;
-    Position m_pos;
+    position_type m_pos;
     int m_team;
-    TypeType m_type;
+    character_type m_type;
     int m_version;
     bool m_hidden;
     bool m_has_moved;
     bool m_can_move;
 
 public:
-    using position_type = Position;
-    using type_type = TypeType;
-
-    Piece(Position pos, int team, TypeType type, int version,
+    Piece(position_type pos, int team, character_type type, int version,
           bool hidden, bool has_moved, bool can_move)
             : m_team(team), m_type(type),
               m_pos(pos), m_version(version),
@@ -43,7 +45,7 @@ public:
               m_can_move(can_move)
     {}
 
-    Piece(Position pos, int team, TypeType type, int version=0)
+    Piece(position_type pos, int team, character_type type, int version=0)
             : m_team(team), m_type(type),
               m_pos(pos), m_version(version),
               m_hidden(true), m_has_moved(false),
@@ -51,7 +53,7 @@ public:
     {}
 
 // a Null Piece Constructor
-    explicit Piece(const Position& pos)
+    explicit Piece(const position_type & pos)
             : m_null_piece(true), m_pos(pos), m_team(-1), m_type(-1), m_version(-1),
               m_hidden(false), m_has_moved(false),
               m_can_move(false)
@@ -72,15 +74,15 @@ public:
 
     void set_flag_hidden(bool h=false) { m_hidden = h; }
 
-    void set_position(Position p) { m_pos = std::move(p); }
+    void set_position(position_type p) { m_pos = std::move(p); }
 
     [[nodiscard]] bool is_null() const { return m_null_piece; }
 
-    [[nodiscard]] Position get_position() const {return m_pos;}
+    [[nodiscard]] position_type get_position() const {return m_pos;}
 
     [[nodiscard]] int get_team(bool flip_team = false) const { return (flip_team) ? 1 - m_team : m_team; }
 
-    [[nodiscard]] TypeType get_type() const { return m_type; }
+    [[nodiscard]] character_type get_type() const { return m_type; }
 
     [[nodiscard]] int get_version() const { return m_version; }
 
