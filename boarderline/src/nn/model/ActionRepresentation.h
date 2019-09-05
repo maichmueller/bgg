@@ -12,30 +12,30 @@
 #include "memory"
 
 
-template <typename Vector, typename PieceIDType>
+template <typename Vector, typename PieceIdType>
 class Action {
 
 public:
     using vector_type = Vector;
-    using piece_id_type = PieceIDType;
+    using piece_id_type = PieceIdType;
 
 protected:
-    int index;
-    vector_type effect_pl_0;
-    vector_type effect_pl_1;
-    piece_id_type piece_id;
+    int m_index;
+    vector_type m_effect_pl_0;
+    vector_type m_effect_pl_1;
+    piece_id_type m_piece_id;
 
 public:
     Action(int idx, vector_type action, piece_id_type piece_identifier)
-    : index(idx), effect_pl_0(action), effect_pl_1(action.invert()), piece_id(piece_identifier)
+    : m_index(idx), m_effect_pl_0(action), m_effect_pl_1(action.invert()), m_piece_id(piece_identifier)
     {}
 
-    [[nodiscard]] int get_index() const {return index;}
+    [[nodiscard]] int get_index() const {return m_index;}
     [[nodiscard]] vector_type get_action(int player) const {
-        if(player) return effect_pl_1;
-        else return effect_pl_0;
+        if(player) return m_effect_pl_1;
+        else return m_effect_pl_0;
     }
-    [[nodiscard]] piece_id_type get_piece_id() const {return piece_id;}
+    [[nodiscard]] piece_id_type get_piece_id() const {return m_piece_id;}
 
     template <typename Move, typename ActorMapType>
     Move to_move(int board_len,
@@ -55,20 +55,17 @@ public:
     using piece_type = typename GameState::piece_type;
     using move_type = typename GameState::move_type;
 
+    using key = typename piece_type::character_type;
+    using hasher = typename piece_type::character_type::hash;
+    using eq_comp = typename piece_type::character_type::eq_comp;
+    using piece_ident_map = std::unordered_map<key, std::shared_ptr<piece_type>, hasher, eq_comp>;
+
 protected:
     static const std::vector<action_type > action_rep_vector;
-    using ii_key = std::tuple<int, int>;
-    using ii_hasher = hash_tuple::hash<ii_key >;
-    using ii_eq_comp = eqcomp_tuple::eqcomp<ii_key >;
-    using ii_ptr_map = std::unordered_map<ii_key, std::shared_ptr<piece_type>, ii_hasher, ii_eq_comp>;
-    std::array<ii_ptr_map, 2> actors{ii_ptr_map{}, ii_ptr_map{}};
+    std::array<piece_ident_map, 2> actors{};
 
-    std::vector<cond_type> conditions_torch_rep;
-    bool conditions_set = false;
 public:
-    static auto const & get_act_rep() {
-        return action_rep_vector;
-    }
+    static auto const & get_act_rep() { return action_rep_vector; }
     virtual move_type action_to_move() = 0;
 };
 
@@ -148,7 +145,7 @@ private:
                                 const std::unordered_map<
                                         std::tuple<int, int>,
                                         std::shared_ptr<Piece>,
-                                        hash_tuple::hash<std::tuple<int, int> >,
+                                        tuple::hash<std::tuple<int, int> >,
                                         eqcomp_tuple::eqcomp<std::tuple<int, int> >
                                 > & actors,
                                 int player) {

@@ -4,71 +4,84 @@
 
 #pragma once
 
-#include "array"
-#include "../game/GameUtilsStratego.h"
+#include <array>
+#include "../utils/UniversallyUniqueId.h"
 
 
-template <typename Position, typename CharacterType>
+
+
+template <typename Position, int NrTypeIds>
 class Piece {
     /**
      * A typical Piece class holding the most relevant data to describe a piece.
      * Each piece is assigned a team (0 or 1), a PositionType position, and given a Type (int as the basic idea 0-11).
-     * Since there can be more than one piece of a type each piece also receives a version
-     * int member starting at 0.
+     * Since there can be more than one piece of a type each piece also receives a version (part of the type member).
      * Meta-attributes are 'hidden', 'has_moved', 'can_move'.
      *
      * Null-Pieces are set by the flag 'null_piece', which is necessary
-     * since every position on a board needs a piece at any time (for simpler iteration code).
+     * since every position on a board needs a piece at any time.
      *
      **/
+
+    struct CharacterType{
+        using hash = tuple::hash<CharacterType>;
+        using eq_comp = eqcomp_tuple::eqcomp<CharacterType>;
+
+        std::array<int, NrTypeIds> specifiers;
+        static const int nr_identifiers = NrTypeIds;
+
+        explicit CharacterType(std::array<int, NrTypeIds> sp) : specifiers(sp) {}
+
+        int operator[](size_t index) const {return specifiers[index];}
+        int operator[](size_t index) {return specifiers[index];}
+        auto begin() {return specifiers.begin();}
+        auto end() { return specifiers.end();}
+        auto begin() const {return specifiers.begin();}
+        auto end() const { return specifiers.end();}
+    };
 
 public:
     using position_type = Position;
     using character_type = CharacterType;
 
 protected:
-    bool m_null_piece = false;
     position_type m_pos;
-    int m_team;
     character_type m_type;
-    int m_version;
+    unsigned int m_uuid = UUID::get_unique_id();
+    int m_team;
+    bool m_null_piece = false;
     bool m_hidden;
     bool m_has_moved;
     bool m_can_move;
 
 public:
-    Piece(position_type pos, int team, character_type type, int version,
+    Piece(position_type pos, character_type type, int team,
           bool hidden, bool has_moved, bool can_move)
             : m_team(team), m_type(type),
-              m_pos(pos), m_version(version),
+              m_pos(pos),
               m_hidden(hidden), m_has_moved(has_moved),
               m_can_move(can_move)
     {}
 
-    Piece(position_type pos, int team, character_type type, int version=0)
+    Piece(position_type pos, int team, character_type type)
             : m_team(team), m_type(type),
-              m_pos(pos), m_version(version),
+              m_pos(pos),
               m_hidden(true), m_has_moved(false),
               m_can_move(true)
     {}
 
 // a Null Piece Constructor
     explicit Piece(const position_type & pos)
-            : m_null_piece(true), m_pos(pos), m_team(-1), m_type(-1), m_version(-1),
+            : m_null_piece(true), m_pos(pos), m_team(-1), m_type(),
               m_hidden(false), m_has_moved(false),
               m_can_move(false)
     {}
 
-    Piece()
-            : m_null_piece(true), m_pos({-1, -1}), m_team(-1), m_type(-1), m_version(-1),
-              m_hidden(false), m_has_moved(false),
-              m_can_move(false)
-    {}
-
+    ~Piece() {
+        UUID::free_id(m_uuid);
+    }
 
     // getter and setter methods here only
-
-    void set_version(int v) { m_version = v; }
 
     void set_flag_has_moved(bool has_moved=true) { this->m_has_moved = has_moved; }
 
@@ -82,9 +95,7 @@ public:
 
     [[nodiscard]] int get_team(bool flip_team = false) const { return (flip_team) ? 1 - m_team : m_team; }
 
-    [[nodiscard]] character_type get_type() const { return m_type; }
-
-    [[nodiscard]] int get_version() const { return m_version; }
+    [[nodiscard]] typename character_type::const_iterator get_type() const { return m_type.begin(); }
 
     [[nodiscard]] bool get_flag_hidden() const { return m_hidden; }
 

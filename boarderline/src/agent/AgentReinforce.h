@@ -35,7 +35,7 @@ protected:
 
     // type that stores {type, version} -> Piece-Obj information
     using si_key = std::tuple<int, int>;
-    using si_hasher = hash_tuple::hash<si_key>;
+    using si_hasher = tuple::hash<si_key>;
     using si_eq_comp = eqcomp_tuple::eqcomp<si_key >;
     std::unordered_map<si_key, std::shared_ptr<Piece>, si_hasher, si_eq_comp> m_actors;
     // the neural network

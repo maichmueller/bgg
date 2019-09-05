@@ -151,7 +151,7 @@ Board<Piece, Position>::Board(const std::array<int, m_dim> &shape,
 
     auto setup_unloader = [&](std::vector<std::shared_ptr<Piece>> & setup) {
         std::map<Position, int> seen_pos;
-        std::map<typename Piece::type_type, int> version_count;
+        std::map<typename Piece::character_type, int> version_count;
         for (auto & piece : setup) {
             Position pos = piece->get_position();
             if (seen_pos.find(pos) != seen_pos.end()) {

@@ -237,7 +237,7 @@ namespace utils {
 
 #include <tuple>
 
-namespace hash_tuple {
+namespace tuple {
 
     template<typename TT>
     struct hash {
@@ -250,7 +250,7 @@ namespace hash_tuple {
     namespace {
         template<class T>
         inline void hash_combine(std::size_t &seed, T const &v) {
-            seed ^= hash_tuple::hash<T>()(v) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+            seed ^= tuple::hash<T>()(v) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
         }
     }
 
@@ -268,7 +268,7 @@ namespace hash_tuple {
         };
 
         template <class Tuple>
-        struct HashValueImpl<Tuple,0>
+        struct HashValueImpl<Tuple, 0>
         {
             static void apply(size_t& seed, Tuple const& tuple)
             {

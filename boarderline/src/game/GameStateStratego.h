@@ -19,7 +19,7 @@ protected:
     int move_count;
 
     using ii_key = std::tuple<int, int>;
-    using ii_hasher = hash_tuple::hash<ii_key >;
+    using ii_hasher = tuple::hash<ii_key >;
     using ii_eq_comp = eqcomp_tuple::eqcomp<ii_key >;
     using ii_ptr_map = std::unordered_map<ii_key, std::shared_ptr<Piece>, ii_hasher, ii_eq_comp>;
     std::array<ii_ptr_map, 2> actors{ii_ptr_map{}, ii_ptr_map{}};
@@ -64,25 +64,25 @@ public:
 
 template <class Board>
 GameState<Board>::GameState(int game_len)
-        : board(game_len), terminal(404), terminal_checked(true),
+        : m_board(game_len), m_terminal(404), terminal_checked(true),
           move_count(0), canonical_teams(true), rounds_without_fight(0),
           move_equals_prev_move(0), move_history(0)
 {
     std::map<int, int> team0_dead;
     std::map<int, int> team1_dead;
-    dead_pieces = {team0_dead, team1_dead};
-    assign_actors(this->board);
+    m_dead_pieces = {team0_dead, team1_dead};
+    assign_actors(this->m_board);
 }
 
 template <class Board>
 GameState<Board>::GameState(board_type board, int move_count)
-        : board(std::move(board)), move_count(move_count), terminal(404), terminal_checked(false),
+        : m_board(std::move(board)), move_count(move_count), m_terminal(404), terminal_checked(false),
           canonical_teams(true), rounds_without_fight(0), move_equals_prev_move(0),
           move_history(0)
 {
     std::map<int, int> team_0_dead;
     std::map<int, int> team_1_dead;
-    dead_pieces = std::array<std::map<int, int>, 2> {team_0_dead, team_1_dead};
+    m_dead_pieces = std::array<std::map<int, int>, 2> {team_0_dead, team_1_dead};
     int len = board.get_shape();
     std::vector<int> avail_types;
     // copy the available types
@@ -99,28 +99,28 @@ GameState<Board>::GameState(board_type board, int move_count)
                 team_1_dead[piece.second->get_type()] -= 1;
         }
     }
-    assign_actors(this->board);
+    assign_actors(this->m_board);
 }
 
 template <class Board>
 GameState<Board>::GameState(board_type board, std::array<std::map<int, int>, 2>& dead_pieces, int move_count)
-        : board(std::move(board)), dead_pieces(dead_pieces), move_count(move_count),
-          terminal_checked(false), terminal(404), canonical_teams(true), rounds_without_fight(0),
+        : m_board(std::move(board)), m_dead_pieces(dead_pieces), move_count(move_count),
+          terminal_checked(false), m_terminal(404), canonical_teams(true), rounds_without_fight(0),
           move_equals_prev_move(0), move_history(0)
 {
-    assign_actors(this->board);
+    assign_actors(this->m_board);
 }
 
 template <class Board>
 GameState<Board>::GameState(int len, const std::map<Position, int>& setup_0, const std::map<Position, int>& setup_1)
-        : board(len, setup_0, setup_1), dead_pieces(), move_count(0),
-          terminal_checked(false), terminal(404), canonical_teams(true), rounds_without_fight(0),
+        : m_board(len, setup_0, setup_1), m_dead_pieces(), move_count(0),
+          terminal_checked(false), m_terminal(404), canonical_teams(true), rounds_without_fight(0),
           move_equals_prev_move(0), move_history(0)
 {
     std::map<int, int> team0_dead;
     std::map<int, int> team1_dead;
-    dead_pieces = {team0_dead, team1_dead};
-    assign_actors(board);
+    m_dead_pieces = {team0_dead, team1_dead};
+    assign_actors(m_board);
 }
 
 template <class Board>
@@ -134,20 +134,20 @@ void GameState<Board>::assign_actors(const board_type &board) {
 
 template <class Board>
 void GameState<Board>::check_terminal() {
-    if(dead_pieces[0][0] == 1) {
-        terminal = -1;
+    if(m_dead_pieces[0][0] == 1) {
+        m_terminal = -1;
         return;
     }
-    else if(dead_pieces[1][0] == 1) {
-        terminal = 1;
+    else if(m_dead_pieces[1][0] == 1) {
+        m_terminal = 1;
         return;
     }
 
-    if (!StrategoLogic::has_poss_moves(board, 0)) {
-        terminal = -2;
+    if (!StrategoLogic::has_poss_moves(m_board, 0)) {
+        m_terminal = -2;
         return;
-    } else if (!StrategoLogic::has_poss_moves(board, 1)) {
-        terminal = 2;
+    } else if (!StrategoLogic::has_poss_moves(m_board, 1)) {
+        m_terminal = 2;
         return;
     }
     // committing draw rules here
@@ -160,11 +160,11 @@ void GameState<Board>::check_terminal() {
         bool all_equal_1 = *(move_end - 1) && *(move_end - 3)&& *(move_end - 5);
         if(all_equal_0 && all_equal_1)
             // players simply repeated their last 3 moves -> draw
-            terminal = 0;
+            m_terminal = 0;
     }
     // Rule 2: If no fight has happened for 50 rounds in a row.
     if(rounds_without_fight > 49) {
-        terminal = 0;
+        m_terminal = 0;
     }
     terminal_checked = true;
 }
@@ -173,7 +173,7 @@ template <class Board>
 int GameState<Board>::is_terminal(bool force_check, int turn) {
     if(!terminal_checked || force_check)
         check_terminal(false, turn);
-    return terminal;
+    return m_terminal;
 }
 
 template <class Board>
@@ -199,7 +199,7 @@ Position GameState<Board>::get_canonical_pos(Piece& piece){
         return piece.get_position();
     }
     else {
-        int len = board.get_shape();
+        int len = m_board.get_shape();
         Position pos = piece.get_position();
         pos[0] = len-1-pos[0];
         pos[1] = len-1-pos[1];
@@ -221,8 +221,8 @@ int GameState<Board>::do_move(move_type &move) {
 
     // save the access to the pieces in question
     // (removes redundant searching in board later)
-    std::shared_ptr<Piece> piece_from = board[from];
-    std::shared_ptr<Piece> piece_to = board[to];
+    std::shared_ptr<Piece> piece_from = m_board[from];
+    std::shared_ptr<Piece> piece_to = m_board[to];
     piece_from->set_flag_has_moved();
 
     // save all info to the history
@@ -249,35 +249,35 @@ int GameState<Board>::do_move(move_type &move) {
         fight_outcome = fight(*piece_from, *piece_to);
         if(fight_outcome == 1) {
             // 1 means attacker won, defender died
-            board.update_board(to, piece_from);
+            m_board.update_board(to, piece_from);
             auto null_piece = std::make_shared<Piece> (from);
-            board.update_board(from, null_piece);
+            m_board.update_board(from, null_piece);
 
-            dead_pieces[piece_to->get_team()][piece_to->get_type()] += 1;
+            m_dead_pieces[piece_to->get_team()][piece_to->get_type()] += 1;
         }
         else if(fight_outcome == 0) {
             // 0 means stalemate, both die
             auto null_piece_from = std::make_shared<Piece> (from);
-            board.update_board(from, null_piece_from);
+            m_board.update_board(from, null_piece_from);
             auto null_piece_to = std::make_shared<Piece> (to);
-            board.update_board(to, null_piece_to);
+            m_board.update_board(to, null_piece_to);
 
-            dead_pieces[piece_from->get_team()][piece_from->get_type()] += 1;
-            dead_pieces[piece_to->get_team()][piece_to->get_type()] += 1;
+            m_dead_pieces[piece_from->get_team()][piece_from->get_type()] += 1;
+            m_dead_pieces[piece_to->get_team()][piece_to->get_type()] += 1;
         }
         else {
             // -1 means defender won, attacker died
             auto null_piece = std::make_shared<Piece> (from);
-            board.update_board(from, null_piece);
+            m_board.update_board(from, null_piece);
 
-            dead_pieces[piece_from->get_team()][piece_from->get_type()] += 1;
+            m_dead_pieces[piece_from->get_team()][piece_from->get_type()] += 1;
         }
     }
     else {
         // no fight happened, simply move piece_from onto new position
         auto null_piece = std::make_shared<Piece> (from);
-        board.update_board(from, null_piece);
-        board.update_board(to, piece_from);
+        m_board.update_board(from, null_piece);
+        m_board.update_board(to, piece_from);
 
         rounds_without_fight += 1;
     }
@@ -289,13 +289,13 @@ int GameState<Board>::do_move(move_type &move) {
 template <class Board>
 torch::Tensor GameState<Board>::torch_represent(int player) {
     if(!conditions_set) {
-        auto type_counter = utils::counter(GameDeclarations::get_available_types(board.get_shape()));
+        auto type_counter = utils::counter(GameDeclarations::get_available_types(m_board.get_shape()));
         conditions_torch_rep = StateRepresentation::create_conditions(type_counter, 0);
         conditions_set = true;
     }
 
     return StateRepresentation::b2s_cond_check(
-            board,
+            m_board,
             conditions_torch_rep,
             player);
 }
@@ -303,6 +303,6 @@ torch::Tensor GameState<Board>::torch_represent(int player) {
 template <class Board>
 typename GameState<Board>::move_type
 GameState<Board>::action_to_move(int action, int player) const {
-    int board_len = board.get_shape();
+    int board_len = m_board.get_shape();
     int action_dim = ActionRep::get_act_rep(board_len).size();
     return ActionRep::action_to_move(action, action_dim, board_len, actors.at(player), player);

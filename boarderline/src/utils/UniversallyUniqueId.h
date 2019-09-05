@@ -6,25 +6,27 @@
 
 #include <numeric>
 #include <random>
-#include <array>
+#include <map>
+
 
 
 struct UUID {
-    static std::vector<bool> used_indices{false};
+    static std::map<unsigned int, bool> used_indices;
     int last_used_idx;
 
-    static constexpr int get_unique_id() {
+    static unsigned int get_unique_id() {
         auto it = used_indices.begin();
-        int id = 0;
-        for(; it != used_indices.end(); ++it, ++id) {
-            if(!(*it)) {
+        for(; it != used_indices.end(); ++it) {
+            if(!(it->second)) {
                 // this id is yet unused and can be returned
-                break
+                break;
             }
         }
-        *it = true;
-        nr_used_indices += 1;
-        return id;
+        it->second = true;
+        return it->first;
+    }
+    static void free_id(unsigned int id) {
+        used_indices[id] = false;
     }
 };
 
