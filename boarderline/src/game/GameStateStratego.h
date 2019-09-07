@@ -9,61 +9,35 @@
 
 
 class GameStateStratego : public GameState<BoardStratego> {
-protected:
-    board_type board;
-    std::array<std::map<int, int>, 2> dead_pieces;
+public:
+    using game_state_base = GameState<BoardStratego>;
+    using board_type = game_state_base::board_type;
+    using position_type = game_state_base::position_type;
+    using move_type = game_state_base::move_type;
+    using piece_type = game_state_base::piece_type;
 
-    int terminal;
-    bool terminal_checked;
-
-    int move_count;
-
-    using ii_key = std::tuple<int, int>;
-    using ii_hasher = tuple::hash<ii_key >;
-    using ii_eq_comp = eqcomp_tuple::eqcomp<ii_key >;
-    using ii_ptr_map = std::unordered_map<ii_key, std::shared_ptr<Piece>, ii_hasher, ii_eq_comp>;
-    std::array<ii_ptr_map, 2> actors{ii_ptr_map{}, ii_ptr_map{}};
-
-    std::vector<cond_type> conditions_torch_rep;
-    bool conditions_set = false;
-
-    std::vector<move_type> move_history;
-    std::vector<std::array<std::shared_ptr<Piece>, 2>> piece_history;
-    std::vector<bool> move_equals_prev_move;
-    unsigned int rounds_without_fight;
-
-    bool canonical_teams;
-
-    void assign_actors(const board_type & board);
+private:
+    using dead_pieces_type = game_state_base::dead_pieces_type;
+    int fight(piece_type& attacker, piece_type& defender);
 
 public:
-    explicit GameState(int game_len);
-    explicit GameState(board_type board, int move_count=0);
-    GameState(board_type board, std::array<std::map<int, int>, 2>& dead_pieces, int move_count);
-    GameState(int len, const std::map<Position, int>& setup_0, const std::map<Position, int>& setup_1);
+    explicit GameStateStratego(int game_dim);
+    explicit GameStateStratego(board_type board,
+                               int move_count=0);
+    GameStateStratego(board_type board,
+                      std::array<std::map<int, int>, 2>& dead_pieces,
+                      int move_count);
+    GameStateStratego(int len,
+                      const std::map<position_type, int>& setup_0,
+                      const std::map<position_type, int>& setup_1);
+
     void check_terminal() override;
-    int do_move(Move<Position>& move);
-    int fight(Piece& attacker, Piece& defender);
-    int is_terminal(bool force_check=false, int turn=0);
+    int do_move(Move<position_type>& move) override;
 
-    torch::Tensor torch_represent(int player);
-    move_type action_to_move(int action, int player) const;
-
-    void restore_to_round(int round);
-    void undo_last_rounds(int n=1);
-
-    int get_canonical_team(Piece& piece);
-    Position get_canonical_pos(Piece& piece);
-    int get_move_count() {return move_count;}
-    bool is_canonical() {return canonical_teams;}
-
-    void canonical_board(int player);
-    void set_board(board_type brd) {this->board = std::move(brd);}
-    board_type const * get_board() const {return &board;}
 };
 
 template <class Board>
-GameState<Board>::GameState(int game_len)
+GameStateStratego::GameStateStratego(int game_len)
         : m_board(game_len), m_terminal(404), terminal_checked(true),
           move_count(0), canonical_teams(true), rounds_without_fight(0),
           move_equals_prev_move(0), move_history(0)
@@ -75,7 +49,7 @@ GameState<Board>::GameState(int game_len)
 }
 
 template <class Board>
-GameState<Board>::GameState(board_type board, int move_count)
+GameStateStratego::GameState(board_type board, int move_count)
         : m_board(std::move(board)), move_count(move_count), m_terminal(404), terminal_checked(false),
           canonical_teams(true), rounds_without_fight(0), move_equals_prev_move(0),
           move_history(0)
@@ -103,7 +77,7 @@ GameState<Board>::GameState(board_type board, int move_count)
 }
 
 template <class Board>
-GameState<Board>::GameState(board_type board, std::array<std::map<int, int>, 2>& dead_pieces, int move_count)
+GameStateStratego::GameState(board_type board, std::array<std::map<int, int>, 2>& dead_pieces, int move_count)
         : m_board(std::move(board)), m_dead_pieces(dead_pieces), move_count(move_count),
           terminal_checked(false), m_terminal(404), canonical_teams(true), rounds_without_fight(0),
           move_equals_prev_move(0), move_history(0)
@@ -112,7 +86,7 @@ GameState<Board>::GameState(board_type board, std::array<std::map<int, int>, 2>&
 }
 
 template <class Board>
-GameState<Board>::GameState(int len, const std::map<Position, int>& setup_0, const std::map<Position, int>& setup_1)
+GameStateStratego::GameState(int len, const std::map<Position, int>& setup_0, const std::map<Position, int>& setup_1)
         : m_board(len, setup_0, setup_1), m_dead_pieces(), move_count(0),
           terminal_checked(false), m_terminal(404), canonical_teams(true), rounds_without_fight(0),
           move_equals_prev_move(0), move_history(0)
@@ -124,7 +98,7 @@ GameState<Board>::GameState(int len, const std::map<Position, int>& setup_0, con
 }
 
 template <class Board>
-void GameState<Board>::assign_actors(const board_type &board) {
+void GameStateStratego::assign_actors(const board_type &board) {
     for(const auto& entry: board) {
         const auto& piece = entry.second;
         if(!piece->is_null() && piece->get_type() != 99)
@@ -133,7 +107,7 @@ void GameState<Board>::assign_actors(const board_type &board) {
 }
 
 template <class Board>
-void GameState<Board>::check_terminal() {
+void GameStateStratego::check_terminal() {
     if(m_dead_pieces[0][0] == 1) {
         m_terminal = -1;
         return;
@@ -170,21 +144,21 @@ void GameState<Board>::check_terminal() {
 }
 
 template <class Board>
-int GameState<Board>::is_terminal(bool force_check, int turn) {
+int GameStateStratego::is_terminal(bool force_check, int turn) {
     if(!terminal_checked || force_check)
         check_terminal(false, turn);
     return m_terminal;
 }
 
 template <class Board>
-void GameState<Board>::canonical_board(int player) {
+void GameStateStratego::canonical_board(int player) {
     // if the 0 player is m_team 1, then canonical is false,
     // if it is 0 otherwise, then the teams are canonical
     canonical_teams = bool(1 - player);
 }
 
 template <class Board>
-int GameState<Board>::get_canonical_team(Piece& piece){
+int GameStateStratego::get_canonical_team(Piece& piece){
     if(canonical_teams) {
         return piece.get_team();
     }
@@ -194,7 +168,7 @@ int GameState<Board>::get_canonical_team(Piece& piece){
 }
 
 template <class Board>
-Position GameState<Board>::get_canonical_pos(Piece& piece){
+Position GameStateStratego::get_canonical_pos(Piece& piece){
     if(canonical_teams) {
         return piece.get_position();
     }
@@ -208,12 +182,12 @@ Position GameState<Board>::get_canonical_pos(Piece& piece){
 }
 
 template <class Board>
-int GameState<Board>::fight(Piece &attacker, Piece &defender) {
+int GameStateStratego::fight(Piece &attacker, Piece &defender) {
     return StrategoLogic::fight_outcome(attacker.get_type(), defender.get_type());
 }
 
 template <class Board>
-int GameState<Board>::do_move(move_type &move) {
+int GameStateStratego::do_move(move_type &move) {
     // preliminaries
     Position from = move[0];
     Position to = move[1];
@@ -287,7 +261,7 @@ int GameState<Board>::do_move(move_type &move) {
 }
 
 template <class Board>
-torch::Tensor GameState<Board>::torch_represent(int player) {
+torch::Tensor GameStateStratego::torch_represent(int player) {
     if(!conditions_set) {
         auto type_counter = utils::counter(GameDeclarations::get_available_types(m_board.get_shape()));
         conditions_torch_rep = StateRepresentation::create_conditions(type_counter, 0);
@@ -301,8 +275,8 @@ torch::Tensor GameState<Board>::torch_represent(int player) {
 }
 
 template <class Board>
-typename GameState<Board>::move_type
-GameState<Board>::action_to_move(int action, int player) const {
+typename GameStateStratego::move_type
+GameStateStratego::action_to_move(int action, int player) const {
     int board_len = m_board.get_shape();
     int action_dim = ActionRep::get_act_rep(board_len).size();
     return ActionRep::action_to_move(action, action_dim, board_len, actors.at(player), player);

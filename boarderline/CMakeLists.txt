@@ -51,11 +51,12 @@ set(PROJECT_SOURCES
 		${PROJECT_SOURCE_DIR}/nn/model/ActionRepresenter.h
 		${PROJECT_SOURCE_DIR}/board/Position.h
 		${PROJECT_SOURCE_DIR}/board/Move.h
+		${PROJECT_SOURCE_DIR}/utils/UniversallyUniqueId.h
 
 		${PROJECT_SOURCE_DIR}/board/PieceStratego.h
 		${PROJECT_SOURCE_DIR}/game/GameStateStratego.h
 		${PROJECT_SOURCE_DIR}/board/BoardStratego.h
-		${PROJECT_SOURCE_DIR}/utils/UniversallyUniqueId.h)
+		${PROJECT_SOURCE_DIR}/nn/model/ActionRepresenterStratego.cpp)
 
 set(TARGET_SOURCES main.cpp)
 # set(TEST_SOURCES  run_tests.cpp test_file1.cpp test_file2.cpp)
