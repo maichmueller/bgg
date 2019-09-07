@@ -9,7 +9,7 @@
 
 #include "Agent.h"
 #include "../board/Piece.h"
-#include "../nn/model/NeuralNetwork.h"
+#include "../nn/model/NeuralNet.h"
 #include "../utils/torch_utils.h"
 #include "torch/torch.h"
 #include "../nn/training/StateRepresentation.h"

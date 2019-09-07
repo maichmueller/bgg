@@ -43,23 +43,23 @@ set(PROJECT_SOURCES
 		${PROJECT_SOURCE_DIR}/agent/Agent.cpp
 		${PROJECT_SOURCE_DIR}/utils/RandomSelector.h
 		${PROJECT_SOURCE_DIR}/nn/alphazero/MCTS.cpp
-		${PROJECT_SOURCE_DIR}/nn/model/NeuralNetwork.cpp
-		${PROJECT_SOURCE_DIR}/tqdm/tqdm.h
+		${PROJECT_SOURCE_DIR}/nn/model/NeuralNet.cpp
 		${PROJECT_SOURCE_DIR}/agent/AgentReinforce.cpp
 		${PROJECT_SOURCE_DIR}/nn/training/StateRepresentation.cpp
 		${PROJECT_SOURCE_DIR}/nn/training/Coach.cpp
 		${PROJECT_SOURCE_DIR}/game/Arena.cpp
-		${PROJECT_SOURCE_DIR}/nn/model/ActionRepresentation.h
+		${PROJECT_SOURCE_DIR}/nn/model/ActionRepresenter.h
 		${PROJECT_SOURCE_DIR}/board/Position.h
 		${PROJECT_SOURCE_DIR}/board/Move.h
 
 		${PROJECT_SOURCE_DIR}/board/PieceStratego.h
 		${PROJECT_SOURCE_DIR}/game/GameStateStratego.h
-		${PROJECT_SOURCE_DIR}/board/BoardStratego.h src/utils/UniversallyUniqueId.h)
+		${PROJECT_SOURCE_DIR}/board/BoardStratego.h
+		${PROJECT_SOURCE_DIR}/utils/UniversallyUniqueId.h)
 
 set(TARGET_SOURCES main.cpp)
 # set(TEST_SOURCES  run_tests.cpp test_file1.cpp test_file2.cpp)
-
+include_directories("${PROJECT_SOURCE_DIR}/../deps")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall")
 
 # Set the output folder where your program will be created

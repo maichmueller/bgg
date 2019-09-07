@@ -46,8 +46,6 @@ protected:
 
     bool canonical_teams;
 
-    void assign_actors(const board_type & brd);
-
 public:
     explicit GameState(int game_len);
     explicit GameState(const board_type & board, int move_count=0);
@@ -58,7 +56,7 @@ public:
     virtual void check_terminal();
     virtual int do_move(const Move<position_type>& move) = 0;
 
-    void register_action_rep(ActionRepType action_rep) {action_rep = std::move(action_rep)}
+    void register_action_rep(ActionRepType action_rep) {action_rep = std::move(action_rep);}
     torch::Tensor torch_represent(int player);
     move_type action_to_move(int action, int player) const;
 
@@ -102,14 +100,6 @@ GameState<Board, ActionRepType>::GameState(int game_len)
           GameState(m_board, 0)
 {}
 
-template <class Board, class ActionRepType>
-void GameState<Board, ActionRepType>::assign_actors(const board_type &brd) {
-    for(const auto& entry: brd) {
-        const auto& piece = entry.second;
-        if(!piece->is_null() && piece->get_type() != 99)
-            actors[piece->get_team()][std::make_tuple(piece->get_type(), piece->get_version())] = piece;
-    }
-}
 
 
 template <class Board, class ActionRepType>

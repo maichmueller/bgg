@@ -2,7 +2,7 @@
 // Created by michael on 08.08.19.
 //
 
-#include "ActionRepresentation.h"
+#include "ActionRepresenter.h"
 
 
 std::vector<Position> action_ar_s_copy(64);

@@ -37,11 +37,12 @@ public:
     }
     [[nodiscard]] piece_id_type get_piece_id() const {return m_piece_id;}
 
-    template <typename Move, typename ActorMapType>
-    Move to_move(int board_len,
-                 const ActorMapType & actors,
-                 int player) {
-
+    template <typename LengthType, size_t dim>
+    Move<Position<LengthType, dim>> to_move(const Position<LengthType, dim> & pos, int player) {
+        if(player==0)
+            return pos + m_effect_pl_0;
+        else
+            return pos + m_effect_pl_1;
     }
 };
 
@@ -65,14 +66,29 @@ protected:
     std::array<piece_ident_map, 2> actors{};
 
 public:
+    virtual void assign_actors() = 0;
     static auto const & get_act_rep() { return action_rep_vector; }
     virtual move_type action_to_move() = 0;
 };
 
-class StrategoActionRep : public ActionRepBase<strat_move_base_t, strat_move_t, std::tuple<int, int>>{
-    using ActionReprBase = ActionRepBase<strat_move_base_t, strat_move_t, std::tuple<int, int>>;
-    using ActionType = ActionReprBase::ActionType;
-private:
+class StrategoActionRep : public ActionRepBase<Action<typename GameStateStratego::move_type>, GameStateStratego> {
+public:
+    using action_rep_base = ActionRepBase<Action<typename GameStateStratego::move_type>, GameStateStratego>;
+    using action_type = typename action_rep_base::action_type;
+    using move_type = typename GameStateStratego::move_type;
+    using piece_type = typename GameStateStratego::piece_type;
+    using board_type = typename GameStateStratego::board_type;
+    static_assert(std::is_same<typename move_type::position_type, typename board_type::position_type>::value)
+
+
+    void assign_actors() {
+        for(const auto& entry: GameState.board) {
+            const auto& piece = entry.second;
+            if(!piece->is_null() && piece->get_type() != 99)
+                actors[piece->get_team()][std::make_tuple(piece->get_type(), piece->get_version())] = piece;
+        }
+    }
+
     static int _fill_act_vector(
             std::vector<ActionType > & action_ar,
             int board_len

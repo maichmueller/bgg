@@ -8,7 +8,7 @@
 #include "unordered_map"
 #include "string"
 
-#include "../model/NeuralNetwork.h"
+#include "../model/NeuralNet.h"
 #include "../../utils/utils.h"
 #include "../../game/GameState.h"
 

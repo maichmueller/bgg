@@ -10,7 +10,7 @@
 #include "vector"
 #include "deque"
 
-#include "../model/NeuralNetwork.h"
+#include "../model/NeuralNet.h"
 #include "../../game/Game.h"
 #include "../../board/Board.h"
 #include "StateRepresentation.h"

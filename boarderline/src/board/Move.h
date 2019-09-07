@@ -18,9 +18,12 @@ Move<Position> operator/(Number n, Move<Position> pos);
 
 template <class Position>
 class Move {
+public:
+    using position_type = Position;
     using MoveContainer = std::array<Position, 2>;
     using Iterator = typename MoveContainer::iterator;
     using ConstIterator = typename MoveContainer::const_iterator;
+private:
     MoveContainer from_to;
 public:
 

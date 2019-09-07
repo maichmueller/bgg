@@ -2,7 +2,7 @@
 // Created by michael on 13.04.19.
 //
 
-#include "NeuralNetwork.h"
+#include "NeuralNet.h"
 
 #include "filesystem"
 

@@ -10,7 +10,7 @@
 #include <algorithm>
 
 #include "torch/torch.h"
-#include "../../../../tqdm/tqdm.h"
+#include "tqdm/tqdm.h"
 #include "../../utils/torch_utils.h"
 
 

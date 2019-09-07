@@ -5,6 +5,7 @@
 #pragma once
 
 #include <array>
+#include "../utils/utils.h"
 #include "../utils/UniversallyUniqueId.h"
 
 
