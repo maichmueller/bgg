@@ -7,27 +7,29 @@
 #include "ActionRepresenter.h"
 #include "../../game/GameStateStratego.cpp"
 
-class ActionRepStratego : public ActionRepBase<Action<typename GameStateStratego::position_type, std::array<int, 2>>,
+class ActionRepStratego : public ActionRepBase<Action<typename GameStateStratego::position_type,
+                                                      typename GameStateStratego::piece_type::kin_type,
                                                typename GameStateStratego::piece_type>> {
 public:
-    using action_rep_base = ActionRepBase<
-            Action<
-                    typename GameStateStratego::position_type,
-                    std::array<int, 2>>,
-            typename GameStateStratego::piece_type
-            >;
-    using action_type = typename action_rep_base::action_type;
-    using move_type = typename GameStateStratego::move_type;
-    using piece_type = typename GameStateStratego::piece_type;
-    using board_type = typename GameStateStratego::board_type;
-    static_assert(std::is_same<typename move_type::position_type, typename board_type::position_type>::value)
+    using base_type = ActionRepBase<
+            Action<typename GameStateStratego::position_type,
+                   typename GameStateStratego::piece_type::kin_type >,
+            typename GameStateStratego::piece_type >;
+    using action_type = base_type::action_type;
+    using move_type = GameStateStratego::move_type;
+    using piece_type = GameStateStratego::piece_type;
+    using kin_type = GameStateStratego::piece_type::kin_type;
+    using board_type = GameStateStratego::board_type;
+    static_assert(std::is_same<typename move_type::position_type, typename board_type::position_type>::value);
 
+    torch::Tensor state_representation(int action, int player);
 
-    void assign_actors() {
-        for(const auto& entry: GameState.board) {
+    template <typename GameState>
+    void assign_actors(GameState * gs) {
+        for(const auto& entry: gs->board) {
             const auto& piece = entry.second;
-            if(!piece->is_null() && piece->get_type() != 99)
-                actors[piece->get_team()][std::make_tuple(piece->get_type(), piece->get_version())] = piece;
+            if(!piece->is_null() && piece->get_type() != kin_type{99, 99};
+                actors[piece->get_team()][piece->get_type()] = piece;
         }
     }
 
@@ -138,5 +140,3 @@ public:
     }
 };
 
-
-#endif //BOARDERLINE_ACTIONREPRESENTERSTRATEGO_H

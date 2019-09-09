@@ -18,19 +18,20 @@ template<typename Piece, typename Position>
 class Board {
 public:
     using piece_type = Piece;
+    using kin_type = typename piece_type::kin_type;
     using position_type = Position;
-    using MapType = std::map<Position, std::shared_ptr<Piece>>;
-    using iterator = typename MapType::iterator;
-    using const_iterator = typename MapType::const_iterator;
+    using map_type = std::map<Position, std::shared_ptr<Piece>>;
+    using iterator = typename map_type::iterator;
+    using const_iterator = typename map_type::const_iterator;
 
-    static constexpr int m_dim = Position::dim;
+    static constexpr int m_dim = position_type::dim;
 
 protected:
-    std::array<int, m_dim> m_shape;
+    std::array<size_t, m_dim> m_shape;
     std::array<int, m_dim> m_board_starts{}; // initializes all entries to 0 this way (for defaulting)
-    MapType m_board_map;
+    map_type m_board_map;
 
-    void check_pos_bounds(const Position &pos) const;
+    void check_pos_bounds(const position_type &pos) const;
 
     void _fill_board_null_pieces(const std::array<int, m_dim> &shape,
                                  const std::array<int, m_dim> &board_starts);
@@ -38,29 +39,29 @@ protected:
 public:
     explicit Board(const std::array<int, m_dim> &shape);
 
-    Board(const std::array<int, m_dim> &shape,
+    Board(const std::array<size_t, m_dim> &shape,
           const std::array<int, m_dim> &board_starts);
 
-    Board(const std::array<int, m_dim> &shape,
-          const std::vector<std::shared_ptr<Piece>> &setup_0,
-          const std::vector<std::shared_ptr<Piece>> &setup_1);
+    Board(const std::array<size_t, m_dim> &shape,
+          const std::vector<std::shared_ptr<piece_type>> &setup_0,
+          const std::vector<std::shared_ptr<piece_type>> &setup_1);
 
-    Board(const std::array<int, m_dim> &shape,
+    Board(const std::array<size_t, m_dim> &shape,
           const std::array<int, m_dim> &board_starts,
-          const std::vector<std::shared_ptr<Piece>> &setup_0,
-          const std::vector<std::shared_ptr<Piece>> &setup_1);
+          const std::vector<std::shared_ptr<piece_type>> &setup_0,
+          const std::vector<std::shared_ptr<piece_type>> &setup_1);
 
-    Board(const std::array<int, m_dim> &shape,
-          const std::map<Position, int> &setup_0,
-          const std::map<Position, int> &setup_1);
+    Board(const std::array<size_t, m_dim> &shape,
+          const std::map<position_type, typename piece_type::kin_type> &setup_0,
+          const std::map<position_type, typename piece_type::kin_type> &setup_1);
 
-    Board(const std::array<int, m_dim> &shape,
+    Board(const std::array<size_t, m_dim> &shape,
           const std::array<int, m_dim> &board_starts,
-          const std::map<Position, int> &setup_0,
-          const std::map<Position, int> &setup_1);
+          const std::map<position_type, typename piece_type::kin_type> &setup_0,
+          const std::map<position_type, typename piece_type::kin_type> &setup_1);
 
-    std::shared_ptr<Piece> &operator[](const Position&& a);
-    const std::shared_ptr<Piece> &operator[](const Position &&a) const;
+    std::shared_ptr<Piece> &operator[](const position_type&& a);
+    const std::shared_ptr<Piece> &operator[](const position_type &&a) const;
 
     [[nodiscard]] iterator begin() { return m_board_map.begin(); }
     [[nodiscard]] iterator end() { return m_board_map.end(); }
@@ -69,9 +70,9 @@ public:
     [[nodiscard]] const_iterator end() const { return m_board_map.end(); }
 
     [[nodiscard]] int get_shape() const { return m_shape; }
-    MapType& get_map() { return m_board_map; }
+    map_type& get_map() { return m_board_map; }
 
-    void update_board(Position && pos, std::shared_ptr<Piece> &pc);
+    void update_board(position_type && pos, std::shared_ptr<piece_type> &pc);
 
     [[nodiscard]] std::string print_board(bool flip_board=false, bool hide_unknowns=false) const;
 
@@ -82,7 +83,7 @@ public:
 };
 
 template <typename Piece, typename Position>
-void Board<Piece, Position>::check_pos_bounds(const Position &pos) const {
+void Board<Piece, Position>::check_pos_bounds(const position_type & pos) const {
     for (int i = 0; i < m_dim; ++i) {
         if (pos[i] >= m_shape[i] || pos[0] < m_board_starts[i]) {
             std::ostringstream ss;
@@ -97,18 +98,18 @@ void Board<Piece, Position>::check_pos_bounds(const Position &pos) const {
 }
 
 template<typename Piece, typename Position>
-const std::shared_ptr<Piece> &Board<Piece, Position>::operator[](const Position &&a) const {
+const std::shared_ptr<Piece> &Board<Piece, Position>::operator[](const position_type && a) const {
     check_pos_bounds(a);
     return m_board_map.find(std::forward(a))->second;
 }
 
 template<typename Piece, typename Position>
-std::shared_ptr<Piece> &Board<Piece, Position>::operator[](const Position&& a) {
+std::shared_ptr<Piece> &Board<Piece, Position>::operator[](const position_type && a) {
     return m_board_map.find(std::forward(a))->second;
 }
 
 template<typename Piece, typename Position>
-void Board<Piece, Position>::update_board(Position && pos, std::shared_ptr<Piece> &pc_ptr) {
+void Board<Piece, Position>::update_board(position_type && pos, std::shared_ptr<piece_type> &pc_ptr) {
     check_pos_bounds(std::forward(pos));
     pc_ptr->set_position(pos);
     (*this)[pos] = pc_ptr;
@@ -119,9 +120,9 @@ void Board<Piece, Position>::_fill_board_null_pieces(const std::array<int, m_dim
                                                      const std::array<int, m_dim> &board_starts) {
     for (int i = 0; i < shape; ++i) {
         for (int j = 0; j < shape; ++j) {
-            Position pos = {i, j};
+            position_type pos = {i, j};
             // create null piece at pos
-            m_board_map[pos] = std::make_shared<Piece>(pos);
+            m_board_map[pos] = std::make_shared<piece_type>(pos);
         }
     }
 }
@@ -134,7 +135,7 @@ Board<Piece, Position>::Board(const std::array<int, m_dim> &shape)
 }
 
 template<typename Piece, typename Position>
-Board<Piece, Position>::Board(const std::array<int, m_dim> &shape,
+Board<Piece, Position>::Board(const std::array<size_t, m_dim> &shape,
                               const std::array<int, m_dim> &board_starts)
         : m_shape(shape),
           m_board_starts(board_starts),
@@ -143,17 +144,16 @@ Board<Piece, Position>::Board(const std::array<int, m_dim> &shape,
 }
 
 template<typename Piece, typename Position>
-Board<Piece, Position>::Board(const std::array<int, m_dim> &shape,
+Board<Piece, Position>::Board(const std::array<size_t, m_dim> &shape,
                               const std::array<int, m_dim> &board_starts,
-                              const std::vector<std::shared_ptr<Piece>> &setup_0,
-                              const std::vector<std::shared_ptr<Piece>> &setup_1)
+                              const std::vector<std::shared_ptr<piece_type>> &setup_0,
+                              const std::vector<std::shared_ptr<piece_type>> &setup_1)
         : Board(shape, board_starts) {
 
-    auto setup_unloader = [&](std::vector<std::shared_ptr<Piece>> & setup) {
-        std::map<Position, int> seen_pos;
-        std::map<typename Piece::character_type, int> version_count;
+    auto setup_unloader = [&](std::vector<std::shared_ptr<piece_type>> & setup) {
+        std::map<position_type, int> seen_pos;
         for (auto & piece : setup) {
-            Position pos = piece->get_position();
+            position_type pos = piece->get_position();
             if (seen_pos.find(pos) != seen_pos.end()) {
                 //element found
                 throw std::invalid_argument("Parameter setup has more than one piece for the "
@@ -168,49 +168,50 @@ Board<Piece, Position>::Board(const std::array<int, m_dim> &shape,
 }
 
 template<typename Piece, typename Position>
-Board<Piece, Position>::Board(const std::array<int, m_dim> &shape,
-                              const std::vector<std::shared_ptr<Piece>> &setup_0,
-                              const std::vector<std::shared_ptr<Piece>> &setup_1)
+Board<Piece, Position>::Board(const std::array<size_t, m_dim> &shape,
+                              const std::vector<std::shared_ptr<piece_type>> &setup_0,
+                              const std::vector<std::shared_ptr<piece_type>> &setup_1)
         : Board(shape, m_board_starts, setup_0, setup_1) {}
 
 template<typename Piece, typename Position>
-Board<Piece, Position>::Board(const std::array<int, m_dim> &shape,
+Board<Piece, Position>::Board(const std::array<size_t, m_dim> &shape,
                               const std::array<int, m_dim> &board_starts,
-                              const std::map<Position, int> &setup_0,
-                              const std::map<Position, int> &setup_1)
+                              const std::map<position_type, typename piece_type::kin_type> &setup_0,
+                              const std::map<position_type, typename piece_type::kin_type> &setup_1)
         : Board(shape, board_starts) {
-    auto setup_unloader = [&](std::map<Position, int> & setup) {
-        std::map<Position, int> seen_pos;
-        std::map<typename Piece::type_type, int> version_count;
+    auto setup_unloader = [&](std::map<Position, typename piece_type::kin_type> & setup, int team) {
+        std::map<position_type, bool> seen_pos;
+        std::map<typename piece_type::chracter_type, bool> seen_char;
         for (auto &elem : setup) {
-            Position pos = elem.first;
-            auto piece_type = elem.second;
+            position_type pos = elem.first;
+            auto character = elem.second;
 
             if (seen_pos.find(pos) != seen_pos.end()) {
                 //element found
                 throw std::invalid_argument("Parameter setup has more than one piece for the "
                                             "same position (position: '" + pos.to_string() + "').");
             }
-            seen_pos[pos] = 1;
-            // null constructor of map is called on unplaced previous item (creates 0 int)
-            // therefore the first time this is called, will get us to version 1, the first
-            // piece. Afterwards it will keep the count correctly for us.
-            int version = version_count[piece_type];
-            version_count[piece_type] += 1;
-            auto piece = std::make_shared<Piece>(0, piece_type, pos, version);
+            seen_pos[pos] = true;
+            if(seen_char.find(character) != seen_char.end()) {
+                throw std::invalid_argument("Parameter setup has more than one piece for the "
+                                            "same character (character: '" + character.to_string() + "').");
+            };
+            seen_char[character] = true;
+
+            auto piece = std::make_shared<piece_type>(pos, character, team);
             m_board_map[pos] = std::move(piece);
         }
     };
-    setup_unloader(setup_0);
-    setup_unloader(setup_1);
+    setup_unloader(setup_0, 0);
+    setup_unloader(setup_1, 1);
 }
 
 template<typename Piece, typename Position>
-Board<Piece, Position>::Board(const std::array<int, m_dim> &shape,
-                              const std::map<Position, int> &setup_0,
-                              const std::map<Position, int> &setup_1)
+Board<Piece, Position>::Board(const std::array<size_t, m_dim> &shape,
+                              const std::map<position_type, typename piece_type::kin_type> &setup_0,
+                              const std::map<position_type, typename piece_type::kin_type> &setup_1)
         : Board(shape, m_board_starts, setup_0, setup_1)
-        {}
+{}
 
 template<typename Piece, typename Position>
 std::string Board<Piece, Position>::to_string_2D(bool flip_board, bool hide_unknowns) const {

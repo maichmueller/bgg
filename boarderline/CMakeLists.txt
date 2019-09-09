@@ -55,7 +55,7 @@ set(PROJECT_SOURCES
 
 		${PROJECT_SOURCE_DIR}/board/PieceStratego.h
 		${PROJECT_SOURCE_DIR}/game/GameStateStratego.h
-		${PROJECT_SOURCE_DIR}/board/BoardStratego.h
+		${PROJECT_SOURCE_DIR}/board/BoardStratego.cpp
 		${PROJECT_SOURCE_DIR}/nn/model/ActionRepresenterStratego.cpp)
 
 set(TARGET_SOURCES main.cpp)

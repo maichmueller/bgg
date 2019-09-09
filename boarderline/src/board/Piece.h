@@ -11,7 +11,7 @@
 
 
 
-template <typename Position, int NrTypeIds>
+template <typename Position, size_t NrTypeIds>
 class Piece {
     /**
      * A typical Piece class holding the most relevant data to describe a piece.
@@ -24,14 +24,14 @@ class Piece {
      *
      **/
 
-    struct CharacterType{
-        using hash = tuple::hash<CharacterType>;
-        using eq_comp = eqcomp_tuple::eqcomp<CharacterType>;
+    struct Kin{
+        using hash = tuple::hash<Kin>;
+        using eq_comp = eqcomp_tuple::eqcomp<Kin>;
 
         std::array<int, NrTypeIds> specifiers;
-        static const int nr_identifiers = NrTypeIds;
+        static const size_t nr_identifiers = NrTypeIds;
 
-        explicit CharacterType(std::array<int, NrTypeIds> sp) : specifiers(sp) {}
+        explicit Kin(std::array<int, NrTypeIds> sp) : specifiers(std::move(sp)) {}
 
         int operator[](size_t index) const {return specifiers[index];}
         int operator[](size_t index) {return specifiers[index];}
@@ -39,15 +39,24 @@ class Piece {
         auto end() { return specifiers.end();}
         auto begin() const {return specifiers.begin();}
         auto end() const { return specifiers.end();}
+        std::string to_string() {
+            std::ostringstream ss;
+            ss << "{";
+            for (const auto &spec_it = specifiers.begin(); spec_it != specifiers.back(); ++spec_it) {
+                ss << spec_it << ", ";
+            }
+            ss << specifiers.back() << "}";
+            return ss.str();
+        }
     };
 
 public:
     using position_type = Position;
-    using character_type = CharacterType;
+    using kin_type = Kin;
 
 protected:
     position_type m_pos;
-    character_type m_type;
+    kin_type m_type;
     unsigned int m_uuid = UUID::get_unique_id();
     int m_team;
     bool m_null_piece = false;
@@ -56,7 +65,7 @@ protected:
     bool m_can_move;
 
 public:
-    Piece(position_type pos, character_type type, int team,
+    Piece(position_type pos, kin_type type, int team,
           bool hidden, bool has_moved, bool can_move)
             : m_team(team), m_type(type),
               m_pos(pos),
@@ -64,7 +73,7 @@ public:
               m_can_move(can_move)
     {}
 
-    Piece(position_type pos, int team, character_type type)
+    Piece(position_type pos, kin_type type, int team)
             : m_team(team), m_type(type),
               m_pos(pos),
               m_hidden(true), m_has_moved(false),
@@ -96,7 +105,7 @@ public:
 
     [[nodiscard]] int get_team(bool flip_team = false) const { return (flip_team) ? 1 - m_team : m_team; }
 
-    [[nodiscard]] typename character_type::const_iterator get_type() const { return m_type.begin(); }
+    [[nodiscard]] typename kin_type::const_iterator get_type() const { return m_type.begin(); }
 
     [[nodiscard]] bool get_flag_hidden() const { return m_hidden; }
 
