@@ -12,8 +12,8 @@
 #include "unordered_map"
 #include "torch/torch.h"
 
-class ActionRepNull {
-    static void install_representation() {}
+struct ActionRepNull {
+    static void enable_representation() {}
 };
 
 template <class Board, class ActionRepType = ActionRepNull>
@@ -22,10 +22,9 @@ class GameState {
 public:
     using board_type = Board;
     using piece_type = typename Board::piece_type;
+    using kin_type = typename Board::kin_type;
     using position_type = typename Board::position_type;
     using move_type = Move<position_type >;
-    // TODO: move cond_type to the action representation
-    using cond_type = std::tuple<int, int, int, bool>;
 
 protected:
     friend ActionRepType;
@@ -101,7 +100,7 @@ GameState<Board, ActionRepType>::GameState(const board_type & board,
          m_action_rep(std::move(action_rep))
 {
     check_terminal();
-    m_action_rep.install_representation(this);
+    m_action_rep.enable_representation(this);
 }
 
 template <class Board, class ActionRepType>
@@ -182,11 +181,8 @@ void GameState<Board, ActionRepType>::undo_last_rounds(int n) {
         Position to = move[1];
         m_board.update_board(from, move_pieces[0]);
         m_board.update_board(to, move_pieces[1]);
-        for(auto& piece: move_pieces) {
-            int type = piece->get_type();
-            int version = piece->get_version();
-            if(0 < type && type < 11 && version != -1)
-                actors[piece->get_team()][{piece->get_type(), piece->get_version()}] = piece;
+        for(const auto& piece: move_pieces) {
+            m_action_rep.update_actors(piece->get_team(), piece->get_kin());
         }
     }
     move_count -= n;
@@ -208,6 +204,4 @@ typename GameState<Board, ActionRepType>::move_type
 GameState<Board, ActionRepType>::action_to_move(int action, int player) const {
     return m_action_rep.action_to_move(action, player);
 }
-    int board_len = m_board.get_shape();
-    int action_dim = ActionRep::get_act_rep(board_len).size();
-    return ActionRep::action_to_move(action, action_dim, board_len, actors.at(player), player);
+

@@ -150,7 +150,7 @@ Board<Piece, Position>::Board(const std::array<size_t, m_dim> &shape,
                               const std::vector<std::shared_ptr<piece_type>> &setup_1)
         : Board(shape, board_starts) {
 
-    auto setup_unloader = [&](std::vector<std::shared_ptr<piece_type>> & setup) {
+    auto setup_unwrap = [&](std::vector<std::shared_ptr<piece_type>> & setup) {
         std::map<position_type, int> seen_pos;
         for (auto & piece : setup) {
             position_type pos = piece->get_position();
@@ -163,8 +163,8 @@ Board<Piece, Position>::Board(const std::array<size_t, m_dim> &shape,
             m_board_map[pos] = piece;
         }
     };
-    setup_unloader(setup_0);
-    setup_unloader(setup_1);
+    setup_unwrap(setup_0);
+    setup_unwrap(setup_1);
 }
 
 template<typename Piece, typename Position>
@@ -179,7 +179,7 @@ Board<Piece, Position>::Board(const std::array<size_t, m_dim> &shape,
                               const std::map<position_type, typename piece_type::kin_type> &setup_0,
                               const std::map<position_type, typename piece_type::kin_type> &setup_1)
         : Board(shape, board_starts) {
-    auto setup_unloader = [&](std::map<Position, typename piece_type::kin_type> & setup, int team) {
+    auto setup_unwrap = [&](std::map<Position, typename piece_type::kin_type> & setup, int team) {
         std::map<position_type, bool> seen_pos;
         std::map<typename piece_type::chracter_type, bool> seen_char;
         for (auto &elem : setup) {
@@ -195,15 +195,15 @@ Board<Piece, Position>::Board(const std::array<size_t, m_dim> &shape,
             if(seen_char.find(character) != seen_char.end()) {
                 throw std::invalid_argument("Parameter setup has more than one piece for the "
                                             "same character (character: '" + character.to_string() + "').");
-            };
+            }
             seen_char[character] = true;
 
             auto piece = std::make_shared<piece_type>(pos, character, team);
             m_board_map[pos] = std::move(piece);
         }
     };
-    setup_unloader(setup_0, 0);
-    setup_unloader(setup_1, 1);
+    setup_unwrap(setup_0, 0);
+    setup_unwrap(setup_1, 1);
 }
 
 template<typename Piece, typename Position>
@@ -226,7 +226,7 @@ std::string Board<Piece, Position>::to_string_2D(bool flip_board, bool hide_unkn
     int dim_y = m_shape[1];
     int mid = V_SIZE_PER_PIECE / 2;
 
-    // piece string lambda function that returns a str of the sort
+    // piece string lambda function that returns a str of the kin
     // "-1 \n
     // 10.1 \n
     //   1"

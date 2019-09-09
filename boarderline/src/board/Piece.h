@@ -32,6 +32,8 @@ class Piece {
         static const size_t nr_identifiers = NrTypeIds;
 
         explicit Kin(std::array<int, NrTypeIds> sp) : specifiers(std::move(sp)) {}
+        template <typename... TT>
+        Kin(const TT & ...elems) : specifiers(elems...) {}
 
         int operator[](size_t index) const {return specifiers[index];}
         int operator[](size_t index) {return specifiers[index];}
@@ -105,7 +107,7 @@ public:
 
     [[nodiscard]] int get_team(bool flip_team = false) const { return (flip_team) ? 1 - m_team : m_team; }
 
-    [[nodiscard]] typename kin_type::const_iterator get_type() const { return m_type.begin(); }
+    [[nodiscard]] typename kin_type::const_iterator get_kin() const { return m_type.begin(); }
 
     [[nodiscard]] bool get_flag_hidden() const { return m_hidden; }
 

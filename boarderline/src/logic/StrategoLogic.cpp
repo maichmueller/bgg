@@ -65,13 +65,13 @@ bool StrategoLogic::is_legal_move(const Board &board, const strat_move_t &move) 
     if(!p_a->is_null()) {
         if(p_a->get_team() == p_b->get_team())
             return false; // cant fight pieces of own m_team
-        if(p_a->get_type() == 99)
+        if(p_a->get_kin() == 99)
             return false; // cant fight obstacle
     }
 
     int move_dist = abs(pos_after[1] - pos_before[1]) + abs(pos_after[0] - pos_before[0]);
     if(move_dist > 1) {
-        if(p_b->get_type() != 2)
+        if(p_b->get_kin() != 2)
             return false;  // not of type 2 , but is supposed to go far
 
         if(pos_after[0] == pos_before[0]) {
@@ -119,7 +119,7 @@ bool StrategoLogic::is_legal_move(const Board &board, const strat_move_t &move) 
 //            // the position we are dealing with
 //            Position pos = piece->get_position();
 //
-//            if(piece->get_type() == 2) {
+//            if(piece->get_kin() == 2) {
 //                // all possible moves to the right until board ends
 //                for(int i = 1; i < m_shape - pos[0]; ++i) {
 //                    Position pos_to = {pos[0] + i, pos[1]};
@@ -186,7 +186,7 @@ std::vector<strat_move_t> StrategoLogic::_get_poss_moves(const Board &board, int
             // the position we are dealing with
             Position pos = piece->get_position();
 
-            if(piece->get_type() == 2) {
+            if(piece->get_kin() == 2) {
                 // all possible moves to the right until board ends
                 for(int i = 1; i < board_len - pos[0]; ++i) {
                     Position pos_to = {pos[0] + i, pos[1]};
@@ -259,7 +259,7 @@ bool StrategoLogic::has_poss_moves(const Board &board, int player) {
             // the position we are dealing with
             Position pos = piece->get_position();
 
-            if(piece->get_type() == 2) {
+            if(piece->get_kin() == 2) {
                 // all possible moves to the right until board ends
                 for(int i = 1; i < board_len - pos[0]; ++i) {
                     Position pos_to = {pos[0] + i, pos[1]};
@@ -390,14 +390,14 @@ std::vector<int> StrategoLogic::get_action_mask(
         std::shared_ptr<Piece> piece = elem->second;
         if(!piece->is_null() && piece->get_team() == player && piece->get_flag_can_move()) {
 
-            std::array<int, 2> type_ver = {piece->get_type(), piece->get_version()};
+            std::array<int, 2> type_ver = {piece->get_kin(), piece->get_version()};
             const auto& [start_idx, act_range] = piece_act_map.at(type_ver);
 
             // the position we are dealing with
             Position pos = piece->get_position();
 
             std::vector<Position> all_pos_targets(4);
-            if(piece->get_type() == 2) {
+            if(piece->get_kin() == 2) {
                 all_pos_targets.resize(board_len - pos[0] - 1 + board_len - pos[1] - 1 + pos[0] + pos[1]);
                 auto all_pos_targets_it = all_pos_targets.begin();
                 // all possible moves to the top until board ends

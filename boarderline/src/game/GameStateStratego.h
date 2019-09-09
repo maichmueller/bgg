@@ -5,10 +5,14 @@
 #pragma once
 
 #include "../board/BoardStratego.h"
+#include "../nn/model/ActionRepresenterStratego.h"
 #include "GameState.h"
+#include "../nn/model/Action.h"
 
 
-class GameStateStratego : public GameState<BoardStratego> {
+class GameStateStratego :
+        public GameState<BoardStratego,
+                         ActionRepStratego> {
 public:
     using base_type = GameState<BoardStratego>;
     using board_type = base_type::board_type;
@@ -19,6 +23,7 @@ public:
 protected:
     using dead_pieces_type = base_type::dead_pieces_type;
     int fight(piece_type& attacker, piece_type& defender);
+    //using base_type::m_board;
 
 public:
     explicit GameStateStratego(int game_dim);
@@ -84,48 +89,9 @@ void GameStateStratego::check_terminal() {
 }
 
 
-int GameStateStratego::is_terminal(bool force_check, int turn) {
-    if(!terminal_checked || force_check)
-        check_terminal(false, turn);
-    return m_terminal;
-}
-
-
-void GameStateStratego::canonical_board(int player) {
-    // if the 0 player is m_team 1, then canonical is false,
-    // if it is 0 otherwise, then the teams are canonical
-    canonical_teams = bool(1 - player);
-}
-
-
-int GameStateStratego::get_canonical_team(Piece& piece){
-    if(canonical_teams) {
-        return piece.get_team();
-    }
-    else {
-        return 1 - piece.get_team();
-    }
-}
-
-
-Position GameStateStratego::get_canonical_pos(Piece& piece){
-    if(canonical_teams) {
-        return piece.get_position();
-    }
-    else {
-        int len = m_board.get_shape();
-        Position pos = piece.get_position();
-        pos[0] = len-1-pos[0];
-        pos[1] = len-1-pos[1];
-        return pos;
-    }
-}
-
-
 int GameStateStratego::fight(Piece &attacker, Piece &defender) {
-    return StrategoLogic::fight_outcome(attacker.get_type(), defender.get_type());
+    return StrategoLogic::fight_outcome(attacker.get_kin(), defender.get_kin());
 }
-
 
 int GameStateStratego::do_move(move_type &move) {
     // preliminaries
@@ -167,7 +133,7 @@ int GameStateStratego::do_move(move_type &move) {
             auto null_piece = std::make_shared<Piece> (from);
             m_board.update_board(from, null_piece);
 
-            m_dead_pieces[piece_to->get_team()][piece_to->get_type()] += 1;
+            m_dead_pieces[piece_to->get_team()][piece_to->get_kin()] += 1;
         }
         else if(fight_outcome == 0) {
             // 0 means stalemate, both die
@@ -176,15 +142,15 @@ int GameStateStratego::do_move(move_type &move) {
             auto null_piece_to = std::make_shared<Piece> (to);
             m_board.update_board(to, null_piece_to);
 
-            m_dead_pieces[piece_from->get_team()][piece_from->get_type()] += 1;
-            m_dead_pieces[piece_to->get_team()][piece_to->get_type()] += 1;
+            m_dead_pieces[piece_from->get_team()][piece_from->get_kin()] += 1;
+            m_dead_pieces[piece_to->get_team()][piece_to->get_kin()] += 1;
         }
         else {
             // -1 means defender won, attacker died
             auto null_piece = std::make_shared<Piece> (from);
             m_board.update_board(from, null_piece);
 
-            m_dead_pieces[piece_from->get_team()][piece_from->get_type()] += 1;
+            m_dead_pieces[piece_from->get_team()][piece_from->get_kin()] += 1;
         }
     }
     else {
@@ -199,24 +165,3 @@ int GameStateStratego::do_move(move_type &move) {
     terminal_checked = false;
     return fight_outcome;
 }
-
-
-torch::Tensor GameStateStratego::torch_represent(int player) {
-    if(!conditions_set) {
-        auto type_counter = utils::counter(GameDeclarations::get_available_types(m_board.get_shape()));
-        conditions_torch_rep = StateRepresentation::create_conditions(type_counter, 0);
-        conditions_set = true;
-    }
-
-    return StateRepresentation::b2s_cond_check(
-            m_board,
-            conditions_torch_rep,
-            player);
-}
-
-
-typename GameStateStratego::move_type
-GameStateStratego::action_to_move(int action, int player) const {
-    int board_len = m_board.get_shape();
-    int action_dim = ActionRep::get_act_rep(board_len).size();
-    return ActionRep::action_to_move(action, action_dim, board_len, actors.at(player), player);

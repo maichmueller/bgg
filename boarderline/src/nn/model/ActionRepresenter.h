@@ -10,96 +10,106 @@
 #include "map"
 #include "unordered_map"
 #include "memory"
+
+#include "torch/torch.h"
+
 #include "../../board/Position.h"
 #include "../../board/Move.h"
 
+#include <experimental/type_traits>
 
-template <typename Vector, typename KinType>
-struct Action {
 
-    using vector_type = Vector;
-    using kin_type = KinType;
+template <typename T>
+using enable_representation_t = decltype( std::declval<T&>().enable_representation() );
+template <typename T>
+using get_action_rep_t = decltype( std::declval<T&>().get_action_rep() );
+template <typename T>
+using state_representation_t = decltype( std::declval<T&>().state_representation() );
+template <typename T>
+using update_actors_t = decltype( std::declval<T&>().update_actors() );
 
-    vector_type m_effect_pl_0;
-    vector_type m_effect_pl_1;
-    kin_type m_piece_id;
-
-    Action(vector_type action, kin_type piece_identifier)
-    : m_effect_pl_0(action), m_effect_pl_1(action.invert()), m_piece_id(piece_identifier)
-    {}
-
-    [[nodiscard]] vector_type get_action(int player) const {
-        if(player) return m_effect_pl_1;
-        else return m_effect_pl_0;
-    }
-    [[nodiscard]] kin_type get_piece_id() const {return m_piece_id;}
-
-    template <typename LengthType, size_t dim>
-    Move<Position<LengthType, dim>> to_move(const Position<LengthType, dim> & pos, int player) {
-        if(player==0)
-            return pos + m_effect_pl_0;
-        else
-            return pos + m_effect_pl_1;
-    }
-};
-
-template <typename Action, typename Piece>
+template<typename Action, typename GameState>
 class ActionRepBase {
 
 public:
     using action_type = Action;
-    using piece_type = Piece;
+    using game_state_type = GameState;
+    using kin_type = typename GameState::kin_type;
 
-    using kin_type = typename Action::kin_type;
-    using hasher = typename kin_type::hash;
-    using eq_comp = typename kin_type::eq_comp;
-    using piece_ident_map = std::unordered_map<kin_type, std::shared_ptr<piece_type>, hasher, eq_comp>;
+    template <typename T>
+    ActionRepBase(const T& obj)
+    : object(std::make_shared<Model<T>>( std::move(obj) ))
+    {
+        static_assert(std::experimental::is_detected<enable_representation_t, decltype(obj)>::value,
+                      "No method 'enable_representation' available!");
+        static_assert(std::experimental::is_detected<get_action_rep_t, decltype(obj)>::value,
+                      "No method 'get_action_rep' available!");
+        static_assert(std::experimental::is_detected<state_representation_t, decltype(obj)>::value,
+                      "No method 'state_representation' available!");
+        static_assert(std::experimental::is_detected<update_actors_t, decltype(obj)>::value,
+                      "No method 'update_actors' available!");
+    }
 
-protected:
-    static const std::vector<action_type > action_rep_vector;
-    std::array<piece_ident_map, 2> actors{};
-
-public:
-    template <typename GameState>
-    virtual void assign_actors(GameState & gs) = 0;
-
-    static auto const & get_act_rep() { return action_rep_vector; }
+    void enable_representation(GameState& gs) { object.assign_vectors(); }
+    void update_actors(int team, kin_type kin) { object.update_actors(team, kin); }
+    const std::vector<Action> * get_act_rep() { return object->get_action_rep_vector(); }
+    torch::Tensor state_representation(int player) { return object->state_representation(player); }
 
     template <typename Position>
     Move<Position> action_to_move(const Position & pos, int action, int player) {
-        return pos + action_rep_vector[action].get_action(player);
+        return pos + get_act_rep()[action].get_effect(player);
     }
 
-    virtual torch::Tensor state_representation(int player) = 0;
+    struct Concept {
+        virtual void assign_actors(GameState & gs) = 0;
+        virtual void update_actors(int team, kin_type kin) = 0;
+        virtual const std::vector<Action> * get_action_rep_vector() = 0;
+        virtual torch::Tensor state_representation(int player) = 0;
+    };
+
+    template< typename T>
+    struct Model : Concept {
+        explicit Model(const T& obj) : object(obj) {}
+        void assign_actors(GameState & gs) override {object.assign_actors(gs);}
+        void update_actors(int team, kin_type kin) override { object.update_actors(team, kin); }
+        const std::vector<Action> * get_act_rep() override { return object->get_action_rep_vector(); }
+        torch::Tensor state_representation(int player) override { return object->state_representation(player); }
+
+    private:
+        T object;
+    };
+
+    std::shared_ptr<const Concept> object;
 };
 
 
-template <typename Action, typename Piece>
-class ActionRepBase {
-
-public:
-    using action_type = Action;
-    using piece_type = Piece;
-
-    using kin_type = typename Action::kin_type;
-    using hasher = typename kin_type::hash;
-    using eq_comp = typename kin_type::eq_comp;
-    using piece_ident_map = std::unordered_map<kin_type, std::shared_ptr<piece_type>, hasher, eq_comp>;
-
-protected:
-    static const std::vector<action_type > action_rep_vector;
-    std::array<piece_ident_map, 2> actors{};
-
-public:
-    template <typename GameState>
-    virtual void assign_actors(GameState & gs) = 0;
-    static auto const & get_act_rep() { return action_rep_vector; }
-
-    template <typename Position>
-    Move<Position> action_to_move(const Position & pos, int action, int player) {
-        return pos + action_rep_vector[action].get_action(player);
-    }
-
-    virtual torch::Tensor state_representation(int player) = 0;
-};
-
+//
+//template <typename Action, typename Piece>
+//class ActionRepBase {
+//
+//public:
+//    using action_type = Action;
+//    using piece_type = Piece;
+//
+//    using kin_type = typename Action::kin_type;
+//    using hasher = typename kin_type::hash;
+//    using eq_comp = typename kin_type::eq_comp;
+//    using piece_ident_map = std::unordered_map<kin_type, std::shared_ptr<piece_type>, hasher, eq_comp>;
+//
+//protected:
+//    static const std::vector<action_type > action_rep_vector;
+//    std::array<piece_ident_map, 2> actors{};
+//
+//public:
+//    template <typename GameState>
+//    virtual void enable_representation(GameState & gs) = 0;
+//    static auto const & get_act_rep() { return action_rep_vector; }
+//
+//    template <typename Position>
+//    Move<Position> action_to_move(const Position & pos, int action, int player) {
+//        return pos + action_rep_vector[action].get_action(player);
+//    }
+//
+//    virtual torch::Tensor state_representation(int player) = 0;
+//};
+//

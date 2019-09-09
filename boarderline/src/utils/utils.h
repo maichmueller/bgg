@@ -92,7 +92,7 @@ namespace utils {
                 if(hide_unknowns && piece.get_flag_hidden() && piece.get_team(flip_board)){
                     return color + std::string(static_cast<unsigned long> (H_SIZE_PER_PIECE), ' ') + reset;
                 }
-//                std::cout << "Piece: type " << piece.get_type() << "." << piece.get_version() << " at (" <<
+//                std::cout << "Piece: type " << piece.get_kin() << "." << piece.get_version() << " at (" <<
 //                                                                                                          piece.get_position()[0] << ", " << piece.get_position()[1] <<") \n";
                 return color + center(std::to_string(piece.get_type()) + '.' + std::to_string(piece.get_version()),
                               H_SIZE_PER_PIECE, " ") + reset ;
