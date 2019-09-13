@@ -13,10 +13,6 @@
 class GameStateStratego : public GameState<BoardStratego, ActionRepStratego> {
 public:
     using base_type = GameState<BoardStratego, ActionRepStratego>;
-    using board_type = base_type::board_type;
-    using position_type = base_type::position_type;
-    using move_type = base_type::move_type;
-    using piece_type = base_type::piece_type;
 
 protected:
     using dead_pieces_type = base_type::dead_pieces_type;

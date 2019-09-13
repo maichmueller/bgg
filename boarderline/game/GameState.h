@@ -8,7 +8,7 @@
 #include "../board/Piece.h"
 #include "../board/Move.h"
 #include "GameUtilsStratego.h"
-#include "../logic/StrategoLogic.h"
+//#include "../logic/StrategoLogic.h"
 #include "unordered_map"
 #include "torch/torch.h"
 
@@ -25,10 +25,11 @@ public:
     using kin_type = typename Board::kin_type;
     using position_type = typename Board::position_type;
     using move_type = Move<position_type >;
+    using action_rep_type = ActionRepType;
 
 protected:
-    friend ActionRepType;
-    ActionRepType m_action_rep;
+    friend action_rep_type;
+    action_rep_type m_action_rep;
     board_type m_board;
 
     using dead_pieces_type = std::array<std::vector<typename piece_type::R>, 2>;
@@ -66,7 +67,7 @@ public:
     virtual void check_terminal() = 0;
     virtual int do_move(const Move<position_type>& move) = 0;
 
-    void register_action_rep(ActionRepType action_rep) {action_rep = std::move(action_rep);}
+    void register_action_rep(action_rep_type action_rep) {action_rep = std::move(action_rep);}
     torch::Tensor state_representation(int player);
     move_type action_to_move(int action, int player) const;
 
@@ -87,7 +88,7 @@ template <class Board, class ActionRepType>
 GameState<Board, ActionRepType>::GameState(const board_type & board,
                                            dead_pieces_type & dead_pieces,
                                            int move_count,
-                                           ActionRepType && action_rep)
+                                           action_rep_type && action_rep)
        : m_board(board),
          m_dead_pieces(std::move(dead_pieces)),
          move_count(move_count),
@@ -153,7 +154,8 @@ int GameState<Board, ActionRepType>::get_canonical_team(piece_type & piece){
 // TODO: Update to new position type
 
 template <class Board, class ActionRepType>
-typename GameState<Board, ActionRepType>::position_type GameState<Board, ActionRepType>::get_canonical_pos(piece_type & piece){
+typename GameState<Board, ActionRepType>::position_type
+GameState<Board, ActionRepType>::get_canonical_pos(piece_type & piece){
     if(canonical_teams) {
         return piece.get_position();
     }

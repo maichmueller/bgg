@@ -24,7 +24,7 @@ public:
     using iterator = typename map_type::iterator;
     using const_iterator = typename map_type::const_iterator;
 
-    static constexpr int m_dim = position_type::dim;
+    static constexpr size_t m_dim = position_type::dim;
 
 protected:
     std::array<size_t, m_dim> m_shape;
@@ -33,8 +33,10 @@ protected:
 
     void check_pos_bounds(const position_type &pos) const;
 
-    void _fill_board_null_pieces(const std::array<int, m_dim> &shape,
-                                 const std::array<int, m_dim> &board_starts);
+    template <size_t dim>
+    void _fill_board_null_pieces(const std::array<size_t, dim> &shape,
+                                 const std::array<int, dim> &board_starts,
+                                 std::array<int, m_dim> && position_pres = std::array<int, m_dim>{0});
 
 public:
     explicit Board(const std::array<int, m_dim> &shape);
@@ -116,14 +118,24 @@ void Board<Piece, Position>::update_board(position_type && pos, std::shared_ptr<
 }
 
 template<typename Piece, typename Position>
-void Board<Piece, Position>::_fill_board_null_pieces(const std::array<int, m_dim> &shape,
-                                                     const std::array<int, m_dim> &board_starts) {
-    for (int i = 0; i < shape; ++i) {
-        for (int j = 0; j < shape; ++j) {
-            position_type pos = {i, j};
-            // create null piece at pos
-            m_board_map[pos] = std::make_shared<piece_type>(pos);
+template <size_t dim>
+void Board<Piece, Position>::_fill_board_null_pieces(const std::array<size_t, dim> &shape,
+                                                     const std::array<int, dim> &board_starts,
+                                                     std::array<int, m_dim> && position_pres) {
+    if constexpr (dim == m_dim) {
+        for (int i = m_board_starts[m_dim-1]; i < static_cast<int>(m_board_starts[m_dim-1] + shape[m_dim-1]); ++i) {
+            position_pres[m_dim -1] = i;
+            _fill_board_null_pieces(shape, board_starts, std::forward<std::array<int, m_dim>>(position_pres));
         }
+    }
+    else if constexpr (dim > 0) {
+        for (int i = m_board_starts[dim-1]; i < static_cast<int>(m_board_starts[dim-1] + shape[dim-1]); ++i) {
+            position_pres[dim -1] = i;
+            _fill_board_null_pieces(shape, board_starts, std::forward<std::array<int, m_dim>>(position_pres));
+        }
+    }
+    else {
+        m_board_map[position_pres] = std::make_shared<piece_type>(position_pres);
     }
 }
 
@@ -150,9 +162,9 @@ Board<Piece, Position>::Board(const std::array<size_t, m_dim> &shape,
                               const std::vector<std::shared_ptr<piece_type>> &setup_1)
         : Board(shape, board_starts) {
 
-    auto setup_unwrap = [&](std::vector<std::shared_ptr<piece_type>> & setup) {
+    auto setup_unwrap = [&](const std::vector<std::shared_ptr<piece_type>> & setup) {
         std::map<position_type, int> seen_pos;
-        for (auto & piece : setup) {
+        for (const auto & piece : setup) {
             position_type pos = piece->get_position();
             if (seen_pos.find(pos) != seen_pos.end()) {
                 //element found

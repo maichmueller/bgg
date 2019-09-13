@@ -12,7 +12,6 @@
 
 struct UUID {
     static std::map<unsigned int, bool> used_indices;
-    int last_used_idx;
 
     static unsigned int get_unique_id() {
         auto it = used_indices.begin();

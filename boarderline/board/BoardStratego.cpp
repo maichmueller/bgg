@@ -13,7 +13,7 @@ std::vector<std::shared_ptr<BoardStratego::piece_type>> BoardStratego::adapt_set
     std::map<int, int> version_count;
     for (auto &elem : setup) {
         position_type pos = elem.first;
-        auto kin = elem.second;
+        auto type = elem.second;
 
         if (seen_pos.find(pos) != seen_pos.end()) {
             //element found
@@ -24,8 +24,8 @@ std::vector<std::shared_ptr<BoardStratego::piece_type>> BoardStratego::adapt_set
         // null constructor of map is called on unplaced previous item (creates 0 int)
         // therefore the first time this is called, will get us to version 0, the first
         // piece of its kind. Afterwards it will keep the count correctly for us.
-        int version = version_count[kin]++;
-        vector_out.push_back(std::make_shared<piece_type>(pos, kin_type{kin, version}, 0));
+        int version = version_count[type]++;
+        vector_out.push_back(std::make_shared<piece_type>(pos, kin_type(type, version), 0));
     }
     return vector_out;
 }

@@ -10,7 +10,7 @@
 #include <sstream>
 
 // forward declare class and operators in conjunction with number types
-template <typename Length, int N>
+template <typename Length, size_t N>
 class Position;
 
 template <typename Number, typename Length, int N>
@@ -20,18 +20,30 @@ template <typename Number, typename Length, int N>
 Position<Length, N> operator/(const Number & n, const Position<Length, N> & pos);
 
 // actual class definition
-template <typename LengthType, int N>
+template <typename LengthType, size_t N>
 class Position {
-    using CoordType = std::array<LengthType, N>;
-    using Iterator = typename CoordType::iterator;
-    using ConstIterator = typename CoordType::const_iterator;
-    CoordType coordinates;
-    static constexpr int dim = N;
 public:
-    template <typename ...TT>
-    explicit Position(TT ...args) : coordinates(args...) {}
-    explicit Position(CoordType coords) : coordinates(std::move(coords)) {};
-    explicit Position(CoordType & coords) : coordinates() {
+    using container_type = std::array<LengthType, N>;
+    using Iterator = typename container_type::iterator;
+    using ConstIterator = typename container_type::const_iterator;
+    static constexpr size_t dim = N;
+private:
+    container_type coordinates;
+
+    template <size_t ... Indices, typename ... Types>
+    Position(std::index_sequence<Indices...>, Types&& ... args)
+    {
+        (static_cast<void>(coordinates[Indices] = args), ...);
+    }
+
+public:
+
+    template <typename ... Types, typename std::enable_if<sizeof...(Types) == N, int>::type = 0>
+    explicit Position(Types&&...args)
+    : Position(std::index_sequence_for<Types...>{}, std::forward<Types>(args)...) {}
+
+    explicit Position(container_type coords) : coordinates(std::move(coords)) {};
+    explicit Position(container_type & coords) : coordinates() {
         for (int i = 0; i < N; ++i) {
             coordinates[i] = coords[i];
         }
@@ -72,72 +84,67 @@ Position<Length, N> operator*(const Number & n, const Position<Length, N> & pos)
 template <typename Number, typename Length, int N>
 Position<Length, N> operator/(const Number & n, const Position<Length, N> & pos) {
     Position<Length, N> p(pos);
-    for(int i = 0; i < N; ++i) {
+    for(size_t i = 0; i < N; ++i) {
         p[i] /= n;
     }
 }
 
-template <typename LengthType, int N>
+template <typename LengthType, size_t N>
 Position<LengthType, N> Position<LengthType, N>::operator+(const Position<LengthType, N> & pos) const {
     Position<LengthType, N> p(*this);
-    for(int i = 0; i < N; ++i) {
+    for(size_t i = 0; i < N; ++i) {
         p[i] += pos[i];
     }
 }
 
-template <typename LengthType, int N>
+template <typename LengthType, size_t N>
 Position<LengthType, N> Position<LengthType, N>::operator-(const Position<LengthType, N> &  pos) const {return *this + (-1 * pos);}
-
-template <typename LengthType, int N>
+template <typename LengthType, size_t N>
 Position<LengthType, N> Position<LengthType, N>::operator*(const Position<LengthType, N> & pos) const {
     Position<LengthType, N> p(*this);
-    for(int i = 0; i < coordinates.size(); ++i) {
+    for(size_t i = 0; i < coordinates.size(); ++i) {
         p[i] *= pos[i];
     }
 }
-
-template <typename LengthType, int N>
+template <typename LengthType, size_t N>
 Position<LengthType, N> Position<LengthType, N>::operator/(const Position<LengthType, N> & pos) const {return *this * (1 / pos);}
-
-template <typename LengthType, int N>
+template <typename LengthType, size_t N>
 template <typename Number>
 Position<LengthType, N> Position<LengthType, N>::operator+(const Number & n) const {
     Position<LengthType, N> p(*this);
-    for(int i = 0; i < N; ++i) {
+    for(size_t i = 0; i < N; ++i) {
         p[i] += n;
     }
 }
-template <typename LengthType, int N>
+template <typename LengthType, size_t N>
 template <typename Number>
 Position<LengthType, N> Position<LengthType, N>::operator-(const Number & n) const {return *this + (-n);}
-
-template <typename LengthType, int N>
+template <typename LengthType, size_t N>
 template <typename Number>
 Position<LengthType, N> Position<LengthType, N>::operator*(const Number & n) const {
     Position<LengthType, N> p(*this);
-    for(int i = 0; i < N; ++i) {
+    for(size_t i = 0; i < N; ++i) {
         p[i] *= n;
     }
 }
-template <typename LengthType, int N>
+template <typename LengthType, size_t N>
 template <typename Number>
 Position<LengthType, N> Position<LengthType, N>::operator/(const Number & n) const {return *this * (1 / n);}
-
-template <typename LengthType, int N>
+template <typename LengthType, size_t N>
 bool Position<LengthType, N>::operator==(const Position & other) const {
-    for(int i = 0; i < N; ++i) {
+    for(size_t i = 0; i < N; ++i) {
         if((*this)[i] != other[i])
             return false;
     }
     return true;
 }
-template <typename LengthType, int N>
+template <typename LengthType, size_t N>
 bool Position<LengthType, N>::operator!=(const Position & other) const {
     return !(*this == other);
 }
-template <typename LengthType, int N>
+template <typename LengthType, size_t N>
 bool Position<LengthType, N>::operator<(const Position & other) const {
-    for(int i = 0; i < N; ++i) {
+    for(size_t i = 0; i < N; ++i) {
         if((*this)[i] < other[i])
             return true;
         else if((*this)[i] > other[i])
@@ -146,9 +153,9 @@ bool Position<LengthType, N>::operator<(const Position & other) const {
     }
     return false;
 }
-template <typename LengthType, int N>
+template <typename LengthType, size_t N>
 bool Position<LengthType, N>::operator>(const Position & other) const {
-    for(int i = 0; i < N; ++i) {
+    for(size_t  i = 0; i < N; ++i) {
         if((*this)[i] > other[i])
             return true;
         else if((*this)[i] < other[i])
@@ -157,13 +164,13 @@ bool Position<LengthType, N>::operator>(const Position & other) const {
     }
     return false;
 }
-template <typename LengthType, int N>
+template <typename LengthType, size_t N>
 std::string Position<LengthType, N>::to_string() {
     std::stringstream ss;
     ss << "(";
-    for(int i = 0; i < N-1; ++i) {
+    for(size_t  i = 0; i < N-1; ++i) {
         ss << std::to_string(coordinates[i]) << ", ";
     }
-    ss << std::to_string(*coordinates.back()) << ")";
+    ss << std::to_string(coordinates.back()) << ")";
     return ss.str();
 }
