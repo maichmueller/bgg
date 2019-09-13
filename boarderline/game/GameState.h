@@ -202,6 +202,6 @@ torch::Tensor GameState<Board, ActionRepType>::state_representation(int player) 
 template <class Board, class ActionRepType>
 typename GameState<Board, ActionRepType>::move_type
 GameState<Board, ActionRepType>::action_to_move(int action, int player) const {
-    return m_action_rep.action_to_move(action, player);
+    return m_action_rep->action_to_move(action, player);
 }
 

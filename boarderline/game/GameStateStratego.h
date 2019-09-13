@@ -10,11 +10,9 @@
 #include "../nn/model/Action.h"
 
 
-class GameStateStratego :
-        public GameState<BoardStratego,
-                         ActionRepStratego> {
+class GameStateStratego : public GameState<BoardStratego, ActionRepStratego> {
 public:
-    using base_type = GameState<BoardStratego>;
+    using base_type = GameState<BoardStratego, ActionRepStratego>;
     using board_type = base_type::board_type;
     using position_type = base_type::position_type;
     using move_type = base_type::move_type;
@@ -23,7 +21,6 @@ public:
 protected:
     using dead_pieces_type = base_type::dead_pieces_type;
     int fight(piece_type& attacker, piece_type& defender);
-    //using base_type::m_board;
 
 public:
     explicit GameStateStratego(int game_dim);
