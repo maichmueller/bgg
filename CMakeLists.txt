@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.13)
 
 project(Boarderline)
+set(CMAKE_CXX_STANDARD 17)
 
 set (APPLICATION_NAME "Boarderline")
 set (APPLICATION_CODENAME "${PROJECT_NAME}")
@@ -8,7 +9,6 @@ set (APPLICATION_COPYRIGHT_YEARS "2019-")
 
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall")
 
-set(CMAKE_CXX_STANDARD 17)
 
 if(UNIX OR APPLE)
     set(CMAKE_PREFIX_PATH deps/libtorch)

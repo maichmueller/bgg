@@ -7,6 +7,7 @@
 #include "../board/Board.h"
 #include "../board/Piece.h"
 #include "../board/Move.h"
+#include "../board/Position.h"
 #include "GameUtilsStratego.h"
 //#include "../logic/StrategoLogic.h"
 #include "unordered_map"
@@ -52,10 +53,15 @@ public:
     explicit GameState(const std::array<int, dim> &shape,
                        const std::array<int, dim> &board_starts);
 
+    explicit GameState(board_type && board,
+                       dead_pieces_type & dead_pieces = dead_pieces_type(),
+                       int move_count = 0,
+                       action_rep_type && action_rep = action_rep_type());
+
     explicit GameState(const board_type & board,
                        dead_pieces_type & dead_pieces = dead_pieces_type(),
                        int move_count = 0,
-                       ActionRepType && action_rep = ActionRepType());
+                       action_rep_type && action_rep = action_rep_type());
 
     template <size_t dim>
     GameState(const std::array<int, dim> &shape,
@@ -84,32 +90,40 @@ public:
     board_type const * get_board() const {return &m_board;}
 };
 
-template <class Board, class ActionRepType>
-GameState<Board, ActionRepType>::GameState(const board_type & board,
-                                           dead_pieces_type & dead_pieces,
+
+template<class Board, class ActionRepType>
+GameState<Board, ActionRepType>::GameState(board_type &&board,
+                                           GameState::dead_pieces_type & dead_pieces,
                                            int move_count,
-                                           action_rep_type && action_rep)
-       : m_board(board),
-         m_dead_pieces(std::move(dead_pieces)),
-         move_count(move_count),
-         terminal_checked(false),
-         m_terminal(404),
-         canonical_teams(true),
-         rounds_without_fight(0),
-         move_equals_prev_move(0),
-         move_history(0),
-         m_action_rep(std::move(action_rep))
+                                           action_rep_type &&action_rep)
+        : m_board(std::move(board)),
+          m_dead_pieces(std::move(dead_pieces)),
+          move_count(move_count),
+          terminal_checked(false),
+          m_terminal(404),
+          canonical_teams(true),
+          rounds_without_fight(0),
+          move_equals_prev_move(0),
+          move_history(0),
+          m_action_rep(std::move(action_rep))
 {
     check_terminal();
     m_action_rep.enable_representation(this);
 }
 
 template <class Board, class ActionRepType>
+GameState<Board, ActionRepType>::GameState(const board_type & board,
+                                           dead_pieces_type & dead_pieces,
+                                           int move_count,
+                                           action_rep_type && action_rep)
+        : GameState(board_type(board), dead_pieces, move_count, action_rep)
+{}
+
+template <class Board, class ActionRepType>
 template <size_t dim>
 GameState<Board, ActionRepType>::GameState(const std::array<int, dim> &shape,
                                            const std::array<int, dim> &board_starts)
-        : m_board(shape, board_starts),
-          GameState(m_board)
+        : GameState(board_type(shape, board_starts))
 {}
 
 template <class Board, class ActionRepType>
@@ -118,8 +132,7 @@ GameState<Board, ActionRepType>::GameState(const std::array<int, dim> &shape,
                                            const std::array<int, dim> &board_starts,
                                            const std::map<position_type, typename piece_type::kin_type>& setup_0,
                                            const std::map<position_type, typename piece_type::kin_type>& setup_1)
-        : m_board(shape, board_starts, setup_0, setup_1),
-          GameState(m_board)
+        : GameState(board_type(shape, board_starts, setup_0, setup_1))
 {}
 
 
@@ -161,7 +174,7 @@ GameState<Board, ActionRepType>::get_canonical_pos(piece_type & piece){
     }
     else {
         int len = m_board.get_shape();
-        Position pos = piece.get_position();
+        position_type pos = piece.get_position();
         pos[0] = len-1-pos[0];
         pos[1] = len-1-pos[1];
         return pos;
@@ -179,8 +192,8 @@ void GameState<Board, ActionRepType>::undo_last_rounds(int n) {
         piece_history.pop_back();
         move_equals_prev_move.pop_back();
 
-        Position from = move[0];
-        Position to = move[1];
+        position_type from = move[0];
+        position_type to = move[1];
         m_board.update_board(from, move_pieces[0]);
         m_board.update_board(to, move_pieces[1]);
         for(const auto& piece: move_pieces) {
@@ -206,4 +219,6 @@ typename GameState<Board, ActionRepType>::move_type
 GameState<Board, ActionRepType>::action_to_move(int action, int player) const {
     return m_action_rep->action_to_move(action, player);
 }
+
+
 

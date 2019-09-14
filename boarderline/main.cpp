@@ -1,7 +1,7 @@
 //#include <iostream>
 //#include "board/Board.h"
 //#include "board/Piece.h"
-//#include "game/GameState.h"
+#include "game/GameState.h"
 ////#include "game/Game.h"
 ////#include "nn/model/NeuralNetwork.h"
 ////#include "nn/training/Coach.h"

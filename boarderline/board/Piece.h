@@ -75,16 +75,14 @@ protected:
     bool m_null_piece = false;
     bool m_hidden;
     bool m_has_moved;
-    bool m_can_move;
 
 public:
     Piece(position_type pos, kin_type type, int team,
-          bool hidden, bool has_moved, bool can_move)
+          bool hidden, bool has_moved)
             : m_pos(pos),
               m_type(type),
               m_team(team),
-              m_hidden(hidden), m_has_moved(has_moved),
-              m_can_move(can_move)
+              m_hidden(hidden), m_has_moved(has_moved)
     {}
 
     Piece(position_type pos, kin_type type, int team)
@@ -94,8 +92,7 @@ public:
 // a Null Piece Constructor
     explicit Piece(const position_type & pos)
             : m_null_piece(true), m_pos(pos), m_team(-1), m_type(),
-              m_hidden(false), m_has_moved(false),
-              m_can_move(false)
+              m_hidden(false), m_has_moved(false)
     {}
 //
 //    ~Piece() {
@@ -121,7 +118,5 @@ public:
     [[nodiscard]] bool get_flag_hidden() const { return m_hidden; }
 
     [[nodiscard]] bool get_flag_has_moved() const { return m_has_moved; }
-
-    [[nodiscard]] bool get_flag_can_move() const { return m_can_move; }
 
 };
