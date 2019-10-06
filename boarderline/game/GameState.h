@@ -71,7 +71,7 @@ public:
 
     int is_terminal(bool force_check=false);
     virtual void check_terminal() = 0;
-    virtual int do_move(const Move<position_type>& move) = 0;
+    virtual int do_move(const move_type & move) = 0;
 
     void register_action_rep(action_rep_type action_rep) {action_rep = std::move(action_rep);}
     torch::Tensor state_representation(int player);

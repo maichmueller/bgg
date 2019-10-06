@@ -74,7 +74,9 @@ public:
 
     [[nodiscard]] const_iterator end() const { return m_board_map.end(); }
 
-    [[nodiscard]] int get_shape() const { return m_shape; }
+    [[nodiscard]] auto get_shape() const { return m_shape; }
+
+    [[nodiscard]] auto get_starts() const { return m_board_starts; }
 
     map_type const *get_map() const { return m_board_map; }
 

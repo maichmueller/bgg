@@ -25,6 +25,7 @@ public:
     using piece_type = typename game_state_type::piece_type;
     using kin_type = typename game_state_type::kin_type;
     using position_type = typename game_state_type::position_type;
+    using move_type = typename game_state_type::move_type;
     using board_type = typename game_state_type::board_type;
     using action_rep_type = typename game_state_type::action_rep_type;
 
@@ -43,8 +44,8 @@ private:
 
     bool m_fixed_setups;
 
-    std::map<position_type, piece_type> extract_pieces_from_setup(const std::vector<sptr_piece_type> & setup);
-    std::map<position_type, piece_type> extract_pieces_from_setup(const std::map<position_type, kin_type> & setup);
+    std::vector<piece_type> extract_pieces_from_setup(const std::vector<sptr_piece_type> & setup);
+    std::vector<piece_type> extract_pieces_from_setup(const std::map<position_type, kin_type> & setup, int team);
 public:
 
     Game(board_type &&board,
@@ -86,13 +87,13 @@ public:
          const std::array<int, dim> &board_starts,
          sptr_ag0_type ag0,
          sptr_ag1_type ag1,
-         bool f_setups = false);
+         bool fixed_setups = false);
 
     void reset();
 
     int run_game(bool show);
 
-    void run_step();
+    int run_step();
 
     void set_flag_fixed_setups(bool f_s) { m_fixed_setups = f_s; }
 
@@ -178,8 +179,7 @@ Game<GameState, Agent0, Agent1>::Game(const std::array<int, dim> &shape,
 {}
 
 template<class GameState, class Agent0, class Agent1>
-std::map<typename Game<GameState, Agent0, Agent1>::position_type,
-         typename Game<GameState, Agent0, Agent1>::piece_type>
+std::vector<typename Game<GameState, Agent0, Agent1>::piece_type>
 Game<GameState, Agent0, Agent1>::extract_pieces_from_setup(const std::vector<sptr_piece_type> &setup) {
     std::vector<piece_type> pc_vec(setup.size());
     std::transform(
@@ -191,7 +191,72 @@ Game<GameState, Agent0, Agent1>::extract_pieces_from_setup(const std::vector<spt
     return pc_vec;
 }
 
+template<class GameState, class Agent0, class Agent1>
+std::vector<typename Game<GameState, Agent0, Agent1>::piece_type>
+Game<GameState, Agent0, Agent1>::extract_pieces_from_setup(const std::map<position_type, kin_type> &setup,
+                                                           int team) {
+    using val_type = typename std::map<position_type, kin_type>::value_type;
+    std::vector<piece_type> pc_vec(setup.size());
+    std::transform(
+            setup.begin(),
+            setup.end(),
+            pc_vec.begin(),
+            [&](const val_type & pos_kin) -> sptr_piece_type {
+                return std::make_shared<piece_type> (pos_kin.first, pos_kin.second, team);
+            }
+    );
+}
 
+template<class GameState, class Agent0, class Agent1>
+void Game<GameState, Agent0, Agent1>::reset() {
+    auto curr_board_ptr = m_game_state->get_board();
+    auto & setup0 = m_setups[0];
+    auto & setup1 = m_setups[1];
+    if(!m_fixed_setups) {
+        auto & setup0 = draw_setup(0);
+        auto & setup1 = draw_setup(1);
+    }
+    m_game_state = game_state_type(
+            board_type(curr_board_ptr->get_shape(),
+                       curr_board_ptr->get_starts(),
+                       setup0,
+                       setup1)
+    );
+}
+
+template<class GameState, class Agent0, class Agent1>
+int Game<GameState, Agent0, Agent1>::run_step() {
+    size_t turn = (m_game_state.get_move_count() + 1) % 2;
+    int outcome;
+    if(turn) {
+        outcome = m_game_state->do_move(m_agent_1->decide_move());
+    }
+    else {
+        outcome = m_game_state->do_move(m_agent_0->decide_move());
+    }
+    return outcome;
+}
+
+template<class GameState, class Agent0, class Agent1>
+int Game<GameState, Agent0, Agent1>::run_game(bool show) {
+    bool game_over = false;
+
+    while(!game_over) {
+        if(show)
+            std::cout << m_game_state->get_board->print_board();
+
+        // test for terminality
+        int outcome = m_game_state.is_terminal();
+
+        std::cout << "Status: " << outcome << std::endl;
+
+        if(outcome != 404)
+            game_over = true;
+        else
+            outcome = run_step();
+
+    return outcome;
+}
 
 
 

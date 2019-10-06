@@ -1,19 +1,19 @@
 cmake_minimum_required(VERSION 3.13)
 
-if(UNIX OR APPLE)
-	set(CMAKE_PREFIX_PATH ../deps/libtorch)
-	#    set(CUDNN_LIBRARY /usr/local/cuda/lib64/libcudnn.so)
-	#    set(CUDNN_INCLUDE_DIR /usr/local/cuda/include)
-ENDIF(UNIX OR APPLE)
-IF(WIN32)
-	IF(CMAKE_BUILD_TYPE STREQUAL "Debug")
-		set(CMAKE_PREFIX_PATH deps/libtorch_debug)
-	ELSE()
-		set(CMAKE_PREFIX_PATH deps/Torch_build/libtorch)
-	ENDIF()
-ENDIF(WIN32)
-
-find_package(Torch REQUIRED)
+#if(UNIX OR APPLE)
+#	set(CMAKE_PREFIX_PATH ../deps/libtorch)
+#	#    set(CUDNN_LIBRARY /usr/local/cuda/lib64/libcudnn.so)
+#	#    set(CUDNN_INCLUDE_DIR /usr/local/cuda/include)
+#ENDIF(UNIX OR APPLE)
+#IF(WIN32)
+#	IF(CMAKE_BUILD_TYPE STREQUAL "Debug")
+#		set(CMAKE_PREFIX_PATH deps/libtorch_debug)
+#	ELSE()
+#		set(CMAKE_PREFIX_PATH deps/Torch_build/libtorch)
+#	ENDIF()
+#ENDIF(WIN32)
+#
+#find_package(Torch REQUIRED)
 
 set(PROJECT_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
 set(PROJECT_SOURCES
