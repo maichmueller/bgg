@@ -86,7 +86,7 @@ public:
     {}
 
     Piece(position_type pos, kin_type type, int team)
-            : Piece(pos, type, team, true, false, true)
+            : Piece(pos, type, team, true, false)
     {}
 
 // a Null Piece Constructor

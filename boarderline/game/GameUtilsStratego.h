@@ -14,10 +14,10 @@
 
 #include "../utils/utils.h"
 
-template <typename TypeType, typename Position>
+template <typename Kin, typename Position>
 struct GameUtilsStratego {
 
-    std::vector<TypeType> available_types;
+    std::vector<Kin> available_types;
     std::vector<Position> valid_start_positions;
 
     constexpr inline std::vector<Position> get_obstacle_positions(int game_len) {

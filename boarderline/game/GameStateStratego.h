@@ -13,9 +13,9 @@
 class GameStateStratego : public GameState<BoardStratego, ActionRepStratego> {
 public:
     using base_type = GameState<BoardStratego, ActionRepStratego>;
+    using base_type::base_type;
 
 protected:
-    using dead_pieces_type = base_type::dead_pieces_type;
     int fight(piece_type& attacker, piece_type& defender);
 
 public:

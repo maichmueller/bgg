@@ -39,6 +39,12 @@ boarderline/cmake-build-debug-clang/*
 boarderline/cmake-build-minsizerel/*
 boarderline/cmake-build-release/*
 boarderline/cmake-build-relwithdebinfo/*
+bin/*
+cmake-build-debug/*
+cmake-build-debug-clang/*
+cmake-build-minsizerel/*
+cmake-build-release/*
+cmake-build-relwithdebinfo/*
 .DS_Store
 boarderline/.DS_Store
 out/*

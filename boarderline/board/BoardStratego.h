@@ -21,8 +21,8 @@ public:
     using base_type::base_type;
     // also specializing one
     BoardStratego(const std::array<size_t, m_dim> &shape,
-                  const std::map<position_type , int> &setup_0,
-                  const std::map<position_type , int> &setup_1)
+                  const std::map<position_type, int> &setup_0,
+                  const std::map<position_type, int> &setup_1)
             : base_type(shape, adapt_setup(setup_0), adapt_setup(setup_1))
             {}
 private:

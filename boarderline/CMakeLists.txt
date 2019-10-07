@@ -1,19 +1,22 @@
 cmake_minimum_required(VERSION 3.13)
 
-#if(UNIX OR APPLE)
+#if(UNIX)
 #	set(CMAKE_PREFIX_PATH ../deps/libtorch)
-#	#    set(CUDNN_LIBRARY /usr/local/cuda/lib64/libcudnn.so)
-#	#    set(CUDNN_INCLUDE_DIR /usr/local/cuda/include)
-#ENDIF(UNIX OR APPLE)
+	#    set(CUDNN_LIBRARY /usr/local/cuda/lib64/libcudnn.so)
+	#    set(CUDNN_INCLUDE_DIR /usr/local/cuda/include)
+
+#	find_package(Torch REQUIRED)
+#ENDIF(UNIX)
 #IF(WIN32)
 #	IF(CMAKE_BUILD_TYPE STREQUAL "Debug")
 #		set(CMAKE_PREFIX_PATH deps/libtorch_debug)
 #	ELSE()
 #		set(CMAKE_PREFIX_PATH deps/Torch_build/libtorch)
 #	ENDIF()
-#ENDIF(WIN32)
 #
-#find_package(Torch REQUIRED)
+#	find_package(Torch REQUIRED)
+#ENDIF(WIN32)
+
 
 set(PROJECT_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
 set(PROJECT_SOURCES
@@ -37,8 +40,9 @@ set(PROJECT_SOURCES
 #		${PROJECT_SOURCE_DIR}/utils/UniversallyUniqueId.h
 #
 		${PROJECT_SOURCE_DIR}/board/PieceStratego.h
-#		${PROJECT_SOURCE_DIR}/game/GameStateStratego.h
-#		${PROJECT_SOURCE_DIR}/board/BoardStratego.cpp
+		${PROJECT_SOURCE_DIR}/board/BoardStratego.cpp
+		${PROJECT_SOURCE_DIR}/game/GameStateStratego.h
+		${PROJECT_SOURCE_DIR}/game/GameStratego.h
 #		${PROJECT_SOURCE_DIR}/nn/model/Action.h
 #		${PROJECT_SOURCE_DIR}/nn/model/ActionRepresenterStratego.cpp
 		)
