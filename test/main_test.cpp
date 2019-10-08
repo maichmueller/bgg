@@ -85,7 +85,7 @@ int main(int argc, char const *argv[])
 //    auto game = std::make_shared<Game>(5, agent_0, agent_1, setup0, setup1);
 //    auto * board = game->get_gamestate()->get_board();
 //    std::cout  << utils::board_str_rep<Board, Piece>(*board, false, false) << "\n";
-//    auto valids = StrategoLogic::get_action_mask(
+//    auto valids = LogicStratego::get_action_mask(
 //            *board,
 //            ActionRep::get_act_rep(board->get_shape()),
 //            ActionRep::get_act_map(board->get_shape()),
@@ -94,7 +94,7 @@ int main(int argc, char const *argv[])
 //        strat_move_t move = game->get_gamestate()->action_to_move(i, 0);
 //        std::cout << "(" << move[0][0] << ", " << move[0][1] << ") -> (" << move[1][0] << ", " << move[1][1] << ") \t valid: " << valids[i] << "\n";
 //    }
-//    auto action_mask = StrategoLogic::get_action_mask(
+//    auto action_mask = LogicStratego::get_action_mask(
 //            *board,
 //            ActionRep::get_act_rep(board->get_shape()),
 //            ActionRep::get_act_map(board->get_shape()),

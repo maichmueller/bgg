@@ -2,10 +2,12 @@
 #pragma once
 
 #include "ActionRepresenter.h"
+#include "Action.h"
+#include "../../game/GameStateStratego.h"
 
 
 class ActionRepStratego : ActionRepBase<Action<typename GameStateStratego::position_type,
-                                               typename GameStateStratego::piece_type ::kin_type>,
+                                               typename GameStateStratego::piece_type::kin_type>,
                                         typename GameStateStratego::piece_type::kin_type> {
 public:
     using game_state_type = GameStateStratego;

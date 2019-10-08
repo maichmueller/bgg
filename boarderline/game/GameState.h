@@ -9,7 +9,7 @@
 #include "../board/Move.h"
 #include "../board/Position.h"
 #include "GameUtilsStratego.h"
-//#include "../logic/StrategoLogic.h"
+//#include "../logic/LogicStratego.h"
 #include "unordered_map"
 #include "torch/torch.h"
 

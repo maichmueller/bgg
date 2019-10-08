@@ -13,7 +13,7 @@
 #include "../../game/GameState.h"
 
 #include "../training/StateRepresentation.h"
-#include "../../logic/StrategoLogic.h"
+#include "../../logic/LogicStratego.h"
 
 
 class MCTS {

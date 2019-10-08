@@ -2,13 +2,13 @@
 // Created by Michael on 28/02/2019.
 //
 
-#include "StrategoLogic.h"
+#include "LogicStratego.h"
 
 
-// StrategoLogic
+// LogicStratego
 
 
-std::map<Position, int> StrategoLogic::initialize_battle_matrix() {
+std::map<Position, int> LogicStratego::initialize_battle_matrix() {
     std::map<std::array<int,2>, int> bm;
     for(int i = 1; i < 11; ++i) {
         bm[{i, i}] = 0;
@@ -26,24 +26,24 @@ std::map<Position, int> StrategoLogic::initialize_battle_matrix() {
     return bm;
 }
 
-const std::map<std::array<int, 2>, int> StrategoLogic::battle_matrix = StrategoLogic::initialize_battle_matrix();
+const std::map<std::array<int, 2>, int> LogicStratego::battle_matrix = LogicStratego::initialize_battle_matrix();
 
-void StrategoLogic::_invert_pos(int &len, Position &pos) {
+void LogicStratego::_invert_pos(int &len, Position &pos) {
     pos[0] = len - 1 - pos[0];
     pos[1] = len - 1 - pos[1] ;
 }
 
-void StrategoLogic::_invert_move(strat_move_t &move, int &len) {
-    StrategoLogic::_invert_pos(len, move[0]);
-    StrategoLogic::_invert_pos(len, move[1]);
+void LogicStratego::_invert_move(strat_move_t &move, int &len) {
+    LogicStratego::_invert_pos(len, move[0]);
+    LogicStratego::_invert_pos(len, move[1]);
 }
-int StrategoLogic::_invert_team(int team) {
+int LogicStratego::_invert_team(int team) {
     return 1 - team;
 }
 
 
 
-bool StrategoLogic::is_legal_move(const Board &board, const strat_move_t &move) {
+bool LogicStratego::is_legal_move(const Board &board, const strat_move_t &move) {
     int board_len = board.get_shape() - 1;
 
     const auto & [pos_before, pos_after] = move;
@@ -101,14 +101,14 @@ bool StrategoLogic::is_legal_move(const Board &board, const strat_move_t &move) 
 }
 
 
-//std::vector<strat_move_t> StrategoLogic::get_poss_moves(const Board &board, int player, bool flip_teams) {
+//std::vector<strat_move_t> LogicStratego::get_poss_moves(const Board &board, int player, bool flip_teams) {
 //
-//    std::function<void(int&, strat_move_t&)> canonize_move = &StrategoLogic::move_ident;
-//    std::function<int(int)> canonize_team = &StrategoLogic::team_ident;
+//    std::function<void(int&, strat_move_t&)> canonize_move = &LogicStratego::move_ident;
+//    std::function<int(int)> canonize_team = &LogicStratego::team_ident;
 //
 //    if(flip_teams) {
-//        canonize_move = &StrategoLogic::move_invert;
-//        canonize_team = &StrategoLogic::team_invert;
+//        canonize_move = &LogicStratego::move_invert;
+//        canonize_team = &LogicStratego::team_invert;
 //    }
 //
 //    int m_shape = board.get_shape();
@@ -177,7 +177,7 @@ bool StrategoLogic::is_legal_move(const Board &board, const strat_move_t &move) 
 //    return moves_possible;
 //}
 
-std::vector<strat_move_t> StrategoLogic::_get_poss_moves(const Board &board, int player) {
+std::vector<strat_move_t> LogicStratego::_get_poss_moves(const Board &board, int player) {
     int board_len = board.get_shape();
     std::vector<strat_move_t> moves_possible;
     for( auto elem = board.begin(); elem != board.end(); ++elem) {
@@ -239,7 +239,7 @@ std::vector<strat_move_t> StrategoLogic::_get_poss_moves(const Board &board, int
     return moves_possible;
 }
 
-std::vector<strat_move_t> StrategoLogic::get_poss_moves(const Board &board, int player, bool flip_board) {
+std::vector<strat_move_t> LogicStratego::get_poss_moves(const Board &board, int player, bool flip_board) {
     std::vector<strat_move_t> moves = _get_poss_moves(board, player);
     if(flip_board) {
         int board_len = board.get_shape();
@@ -250,7 +250,7 @@ std::vector<strat_move_t> StrategoLogic::get_poss_moves(const Board &board, int 
     return moves;
 }
 
-bool StrategoLogic::has_poss_moves(const Board &board, int player) {
+bool LogicStratego::has_poss_moves(const Board &board, int player) {
 
     int board_len = board.get_shape();
     for( auto elem = board.begin(); elem != board.end(); ++elem) {
@@ -306,7 +306,7 @@ bool StrategoLogic::has_poss_moves(const Board &board, int player) {
     return false;
 }
 
-int StrategoLogic::_find_action_idx(std::vector<strat_move_base_t> &vec_to_search, strat_move_base_t &action_to_find) {
+int LogicStratego::_find_action_idx(std::vector<strat_move_base_t> &vec_to_search, strat_move_base_t &action_to_find) {
 
     // func to find a specific vector in another (assuming types are all known)
 
@@ -352,7 +352,7 @@ int StrategoLogic::_find_action_idx(std::vector<strat_move_base_t> &vec_to_searc
  * @param pos_to the target position.
  * @param flip_board switch to flip the for player 1.
  */
-void StrategoLogic::enable_action_if_legal(std::vector<int>& action_mask, const Board& board,
+void LogicStratego::enable_action_if_legal(std::vector<int>& action_mask, const Board& board,
                                            int act_range_start,
                                            const std::vector<strat_move_base_t >& action_arr,
                                            const std::vector<int>& act_range,
@@ -372,13 +372,13 @@ void StrategoLogic::enable_action_if_legal(std::vector<int>& action_mask, const 
         for(unsigned long idx = 0; idx < slice.size(); ++idx) {
             slice[idx] = action_arr[act_range[idx]];
         }
-        int idx = StrategoLogic::_find_action_idx(slice, action_effect);
+        int idx = LogicStratego::_find_action_idx(slice, action_effect);
         action_mask[act_range_start + idx] = 1;
     }
 };
 
 
-std::vector<int> StrategoLogic::get_action_mask(
+std::vector<int> LogicStratego::get_action_mask(
         const Board &board, const std::vector<strat_move_base_t >& action_arr,
         const std::map<std::array<int, 2>, std::tuple<int, std::vector<int>>>& piece_act_map,
         int player) {
@@ -426,7 +426,7 @@ std::vector<int> StrategoLogic::get_action_mask(
 
             }
             for(auto& pos_to : all_pos_targets) {
-                StrategoLogic::enable_action_if_legal(action_mask, board,
+                LogicStratego::enable_action_if_legal(action_mask, board,
                                                       start_idx, action_arr, act_range,
                                                       pos, pos_to,
                                                       player);

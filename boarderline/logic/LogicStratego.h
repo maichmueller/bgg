@@ -8,7 +8,7 @@
 #include "../board/Board.h"
 #include <functional>
 
-class StrategoLogic {
+class LogicStratego {
 
     static void enable_action_if_legal(std::vector<int> & action_mask, const Board& board,
                                        int act_range_start,

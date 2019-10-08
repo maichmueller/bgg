@@ -6,7 +6,7 @@
 #define STRATEGO_CPP_AGENT_H
 
 #include "../game/GameUtilsStratego.h"
-#include "../logic/StrategoLogic.h"
+#include "../logic/LogicStratego.h"
 #include "../board/Board.h"
 #include "../utils/RandomSelector.h"
 #include "vector"
