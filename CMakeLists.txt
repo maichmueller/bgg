@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.13)
 
-project(Boarderline)
+project(Boarderline CXX)
 set(CMAKE_CXX_STANDARD 17)
 
 set (APPLICATION_NAME "Boarderline")

@@ -42,7 +42,7 @@ public:
     {}
 
     strat_move_t decide_move(const Board &board) override {
-        std::vector<strat_move_t> poss_moves = StrategoLogic::get_poss_moves(board, m_team);
+        std::vector<strat_move_t> poss_moves = LogicStratego::get_poss_moves(board, m_team);
 
         std::uniform_int_distribution<std::mt19937::result_type> dist(0, poss_moves.size()-1);
 

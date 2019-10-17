@@ -10,9 +10,9 @@
 #include "../nn/model/Action.h"
 
 
-class GameStateStratego : public GameState<BoardStratego, ActionRepStratego> {
+class GameStateStratego : public GameState<BoardStratego> {
 public:
-    using base_type = GameState<BoardStratego, ActionRepStratego>;
+    using base_type = GameState<BoardStratego>;
     using base_type::base_type;
 
 protected:
@@ -55,10 +55,10 @@ void GameStateStratego::check_terminal() {
         return;
     }
 
-    if (!StrategoLogic::has_poss_moves(m_board, 0)) {
+    if (!LogicStratego::has_poss_moves(m_board, 0)) {
         m_terminal = -2;
         return;
-    } else if (!StrategoLogic::has_poss_moves(m_board, 1)) {
+    } else if (!LogicStratego::has_poss_moves(m_board, 1)) {
         m_terminal = 2;
         return;
     }
@@ -83,7 +83,7 @@ void GameStateStratego::check_terminal() {
 
 
 int GameStateStratego::fight(Piece &attacker, Piece &defender) {
-    return StrategoLogic::fight_outcome(attacker.get_kin(), defender.get_kin());
+    return LogicStratego::fight_outcome(attacker.get_kin(), defender.get_kin());
 }
 
 int GameStateStratego::do_move(move_type &move) {

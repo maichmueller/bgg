@@ -326,6 +326,8 @@ int LogicStratego::_find_action_idx(std::vector<strat_move_base_t> &vec_to_searc
         return idx;
 }
 
+
+
 /**
  * Method to check a move (as given by @pos and @pos_to) for validity on the @board. If the move
  * is legal, its associated action will be enabled (vector position set to 1) in the provided @action_mask.
@@ -426,10 +428,10 @@ std::vector<int> LogicStratego::get_action_mask(
 
             }
             for(auto& pos_to : all_pos_targets) {
-                LogicStratego::enable_action_if_legal(action_mask, board,
-                                                      start_idx, action_arr, act_range,
-                                                      pos, pos_to,
-                                                      player);
+                LogicStratego::_enable_action_if_legal(action_mask, board,
+                                                       start_idx, action_arr, act_range,
+                                                       pos, pos_to,
+                                                       player);
             }
         }
     }

@@ -7,7 +7,7 @@
 template <typename Vector, typename KinType>
 struct Action {
 
-    using vector_type = Vector;
+    using vector_type = Vector; // not associated with the std::vector
     using kin_type = KinType;
 
     vector_type m_effect_pl_0;

@@ -10,26 +10,26 @@ class ActionRepStratego : ActionRepBase<Action<typename GameStateStratego::posit
                                                typename GameStateStratego::piece_type::kin_type>,
                                         typename GameStateStratego::piece_type::kin_type> {
 public:
-    using game_state_type = GameStateStratego;
-    using position_type = game_state_type::position_type;
-    using kin_type = game_state_type::piece_type::kin_type;
-    using move_type = game_state_type::move_type;
-    using piece_type = game_state_type::piece_type;
-    using board_type = game_state_type::board_type;
+    using state_type = GameStateStratego;
+    using position_type = state_type::position_type;
+    using kin_type = state_type::piece_type::kin_type;
+    using move_type = state_type::move_type;
+    using piece_type = state_type::piece_type;
+    using board_type = state_type::board_type;
     using action_type = Action<position_type, kin_type>;
     static_assert(std::is_same<typename move_type::position_type, typename board_type::position_type>::value);
 };
 
 class ActionRepStrategoExectutor {
-    using game_state_type = GameStateStratego;
-    using position_type = game_state_type::position_type;
-    using kin_type = game_state_type::piece_type::kin_type;
+    using state_type = GameStateStratego;
+    using position_type = state_type::position_type;
+    using kin_type = state_type::piece_type::kin_type;
 
     using cond_type = std::tuple<int, kin_type, bool>;
 
     torch::Tensor state_representation(int action, int player);
 
-    void assign_actors(game_state_type & gs) {
+    void assign_actors(state_type & gs) {
         for(const auto& entry: gs.get_board()) {
             const auto& piece = entry.second;
             if(!piece->is_null() && piece->get_kin() != kin_type{99, 99};

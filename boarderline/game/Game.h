@@ -18,21 +18,21 @@
 template<class GameState>
 class Game {
 public:
-    using game_state_type = GameState;
+    using state_type = GameState;
 
-    using piece_type = typename game_state_type::piece_type;
-    using kin_type = typename game_state_type::kin_type;
-    using position_type = typename game_state_type::position_type;
-    using move_type = typename game_state_type::move_type;
-    using board_type = typename game_state_type::board_type;
-    using action_rep_type = typename game_state_type::action_rep_type;
+    using piece_type = typename state_type::piece_type;
+    using kin_type = typename state_type::kin_type;
+    using position_type = typename state_type::position_type;
+    using move_type = typename state_type::move_type;
+    using board_type = typename state_type::board_type;
+    using action_rep_type = typename state_type::action_rep_type;
 
     using sptr_piece_type = std::shared_ptr<piece_type>;
-    using dead_pieces_type = typename game_state_type::dead_pieces_type;
+    using dead_pieces_type = typename state_type::dead_pieces_type;
 
 protected:
 
-    game_state_type m_game_state;
+    state_type m_game_state;
 
     std::shared_ptr<Agent> m_agent_0;
     std::shared_ptr<Agent> m_agent_1;
@@ -104,7 +104,7 @@ public:
 
     std::shared_ptr<Agent> get_agent_1() { return m_agent_1; }
 
-    const game_state_type *get_gamestate() const { return &m_game_state; }
+    const state_type *get_gamestate() const { return &m_game_state; }
 
     virtual std::map<position_type, sptr_piece_type> draw_setup(int team) = 0;
 };
@@ -214,7 +214,7 @@ void Game<GameState>::reset() {
         auto &setup0 = draw_setup(0);
         auto &setup1 = draw_setup(1);
     }
-    m_game_state = game_state_type(
+    m_game_state = state_type(
             board_type(curr_board_ptr->get_shape(),
                        curr_board_ptr->get_starts(),
                        setup0,

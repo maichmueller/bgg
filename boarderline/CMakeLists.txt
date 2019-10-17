@@ -28,7 +28,7 @@ set(PROJECT_SOURCES
 		${PROJECT_SOURCE_DIR}/nn/model/ActionRepresenter.h
 		${PROJECT_SOURCE_DIR}/game/Game.h
 		#		${PROJECT_SOURCE_DIR}/game/GameUtilsStratego.h
-		${PROJECT_SOURCE_DIR}/logic/StrategoLogic.cpp
+		${PROJECT_SOURCE_DIR}/logic/LogicStratego.cpp
 		${PROJECT_SOURCE_DIR}/logic/Logic.h
 		#		${PROJECT_SOURCE_DIR}/agent/Agent.cpp
 		#		${PROJECT_SOURCE_DIR}/utils/RandomSelector.h

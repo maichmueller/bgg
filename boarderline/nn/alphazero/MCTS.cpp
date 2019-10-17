@@ -91,7 +91,7 @@ std::tuple<std::vector<float>, std::vector<int>, double> MCTS::_evaluate_new_sta
     Ps = Ps.view(-1); // flatten the tensor as the first m_dim is the batch size m_dim
 
     // mask for invalid actions
-    auto action_mask = StrategoLogic::get_action_mask(
+    auto action_mask = LogicStratego::get_action_mask(
             *board,
             ActionRep::get_act_rep(board_len),
             ActionRep::get_act_map(board_len),
@@ -189,7 +189,7 @@ double MCTS::_search(GameState& state, int player, bool root) {
 //    }
 //    const Board * board = state.get_board();
 //    int m_shape = board->get_shape();
-//    auto action_mask = StrategoLogic::get_action_mask(
+//    auto action_mask = LogicStratego::get_action_mask(
 //            *board,
 //            ActionRep::get_act_rep(m_shape),
 //            ActionRep::get_act_map(m_shape),
