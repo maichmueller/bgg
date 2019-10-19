@@ -17,10 +17,7 @@
 template <typename Kin, typename Position>
 struct GameUtilsStratego {
 
-    std::vector<Kin> available_types;
-    std::vector<Position> valid_start_positions;
-
-    constexpr inline std::vector<Position> get_obstacle_positions(int game_len) {
+    static inline std::vector<Position> get_obstacle_positions(int game_len) {
         if (game_len == 5)
             return {{2, 2}};
         else if (game_len == 7)
@@ -31,7 +28,7 @@ struct GameUtilsStratego {
             throw std::invalid_argument("'game_len' not in [5, 7, 10].");
     }
 
-    inline std::vector<int> get_available_types(int game_len) {
+    static inline std::vector<int> get_available_types(int game_len) {
         if (game_len == 5)
             return  {0, 1, 2, 2, 2, 3, 3, 10, 11, 11};
         else if (game_len == 7)
@@ -46,7 +43,7 @@ struct GameUtilsStratego {
             throw std::invalid_argument("'game_len' not in [5, 7, 10].");
     }
 
-    inline std::vector<Position> get_start_positions(int game_len, int team) {
+    static inline std::vector<Position> get_start_positions(int game_len, int team) {
         if(team != 0 && team != 1)
             throw std::invalid_argument("'team' not in {0, 1}.");
 

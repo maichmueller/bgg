@@ -10,6 +10,7 @@
 #include "memory"
 
 #include "Piece.h"
+#include "Move.h"
 #include "../game/GameUtilsStratego.h"
 #include "../utils/utils.h"
 
@@ -20,6 +21,7 @@ public:
     using piece_type = Piece;
     using kin_type = typename piece_type::kin_type;
     using position_type = Position;
+    using move_type = Move<position_type>;
     using map_type = std::map<Position, std::shared_ptr<Piece>>;
     using iterator = typename map_type::iterator;
     using const_iterator = typename map_type::const_iterator;
