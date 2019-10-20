@@ -2,6 +2,8 @@
 //#include "board/Board.h"
 //#include "board/Piece.h"
 #include "game/GameState.h"
+
+#include "game/GameStateStratego.h"
 ////#include "game/Game.h"
 ////#include "nn/model/NeuralNetwork.h"
 ////#include "nn/training/Coach.h"
@@ -26,12 +28,9 @@
 
 
 int main() {
-    PieceStratego::position_type pos(0,0);
-    PieceStratego::kin_type kin(7, 4);
-    PieceStratego p(pos, kin, 0);
-    auto sptr = std::make_shared<PieceStratego>(pos,kin, 0);
 
-    std::cout<< *sptr->get_kin_begin() ;//<< kin.specifiers[3];
+    auto gs = GameStateStratego();
+
 }
 
 

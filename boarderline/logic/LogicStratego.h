@@ -5,84 +5,250 @@
 #pragma once
 
 #include "../board/Board.h"
+#include "../board/Move.h"
+#include "Logic.h"
+#include "../board/BoardStratego.h"
+
 #include <functional>
 
-class LogicStratego {
+template <class Board>
+struct LogicStratego : public Logic<Board, LogicStratego<Board>>{
+    using base_type = Logic<Board, LogicStratego<Board>>;
+    using board_type = typename base_type::board_type;
+    using move_type = typename base_type::move_type;
+    using kin_type = typename board_type::kin_type;
 
-    template <typename Board, typename Move, typename Position>
-    static void _enable_action_if_legal(std::vector<int> & action_mask, const Board& board,
-                                        int act_range_start,
-                                        const std::vector<Move> & action_arr,
-                                        const std::vector<int> & act_range,
-                                        const Position & pos, const Position & pos_to,
-                                        const bool flip_board= false);
+    static const std::map<std::array<int, 2>, int> battle_matrix;
+    static std::map<std::array<int, 2>, int> initialize_battle_matrix();
 
-    template <typename Move>
-    static int _find_action_idx(std::vector<Move> &vec_to_search, Move &action_to_find);
+    static bool is_legal_move(const board_type & board, const move_type & move);
 
-    template <typename Position>
-    static inline void _invert_pos(int &len, Position &pos);
+    static std::vector<move_type> get_legal_moves(
+            const board_type & board,
+            int player,
+            bool flip_board=false
+    );
 
-    template <typename Move>
-    static inline void _invert_move(Move &move, int &len);
+    static bool has_legal_moves(const board_type & board, int player);
 
-    static inline int _invert_team(int team);
-
-    template <typename Board, typename Move>
-    static std::vector<Move> _get_poss_moves(const Board & board, int player);
-
-public:
-
-    static const std::map<std::array<int,2>, int> battle_matrix;
-    static std::map<std::array<int,2>, int> initialize_battle_matrix();
-
-    template <typename Board, typename Move>
-    static bool is_legal_move(const Board & board, const Move & move);
-
-    template <typename Board, typename Move>
-    static std::vector<Move> get_poss_moves(const Board & board, int player, bool flip_board=false);
-
-    template <typename Board>
-    static bool has_poss_moves(const Board & board, int player);
-
-    template <typename Board, typename Move>
-    static std::vector<int> get_action_mask(
-            const Board& board,
-            const std::vector<Move>& action_arr,
-            const std::map<
-                    std::array<int, 2>,
-                    std::tuple<int, std::vector<int>>
-                            > & piece_act_map,
-            int player);
-
-    static std::map<std::array<int,2>, int> get_battle_matrix() {return battle_matrix;}
-    static int fight_outcome(int attacker, int defender) {return battle_matrix.find({attacker, defender})->second;}
-    static int fight_outcome(std::array<int, 2> att_def) {return battle_matrix.find(att_def)->second;}
+    static std::map<std::array<int, 2>, int> get_battle_matrix() {return battle_matrix;}
+    static int fight_outcome(kin_type attacker, kin_type defender) {
+        return battle_matrix.find({attacker[0], defender[0]})->second;
+    }
+    static int fight_outcome(std::array<kin_type, 2> att_def) {
+        return fight_outcome(att_def[0], att_def[1]);
+    }
 
 
 };
 
-const std::map<std::array<int,2>, int> LogicStratego::battle_matrix = initialize_battle_matrix();
 
-template<typename Board, typename Action, typename Position>
-void LogicStratego::_enable_action_if_legal(std::vector<int> &action_mask, const Board &board, int act_range_start,
-                                            const std::vector <Action> &action_arr, const std::vector<int> &act_range,
-                                            const Position &pos, const Position &pos_to, const bool flip_board) {
 
-    Move move = {pos, pos_to};
+template<typename Board>
+bool LogicStratego<Board>::is_legal_move(const board_type &board, const move_type &move) {
+    int shape_x = board.get_shape()[0];
+    int shape_y = board.get_shape()[1];
+    int starts_x = board.get_starts()[0];
+    int starts_y = board.get_starts()[1];
+    using piece_type = typename board_type::piece_type;
+    const auto & [pos_before, pos_after] = move;
 
-    if(is_legal_move(board, move)) {
-        Action action_effect;
+    if(pos_before[0] < starts_x || pos_before[0] > starts_x + shape_x)
+        return false;
+    if(pos_before[1] < starts_y || pos_before[1] > starts_y + shape_y)
+        return false;
+    if(pos_after[0] < starts_x || pos_after[0] > starts_x + shape_x)
+        return false;
+    if(pos_after[1] < starts_y || pos_after[1] > starts_y + shape_y)
+        return false;
 
-        if(flip_board)
-            action_effect = {pos[0] - pos_to[0], pos[1] - pos_to[1]};
-        else
-            action_effect = {pos_to[0] - pos[0], pos_to[1] - pos[1]};
-        std::vector<strat_move_base_t > slice(act_range.size());
-        for(unsigned long idx = 0; idx < slice.size(); ++idx) {
-            slice[idx] = action_arr[act_range[idx]];
-        }
-        int idx = LogicStratego::_find_action_idx(slice, action_effect);
-        action_mask[act_range_start + idx] = 1;
+    std::shared_ptr<piece_type > p_b = board[pos_before];
+    std::shared_ptr<piece_type > p_a = board[pos_after];
+
+    if(p_b->is_null())
+        return false;
+    if(!p_a->is_null()) {
+        if(p_a->get_team() == p_b->get_team())
+            return false; // cant fight pieces of own team
+        if(p_a->get_kin() == 99)
+            return false; // cant fight obstacle
     }
+
+    int move_dist = abs(pos_after[1] - pos_before[1]) + abs(pos_after[0] - pos_before[0]);
+    if(move_dist > 1) {
+        if(p_b->get_kin()[0] != 2)
+            return false;  // not of type 2 , but is supposed to go far
+
+        if(pos_after[0] == pos_before[0]) {
+            int dist = pos_after[1] - pos_before[1];
+            int sign = (dist >= 0) ? 1 : -1;
+            for(int i = 1; i < std::abs(dist); ++i) {
+                Position pos = {pos_before[0], pos_before[1] + sign * i};
+                if(!board[pos]->is_null())
+                    return false;
+            }
+        }
+
+        else if(pos_after[1] == pos_before[1]) {
+            int dist = pos_after[0] - pos_before[0];
+            int sign = (dist >= 0) ? 1 : -1;
+            for(int i = 1; i < std::abs(dist); ++i) {
+                Position pos = {pos_before[0] + sign * i, pos_before[1]};
+                if(!board[pos]->is_null())
+                    return false;
+            }
+        }
+
+        else
+            return false;  // diagonal moves not allowed
+    }
+    return true;
+}
+
+template <class Board>
+std::vector<typename LogicStratego<Board>::move_type>
+LogicStratego<Board>::get_legal_moves(const board_type &board, int player, bool flip_board) {
+    using move_type = typename board_type::move_type;
+    using position_type = typename board_type::position_type;
+    using piece_type = typename board_type::piece_type;
+
+    int shape_x = board.get_shape()[0];
+    int shape_y = board.get_shape()[1];
+    int starts_x = board.get_starts()[0];
+    int starts_y = board.get_starts()[1];
+    std::vector<move_type > moves_possible;
+    for( auto elem = board.begin(); elem != board.end(); ++elem) {
+        std::shared_ptr<piece_type> piece = elem->second;
+        if(!piece->is_null() && piece->get_team() == player && piece->get_flag_can_move()) {
+            // the position we are dealing with
+            Position pos = piece->get_position();
+
+            if(piece->get_kin() == 2) {
+                // all possible moves to the right until board ends
+                for(int i = 1; i < starts_x + shape_x - pos[0]; ++i) {
+                    position_type pos_to{pos[0] + i, pos[1]};
+                    move_type move{pos, pos_to};
+                    if(is_legal_move(board, move)) {
+                        moves_possible.push_back(move);
+                    }
+                }
+                // all possible moves to the top until board ends
+                for(int i = 1; i < starts_y + shape_y - pos[1]; ++i) {
+                    position_type  pos_to{pos[0], pos[1] + i};
+                    move_type move{pos, pos_to};
+                    if(is_legal_move(board, move)) {
+                        moves_possible.push_back(move);
+                    }
+                }
+                // all possible moves to the left until board ends
+                for(int i = 1; i < starts_x + pos[0] + 1; ++i) {
+                    position_type  pos_to{pos[0] - i, pos[1]};
+                    move_type move{pos, pos_to};
+                    if(is_legal_move(board, move)) {
+                        moves_possible.push_back(move);
+                    }
+
+                }
+                // all possible moves to the bottom until board ends
+                for(int i = 1; i < starts_y + pos[1] + 1; ++i) {
+                    position_type  pos_to{pos[0], pos[1] - i};
+                    move_type move{pos, pos_to};
+                    if(is_legal_move(board, move)) {
+                        moves_possible.push_back(move);
+                    }
+                }
+            }
+            else {
+                // all moves are 1 step to left, right, top, or bottom
+                std::vector<position_type > pos_tos = {{pos[0] + 1, pos[1]},
+                                              {pos[0]  , pos[1]+1},
+                                              {pos[0]-1,   pos[1]},
+                                              {pos[0]  , pos[1]-1}};
+                for(auto& pos_to : pos_tos) {
+                    move_type move{pos, pos_to};
+                    if(is_legal_move(board, move)) {
+                        moves_possible.push_back(move);
+                    }
+                }
+            }
+        }
+    }
+    if(flip_board) {
+        auto shape = board.get_shape();
+        auto starts = board.get_starts();
+        for(auto & move : moves_possible) {
+            move = move.invert(starts, shape);
+        }
+    }
+    return moves_possible;
+}
+
+template <class Board>
+bool LogicStratego<Board>::has_legal_moves(const board_type &board, int player) {
+    using move_type = typename board_type::move_type;
+    using position_type = typename board_type::position_type;
+    using piece_type = typename board_type::piece_type;
+
+    int shape_x = board.get_shape()[0];
+    int shape_y = board.get_shape()[1];
+    int starts_x = board.get_starts()[0];
+    int starts_y = board.get_starts()[1];
+    for( auto elem = board.begin(); elem != board.end(); ++elem) {
+        std::shared_ptr<piece_type> piece = elem->second;
+        if(int essential_kin = piece->get_kin()[0];
+        !piece->is_null() && piece->get_team() == player && essential_kin != 0 && essential_kin != 11) {
+            // the position we are dealing with
+            Position pos = piece->get_position();
+
+            if(piece->get_kin()[0] == 2) {
+                // all possible moves to the right until board ends
+                for(int i = 1; i < starts_x + shape_x - pos[0]; ++i) {
+                    position_type pos_to{pos[0] + i, pos[1]};
+                    move_type move{pos, pos_to};
+                    if(is_legal_move(board, move)) {
+                        return true;
+                    }
+                }
+                // all possible moves to the top until board ends
+                for(int i = 1; i < starts_y + shape_y - pos[1]; ++i) {
+                    position_type  pos_to{pos[0], pos[1] + i};
+                    move_type move{pos, pos_to};
+                    if(is_legal_move(board, move)) {
+                        return true;
+                    }
+                }
+                // all possible moves to the left until board ends
+                for(int i = 1; i < starts_x + pos[0] + 1; ++i) {
+                    position_type  pos_to{pos[0] - i, pos[1]};
+                    move_type move{pos, pos_to};
+                    if(is_legal_move(board, move)) {
+                        return true;
+                    }
+
+                }
+                // all possible moves to the bottom until board ends
+                for(int i = 1; i < starts_y + pos[1] + 1; ++i) {
+                    position_type  pos_to{pos[0], pos[1] - i};
+                    move_type move{pos, pos_to};
+                    if(is_legal_move(board, move)) {
+                        return true;
+                    }
+                }
+            }
+            else {
+                // all moves are 1 step to left, right, top, or bottom
+                std::vector<position_type > pos_tos = {{pos[0] + 1, pos[1]    },
+                                                       {pos[0]    , pos[1] + 1},
+                                                       {pos[0] - 1, pos[1]    },
+                                                       {pos[0]    , pos[1] - 1}};
+                for(const auto& pos_to : pos_tos) {
+                    move_type move{pos, pos_to};
+                    if(is_legal_move(board, move)) {
+                        return true;
+                    }
+                }
+            }
+        }
+    }
+    return false;
 }

@@ -82,7 +82,8 @@ public:
             : m_pos(pos),
               m_type(type),
               m_team(team),
-              m_hidden(hidden), m_has_moved(has_moved)
+              m_hidden(hidden),
+              m_has_moved(has_moved)
     {}
 
     Piece(position_type pos, kin_type type, int team)
@@ -91,8 +92,12 @@ public:
 
 // a Null Piece Constructor
     explicit Piece(const position_type & pos)
-            : m_null_piece(true), m_pos(pos), m_team(-1), m_type(),
-              m_hidden(false), m_has_moved(false)
+            : m_null_piece(true),
+              m_pos(pos),
+              m_team(-1),
+              m_type(),
+              m_hidden(false),
+              m_has_moved(false)
     {}
 //
 //    ~Piece() {
@@ -103,7 +108,7 @@ public:
 
     void set_flag_has_moved(bool has_moved=true) { this->m_has_moved = has_moved; }
 
-    void set_flag_hidden(bool h=false) { m_hidden = h; }
+    void set_flag_unhidden(bool h=false) { m_hidden = h; }
 
     void set_position(position_type p) { m_pos = std::move(p); }
 
@@ -113,7 +118,7 @@ public:
 
     [[nodiscard]] int get_team(bool flip_team = false) const { return (flip_team) ? 1 - m_team : m_team; }
 
-    [[nodiscard]] typename kin_type::container_type::const_iterator get_kin_begin() const { return m_type.begin(); }
+    [[nodiscard]] kin_type get_kin() const { return m_type; }
 
     [[nodiscard]] bool get_flag_hidden() const { return m_hidden; }
 

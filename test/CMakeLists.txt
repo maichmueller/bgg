@@ -19,7 +19,10 @@ set(TEST_SOURCES
         ${PROJECT_SOURCE_DIR}/nn/model/ActionRepresenterStratego.cpp)
 
 
-set(TARGET_TEST_SOURCES ../test/main_test.cpp)
+set(TARGET_TEST_SOURCES
+        main_test.cpp
+        PositionTest.cpp
+        MoveTest.cpp)
 
 add_executable(tests ${TEST_SOURCES} ${TARGET_TEST_SOURCES})
 

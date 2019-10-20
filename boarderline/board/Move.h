@@ -20,20 +20,22 @@ template <class Position>
 class Move {
 public:
     using position_type = Position;
-    using MoveContainer = std::array<Position, 2>;
-    using Iterator = typename MoveContainer::iterator;
-    using ConstIterator = typename MoveContainer::const_iterator;
+    using move_container = std::array<Position, 2>;
+    using iterator = typename move_container::iterator;
+    using const_iterator = typename move_container::const_iterator;
 private:
-    MoveContainer from_to;
+    move_container from_to;
 public:
+    Move(const position_type & pos_from, const position_type & pos_to) : from_to{pos_from, pos_to} {}
+    Move(position_type && pos_from, position_type && pos_to) : from_to{pos_from, pos_to} {}
 
     const Position & operator[](unsigned int index) const {return from_to[index];}
     Position & operator[](unsigned int index) {return from_to[index];}
 
-    Iterator begin() {return from_to.begin();}
-    ConstIterator begin() const {return from_to.begin();}
-    Iterator end() {return from_to.end();}
-    ConstIterator end() const {return from_to.end();}
+    iterator begin() {return from_to.begin();}
+    const_iterator begin() const {return from_to.begin();}
+    iterator end() {return from_to.end();}
+    const_iterator end() const {return from_to.end();}
 
     auto get_positions() {return from_to;}
 
@@ -59,6 +61,13 @@ public:
     bool operator!=(const Move & other) const {
         return !(*this == other);
     }
+    
+    template <typename container>
+    Move<Position> invert(const container & starts, const container & ends) {
+        for(auto & pos : from_to) {
+            pos = pos.invert(starts, ends);
+        }
+    };
 };
 
 template <typename Number, typename Position>

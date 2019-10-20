@@ -33,7 +33,6 @@ public:
 
 
     void enable_representation(const state_type& gs) { static_cast<Derived*>(this)->enable_representation(gs); }
-    void update_actors(int team, kin_type kin) { static_cast<Derived*>(this)->update_actors(team, kin); }
     const std::vector<Action> * get_act_rep() { return static_cast<Derived*>(this)->get_action_rep_vector(); }
     torch::Tensor state_representation(int player) { return static_cast<Derived*>(this)->state_representation(player); }
 
@@ -42,7 +41,5 @@ public:
         return pos + get_act_rep()[action].get_effect(player);
     }
 
-protected:
-    std::vector<kin_type> live_actors;
 
 };

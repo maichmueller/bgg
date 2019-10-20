@@ -65,32 +65,28 @@ public:
           const std::map<position_type, typename piece_type::kin_type> &setup_1);
 
     std::shared_ptr<Piece> &operator[](const position_type &&a);
-
     const std::shared_ptr<Piece> &operator[](const position_type &&a) const;
+    std::shared_ptr<Piece> &operator[](const position_type &a);
+    const std::shared_ptr<Piece> &operator[](const position_type &a) const;
 
     [[nodiscard]] iterator begin() { return m_board_map.begin(); }
-
     [[nodiscard]] iterator end() { return m_board_map.end(); }
-
     [[nodiscard]] const_iterator begin() const { return m_board_map.begin(); }
-
     [[nodiscard]] const_iterator end() const { return m_board_map.end(); }
 
     [[nodiscard]] auto get_shape() const { return m_shape; }
-
     [[nodiscard]] auto get_starts() const { return m_board_starts; }
+    [[nodiscard]] auto size() const { return m_board_map.size(); }
 
     map_type const *get_map() const { return m_board_map; }
 
-    std::map<position_type, std::shared_ptr<piece_type>> get_setup(int player);
+    std::map<position_type, std::shared_ptr<piece_type> > get_setup(int player);
 
-    void update_board(position_type &&pos, std::shared_ptr<piece_type> &pc);
+    void update_board(Position &&pos, std::shared_ptr<piece_type> &pc);
+    void update_board(const Position &pos, std::shared_ptr<piece_type> &pc);
 
     [[nodiscard]] std::string print_board(bool flip_board = false, bool hide_unknowns = false) const;
-
     [[nodiscard]] std::string to_string_2D(bool flip_board = false, bool hide_unknowns = false) const;
-
-    [[nodiscard]] auto size() const { return m_board_map.size(); }
 
 };
 
@@ -121,11 +117,28 @@ std::shared_ptr<Piece> &Board<Piece, Position>::operator[](const position_type &
 }
 
 template<typename Piece, typename Position>
+const std::shared_ptr<Piece> &Board<Piece, Position>::operator[](const position_type &a) const {
+    check_pos_bounds(a);
+    return m_board_map.find(std::forward(a))->second;
+}
+
+template<typename Piece, typename Position>
+std::shared_ptr<Piece> &Board<Piece, Position>::operator[](const position_type &a) {
+    return m_board_map.find(std::forward(a))->second;
+}
+
+template<typename Piece, typename Position>
 void Board<Piece, Position>::update_board(position_type &&pos, std::shared_ptr<piece_type> &pc_ptr) {
     check_pos_bounds(std::forward(pos));
     pc_ptr->set_position(pos);
     (*this)[pos] = pc_ptr;
 }
+
+template<typename Piece, typename Position>
+void Board<Piece, Position>::update_board(const position_type &pos, std::shared_ptr<piece_type> &pc_ptr) {
+    update_board(std::forward(pos));
+}
+
 
 template<typename Piece, typename Position>
 template<size_t dim>

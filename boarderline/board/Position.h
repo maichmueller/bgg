@@ -30,14 +30,20 @@ public:
 private:
     container_type coordinates;
 
+
     template <size_t ... Indices, typename ... Types>
     Position(std::index_sequence<Indices...>, Types&& ... args)
     {
+        // c++17 fold expression
         (static_cast<void>(coordinates[Indices] = args), ...);
     }
 
 public:
-
+    /*
+     * Constructor that allows to initialize the position by typing out all N coordinates.
+     * The seeming complexity of this method comes from the usage of templates and needing to restrict
+     * the number of valid parameters to exactly N.
+     */
     template <typename ... Types, typename std::enable_if<sizeof...(Types) == N, int>::type = 0>
     explicit Position(Types&&...args)
     : Position(std::index_sequence_for<Types...>{}, std::forward<Types>(args)...) {}
@@ -75,6 +81,8 @@ public:
     bool operator<(const Position & other) const;
     bool operator>(const Position & other) const;
 
+    template <typename container>
+    Position invert(const container & starts, const container & ends);
     std::string to_string();
 };
 
@@ -173,4 +181,36 @@ std::string Position<LengthType, N>::to_string() {
     }
     ss << std::to_string(coordinates.back()) << ")";
     return ss.str();
+}
+
+template<typename LengthType, size_t N>
+template<typename container>
+Position<LengthType, N> Position<LengthType, N>::invert(const container &starts, const container &ends) {
+    if constexpr(std::is_floating_point_v<LengthType>) {
+        if constexpr(!std::is_floating_point_v<typename container::value_type>) {
+            throw std::invalid_argument(
+                    std::string("Container value type is not of floating point (") +
+                    std::string(typeid(typename container::value_type).name()) +
+                    std::string("), while 'Position' value type is (") +
+                    std::string(typeid(LengthType).name()) +
+                    std::string(").")
+            );
+        }
+    }
+    else {
+        if constexpr (!std::is_same_v<LengthType, typename container::value_type>) {
+            throw std::invalid_argument(
+                    std::string("Container value type (") +
+                    std::string(typeid(typename container::value_type).name()) +
+                    std::string("is not the same as 'Position' value type(") +
+                    std::string(typeid(LengthType).name()) +
+                    std::string(").")
+            );
+        }
+    }
+    Position<LengthType, N> inverted;
+    for(int i = 0; i < N; ++i) {
+        inverted[i] = starts[i] + ends[i] - coordinates[i];
+    }
+    return inverted;
 }
