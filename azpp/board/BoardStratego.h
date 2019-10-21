@@ -13,10 +13,10 @@
 #include "Board.h"
 
 
-class BoardStratego : public Board<PieceStratego, typename PieceStratego::position_type> {
+class BoardStratego : public Board<PieceStratego> {
 
 public:
-    using base_type = Board<PieceStratego, typename PieceStratego::position_type>;
+    using base_type = Board<PieceStratego>;
     // inheriting base constructors
     using base_type::base_type;
     // also specializing one

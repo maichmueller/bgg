@@ -45,7 +45,7 @@ public:
      * the number of valid parameters to exactly N.
      */
     template <typename ... Types, typename std::enable_if<sizeof...(Types) == N, int>::type = 0>
-    explicit Position(Types&&...args)
+    Position(Types&&...args)
     : Position(std::index_sequence_for<Types...>{}, std::forward<Types>(args)...) {}
 
     explicit Position(container_type coords) : coordinates(std::move(coords)) {};
