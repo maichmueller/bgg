@@ -3,8 +3,7 @@
 //
 
 #pragma once
-#include <cmath>
-#include "../boarderline/board/Position.h"
+#include "../azpp/board/Position.h"
 
 namespace {
     template <size_t N>

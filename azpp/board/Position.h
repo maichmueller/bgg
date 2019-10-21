@@ -13,10 +13,10 @@
 template <typename Length, size_t N>
 class Position;
 
-template <typename Number, typename Length, int N>
+template <typename Number, typename Length, size_t N>
 Position<Length, N> operator*(const Number & n, const Position<Length, N> & pos);
 
-template <typename Number, typename Length, int N>
+template <typename Number, typename Length, size_t N>
 Position<Length, N> operator/(const Number & n, const Position<Length, N> & pos);
 
 // actual class definition
@@ -79,23 +79,32 @@ public:
     bool operator==(const Position & other) const;
     bool operator!=(const Position & other) const;
     bool operator<(const Position & other) const;
+    bool operator<=(const Position & other) const;
     bool operator>(const Position & other) const;
+    bool operator>=(const Position & other) const;
 
     template <typename container>
     Position invert(const container & starts, const container & ends);
     std::string to_string();
 };
 
-template <typename Number, typename Length, int N>
+
+// free operators for switched positions
+
+template <typename Number, typename Length, size_t N>
 Position<Length, N> operator*(const Number & n, const Position<Length, N> & pos) {return pos * n;}
 
-template <typename Number, typename Length, int N>
+template <typename Number, typename Length, size_t N>
 Position<Length, N> operator/(const Number & n, const Position<Length, N> & pos) {
     Position<Length, N> p(pos);
     for(size_t i = 0; i < N; ++i) {
         p[i] /= n;
     }
 }
+
+
+// method implementations
+
 
 template <typename LengthType, size_t N>
 Position<LengthType, N> Position<LengthType, N>::operator+(const Position<LengthType, N> & pos) const {
@@ -162,7 +171,29 @@ bool Position<LengthType, N>::operator<(const Position & other) const {
     return false;
 }
 template <typename LengthType, size_t N>
+bool Position<LengthType, N>::operator<=(const Position & other) const {
+    for(size_t i = 0; i < N; ++i) {
+        if((*this)[i] <= other[i])
+            return true;
+        else if((*this)[i] > other[i])
+            return false;
+        // the else case is the == case for which we simply continue onto the next dimension
+    }
+    return false;
+}
+template <typename LengthType, size_t N>
 bool Position<LengthType, N>::operator>(const Position & other) const {
+    for(size_t  i = 0; i < N; ++i) {
+        if((*this)[i] > other[i])
+            return true;
+        else if((*this)[i] < other[i])
+            return false;
+        // the else case is the == case for which we simply continue onto the next dimension
+    }
+    return false;
+}
+template <typename LengthType, size_t N>
+bool Position<LengthType, N>::operator>=(const Position & other) const {
     for(size_t  i = 0; i < N; ++i) {
         if((*this)[i] > other[i])
             return true;

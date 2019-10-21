@@ -1,7 +1,7 @@
 
 include_directories (${TEST_SOURCE_DIR}/src)
 
-set(PROJECT_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../boarderline")
+set(PROJECT_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../azpp")
 set(TEST_SOURCES
         ${PROJECT_SOURCE_DIR}/game/GameState.h
         ${PROJECT_SOURCE_DIR}/board/Piece.h
@@ -22,7 +22,8 @@ set(TEST_SOURCES
 set(TARGET_TEST_SOURCES
         main_test.cpp
         PositionTest.cpp
-        MoveTest.cpp)
+        MoveTest.cpp
+        BoardTest.cpp)
 
 add_executable(tests ${TEST_SOURCES} ${TARGET_TEST_SOURCES})
 

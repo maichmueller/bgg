@@ -2,13 +2,14 @@
 // Created by michael on 20.10.19.
 //
 
-#ifndef BOARDERLINE_MOVETEST_H
-#define BOARDERLINE_MOVETEST_H
+#pragma once
 
+#include "../azpp/board/Move.h"
 
-class MoveTest {
-
+namespace {
+    template <size_t N>
+    using int_move = Move<Position<int, N>>;
+    template <size_t N>
+    using double_move = Move<Position<double, N>>;
 };
 
-
-#endif //BOARDERLINE_MOVETEST_H

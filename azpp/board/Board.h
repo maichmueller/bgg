@@ -99,7 +99,7 @@ void Board<Piece, Position>::check_pos_bounds(const position_type &pos) const {
             std::string bounds_str = std::to_string(m_board_starts[i]) + ", " + std::to_string(m_shape[i]);
             ss << "Index at dimension " << std::to_string(i) << " out of bounds " <<
                "(Value :" << val_str <<
-               " Bounds: [" << bounds_str << "])";
+               ", Bounds: [" << bounds_str << "])";
             throw std::invalid_argument(ss.str());
         }
     }

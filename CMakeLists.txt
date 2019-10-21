@@ -25,7 +25,7 @@ ENDIF(WIN32)
 
 find_package(Torch REQUIRED)
 
-add_subdirectory (boarderline)
+add_subdirectory (azpp)
 
 
 # Download and unpack googletest at configure time
