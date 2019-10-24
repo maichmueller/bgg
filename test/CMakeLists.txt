@@ -1,5 +1,24 @@
 
-include_directories (${TEST_SOURCE_DIR}/src)
+
+if(NOT ${Torch_FOUND})
+    if(UNIX)
+        set(CMAKE_PREFIX_PATH ../deps/libtorch)
+        if(USE_CUDA)
+            set(CUDNN_LIBRARY /usr/local/cuda/lib64/libcudnn.so)
+            set(CUDNN_INCLUDE_DIR /usr/local/cuda/include)
+        ENDIF()
+        find_package(Torch REQUIRED)
+    ENDIF(UNIX)
+    IF(WIN32)
+        IF(CMAKE_BUILD_TYPE STREQUAL "Debug")
+            set(CMAKE_PREFIX_PATH deps/libtorch_debug)
+        ELSE()
+            set(CMAKE_PREFIX_PATH deps/Torch_build/libtorch)
+        ENDIF()
+
+        find_package(Torch REQUIRED)
+    ENDIF(WIN32)
+ENDIF()
 
 set(PROJECT_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../azpp")
 set(TEST_SOURCES

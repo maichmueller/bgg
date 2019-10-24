@@ -80,7 +80,7 @@ public:
 
     map_type const *get_map() const { return m_board_map; }
 
-    std::map<position_type, std::shared_ptr<piece_type> > get_setup(int player);
+    std::vector<std::shared_ptr<piece_type> > get_pieces(int player);
 
     void update_board(position_type &&pos, std::shared_ptr<piece_type> &pc);
     void update_board(const position_type &pos, std::shared_ptr<piece_type> &pc);
@@ -368,16 +368,14 @@ std::string Board<Piece>::print_board(bool flip_board, bool hide_unknowns) const
 }
 
 template<typename Piece>
-std::map<typename Board<Piece>::position_type,
-         std::shared_ptr<typename Board<Piece>::piece_type>>
-Board<Piece>::get_setup(int player) {
-    std::map<position_type, std::shared_ptr<piece_type>> setup;
+std::vector<std::shared_ptr<typename Board<Piece>::piece_type> >
+Board<Piece>::get_pieces(int player) {
+    std::vector<std::shared_ptr<piece_type> > pieces;
     for(auto & pos_piece : m_board_map) {
-        position_type pos = pos_piece->first;
         std::shared_ptr<piece_type> piece = pos_piece->second;
         if(!piece->is_null() && piece->get_team() == player) {
-            setup[pos] = piece;
+            pieces.emplace_back(piece);
         }
     }
-    return setup;
+    return pieces;
 }

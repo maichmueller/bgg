@@ -9,21 +9,8 @@ set (APPLICATION_COPYRIGHT_YEARS "2019-")
 
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall")
 
-
-if(UNIX OR APPLE)
-    set(CMAKE_PREFIX_PATH deps/libtorch)
-#    set(CUDNN_LIBRARY /usr/local/cuda/lib64/libcudnn.so)
-#    set(CUDNN_INCLUDE_DIR /usr/local/cuda/include)
-ENDIF(UNIX OR APPLE)
-IF(WIN32)
-    IF(CMAKE_BUILD_TYPE STREQUAL "Debug")
-        set(CMAKE_PREFIX_PATH deps/libtorch_debug)
-    ELSE()
-        set(CMAKE_PREFIX_PATH deps/Torch_build/libtorch)
-    ENDIF()
-ENDIF(WIN32)
-
-find_package(Torch REQUIRED)
+#set(USE_CUDA TRUE)
+set(USE_CUDA FALSE)
 
 add_subdirectory (azpp)
 
