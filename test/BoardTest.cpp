@@ -37,7 +37,7 @@ TEST(BoardTest, BoardTest_BinaryOperator_Tests_Ints) {
     // check get all pieces of one player method
     std::vector<std::shared_ptr<piece_type> > pieces_0 = b.get_pieces(0);
     for(const auto & piece : pieces_0) {
-        
+
     }
 
     // check update board method
