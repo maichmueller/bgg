@@ -20,7 +20,7 @@ protected:
 public:
     explicit GameStateStratego(size_t shape_x, size_t shape_y);
 
-    explicit GameStateStratego(size_t shape);
+    explicit GameStateStratego(size_t shape=5);
 
     GameStateStratego(size_t shape,
                       const std::map<position_type, typename piece_type::kin_type> &setup_0,

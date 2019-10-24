@@ -64,10 +64,10 @@ public:
           const std::map<position_type, typename piece_type::kin_type> &setup_0,
           const std::map<position_type, typename piece_type::kin_type> &setup_1);
 
-    std::shared_ptr<Piece> &operator[](const position_type &&a);
-    const std::shared_ptr<Piece> &operator[](const position_type &&a) const;
-    std::shared_ptr<Piece> &operator[](const position_type &a);
-    const std::shared_ptr<Piece> &operator[](const position_type &a) const;
+    std::shared_ptr<Piece> &operator[](const position_type &&position);
+    const std::shared_ptr<Piece> &operator[](const position_type &&position) const;
+    std::shared_ptr<Piece> &operator[](const position_type &position);
+    const std::shared_ptr<Piece> &operator[](const position_type &position) const;
 
     [[nodiscard]] iterator begin() { return m_board_map.begin(); }
     [[nodiscard]] iterator end() { return m_board_map.end(); }
@@ -106,25 +106,25 @@ void Board<Piece>::check_pos_bounds(const position_type &pos) const {
 }
 
 template<typename Piece>
-const std::shared_ptr<Piece> &Board<Piece>::operator[](const position_type &&a) const {
-    check_pos_bounds(a);
-    return m_board_map.find(std::forward(a))->second;
+const std::shared_ptr<Piece> &Board<Piece>::operator[](const position_type &&position) const {
+    check_pos_bounds(position);
+    return m_board_map.find(std::forward(position))->second;
 }
 
 template<typename Piece>
-std::shared_ptr<Piece> &Board<Piece>::operator[](const position_type &&a) {
-    return m_board_map.find(std::forward(a))->second;
+std::shared_ptr<Piece> &Board<Piece>::operator[](const position_type &&position) {
+    return m_board_map.find(std::forward(position))->second;
 }
 
 template<typename Piece>
-const std::shared_ptr<Piece> &Board<Piece>::operator[](const position_type &a) const {
-    check_pos_bounds(a);
-    return m_board_map.find(std::forward(a))->second;
+const std::shared_ptr<Piece> &Board<Piece>::operator[](const position_type &position) const {
+    check_pos_bounds(position);
+    return m_board_map.find(position)->second;
 }
 
 template<typename Piece>
-std::shared_ptr<Piece> &Board<Piece>::operator[](const position_type &a) {
-    return m_board_map.find(std::forward(a))->second;
+std::shared_ptr<Piece> &Board<Piece>::operator[](const position_type &position) {
+    return m_board_map.find(position)->second;
 }
 
 template<typename Piece>
@@ -136,7 +136,7 @@ void Board<Piece>::update_board(position_type &&pos, std::shared_ptr<piece_type>
 
 template<typename Piece>
 void Board<Piece>::update_board(const position_type &pos, std::shared_ptr<piece_type> &pc_ptr) {
-    update_board(std::forward(pos));
+    update_board(pos, pc_ptr);
 }
 
 
@@ -210,12 +210,12 @@ Board<Piece>::Board(const std::array<size_t, m_dim> &shape,
 template<typename Piece>
 Board<Piece>::Board(const std::array<size_t, m_dim> &shape,
                               const std::array<int, m_dim> &board_starts,
-                              const std::map<position_type, typename piece_type::kin_type> &setup_0,
-                              const std::map<position_type, typename piece_type::kin_type> &setup_1)
+                              const std::map<position_type, kin_type> &setup_0,
+                              const std::map<position_type, kin_type> &setup_1)
         : Board(shape, board_starts) {
-    auto setup_unwrap = [&](std::map<position_type, typename piece_type::kin_type> &setup, int team) {
+    auto setup_unwrap = [&](std::map<position_type, kin_type> & setup, int team) {
         std::map<position_type, bool> seen_pos;
-        std::map<typename piece_type::chracter_type, bool> seen_char;
+        std::map<kin_type, bool> seen_char;
         for (auto &elem : setup) {
             position_type pos = elem.first;
             auto character = elem.second;
