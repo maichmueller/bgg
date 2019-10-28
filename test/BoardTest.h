@@ -7,7 +7,7 @@
 
 #include "../azpp/board/Board.h"
 
-namespace {
+namespace BoardTest{
     using position_type = Position<int, 2>;
     using piece_type = Piece<position_type, 2>;
     using kin_type = typename piece_type::kin_type;

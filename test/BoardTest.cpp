@@ -5,6 +5,7 @@
 #include "BoardTest.h"
 #include "gtest/gtest.h"
 
+using namespace BoardTest;
 
 TEST(BoardTest, BoardTest_BinaryOperator_Tests_Ints) {
     std::map<position_type, kin_type> setup0;

@@ -32,9 +32,15 @@ public:
     using kin_type = typename state_type::kin_type;
 
 
-    void enable_representation(const state_type& gs) { static_cast<Derived*>(this)->enable_representation(gs); }
+    void enable_representation(const state_type & gs) { static_cast<Derived*>(this)->enable_representation(gs); }
     const std::vector<Action> * get_act_rep() { return static_cast<Derived*>(this)->get_action_rep_vector(); }
-    torch::Tensor state_representation(int player) { return static_cast<Derived*>(this)->state_representation(player); }
+
+    // depending on the game/representation strategy of the subclass, a positional variable amount of parameters
+    // can be passed to allow differing implementations without knowing each use case beforehand.
+    template <typename... Params>
+    torch::Tensor state_representation(const state_type & state, int player, Params... params) {
+        return static_cast<Derived*>(this)->state_representation(player, params...);
+    }
 
     template <typename Position>
     Move<Position> action_to_move(const Position & pos, int action, int player) {

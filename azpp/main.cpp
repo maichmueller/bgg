@@ -9,7 +9,7 @@
 ////#include "nn/training/Coach.h"
 //#include "vector"
 //#include "random"
-//#include "torch/torch.h"
+#include "torch/torch.h"
 ////#include "alphazero/ActionRepresentation.h"
 //
 //#include <iostream>

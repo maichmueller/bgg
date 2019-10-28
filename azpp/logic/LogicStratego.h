@@ -8,10 +8,18 @@
 #include "../board/Move.h"
 #include "Logic.h"
 #include "../board/BoardStratego.h"
-#include "BattleMatrix.h"
 #include "../../test/BoardTest.h"
 
 #include <functional>
+
+
+struct BattleMatrix {
+    static const std::map<std::array<int, 2>, int> battle_matrix;
+    static std::map<std::array<int, 2>, int> initialize_battle_matrix();
+
+    [[nodiscard]] static int fight_outcome(std::array<int, 2> att_def) {return battle_matrix.at(att_def);}
+};
+
 
 template <class Board>
 struct LogicStratego : public Logic<Board, LogicStratego<Board>>{
@@ -19,6 +27,7 @@ struct LogicStratego : public Logic<Board, LogicStratego<Board>>{
     using board_type = typename base_type::board_type;
     using move_type = typename base_type::move_type;
     using position_type = typename base_type::position_type;
+    using piece_type = typename board_type::piece_type;
     using kin_type = typename board_type::kin_type;
 
     static bool is_legal_move(const board_type & board, const move_type & move);
@@ -41,7 +50,6 @@ struct LogicStratego : public Logic<Board, LogicStratego<Board>>{
 
 
 };
-
 
 
 template<typename Board>
@@ -108,10 +116,6 @@ bool LogicStratego<Board>::is_legal_move(const board_type &board, const move_typ
 template <class Board>
 std::vector<typename LogicStratego<Board>::move_type>
 LogicStratego<Board>::get_legal_moves(const board_type &board, int player, bool flip_board) {
-    using move_type = typename board_type::move_type;
-    using position_type = typename board_type::position_type;
-    using piece_type = typename board_type::piece_type;
-
     int shape_x = board.get_shape()[0];
     int shape_y = board.get_shape()[1];
     int starts_x = board.get_starts()[0];
@@ -185,10 +189,6 @@ LogicStratego<Board>::get_legal_moves(const board_type &board, int player, bool 
 
 template <class Board>
 bool LogicStratego<Board>::has_legal_moves(const board_type &board, int player) {
-    using move_type = typename board_type::move_type;
-    using position_type = typename board_type::position_type;
-    using piece_type = typename board_type::piece_type;
-
     int shape_x = board.get_shape()[0];
     int shape_y = board.get_shape()[1];
     int starts_x = board.get_starts()[0];

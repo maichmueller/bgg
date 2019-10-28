@@ -3,17 +3,40 @@ cmake_minimum_required(VERSION 3.13)
 project(AlphaZero++ CXX)
 set(CMAKE_CXX_STANDARD 17)
 
-set (APPLICATION_NAME "Boarderline")
+set (APPLICATION_NAME "AlphaZero++")
 set (APPLICATION_CODENAME "${PROJECT_NAME}")
 set (APPLICATION_COPYRIGHT_YEARS "2019-")
 
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall")
 
+
+set(Torch_FOUND FALSE)
 #set(USE_CUDA TRUE)
 set(USE_CUDA FALSE)
 
-add_subdirectory (azpp)
+#message(STATUS "${Torch_FOUND}=${Torch_FOUND}")
+#get_cmake_property(_variableNames VARIABLES)
+#list (SORT _variableNames)
+#foreach (_variableName ${_variableNames})
+#    message(STATUS "${_variableName}=${${_variableName}}")
+#endforeach()
+#function(dump_cmake_variables)
+#    get_cmake_property(_variableNames VARIABLES)
+#    list (SORT _variableNames)
+#    foreach (_variableName ${_variableNames})
+#        if (ARGV0)
+#            unset(MATCHED)
+#            string(REGEX MATCH ${ARGV0} MATCHED ${_variableName})
+#            if (NOT MATCHED)
+#                continue()
+#            endif()
+#        endif()
+#        message(STATUS "${_variableName}=${${_variableName}}")
+#    endforeach()
+#endfunction()
 
+
+add_subdirectory (azpp)
 
 # Download and unpack googletest at configure time
 configure_file(CMakeLists.txt.in googletest-download/CMakeLists.txt)

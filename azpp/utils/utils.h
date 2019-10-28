@@ -15,12 +15,6 @@
 
 namespace utils {
 
-    struct BattleMatrix {
-        static const std::map<std::array<int, 2>, int> battle_matrix;
-        static std::map<std::array<int, 2>, int> initialize_battle_matrix();
-
-        [[nodiscard]] static int fight_outcome(std::array<int, 2> att_def) {return battle_matrix.at(att_def);}
-    };
 
     inline std::string repeat(std::string str, const std::size_t n)
     {
