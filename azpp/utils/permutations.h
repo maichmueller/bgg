@@ -1,9 +1,6 @@
-//
-// Created by michael on 20.08.19.
-//
 
-#ifndef STRATEGO_CPP_PERMUTATIONS_H
-#define STRATEGO_CPP_PERMUTATIONS_H
+
+#pragma once
 
 #include <iostream>
 #include "vector"
@@ -158,5 +155,3 @@ private:
 };
 
 
-
-#endif //STRATEGO_CPP_PERMUTATIONS_H

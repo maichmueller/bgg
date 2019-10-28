@@ -8,6 +8,8 @@
 #include "../board/Move.h"
 #include "Logic.h"
 #include "../board/BoardStratego.h"
+#include "BattleMatrix.h"
+#include "../../test/BoardTest.h"
 
 #include <functional>
 
@@ -16,10 +18,8 @@ struct LogicStratego : public Logic<Board, LogicStratego<Board>>{
     using base_type = Logic<Board, LogicStratego<Board>>;
     using board_type = typename base_type::board_type;
     using move_type = typename base_type::move_type;
+    using position_type = typename base_type::position_type;
     using kin_type = typename board_type::kin_type;
-
-    static const std::map<std::array<int, 2>, int> battle_matrix;
-    static std::map<std::array<int, 2>, int> initialize_battle_matrix();
 
     static bool is_legal_move(const board_type & board, const move_type & move);
 
@@ -31,12 +31,12 @@ struct LogicStratego : public Logic<Board, LogicStratego<Board>>{
 
     static bool has_legal_moves(const board_type & board, int player);
 
-    static std::map<std::array<int, 2>, int> get_battle_matrix() {return battle_matrix;}
-    static int fight_outcome(kin_type attacker, kin_type defender) {
-        return battle_matrix.find({attacker[0], defender[0]})->second;
+    static auto get_battle_matrix() {return BattleMatrix::battle_matrix;}
+    static int fight_outcome(piece_type attacker, piece_type defender) {
+        return fight_outcome(std::array{attacker.get_kin()[0], defender.get_kin()[0]});
     }
-    static int fight_outcome(std::array<kin_type, 2> att_def) {
-        return fight_outcome(att_def[0], att_def[1]);
+    static int fight_outcome(std::array<int, 2> att_def) {
+        return BattleMatrix::fight_outcome(att_def);
     }
 
 
@@ -51,7 +51,7 @@ bool LogicStratego<Board>::is_legal_move(const board_type &board, const move_typ
     int starts_x = board.get_starts()[0];
     int starts_y = board.get_starts()[1];
     using piece_type = typename board_type::piece_type;
-    const auto & [pos_before, pos_after] = move;
+    const auto & [pos_before, pos_after] = move.get_positions();
 
     if(pos_before[0] < starts_x || pos_before[0] > starts_x + shape_x)
         return false;
@@ -70,7 +70,7 @@ bool LogicStratego<Board>::is_legal_move(const board_type &board, const move_typ
     if(!p_a->is_null()) {
         if(p_a->get_team() == p_b->get_team())
             return false; // cant fight pieces of own team
-        if(p_a->get_kin() == 99)
+        if(p_a->get_kin()[0] == 99)
             return false; // cant fight obstacle
     }
 
@@ -83,7 +83,7 @@ bool LogicStratego<Board>::is_legal_move(const board_type &board, const move_typ
             int dist = pos_after[1] - pos_before[1];
             int sign = (dist >= 0) ? 1 : -1;
             for(int i = 1; i < std::abs(dist); ++i) {
-                Position pos = {pos_before[0], pos_before[1] + sign * i};
+                position_type pos{pos_before[0], pos_before[1] + sign * i};
                 if(!board[pos]->is_null())
                     return false;
             }
@@ -93,7 +93,7 @@ bool LogicStratego<Board>::is_legal_move(const board_type &board, const move_typ
             int dist = pos_after[0] - pos_before[0];
             int sign = (dist >= 0) ? 1 : -1;
             for(int i = 1; i < std::abs(dist); ++i) {
-                Position pos = {pos_before[0] + sign * i, pos_before[1]};
+                position_type pos = {pos_before[0] + sign * i, pos_before[1]};
                 if(!board[pos]->is_null())
                     return false;
             }

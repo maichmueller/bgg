@@ -2,9 +2,7 @@
 // Created by Michael on 08/03/2019.
 //
 
-#ifndef STRATEGO_CPP_UTILS_H
-#define STRATEGO_CPP_UTILS_H
-
+#pragma once
 
 #include "string"
 #include "memory"
@@ -16,6 +14,13 @@
 
 
 namespace utils {
+
+    struct BattleMatrix {
+        static const std::map<std::array<int, 2>, int> battle_matrix;
+        static std::map<std::array<int, 2>, int> initialize_battle_matrix();
+
+        [[nodiscard]] static int fight_outcome(std::array<int, 2> att_def) {return battle_matrix.at(att_def);}
+    };
 
     inline std::string repeat(std::string str, const std::size_t n)
     {
@@ -327,6 +332,3 @@ namespace eqcomp_tuple {
     };
 }
 
-
-
-#endif //STRATEGO_CPP_UTILS_H

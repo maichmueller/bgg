@@ -15,7 +15,7 @@
 #include "../utils/utils.h"
 
 
-template<class GameState>
+template<class GameState, class Derived>
 class Game {
 public:
     using state_type = GameState;
@@ -25,17 +25,15 @@ public:
     using position_type = typename state_type::position_type;
     using move_type = typename state_type::move_type;
     using board_type = typename state_type::board_type;
-    using action_rep_type = typename state_type::action_rep_type;
 
     using sptr_piece_type = std::shared_ptr<piece_type>;
-    using dead_pieces_type = typename state_type::dead_pieces_type;
 
 protected:
 
     state_type m_game_state;
 
-    std::shared_ptr<Agent> m_agent_0;
-    std::shared_ptr<Agent> m_agent_1;
+    std::shared_ptr<Agent<board_type>> m_agent_0;
+    std::shared_ptr<Agent<board_type>> m_agent_1;
 
     std::array<std::vector<piece_type>, 2> m_setups;
 
@@ -48,19 +46,15 @@ protected:
 public:
 
     Game(board_type &&board,
-         std::shared_ptr<Agent> ag0,
-         std::shared_ptr<Agent> ag1,
+         std::shared_ptr<Agent<board_type>> ag0,
+         std::shared_ptr<Agent<board_type>> ag1,
          bool fixed_setups = false,
-            // game state necessities
-         dead_pieces_type &dead_pieces = dead_pieces_type(),
          int move_count = 0);
 
     Game(const board_type &board,
-         std::shared_ptr<Agent> ag0,
-         std::shared_ptr<Agent> ag1,
+         std::shared_ptr<Agent<board_type>> ag0,
+         std::shared_ptr<Agent<board_type>> ag1,
          bool fixed_setups = false,
-            // game state necessities
-         dead_pieces_type &dead_pieces = dead_pieces_type(),
          int move_count = 0);
 
     template<size_t dim>
@@ -68,8 +62,8 @@ public:
          const std::array<int, dim> &board_starts,
          const std::map<position_type, kin_type> &setup_0,
          const std::map<position_type, kin_type> &setup_1,
-         std::shared_ptr<Agent> ag0,
-         std::shared_ptr<Agent> ag1,
+         std::shared_ptr<Agent<board_type>> ag0,
+         std::shared_ptr<Agent<board_type>> ag1,
          bool fixed_setups = false);
 
     template<size_t dim>
@@ -77,15 +71,15 @@ public:
          const std::array<int, dim> &board_starts,
          const std::map<position_type, sptr_piece_type> &setup0,
          const std::map<position_type, sptr_piece_type> &setup1,
-         std::shared_ptr<Agent> ag0,
-         std::shared_ptr<Agent> ag1,
+         std::shared_ptr<Agent<board_type>> ag0,
+         std::shared_ptr<Agent<board_type>> ag1,
          bool fixed_setups = false);
 
     template<size_t dim>
     Game(const std::array<int, dim> &shape,
          const std::array<int, dim> &board_starts,
-         std::shared_ptr<Agent> ag0,
-         std::shared_ptr<Agent> ag1,
+         std::shared_ptr<Agent<board_type>> ag0,
+         std::shared_ptr<Agent<board_type>> ag1,
          bool fixed_setups = false);
 
     void reset();
@@ -100,24 +94,25 @@ public:
         m_setups[team] = extract_pieces_from_setup(setup);
     }
 
-    std::shared_ptr<Agent> get_agent_0() { return m_agent_0; }
+    std::shared_ptr<Agent<board_type>> get_agent_0() { return m_agent_0; }
 
-    std::shared_ptr<Agent> get_agent_1() { return m_agent_1; }
+    std::shared_ptr<Agent<board_type>> get_agent_1() { return m_agent_1; }
 
-    const state_type *get_gamestate() const { return &m_game_state; }
+    const state_type * get_gamestate() const { return &m_game_state; }
 
-    virtual std::map<position_type, sptr_piece_type> draw_setup(int team) = 0;
+    std::map<position_type, sptr_piece_type> draw_setup(int team) {
+        return static_cast<Derived*>(this)->draw_setup(team);
+    }
 };
 
 
-template<class GameState>
-Game<GameState>::Game(board_type &&board,
-                      std::shared_ptr<Agent> ag0,
-                      std::shared_ptr<Agent> ag1,
-                      bool fixed_setups,
-                      dead_pieces_type &dead_pieces,
-                      int move_count)
-        : m_game_state(board, dead_pieces, move_count),
+template<class GameState, class Derived>
+Game<GameState, Derived>::Game(board_type &&board,
+                               std::shared_ptr<Agent<board_type>> ag0,
+                               std::shared_ptr<Agent<board_type>> ag1,
+                               bool fixed_setups,
+                               int move_count)
+        : m_game_state(board, move_count),
           m_agent_0(ag0),
           m_agent_1(ag1),
           m_setups{extract_pieces_from_setup(m_game_state.get_board()->get_setup(0)),
@@ -125,13 +120,13 @@ Game<GameState>::Game(board_type &&board,
           m_fixed_setups(fixed_setups) {}
 
 
-template<class GameState>
+template<class GameState, class Derived>
 template<size_t dim>
-Game<GameState>::Game(const std::array<int, dim> &shape,
-                      const std::array<int, dim> &board_starts,
-                      std::shared_ptr<Agent> ag0,
-                      std::shared_ptr<Agent> ag1,
-                      bool fixed_setups)
+Game<GameState, Derived>::Game(const std::array<int, dim> &shape,
+                               const std::array<int, dim> &board_starts,
+                               std::shared_ptr<Agent<board_type>> ag0,
+                               std::shared_ptr<Agent<board_type>> ag1,
+                               bool fixed_setups)
         : Game(board_type(shape,
                           board_starts,
                           draw_setup(0),
@@ -141,30 +136,28 @@ Game<GameState>::Game(const std::array<int, dim> &shape,
                fixed_setups) {}
 
 
-template<class GameState>
-Game<GameState>::Game(const board_type &board,
-                      std::shared_ptr<Agent> ag0,
-                      std::shared_ptr<Agent> ag1,
-                      bool fixed_setups,
-                      dead_pieces_type &dead_pieces,
-                      int move_count)
+template<class GameState, class Derived>
+Game<GameState, Derived>::Game(const board_type &board,
+                               std::shared_ptr<Agent<board_type>> ag0,
+                               std::shared_ptr<Agent<board_type>> ag1,
+                               bool fixed_setups,
+                               int move_count)
         : Game(board_type(board),
                ag0,
                ag1,
                fixed_setups,
-               dead_pieces,
                move_count) {}
 
 
-template<class GameState>
+template<class GameState, class Derived>
 template<size_t dim>
-Game<GameState>::Game(const std::array<int, dim> &shape,
-                      const std::array<int, dim> &board_starts,
-                      const std::map<position_type, kin_type> &setup_0,
-                      const std::map<position_type, kin_type> &setup_1,
-                      std::shared_ptr<Agent> ag0,
-                      std::shared_ptr<Agent> ag1,
-                      bool fixed_setups)
+Game<GameState, Derived>::Game(const std::array<int, dim> &shape,
+                               const std::array<int, dim> &board_starts,
+                               const std::map<position_type, kin_type> &setup_0,
+                               const std::map<position_type, kin_type> &setup_1,
+                               std::shared_ptr<Agent<board_type>> ag0,
+                               std::shared_ptr<Agent<board_type>> ag1,
+                               bool fixed_setups)
         : Game(board_type(shape,
                           board_starts,
                           setup_0,
@@ -174,9 +167,9 @@ Game<GameState>::Game(const std::array<int, dim> &shape,
                fixed_setups) {}
 
 
-template<class GameState>
-std::vector<typename Game<GameState>::piece_type>
-Game<GameState>::extract_pieces_from_setup(const std::vector<sptr_piece_type> &setup) {
+template<class GameState, class Derived>
+std::vector<typename Game<GameState, Derived>::piece_type>
+Game<GameState, Derived>::extract_pieces_from_setup(const std::vector<sptr_piece_type> &setup) {
     std::vector<piece_type> pc_vec(setup.size());
     std::transform(
             setup.begin(),
@@ -188,10 +181,10 @@ Game<GameState>::extract_pieces_from_setup(const std::vector<sptr_piece_type> &s
 }
 
 
-template<class GameState>
-std::vector<typename Game<GameState>::piece_type>
-Game<GameState>::extract_pieces_from_setup(const std::map<position_type, kin_type> &setup,
-                                           int team) {
+template<class GameState, class Derived>
+std::vector<typename Game<GameState, Derived>::piece_type>
+Game<GameState, Derived>::extract_pieces_from_setup(const std::map<position_type, kin_type> &setup,
+                                                    int team) {
     using val_type = typename std::map<position_type, kin_type>::value_type;
     std::vector<piece_type> pc_vec(setup.size());
     std::transform(
@@ -205,8 +198,8 @@ Game<GameState>::extract_pieces_from_setup(const std::map<position_type, kin_typ
 }
 
 
-template<class GameState>
-void Game<GameState>::reset() {
+template<class GameState, class Derived>
+void Game<GameState, Derived>::reset() {
     auto curr_board_ptr = m_game_state->get_board();
     auto &setup0 = m_setups[0];
     auto &setup1 = m_setups[1];
@@ -223,8 +216,8 @@ void Game<GameState>::reset() {
 }
 
 
-template<class GameState>
-int Game<GameState>::run_step() {
+template<class GameState, class Derived>
+int Game<GameState, Derived>::run_step() {
     size_t turn = (m_game_state.get_move_count() + 1) % 2;
     int outcome;
     if (turn) {
@@ -236,21 +229,20 @@ int Game<GameState>::run_step() {
 }
 
 
-template<class GameState>
-int Game<GameState>::run_game(bool show) {
-    bool game_over = false;
+template<class GameState, class Derived>
+int Game<GameState, Derived>::run_game(bool show) {
 
-    while (!game_over) {
+    while (true) {
         if (show)
             std::cout << m_game_state->get_board->print_board();
 
-        // test for terminality
+        // test for terminal
         int outcome = m_game_state.is_terminal();
 
         std::cout << "Status: " << outcome << std::endl;
 
         if (outcome != 404)
-            game_over = true;
+            break;
         else
             outcome = run_step();
 

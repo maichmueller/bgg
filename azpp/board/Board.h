@@ -65,17 +65,25 @@ public:
           const std::map<position_type, typename piece_type::kin_type> &setup_1);
 
     std::shared_ptr<Piece> &operator[](const position_type &&position);
+
     const std::shared_ptr<Piece> &operator[](const position_type &&position) const;
+
     std::shared_ptr<Piece> &operator[](const position_type &position);
+
     const std::shared_ptr<Piece> &operator[](const position_type &position) const;
 
     [[nodiscard]] iterator begin() { return m_board_map.begin(); }
+
     [[nodiscard]] iterator end() { return m_board_map.end(); }
+
     [[nodiscard]] const_iterator begin() const { return m_board_map.begin(); }
+
     [[nodiscard]] const_iterator end() const { return m_board_map.end(); }
 
     [[nodiscard]] auto get_shape() const { return m_shape; }
+
     [[nodiscard]] auto get_starts() const { return m_board_starts; }
+
     [[nodiscard]] auto size() const { return m_board_map.size(); }
 
     map_type const *get_map() const { return m_board_map; }
@@ -83,17 +91,19 @@ public:
     std::vector<std::shared_ptr<piece_type> > get_pieces(int player);
 
     void update_board(position_type &&pos, std::shared_ptr<piece_type> &pc);
+
     void update_board(const position_type &pos, std::shared_ptr<piece_type> &pc);
 
     [[nodiscard]] std::string print_board(bool flip_board = false, bool hide_unknowns = false) const;
+
     [[nodiscard]] std::string to_string_2D(bool flip_board = false, bool hide_unknowns = false) const;
 
 };
 
 template<typename Piece>
 void Board<Piece>::check_pos_bounds(const position_type &pos) const {
-    for (int i = 0; i < m_dim; ++i) {
-        if (pos[i] >= m_shape[i] || pos[0] < m_board_starts[i]) {
+    for (size_t i = 0; i < m_dim; ++i) {
+        if (pos[0] < m_board_starts[i] || (pos[i] > 0 && (size_t) pos[i] >= m_shape[i])) {
             std::ostringstream ss;
             std::string val_str = std::to_string(pos[i]);
             std::string bounds_str = std::to_string(m_board_starts[i]) + ", " + std::to_string(m_shape[i]);
@@ -136,15 +146,17 @@ void Board<Piece>::update_board(position_type &&pos, std::shared_ptr<piece_type>
 
 template<typename Piece>
 void Board<Piece>::update_board(const position_type &pos, std::shared_ptr<piece_type> &pc_ptr) {
-    update_board(pos, pc_ptr);
+    check_pos_bounds(pos);
+    pc_ptr->set_position(pos);
+    (*this)[pos] = pc_ptr;
 }
 
 
 template<typename Piece>
 template<size_t dim>
 void Board<Piece>::_fill_board_null_pieces(const std::array<size_t, dim> &shape,
-                                                     const std::array<int, dim> &board_starts,
-                                                     std::array<int, m_dim> &&position_pres) {
+                                           const std::array<int, dim> &board_starts,
+                                           std::array<int, m_dim> &&position_pres) {
     if constexpr(dim == m_dim) {
         for (int i = m_board_starts[m_dim - 1];
              i < static_cast<int>(m_board_starts[m_dim - 1] + shape[m_dim - 1]); ++i) {
@@ -170,7 +182,7 @@ Board<Piece>::Board(const std::array<int, m_dim> &shape)
 
 template<typename Piece>
 Board<Piece>::Board(const std::array<size_t, m_dim> &shape,
-                              const std::array<int, m_dim> &board_starts)
+                    const std::array<int, m_dim> &board_starts)
         : m_shape(shape),
           m_board_starts(board_starts),
           m_board_map() {
@@ -179,9 +191,9 @@ Board<Piece>::Board(const std::array<size_t, m_dim> &shape,
 
 template<typename Piece>
 Board<Piece>::Board(const std::array<size_t, m_dim> &shape,
-                              const std::array<int, m_dim> &board_starts,
-                              const std::vector<std::shared_ptr<piece_type>> &setup_0,
-                              const std::vector<std::shared_ptr<piece_type>> &setup_1)
+                    const std::array<int, m_dim> &board_starts,
+                    const std::vector<std::shared_ptr<piece_type>> &setup_0,
+                    const std::vector<std::shared_ptr<piece_type>> &setup_1)
         : Board(shape, board_starts) {
 
     auto setup_unwrap = [&](const std::vector<std::shared_ptr<piece_type>> &setup) {
@@ -203,34 +215,37 @@ Board<Piece>::Board(const std::array<size_t, m_dim> &shape,
 
 template<typename Piece>
 Board<Piece>::Board(const std::array<size_t, m_dim> &shape,
-                              const std::vector<std::shared_ptr<piece_type>> &setup_0,
-                              const std::vector<std::shared_ptr<piece_type>> &setup_1)
+                    const std::vector<std::shared_ptr<piece_type>> &setup_0,
+                    const std::vector<std::shared_ptr<piece_type>> &setup_1)
         : Board(shape, m_board_starts, setup_0, setup_1) {}
 
 template<typename Piece>
 Board<Piece>::Board(const std::array<size_t, m_dim> &shape,
-                              const std::array<int, m_dim> &board_starts,
-                              const std::map<position_type, kin_type> &setup_0,
-                              const std::map<position_type, kin_type> &setup_1)
+                    const std::array<int, m_dim> &board_starts,
+                    const std::map<position_type, kin_type> &setup_0,
+                    const std::map<position_type, kin_type> &setup_1)
         : Board(shape, board_starts) {
-    auto setup_unwrap = [&](std::map<position_type, kin_type> & setup, int team) {
-        std::map<position_type, bool> seen_pos;
-        std::map<kin_type, bool> seen_char;
+    auto setup_unwrap = [&](const std::map<position_type, kin_type> &setup, int team) {
+        // because of the short length of the vectors they might be faster than using a map (fit in cache)
+        std::vector<position_type> seen_pos;
+        std::vector<kin_type> seen_kin;
         for (auto &elem : setup) {
             position_type pos = elem.first;
             auto character = elem.second;
 
-            if (seen_pos.find(pos) != seen_pos.end()) {
+            if (std::find(seen_pos.begin(), seen_pos.end(), pos) != seen_pos.end()) {
                 //element found
-                throw std::invalid_argument("Parameter setup has more than one piece for the "
-                                            "same position (position: '" + pos.to_string() + "').");
+                throw std::invalid_argument(std::string("Parameter setup has more than one piece for the ") +
+                                            std::string("same position (position: '") +
+                                            pos.to_string() + std::string("')."));
             }
-            seen_pos[pos] = true;
-            if (seen_char.find(character) != seen_char.end()) {
-                throw std::invalid_argument("Parameter setup has more than one piece for the "
-                                            "same character (character: '" + character.to_string() + "').");
+            seen_pos.emplace_back(pos);
+            if (std::find(seen_kin.begin(), seen_kin.end(), character) != seen_kin.end()) {
+                throw std::invalid_argument(std::string("Parameter setup has more than one piece for the ") +
+                                            std::string("same character (character: '") +
+                                            character.to_string() + std::string("')."));
             }
-            seen_char[character] = true;
+            seen_kin.emplace_back(character);
 
             auto piece = std::make_shared<piece_type>(pos, character, team);
             m_board_map[pos] = std::move(piece);
@@ -242,8 +257,8 @@ Board<Piece>::Board(const std::array<size_t, m_dim> &shape,
 
 template<typename Piece>
 Board<Piece>::Board(const std::array<size_t, m_dim> &shape,
-                              const std::map<position_type, typename piece_type::kin_type> &setup_0,
-                              const std::map<position_type, typename piece_type::kin_type> &setup_1)
+                    const std::map<position_type, typename piece_type::kin_type> &setup_0,
+                    const std::map<position_type, typename piece_type::kin_type> &setup_1)
         : Board(shape, m_board_starts, setup_0, setup_1) {}
 
 template<typename Piece>
@@ -371,9 +386,9 @@ template<typename Piece>
 std::vector<std::shared_ptr<typename Board<Piece>::piece_type> >
 Board<Piece>::get_pieces(int player) {
     std::vector<std::shared_ptr<piece_type> > pieces;
-    for(auto & pos_piece : m_board_map) {
+    for (auto &pos_piece : m_board_map) {
         std::shared_ptr<piece_type> piece = pos_piece->second;
-        if(!piece->is_null() && piece->get_team() == player) {
+        if (!piece->is_null() && piece->get_team() == player) {
             pieces.emplace_back(piece);
         }
     }

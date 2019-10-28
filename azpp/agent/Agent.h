@@ -2,8 +2,7 @@
 // Created by Michael on 04/03/2019.
 //
 
-#ifndef STRATEGO_CPP_AGENT_H
-#define STRATEGO_CPP_AGENT_H
+#pragma once
 
 #include "../game/GameUtilsStratego.h"
 #include "../logic/LogicStratego.h"
@@ -12,7 +11,12 @@
 #include "vector"
 
 
+template <class Board>
 class Agent {
+public:
+    using board_type = Board;
+    using move_type = typename board_type::move_type;
+
 protected:
     int m_team;
     bool m_is_learner;
@@ -22,27 +26,29 @@ public:
     : m_team(team), m_is_learner(learner)
     {
     }
-
-    virtual strat_move_t decide_move(const Board& board) = 0;
+    virtual move_type decide_move(const board_type * board) = 0;
     virtual void install_board(const Board& board) {}
 
 };
 
-template <typename RDev = std::random_device>
-class RandomAgent : public Agent {
+template <class Board, typename RDev = std::random_device>
+class RandomAgent : public Agent<Board> {
+    using base_type = Agent<Board>;
+    using base_type::base_type;
+    using board_type = Board;
+    using move_type = typename base_type::move_type;
 
     RDev dev;
     std::mt19937 rng;
 
-
 public:
 
     explicit RandomAgent(int team)
-    : Agent(team), rng(dev())
+    : base_type(team), rng(dev())
     {}
 
-    strat_move_t decide_move(const Board &board) override {
-        std::vector<strat_move_t> poss_moves = LogicStratego::get_poss_moves(board, m_team);
+    move_type decide_move(const board_type &board) override {
+        std::vector<move_type> poss_moves = LogicStratego<board_type >::get_poss_moves(board, base_type::m_team);
 
         std::uniform_int_distribution<std::mt19937::result_type> dist(0, poss_moves.size()-1);
 
@@ -52,4 +58,3 @@ public:
 
 
 
-#endif //STRATEGO_CPP_AGENT_H

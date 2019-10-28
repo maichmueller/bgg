@@ -72,7 +72,7 @@ namespace torch_utils {
 
             // assert that vec is indeed a std::vector
             static_assert(std::is_same< decltype(next_level_vec), std::vector<InnerDType, InnerAlloc>>::value,
-                          "InnerVec is not a vector");
+                          "Inner vector is not a vector");
 
             auto next_level_tensor = tensor_to_fill[i];
             fill_tensor(next_level_vec, next_level_tensor);

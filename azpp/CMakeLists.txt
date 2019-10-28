@@ -21,6 +21,7 @@ ENDIF(WIN32)
 
 set(PROJECT_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
 set(PROJECT_SOURCES
+		${PROJECT_SOURCE_DIR}/utils/utils.cpp
 		${PROJECT_SOURCE_DIR}/board/Position.h
 		${PROJECT_SOURCE_DIR}/board/Move.h
 		${PROJECT_SOURCE_DIR}/board/Piece.h
@@ -35,12 +36,12 @@ set(PROJECT_SOURCES
 		#		${PROJECT_SOURCE_DIR}/utils/RandomSelector.h
 		#		${PROJECT_SOURCE_DIR}/nn/alphazero/MCTS.cpp
 		#		${PROJECT_SOURCE_DIR}/nn/model/NeuralNet.cpp
-		#		${PROJECT_SOURCE_DIR}/agent/AgentReinforce.cpp
+		${PROJECT_SOURCE_DIR}/agent/AgentReinforce.h
 		#		${PROJECT_SOURCE_DIR}/nn/training/StateRepresentation.cpp
 		#		${PROJECT_SOURCE_DIR}/nn/training/Coach.cpp
 		#		${PROJECT_SOURCE_DIR}/game/Arena.cpp
 #		${PROJECT_SOURCE_DIR}/utils/UniversallyUniqueId.h
-#
+		${PROJECT_SOURCE_DIR}/logic/BattleMatrix.cpp
 		${PROJECT_SOURCE_DIR}/board/PieceStratego.h
 		${PROJECT_SOURCE_DIR}/board/BoardStratego.cpp
 		${PROJECT_SOURCE_DIR}/game/GameStateStratego.cpp

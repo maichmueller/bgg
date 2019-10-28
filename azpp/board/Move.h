@@ -37,7 +37,7 @@ public:
     iterator end() {return from_to.end();}
     const_iterator end() const {return from_to.end();}
 
-    auto get_positions() {return from_to;}
+    auto get_positions() const {return from_to;}
 
     Move operator+(const Move & other_move) {
         return Move{this[0] + other_move[0], this[1] + other_move[1]};

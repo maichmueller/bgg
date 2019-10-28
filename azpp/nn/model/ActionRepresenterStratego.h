@@ -5,6 +5,8 @@
 #include "ActionRepresenter.h"
 #include "Action.h"
 
+#include "torch/torch.h"
+
 
 class ActionRepStratego : public ActionRepBase<Action<typename BoardStratego::position_type,
                                                       typename BoardStratego::piece_type::kin_type>,
@@ -27,7 +29,9 @@ private:
     torch::Tensor state_representation(int action, int player);
 
     static std::vector<action_type> get_action_vector() { return actions; }
-    torch::Tensor state_representation(int player);
+
+    template <typename condition_type=std::tuple<kin_type, int, bool>>
+    static torch::Tensor state_representation(int player, std::vector<condition_type> conditions=default_conditions);
 
     template <typename Board, typename Move>
     static std::vector<int> get_action_mask(
@@ -49,12 +53,12 @@ private:
 
 private:
     static const std::vector<action_type> actions;
-    std::vector<std::array<bool, 4>> conditions;
-    bool conditions_computed;
+    static const std::vector<std::tuple<kin_type, int, bool>> default_conditions;
+    static bool conditions_computed;
 
 };
 
-
+if(!ActionRepStratego::conditions_computed)
 
 
 

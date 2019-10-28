@@ -19,6 +19,7 @@
 //#include "utils/torch_utils.h"
 //#include "agent/AgentReinforce.h"
 #include "board/PieceStratego.h"
+#include "game/GameStratego.h"
 
 // Type your code here, or load an example.
 
@@ -30,6 +31,7 @@
 int main() {
 
     auto gs = GameStateStratego();
+    auto game = GameStateStratego();
 
 }
 

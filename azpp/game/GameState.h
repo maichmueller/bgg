@@ -26,7 +26,7 @@ public:
 protected:
     board_type m_board;
 
-    using dead_pieces_type = std::array<std::vector<typename piece_type::kin_type>, 2>;
+    using dead_pieces_type = std::array<std::vector<kin_type>, 2>;
     dead_pieces_type m_dead_pieces;
 
     int m_terminal;
@@ -88,15 +88,14 @@ GameState<Board>::GameState(board_type &&board,
                             int move_count)
         : m_board(std::move(board)),
           m_dead_pieces(),
-          m_move_count(move_count),
-          m_terminal_checked(false),
           m_terminal(404),
-          m_canonical_teams(true),
-          m_rounds_without_fight(0),
+          m_terminal_checked(false),
+          m_move_count(move_count),
+          m_move_history(),
           m_move_equals_prev_move(0),
-          m_move_history(0) {
-    check_terminal();
-}
+          m_rounds_without_fight(0),
+          m_canonical_teams(true)
+{}
 
 template<class Board>
 GameState<Board>::GameState(const board_type &board,

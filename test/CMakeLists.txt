@@ -29,7 +29,6 @@ set(TEST_SOURCES
         ${PROJECT_SOURCE_DIR}/nn/model/ActionRepresenter.h
         ${PROJECT_SOURCE_DIR}/board/Position.h
         ${PROJECT_SOURCE_DIR}/board/Move.h
-        ${PROJECT_SOURCE_DIR}/utils/UniversallyUniqueId.h
 
         ${PROJECT_SOURCE_DIR}/board/PieceStratego.h
         ${PROJECT_SOURCE_DIR}/game/GameStateStratego.h

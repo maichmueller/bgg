@@ -61,7 +61,7 @@ void GameStateStratego::check_terminal() {
 
 
 int GameStateStratego::fight(piece_type &attacker, piece_type &defender) {
-    return LogicStratego<board_type >::fight_outcome(attacker.get_kin(), defender.get_kin());
+    return LogicStratego<board_type >::fight_outcome(attacker, defender);
 }
 
 int GameStateStratego::do_move(const move_type &move) {

@@ -19,6 +19,7 @@ struct Kin{
     static const size_t nr_identifiers = NrIds;
 
     explicit Kin(std::array<int, NrIds> sp) : specifiers(std::move(sp)) {}
+    explicit Kin() : specifiers() {std::fill(specifiers.begin(), specifiers.end(), 404);};
 
     template <typename ... Types, typename std::enable_if<sizeof...(Types) == NrIds, int>::type = 0>
     Kin(Types&& ... vals)
@@ -40,7 +41,7 @@ public:
     auto end() const { return specifiers.end();}
     bool operator==(const Kin & other) {
         for(size_t i = 0; i < NrIds; ++i) {
-            if(this[i] != other[i])
+            if(specifiers[i] != other[i])
                 return false;
         }
         return true;
@@ -49,8 +50,8 @@ public:
     std::string to_string() {
         std::ostringstream ss;
         ss << "{";
-        for (const auto &spec_it = specifiers.begin(); spec_it != specifiers.back(); ++spec_it) {
-            ss << spec_it << ", ";
+        for (auto spec_it = specifiers.begin(); spec_it != specifiers.end(); ++spec_it) {
+            ss << *spec_it << ", ";
         }
         ss << specifiers.back() << "}";
         return ss.str();
@@ -100,10 +101,10 @@ public:
 
 // a Null Piece Constructor
     explicit Piece(const position_type & position)
-            : m_null_piece(true),
-              m_position(position),
-              m_team(-1),
+            : m_position(position),
               m_type(),
+              m_team(-1),
+              m_null_piece(true),
               m_hidden(false),
               m_has_moved(false)
     {}
