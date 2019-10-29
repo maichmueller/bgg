@@ -26,7 +26,7 @@ class ActionRepBase {
 public:
     using action_type = Action;
     using state_type = State;
-    using board_type = typename state_type::Board;
+    using board_type = typename state_type::board_type;
     using position_type = typename board_type::position_type;
     using move_type = typename board_type::move_type;
     using kin_type = typename state_type::kin_type;

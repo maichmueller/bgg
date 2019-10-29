@@ -11,25 +11,24 @@
 
 #include "utils.h"
 
+struct GLOBAL_DEVICE {
+    // if CUDA is available, we are using it. Otherwise CPU
+    //static inline torch::Device global_dev = torch::cuda::is_available() ? torch::kCUDA : torch::kCPU;
+
+    static inline torch::Device global_dev = torch::kCPU;
+
+    static auto& get_device() {
+        return global_dev;
+    }
+    static void set_device_cuda() {
+        global_dev = torch::Device(torch::kCUDA);
+    }
+    static void set_device_cpu() {
+        global_dev = torch::Device(torch::kCPU);
+    }
+};
 
 namespace torch_utils {
-
-    struct GLOBAL_DEVICE {
-        // if CUDA is available, we are using it. Otherwise CPU
-        //static inline torch::Device global_dev = torch::cuda::is_available() ? torch::kCUDA : torch::kCPU;
-
-        static inline torch::Device global_dev = torch::kCPU;
-
-        static auto& get_device() {
-            return global_dev;
-        }
-        static void set_device_cuda() {
-            global_dev = torch::Device(torch::kCUDA);
-        }
-        static void set_device_cpu() {
-            global_dev = torch::Device(torch::kCPU);
-        }
-    };
 
     template <typename Val_Type>
     struct NestedVectorManip {
@@ -95,7 +94,7 @@ namespace torch_utils {
         torch::ArrayRef<int64_t> tensor_shape(shape);
         auto build_details = torch::TensorOptions()
                 .dtype(torch::kInt64)
-                .device(torch_utils::GLOBAL_DEVICE::get_device());
+                .device(GLOBAL_DEVICE::get_device());
         torch::Tensor tensor_to_fill = torch::zeros(tensor_shape, build_details);
 //        auto tensor_access = tensor_to_fill.accessor<int64_t, NestedVectorManip<std::vector<DType>>::dimension>();
 
@@ -117,7 +116,7 @@ namespace torch_utils {
         // pass m_shape vector to ArrayRef (which is holding only the pointer to the vector)
         // for torch API
         torch::ArrayRef<int64_t> tensor_shape(shape);
-        options = options.device(torch_utils::GLOBAL_DEVICE::get_device());
+        options = options.device(GLOBAL_DEVICE::get_device());
         torch::Tensor tensor_to_fill = torch::zeros(tensor_shape, options);
 //        auto tensor_access = tensor_to_fill.accessor<int64_t, NestedVectorManip<std::vector<DType>>::dimension>();
 

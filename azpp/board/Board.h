@@ -4,14 +4,15 @@
 
 #pragma once
 
-#include "map"
-#include "array"
-#include "vector"
-#include "memory"
+#include <map>
+#include <unordered_map>
+#include <array>
+#include <vector>
+#include <memory>
+#include <algorithm>
 
 #include "Piece.h"
 #include "Move.h"
-#include "../game/GameUtilsStratego.h"
 #include "../utils/utils.h"
 
 
@@ -23,6 +24,7 @@ public:
     using position_type = typename piece_type::position_type;
     using move_type = Move<position_type>;
     using map_type = std::map<position_type, std::shared_ptr<Piece>>;
+    using inverse_map_type = std::array<std::unordered_map<kin_type, position_type, typename kin_type::hash>, 2>;
     using iterator = typename map_type::iterator;
     using const_iterator = typename map_type::const_iterator;
 
@@ -32,6 +34,7 @@ protected:
     std::array<size_t, m_dim> m_shape;
     std::array<int, m_dim> m_board_starts{}; // initializes all entries to 0 this way (for defaulting)
     map_type m_board_map;
+    inverse_map_type m_board_map_inverse;
 
     void check_pos_bounds(const position_type &pos) const;
 
@@ -39,6 +42,8 @@ protected:
     void _fill_board_null_pieces(const std::array<size_t, dim> &shape,
                                  const std::array<int, dim> &board_starts,
                                  std::array<int, m_dim> &&position_pres = std::array<int, m_dim>{0});
+
+    void _fill_inverse_board();
 
 public:
     explicit Board(const std::array<int, m_dim> &shape);
@@ -64,10 +69,6 @@ public:
           const std::map<position_type, typename piece_type::kin_type> &setup_0,
           const std::map<position_type, typename piece_type::kin_type> &setup_1);
 
-    std::shared_ptr<Piece> &operator[](const position_type &&position);
-
-    const std::shared_ptr<Piece> &operator[](const position_type &&position) const;
-
     std::shared_ptr<Piece> &operator[](const position_type &position);
 
     const std::shared_ptr<Piece> &operator[](const position_type &position) const;
@@ -88,9 +89,9 @@ public:
 
     map_type const *get_map() const { return m_board_map; }
 
-    std::vector<std::shared_ptr<piece_type> > get_pieces(int player);
+    position_type get_position_of_kin(int team, const kin_type &kin) { return m_board_map_inverse[team][kin]; }
 
-    void update_board(position_type &&pos, std::shared_ptr<piece_type> &pc);
+    std::vector<std::shared_ptr<piece_type> > get_pieces(int player);
 
     void update_board(const position_type &pos, std::shared_ptr<piece_type> &pc);
 
@@ -116,19 +117,7 @@ void Board<Piece>::check_pos_bounds(const position_type &pos) const {
 }
 
 template<typename Piece>
-const std::shared_ptr<Piece> &Board<Piece>::operator[](const position_type &&position) const {
-    check_pos_bounds(position);
-    return m_board_map.find(std::forward(position))->second;
-}
-
-template<typename Piece>
-std::shared_ptr<Piece> &Board<Piece>::operator[](const position_type &&position) {
-    return m_board_map.find(std::forward(position))->second;
-}
-
-template<typename Piece>
 const std::shared_ptr<Piece> &Board<Piece>::operator[](const position_type &position) const {
-    check_pos_bounds(position);
     return m_board_map.find(position)->second;
 }
 
@@ -138,17 +127,11 @@ std::shared_ptr<Piece> &Board<Piece>::operator[](const position_type &position) 
 }
 
 template<typename Piece>
-void Board<Piece>::update_board(position_type &&pos, std::shared_ptr<piece_type> &pc_ptr) {
-    check_pos_bounds(std::forward(pos));
-    pc_ptr->set_position(pos);
-    (*this)[pos] = pc_ptr;
-}
-
-template<typename Piece>
 void Board<Piece>::update_board(const position_type &pos, std::shared_ptr<piece_type> &pc_ptr) {
     check_pos_bounds(pos);
     pc_ptr->set_position(pos);
     (*this)[pos] = pc_ptr;
+    m_board_map_inverse[pc_ptr->get_team()][pc_ptr->get_kin()] = pos;
 }
 
 
@@ -176,7 +159,8 @@ void Board<Piece>::_fill_board_null_pieces(const std::array<size_t, dim> &shape,
 template<typename Piece>
 Board<Piece>::Board(const std::array<int, m_dim> &shape)
         : m_shape(shape),
-          m_board_map() {
+          m_board_map(),
+          m_board_map_inverse() {
     _fill_board_null_pieces(m_shape, m_board_starts);
 }
 
@@ -185,7 +169,8 @@ Board<Piece>::Board(const std::array<size_t, m_dim> &shape,
                     const std::array<int, m_dim> &board_starts)
         : m_shape(shape),
           m_board_starts(board_starts),
-          m_board_map() {
+          m_board_map(),
+          m_board_map_inverse() {
     _fill_board_null_pieces(m_shape, m_board_starts);
 }
 
@@ -211,6 +196,8 @@ Board<Piece>::Board(const std::array<size_t, m_dim> &shape,
     };
     setup_unwrap(setup_0);
     setup_unwrap(setup_1);
+
+    _fill_inverse_board();
 }
 
 template<typename Piece>
@@ -253,6 +240,8 @@ Board<Piece>::Board(const std::array<size_t, m_dim> &shape,
     };
     setup_unwrap(setup_0, 0);
     setup_unwrap(setup_1, 1);
+
+    _fill_inverse_board();
 }
 
 template<typename Piece>
@@ -393,4 +382,14 @@ Board<Piece>::get_pieces(int player) {
         }
     }
     return pieces;
+}
+
+template<class Piece>
+void Board<Piece>::_fill_inverse_board() {
+    for (const auto &piece_ptr : m_board_map) {
+        auto & piece = piece_ptr.second;
+        if (!piece->is_null()) {
+            m_board_map_inverse[piece->get_team()][piece->get_kin()] = piece->get_position();
+        }
+    }
 }

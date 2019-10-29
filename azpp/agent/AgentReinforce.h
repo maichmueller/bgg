@@ -12,6 +12,7 @@
 #include "../utils/torch_utils.h"
 #include "torch/torch.h"
 #include "../nn/training/StateRepresentation.h"
+#include "../nn/model/ActionRepresenter.h"
 
 //struct VecIntHasher {
 //    std::size_t operator()(std::vector<int> const& vec) const {
@@ -32,18 +33,11 @@ public:
     using piece_type = typename Board::piece_type;
 
 protected:
-    int m_state_dim;
-    int m_action_dim;
-    int m_board_len;
-
-    std::vector<std::tuple<int, int, int, bool>> m_conditions;
-    std::map<int, unsigned int> m_type_counter;
-
     std::shared_ptr<NetworkWrapper> m_model;
 
 public:
     AgentReinforceBase(int team, const std::shared_ptr<NetworkWrapper> & model_sptr)
-    : base_type(team, true), m_state_dim(), m_action_dim(), m_board_len(), m_conditions(), m_type_counter(),
+    : base_type(team, true),
       m_model(model_sptr)
     {}
 

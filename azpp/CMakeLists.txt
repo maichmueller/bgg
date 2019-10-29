@@ -18,7 +18,8 @@ if(NOT Torch_FOUND)
 	ENDIF(WIN32)
 
 	find_package(Torch REQUIRED)
-	message(STATUS "AFTER FUCKING FINDING TORCH Torch_FOUND=${Torch_FOUND}")
+	# PARENT_SCOPE is necessary to set the torch_found variable of the main cmakelists and not a local only version of it
+	set(Torch_FOUND TRUE PARENT_SCOPE)
 ENDIF()
 
 
@@ -35,7 +36,9 @@ set(PROJECT_SOURCES
 		#		${PROJECT_SOURCE_DIR}/game/GameUtilsStratego.h
 		${PROJECT_SOURCE_DIR}/logic/LogicStratego.cpp
 		${PROJECT_SOURCE_DIR}/logic/Logic.h
-		#		${PROJECT_SOURCE_DIR}/agent/Agent.cpp
+		${PROJECT_SOURCE_DIR}/agent/Agent.h
+		${PROJECT_SOURCE_DIR}/agent/AgentReinforce.h
+		${PROJECT_SOURCE_DIR}/nn/alphazero/AgentAlphazero.h
 		#		${PROJECT_SOURCE_DIR}/utils/RandomSelector.h
 		#		${PROJECT_SOURCE_DIR}/nn/alphazero/MCTS.cpp
 		#		${PROJECT_SOURCE_DIR}/nn/model/NeuralNet.cpp
@@ -47,7 +50,7 @@ set(PROJECT_SOURCES
 		${PROJECT_SOURCE_DIR}/board/BoardStratego.cpp
 		${PROJECT_SOURCE_DIR}/game/GameStateStratego.cpp
 		${PROJECT_SOURCE_DIR}/game/GameStratego.h
-#		${PROJECT_SOURCE_DIR}/nn/model/Action.h
+		${PROJECT_SOURCE_DIR}/nn/model/Action.h
 #		${PROJECT_SOURCE_DIR}/nn/model/ActionRepresenterStratego.cpp
 		)
 

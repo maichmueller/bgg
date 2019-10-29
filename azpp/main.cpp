@@ -10,7 +10,6 @@
 //#include "vector"
 //#include "random"
 #include "torch/torch.h"
-////#include "alphazero/ActionRepresentation.h"
 //
 //#include <iostream>
 //#include <vector>
@@ -20,7 +19,7 @@
 //#include "agent/AgentReinforce.h"
 #include "board/PieceStratego.h"
 #include "game/GameStratego.h"
-
+#include "nn/model/ActionRepresenterStratego.h"
 // Type your code here, or load an example.
 
 #include<iostream>
@@ -29,10 +28,9 @@
 
 
 int main() {
-
     auto gs = GameStateStratego();
     auto game = GameStateStratego();
-
+    ActionRepStratego a;
 }
 
 

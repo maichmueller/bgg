@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include "../game/GameUtilsStratego.h"
 #include "../logic/LogicStratego.h"
 #include "../board/Board.h"
 #include "../utils/RandomSelector.h"

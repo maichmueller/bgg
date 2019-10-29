@@ -8,7 +8,6 @@
 #include "../board/Piece.h"
 #include "../board/Move.h"
 #include "../board/Position.h"
-#include "GameUtilsStratego.h"
 //#include "../logic/LogicStratego.h"
 #include "unordered_map"
 

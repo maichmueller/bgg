@@ -48,12 +48,72 @@ struct LogicStratego : public Logic<Board, LogicStratego<Board>>{
         return BattleMatrix::fight_outcome(att_def);
     }
 
+    static inline std::vector<position_type> get_obstacle_positions(int shape) {
+        if (shape == 5)
+            return {{2, 2}};
+        else if (shape == 7)
+            return {{3, 1}, {3, 5}};
+        else if (shape == 10)
+            return {{4, 2}, {5, 2}, {4, 3}, {5, 3}, {4, 6}, {5, 6}, {4, 7}, {5, 7}};
+        else
+            throw std::invalid_argument("'shape' not in {5, 7, 10}.");
+    }
+
+    static inline std::vector<int> get_available_types(int shape) {
+        if (shape == 5)
+            return  {0, 1, 2, 2, 2, 3, 3, 10, 11, 11};
+        else if (shape == 7)
+            return {0, 1, 2, 2, 2, 2, 2, 3, 3, 3, 4,
+                    4, 4, 5, 5, 6, 10, 11, 11, 11, 11};
+        else if (shape == 10)
+            return  {0, 1, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3,
+                     3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5,
+                     6, 6, 6, 6, 7, 7, 7, 8, 8, 9, 10,
+                     11, 11, 11, 11, 11, 11};
+        else
+            throw std::invalid_argument("'shape' not in {5, 7, 10}.");
+    }
+
+    static inline std::vector<position_type> get_start_positions(int shape, int team) {
+        if(team != 0 && team != 1)
+            throw std::invalid_argument("'team' not in {0, 1}.");
+
+        if (shape == 5) {
+            if (team == 0)
+                return  {{0, 0}, {0, 1}, {0, 2}, {0, 3}, {0, 4}, {1, 0}, {1, 1}, {1, 2}, {1, 3}, {1, 4}};
+            else
+                return {{4, 0}, {4, 1}, {4, 2}, {4, 3}, {4, 4}, {3, 0}, {3, 1}, {3, 2}, {3, 3}, {3, 4}};
+        } else if (shape == 7) {
+            if (team == 0)
+                return {{0, 0}, {0, 1}, {0, 2}, {0, 3}, {0, 4}, {0, 5}, {0, 6},
+                        {1, 0}, {1, 1}, {1, 2}, {1, 3}, {1, 4}, {1, 5}, {1, 6},
+                        {2, 0}, {2, 1}, {2, 2}, {2, 3}, {2, 4}, {2, 5}, {2, 6}};
+            else
+                return {{4, 0}, {4, 1}, {4, 2}, {4, 3}, {4, 4}, {4, 5}, {4, 6},
+                        {5, 0}, {5, 1}, {5, 2}, {5, 3}, {5, 4}, {5, 5}, {5, 6},
+                        {6, 0}, {6, 1}, {6, 2}, {6, 3}, {6, 4}, {6, 5}, {6, 6}};
+
+        } else if (shape == 10) {
+            if (team == 0)
+                return {{0, 0}, {0, 1}, {0, 2}, {0, 3}, {0, 4}, {0, 5}, {0, 6}, {0, 7}, {0, 8}, {0, 9},
+                        {1, 0}, {1, 1}, {1, 2}, {1, 3}, {1, 4}, {1, 5}, {1, 6}, {1, 7}, {1, 8}, {1, 9},
+                        {2, 0}, {2, 1}, {2, 2}, {2, 3}, {2, 4}, {2, 5}, {2, 6}, {2, 7}, {2, 8}, {2, 9},
+                        {3, 0}, {3, 1}, {3, 2}, {3, 3}, {3, 4}, {3, 5}, {3, 6}, {3, 7}, {3, 8}, {3, 9}};
+
+            else
+                return {{6, 0}, {6, 1}, {6, 2}, {6, 3}, {6, 4}, {6, 5}, {6, 6}, {6, 7}, {6, 8}, {6, 9},
+                        {7, 0}, {7, 1}, {7, 2}, {7, 3}, {7, 4}, {7, 5}, {7, 6}, {7, 7}, {7, 8}, {7, 9},
+                        {8, 0}, {8, 1}, {8, 2}, {8, 3}, {8, 4}, {8, 5}, {8, 6}, {8, 7}, {8, 8}, {8, 9},
+                        {9, 0}, {9, 1}, {9, 2}, {9, 3}, {9, 4}, {9, 5}, {9, 6}, {9, 7}, {9, 8}, {9, 9}};
+
+        } else
+            throw std::invalid_argument("'shape' not in {5, 7, 10}.");
+    }
 
 };
 
-
 template<typename Board>
-bool LogicStratego<Board>::is_legal_move(const board_type &board, const move_type &move) {
+bool LogicStratego<Board>::is_legal_move(const board_type &board, const move_type & move) {
     int shape_x = board.get_shape()[0];
     int shape_y = board.get_shape()[1];
     int starts_x = board.get_starts()[0];

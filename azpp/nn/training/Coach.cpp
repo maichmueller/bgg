@@ -25,8 +25,8 @@ Coach::Coach(std::shared_ptr<Game> game, std::shared_ptr<NetworkWrapper> nnet,
                       m_num_mcts_simulations(num_mcts_sims), m_model_folder(std::move(model_folder)),
                       m_exploration_rate(exploration_rate)
 {
-    m_nnet->to_device(torch_utils::GLOBAL_DEVICE::get_device());
-    m_opp_nnet->to_device(torch_utils::GLOBAL_DEVICE::get_device());
+    m_nnet->to_device(GLOBAL_DEVICE::get_device());
+    m_opp_nnet->to_device(GLOBAL_DEVICE::get_device());
 }
 
 
@@ -136,7 +136,7 @@ void Coach::teach(bool from_prev_examples,
         }
 
         m_nnet->save_checkpoint(m_model_folder, "temp.pth.tar");
-        m_nnet->to(torch_utils::GLOBAL_DEVICE::get_device());
+        m_nnet->to(GLOBAL_DEVICE::get_device());
         m_nnet->train(train_examples, /*epochs=*/100, /*batch_size=*/4096);
 
         m_opp_nnet->load_checkpoint(m_model_folder, "temp.pth.tar");

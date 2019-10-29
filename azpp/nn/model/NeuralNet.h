@@ -125,7 +125,7 @@ public:
     void train(TrainExampleContainer train_examples,
             int epochs, int batch_size=128) {
         // send model to the right device
-        to_device(torch_utils::GLOBAL_DEVICE::get_device());
+        to_device(GLOBAL_DEVICE::get_device());
 
         auto optimizer = torch::optim::Adam(nnet->parameters(), torch::optim::AdamOptions(/*learning_rate=*/0.01));
 
@@ -153,12 +153,12 @@ public:
                 }
 
                 torch::TensorOptions options_int = torch::TensorOptions()
-                        .device(torch_utils::GLOBAL_DEVICE::get_device())
+                        .device(GLOBAL_DEVICE::get_device())
                         .dtype(torch::kInt64)
                         .requires_grad(false);
 
                 torch::TensorOptions options_float = torch::TensorOptions()
-                        .device(torch_utils::GLOBAL_DEVICE::get_device())
+                        .device(GLOBAL_DEVICE::get_device())
                         .dtype(torch::kFloat)
                         .requires_grad(true);
 

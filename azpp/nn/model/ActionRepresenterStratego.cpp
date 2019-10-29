@@ -3,13 +3,67 @@
 //
 
 #include "ActionRepresenterStratego.h"
-#include "../../game/GameUtilsStratego.h"
 #include "../../utils/torch_utils.h"
 
+/**
+* We are trying to build a state representation of a Stratego board.
+* To this end, 'conditions' are evaluated for each
+* piece on the board. These 'conditions' are checked in sequence.
+* Each condition receives its own layer with 0's everywhere, except
+* for where the specific condition was true, which holds a 1.
+* |==========================================================================|
+* |              In short: x conditions -> x binary layers                   |
+* |                            (one for each condition)                      |
+* |==========================================================================|
+*
+* Parameters
+* ----------
+* @param board, the board whose representation we want
+* @param conditions, std::vector of tuples for the conditions,
+*      on which to check the board
+* @param player, int deciding which player's representation we're seeking
+*
+* Returns
+* -------
+* @return tensor of 0's and 1's on the positions for which the relevant condition was
+*      true (1) or wrong (0)
+**/
+ActionRepStratego::condition_container ActionRepStratego::_build_conditions_vector(size_t shape) {
+    std::vector<std::tuple<kin_type, int, bool>> conditions(0);
+    int own_team = 0;
+    auto counter = utils::counter(LogicStratego<board_type>::get_available_types(shape));
+    // own m_team 0
+    // [flag, 1, 2, 3, 4, ..., 10, bombs] UNHIDDEN
+    for(const auto& entry : counter) {
+        int type = entry.first;
+        for (int version = 0; version < entry.second; ++version) {
+            conditions.emplace_back(std::make_tuple(own_team, type, version, false));
+        }
+    }
+    // [all own pieces] HIDDEN
+    // Note: type and version info are unused
+    // in the check in this case (thus -1)
+    conditions.emplace_back(std::make_tuple(own_team, -1, -1, true));
 
-void ActionRepStratego::_build_actions_vector(size_t shape) {
-    std::vector<action_type> actions;
-    const auto &available_types = GameUtilsStratego<kin_type, position_type>::get_available_types(shape);
+    // enemy m_team 1
+    // [flag, 1, 2, 3, 4, ..., 10, bombs] UNHIDDEN
+    for(const auto& entry : counter) {
+        int type = entry.first;
+        for (int version = 0; version < entry.second; ++version) {
+            conditions.emplace_back(std::make_tuple(1-own_team, type, version, false));
+        }
+    }
+    // [all enemy pieces] HIDDEN
+    // Note: type and version info are unused
+    // in the check in this case (thus -1)
+    conditions.emplace_back(std::make_tuple(1-own_team, -1, -1, true));
+    return conditions;
+}
+
+
+std::vector<ActionRepStratego::action_type> ActionRepStratego::_build_actions_vector(size_t shape) {
+    std::vector<action_type> acts;
+    const auto &available_types = LogicStratego<board_type>::get_available_types(shape);
     int curr_kin = -1;
     int curr_kin_version = -1;
     /*
@@ -30,25 +84,25 @@ void ActionRepStratego::_build_actions_vector(size_t shape) {
                 max_steps = 4;
             // add all four directions in which the piece can walk
             for (int i = 1; i < max_steps + 1; ++i) {
-                actions.emplace_back(
+                acts.emplace_back(
                         action_type(
                                 position_type(0, i),
                                 kin_type(curr_kin, curr_kin_version)
                         )
                 );
-                actions.emplace_back(
+                acts.emplace_back(
                         action_type(
                                 position_type(i, 0),
                                 kin_type(curr_kin, curr_kin_version)
                         )
                 );
-                actions.emplace_back(
+                acts.emplace_back(
                         action_type(
                                 position_type(-i, 0),
                                 kin_type(curr_kin, curr_kin_version)
                         )
                 );
-                actions.emplace_back(
+                acts.emplace_back(
                         action_type(
                                 position_type(0, -i),
                                 kin_type(curr_kin, curr_kin_version)
@@ -57,6 +111,7 @@ void ActionRepStratego::_build_actions_vector(size_t shape) {
             }
         }
     }
+    return acts;
 }
 
 template<typename Piece>
@@ -109,79 +164,7 @@ ActionRepStratego::_check_condition(
     }
 }
 
-/**
-* We are trying to build a state representation of a Stratego board.
-* To this end, 'conditions' are evaluated for each
-* piece on the board. These 'conditions' are checked in sequence.
-* Each condition receives its own layer with 0's everywhere, except
-* for where the specific condition was true, which holds a 1.
-* |==========================================================================|
-* |              In short: x conditions -> x binary layers                   |
-* |                            (one for each condition)                      |
-* |==========================================================================|
-*
-* Parameters
-* ----------
-* @param board, the board whose representation we want
-* @param conditions, std::vector of tuples for the conditions,
-*      on which to check the board
-* @param player, int deciding which player's representation we're seeking
-*
-* Returns
-* -------
-* @return tensor of 0's and 1's on the positions for which the relevant condition was
-*      true (1) or wrong (0)
-**/
 
-template<typename condition_type>
-torch::Tensor ActionRepStratego::state_representation(
-        const state_type & state,
-        int player,
-        std::vector<condition_type> conditions) {
 
-    auto board = state.get_board();
-    auto shape = board->get_shape();
-    auto starts = board->get_starts();
-    int state_dim = conditions.size();
-    bool flip_teams = static_cast<bool> (player);
 
-    std::function<position_type (position_type&)> canonize_pos = [&](position_type& pos) {return pos;};
-    std::function<int(int)> canonize_team = [](int team) {return team;};
-
-    if(flip_teams) {
-        canonize_pos = [&](position_type& pos) {return pos.invert(starts, shape);};
-        canonize_team = [](int team) {return 1-team;};
-    }
-
-    auto options =
-            torch::TensorOptions()
-                    .dtype(torch::kFloat32)
-                    .layout(torch::kStrided)
-                    .device(torch_utils::GLOBAL_DEVICE::get_device())
-                    .requires_grad(true);
-    // the dimensions here are as follows:
-    // 1 = batch_size (in this case obviously only 1)
-    // state_dim = dimension of the state rep, i.e. how many layers of the conditions
-    // shape[0] = first board dimension
-    // shape[1] = second board dimension
-    torch::Tensor board_state_rep = torch::zeros({1, state_dim, shape[0], shape[1]}, options);
-
-    for(const auto& pos_piece : *board) {
-        Position pos = pos_piece.first;
-        pos = canonize_pos(pos);
-        auto piece = pos_piece.second;
-        if(!piece->is_null()) {
-            for(auto&& [i, cond_it] = std::make_tuple(0, conditions.begin());
-                cond_it != conditions.end();
-                ++i, ++cond_it)
-            {
-                // unpack the condition
-                auto [kin, team, hidden] = *cond_it;
-                // write the result of the condition check to the tensor
-                board_state_rep[0][i][pos[0]][pos[1]] = check_condition(piece, kin, team, hidden, flip_teams);
-            }
-        }
-    }
-    return board_state_rep;
-}
 

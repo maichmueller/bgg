@@ -12,8 +12,6 @@
 template <size_t NrIds>
 struct Kin{
     using container_type = std::array<int, NrIds>;
-    using hash = tuple::hash<Kin>;
-    using eq_comp = eqcomp_tuple::eqcomp<Kin>;
 
     std::array<int, NrIds> specifiers;
     static const size_t nr_identifiers = NrIds;
@@ -55,6 +53,10 @@ public:
         }
         ss << specifiers.back() << "}";
         return ss.str();
+    }
+    template <size_t N>
+    constexpr int hash() {
+        ( x p1 xor y p2 xor z p3) mod n
     }
 };
 

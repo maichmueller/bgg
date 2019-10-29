@@ -129,7 +129,7 @@ namespace StateRepresentation {
                 torch::TensorOptions()
                         .dtype(torch::kFloat32)
                         .layout(torch::kStrided)
-                        .device(torch_utils::GLOBAL_DEVICE::get_device())
+                        .device(GLOBAL_DEVICE::get_device())
                         .requires_grad(true);
         // the dimensions here are as follows:
         // 1 = batch_size (in this case obvciously only 1)
@@ -159,7 +159,7 @@ namespace StateRepresentation {
         }
         // send the tensor to the global device for
         // working with the GPU if possible
-        board_state_rep.to(torch_utils::GLOBAL_DEVICE::get_device());
+        board_state_rep.to(GLOBAL_DEVICE::get_device());
 
         return board_state_rep;
     }

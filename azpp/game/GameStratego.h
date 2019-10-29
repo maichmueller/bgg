@@ -15,11 +15,10 @@ public:
     using base_type::base_type;
 
     std::map<position_type, sptr_piece_type> draw_setup(int team) {
-        using utils_type = GameUtilsStratego<typename piece_type::kin_type, position_type>;
         int shape = m_game_state.get_board()->get_shape()[0];
-            auto avail_types = utils_type::get_available_types(shape);
+            auto avail_types = LogicStratego<board_type>::get_available_types(shape);
 
-            std::vector<position_type> poss_pos = utils_type::get_start_positions(shape, team);
+            std::vector<position_type> poss_pos = LogicStratego<board_type>::get_start_positions(shape, team);
 
             std::map<position_type, sptr_piece_type> setup_out;
 

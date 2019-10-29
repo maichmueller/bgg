@@ -65,7 +65,7 @@ Convolutional::Convolutional(int channels_in,
                         {}
 
 torch::Tensor Convolutional::forward(const torch::Tensor &input) {
-    input.to(torch_utils::GLOBAL_DEVICE::get_device());
+    input.to(GLOBAL_DEVICE::get_device());
     return m_layers->forward(input);
 }
 
@@ -109,7 +109,7 @@ FullyConnected::FullyConnected(int D_in, int D_out, int nr_lin_layers, int start
 
 torch::Tensor FullyConnected::forward(const torch::Tensor &input) {
 
-    input.to(torch_utils::GLOBAL_DEVICE::get_device());
+    input.to(GLOBAL_DEVICE::get_device());
 
     return m_layers->forward(input);
 }
@@ -160,7 +160,7 @@ pi_act_layer(nullptr), v_act_layer(nullptr)
 }
 
 std::tuple<torch::Tensor, torch::Tensor> StrategoAlphaZero::forward(const torch::Tensor &input) {
-    input.to(torch_utils::GLOBAL_DEVICE::get_device());
+    input.to(GLOBAL_DEVICE::get_device());
 
     torch::Tensor output = convo_layers->forward(input).view({-1, D_in});
     output = linear_layers->forward(output);
