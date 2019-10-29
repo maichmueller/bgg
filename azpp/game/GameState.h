@@ -4,11 +4,11 @@
 
 #pragma once
 
-#include "../board/Board.h"
-#include "../board/Piece.h"
-#include "../board/Move.h"
-#include "../board/Position.h"
-//#include "../logic/LogicStratego.h"
+#include "board/Board.h"
+#include "board/Piece.h"
+#include "board/Move.h"
+#include "board/Position.h"
+//#include "logic/LogicStratego.h"
 #include "unordered_map"
 
 

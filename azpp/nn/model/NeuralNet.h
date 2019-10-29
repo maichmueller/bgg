@@ -11,7 +11,7 @@
 
 #include "torch/torch.h"
 #include "tqdm/tqdm.h"
-#include "../../utils/torch_utils.h"
+#include "utils/torch_utils.h"
 
 
 class Convolutional : public torch::nn::Module {

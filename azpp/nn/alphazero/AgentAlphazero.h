@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "../../agent/AgentReinforce.h"
+#include "agent/AgentReinforce.h"
 
 template <class Board, class ActionRep>
 class AlphaZeroAgent : public AgentReinforceBase<Board> {

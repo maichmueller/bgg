@@ -13,7 +13,7 @@
 
 #include "Piece.h"
 #include "Move.h"
-#include "../utils/utils.h"
+#include "utils/utils.h"
 
 
 template<typename Piece>

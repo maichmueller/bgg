@@ -7,12 +7,12 @@
 #include <algorithm>    // std::find
 
 #include "Agent.h"
-#include "../board/Piece.h"
-#include "../nn/model/NeuralNet.h"
-#include "../utils/torch_utils.h"
+#include "board/Piece.h"
+#include "nn/model/NeuralNet.h"
+#include "utils/torch_utils.h"
 #include "torch/torch.h"
-#include "../nn/training/StateRepresentation.h"
-#include "../nn/model/ActionRepresenter.h"
+#include "nn/training/StateRepresentation.h"
+#include "nn/model/ActionRepresenter.h"
 
 //struct VecIntHasher {
 //    std::size_t operator()(std::vector<int> const& vec) const {

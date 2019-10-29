@@ -44,6 +44,6 @@ set(TARGET_TEST_SOURCES
         BoardTest.cpp)
 
 add_executable(tests ${TEST_SOURCES} ${TARGET_TEST_SOURCES})
-
+include_directories("${CMAKE_SOURCE_DIR}/azpp")
 target_link_libraries(tests stdc++fs gtest_main)
 add_test(NAME google_testing COMMAND ./tests)

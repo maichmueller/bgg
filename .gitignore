@@ -34,6 +34,8 @@
 build/*
 cmake-build-debug/*
 azpp/bin/*
+deps/libtorch/*
+deps/libtorch_debug/*
 azpp/cmake-build-debug/*
 azpp/cmake-build-debug-clang/*
 azpp/cmake-build-minsizerel/*

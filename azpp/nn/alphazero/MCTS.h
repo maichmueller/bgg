@@ -8,12 +8,12 @@
 #include "unordered_map"
 #include "string"
 
-#include "../model/NeuralNet.h"
-#include "../../utils/utils.h"
-#include "../../game/GameState.h"
+#include "model/NeuralNet.h"
+#include "utils/utils.h"
+#include "game/GameState.h"
 
-#include "../training/StateRepresentation.h"
-#include "../../logic/LogicStratego.h"
+#include "training/StateRepresentation.h"
+#include "logic/LogicStratego.h"
 
 
 class MCTS {

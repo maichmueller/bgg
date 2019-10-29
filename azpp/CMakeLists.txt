@@ -59,6 +59,7 @@ set(PROJECT_SOURCES
 set(TARGET_SOURCES main.cpp)
 # set(TEST_SOURCES  run_tests.cpp test_file1.cpp test_file2.cpp)
 include_directories("${PROJECT_SOURCE_DIR}/../deps")
+include_directories("${PROJECT_SOURCE_DIR}")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall")
 
 add_executable(AlphaZero++ ${PROJECT_SOURCES} ${TARGET_SOURCES})

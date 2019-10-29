@@ -4,9 +4,9 @@
 
 #pragma once
 
-#include "../logic/LogicStratego.h"
-#include "../board/Board.h"
-#include "../utils/RandomSelector.h"
+#include "logic/LogicStratego.h"
+#include "board/Board.h"
+#include "utils/RandomSelector.h"
 #include "vector"
 
 

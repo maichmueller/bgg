@@ -11,8 +11,8 @@
 #include <functional>
 
 #include "GameState.h"
-#include "../agent/Agent.h"
-#include "../utils/utils.h"
+#include "agent/Agent.h"
+#include "utils/utils.h"
 
 
 template<class GameState, class Derived>

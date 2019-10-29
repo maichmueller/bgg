@@ -3,7 +3,7 @@
 //
 
 #pragma once
-#include "../azpp/board/Position.h"
+#include "board/Position.h"
 
 namespace {
     template <size_t N>

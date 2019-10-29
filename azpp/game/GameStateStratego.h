@@ -5,8 +5,8 @@
 #pragma once
 
 #include "GameState.h"
-#include "../board/BoardStratego.h"
-#include "../logic/LogicStratego.h"
+#include "board/BoardStratego.h"
+#include "logic/LogicStratego.h"
 
 
 class GameStateStratego : public GameState<BoardStratego> {

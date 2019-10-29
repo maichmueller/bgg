@@ -4,11 +4,10 @@
 
 #pragma once
 
-#include "../board/Board.h"
-#include "../board/Move.h"
+#include "board/Board.h"
+#include "board/Move.h"
 #include "Logic.h"
-#include "../board/BoardStratego.h"
-#include "../../test/BoardTest.h"
+#include "board/BoardStratego.h"
 
 #include <functional>
 
