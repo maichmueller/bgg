@@ -26,6 +26,7 @@ ENDIF()
 set(PROJECT_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
 set(PROJECT_SOURCES
 		${PROJECT_SOURCE_DIR}/utils/utils.h
+		${PROJECT_SOURCE_DIR}/utils/prime_list.h
 		${PROJECT_SOURCE_DIR}/board/Position.h
 		${PROJECT_SOURCE_DIR}/board/Move.h
 		${PROJECT_SOURCE_DIR}/board/Piece.h
