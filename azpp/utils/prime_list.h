@@ -1,7 +1,3 @@
-//
-// Created by michael on 29.10.19.
-//
-
 #pragma once
 
 #include <array>
