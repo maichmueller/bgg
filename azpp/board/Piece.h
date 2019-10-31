@@ -5,8 +5,10 @@
 #pragma once
 
 #include <array>
+#include <algorithm>
+#include <random>
 #include "utils/utils.h"
-//#include "utils/UniversallyUniqueId.h"
+#include "utils/prime_list.h"
 
 
 template <size_t NrIds>
@@ -14,7 +16,13 @@ struct Kin{
     using container_type = std::array<int, NrIds>;
 
     std::array<int, NrIds> specifiers;
-    static const size_t nr_identifiers = NrIds;
+    constexpr static const size_t nr_identifiers = NrIds;
+    constexpr static std::array<unsigned long, NrIds+1> primes = std::sample(
+            primes::primes_list.begin(), primes::primes_list.end(),
+            primes.begin(),
+            NrIds+1,
+            std::mt19937{std::random_device{}()}
+    );
 
     explicit Kin(std::array<int, NrIds> sp) : specifiers(std::move(sp)) {}
     explicit Kin() : specifiers() {std::fill(specifiers.begin(), specifiers.end(), 404);};
@@ -55,8 +63,13 @@ public:
         return ss.str();
     }
     template <size_t N>
-    constexpr int hash() {
-        ( x p1 xor y p2 xor z p3) mod n
+    constexpr long int hash() {
+        // ( x*p1 xor y*p2 xor z*p3) mod n
+        long int curr = specifiers[0] * primes[0];
+        for(size_t i = 1; i < NrIds; ++i ) {
+            curr ^= specifiers[i] * primes[i];
+        }
+        return curr % primes.back();
     }
 };
 
@@ -110,10 +123,6 @@ public:
               m_hidden(false),
               m_has_moved(false)
     {}
-//
-//    ~Piece() {
-//        UUID::free_id(m_uuid);
-//    }
 
     // getter and setter methods here only
 

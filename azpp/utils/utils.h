@@ -11,10 +11,11 @@
 #include <sstream>
 #include <utility>
 #include <map>
+#include <random>
+#include <iterator>
 
 
 namespace utils {
-
 
     inline std::string repeat(std::string str, const std::size_t n)
     {

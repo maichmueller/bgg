@@ -40,7 +40,6 @@ set(PROJECT_SOURCES
 		${PROJECT_SOURCE_DIR}/agent/Agent.h
 		${PROJECT_SOURCE_DIR}/agent/AgentReinforce.h
 		${PROJECT_SOURCE_DIR}/nn/alphazero/AgentAlphazero.h
-		#		${PROJECT_SOURCE_DIR}/utils/RandomSelector.h
 		#		${PROJECT_SOURCE_DIR}/nn/alphazero/MCTS.cpp
 		#		${PROJECT_SOURCE_DIR}/nn/model/NeuralNet.cpp
 		${PROJECT_SOURCE_DIR}/agent/AgentReinforce.h

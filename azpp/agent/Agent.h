@@ -6,7 +6,6 @@
 
 #include "logic/LogicStratego.h"
 #include "board/Board.h"
-#include "utils/RandomSelector.h"
 #include "vector"
 
 
@@ -30,28 +29,29 @@ public:
 
 };
 
-template <class Board, typename RDev = std::random_device>
+template <class Board>
 class RandomAgent : public Agent<Board> {
     using base_type = Agent<Board>;
     using base_type::base_type;
     using board_type = Board;
     using move_type = typename base_type::move_type;
 
-    RDev dev;
-    std::mt19937 rng;
-
 public:
 
     explicit RandomAgent(int team)
-    : base_type(team), rng(dev())
+    : base_type(team)
     {}
 
     move_type decide_move(const board_type &board) override {
         std::vector<move_type> poss_moves = LogicStratego<board_type >::get_poss_moves(board, base_type::m_team);
+        std::array<move_type, 1> selected_move;
+        std::sample(
+                poss_moves.begin(), poss_moves.end(),
+                selected_move.begin(),
+                1,
+                std::mt19937{std::random_device{}()});
 
-        std::uniform_int_distribution<std::mt19937::result_type> dist(0, poss_moves.size()-1);
-
-        return poss_moves[dist(rng)];
+        return selected_move[0];
     }
 };
 
