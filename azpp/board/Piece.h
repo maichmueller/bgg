@@ -13,16 +13,11 @@
 
 template <size_t NrIds>
 struct Kin{
+
     using container_type = std::array<int, NrIds>;
 
     std::array<int, NrIds> specifiers;
     constexpr static const size_t nr_identifiers = NrIds;
-    constexpr static std::array<unsigned long, NrIds+1> primes = std::sample(
-            primes::primes_list.begin(), primes::primes_list.end(),
-            primes.begin(),
-            NrIds+1,
-            std::mt19937{std::random_device{}()}
-    );
 
     explicit Kin(std::array<int, NrIds> sp) : specifiers(std::move(sp)) {}
     explicit Kin() : specifiers() {std::fill(specifiers.begin(), specifiers.end(), 404);};
@@ -62,16 +57,36 @@ public:
         ss << specifiers.back() << "}";
         return ss.str();
     }
-    template <size_t N>
-    constexpr long int hash() {
-        // ( x*p1 xor y*p2 xor z*p3) mod n
-        long int curr = specifiers[0] * primes[0];
-        for(size_t i = 1; i < NrIds; ++i ) {
-            curr ^= specifiers[i] * primes[i];
-        }
-        return curr % primes.back();
-    }
+
 };
+
+namespace std {
+    template<size_t NrIds>
+    struct hash<Kin<NrIds>> {
+
+        constexpr static std::array<unsigned long, NrIds + 1> get_primes() {
+            constexpr std::array<unsigned long, NrIds + 1> out_arr;
+            std::sample(
+                    primes::primes_list.begin(), primes::primes_list.end(),
+                    out_arr.begin(),
+                    NrIds+1,
+                    std::mt19937{std::random_device{}()}
+            );
+            return out_arr;
+        }
+
+        constexpr static std::array<unsigned long, NrIds+1> primes = get_primes();
+
+        constexpr size_t operator()(const Kin<NrIds> & kin) {
+            // ( x*p1 xor y*p2 xor z*p3) mod n is supposedly a better spatial hash function
+            long int curr = kin[0] * primes[0];
+            for(size_t i = 1; i < NrIds; ++i ) {
+                curr ^= kin[i] * primes[i];
+            }
+            return curr % primes.back();
+        }
+    };
+}
 
 
 template <typename Position, size_t NrIdentifiers>

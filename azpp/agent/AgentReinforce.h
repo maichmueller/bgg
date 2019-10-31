@@ -14,15 +14,6 @@
 #include "nn/training/StateRepresentation.h"
 #include "nn/model/ActionRepresenter.h"
 
-//struct VecIntHasher {
-//    std::size_t operator()(std::vector<int> const& vec) const {
-//        std::size_t seed = vec.size();
-//        for(auto& i : vec) {
-//            seed ^= i + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-//        }
-//        return seed;
-//    }
-//};
 
 template <class Board>
 class AgentReinforceBase: public Agent<Board> {

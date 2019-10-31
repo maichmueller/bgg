@@ -24,7 +24,7 @@ public:
     using position_type = typename piece_type::position_type;
     using move_type = Move<position_type>;
     using map_type = std::map<position_type, std::shared_ptr<Piece>>;
-    using inverse_map_type = std::array<std::unordered_map<kin_type, position_type, typename kin_type::hash>, 2>;
+    using inverse_map_type = std::array<std::unordered_map<kin_type, position_type>, 2>;
     using iterator = typename map_type::iterator;
     using const_iterator = typename map_type::const_iterator;
 
