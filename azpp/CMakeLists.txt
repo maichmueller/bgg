@@ -23,54 +23,41 @@ if(NOT Torch_FOUND)
 ENDIF()
 
 
-set(PROJECT_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
-set(PROJECT_SOURCES
-		${PROJECT_SOURCE_DIR}/board/Position.h
-		${PROJECT_SOURCE_DIR}/board/Move.h
-		${PROJECT_SOURCE_DIR}/board/Piece.h
-		${PROJECT_SOURCE_DIR}/board/Board.h
-		${PROJECT_SOURCE_DIR}/board/PieceStratego.h
-		${PROJECT_SOURCE_DIR}/board/BoardStratego.cpp
+set(LIBRARY_SOURCE_DIR "${PROJECT_SOURCE_DIR}/azpp")
+set(LIBRARY_SOURCES
+		${LIBRARY_SOURCE_DIR}/board/Position.h
+		${LIBRARY_SOURCE_DIR}/board/Move.h
+		${LIBRARY_SOURCE_DIR}/board/Piece.h
+		${LIBRARY_SOURCE_DIR}/board/Board.h
 
-		${PROJECT_SOURCE_DIR}/utils/utils.h
-		${PROJECT_SOURCE_DIR}/utils/prime_list.h
+		${LIBRARY_SOURCE_DIR}/utils/utils.h
+		${LIBRARY_SOURCE_DIR}/utils/prime_list.h
 
 		#		${PROJECT_SOURCE_DIR}/game/Arena.cpp
-		${PROJECT_SOURCE_DIR}/game/Game.h
-		${PROJECT_SOURCE_DIR}/game/GameState.h
-		${PROJECT_SOURCE_DIR}/game/GameStateStratego.cpp
-		${PROJECT_SOURCE_DIR}/game/GameStratego.h
+		${LIBRARY_SOURCE_DIR}/game/Game.h
+		${LIBRARY_SOURCE_DIR}/game/GameState.h
 
-		${PROJECT_SOURCE_DIR}/nn/model/ActionRepresenter.h
-		${PROJECT_SOURCE_DIR}/nn/model/ActionRepresenterStratego.cpp
-		${PROJECT_SOURCE_DIR}/nn/model/Action.h
+		${LIBRARY_SOURCE_DIR}/nn/model/representation/ActionRepresenter.h
+		${LIBRARY_SOURCE_DIR}/nn/model/representation/Action.h
 
-		${PROJECT_SOURCE_DIR}/logic/LogicStratego.cpp
-		${PROJECT_SOURCE_DIR}/logic/Logic.h
+		${LIBRARY_SOURCE_DIR}/logic/Logic.h
 
-		${PROJECT_SOURCE_DIR}/agent/Agent.h
-		${PROJECT_SOURCE_DIR}/agent/AgentReinforce.h
-		${PROJECT_SOURCE_DIR}/agent/AgentAlphazero.h
+		${LIBRARY_SOURCE_DIR}/agent/Agent.h
+		${LIBRARY_SOURCE_DIR}/agent/AgentReinforce.h
+		${LIBRARY_SOURCE_DIR}/agent/AgentAlphazero.h
 
-		${PROJECT_SOURCE_DIR}/nn/model/NeuralNet.h
-		${PROJECT_SOURCE_DIR}/nn/model/modules/Convolutional.cpp
-		${PROJECT_SOURCE_DIR}/nn/model/modules/FullyConnected.cpp
-		${PROJECT_SOURCE_DIR}/nn/model/modules/AlphazeroInterface.h
-		${PROJECT_SOURCE_DIR}/nn/model/modules/AlphazeroStratego.h
-		#		${PROJECT_SOURCE_DIR}/nn/alphazero/MCTS.cpp
-		#		${PROJECT_SOURCE_DIR}/nn/training/StateRepresentation.cpp
-		#		${PROJECT_SOURCE_DIR}/nn/training/Coach.cpp
-#		${PROJECT_SOURCE_DIR}/nn/model/ActionRepresenterStratego.cpp
+		${LIBRARY_SOURCE_DIR}/nn/model/NeuralNet.h
+		${LIBRARY_SOURCE_DIR}/nn/model/modules/Convolutional.cpp
+		${LIBRARY_SOURCE_DIR}/nn/model/modules/FullyConnected.cpp
+		${LIBRARY_SOURCE_DIR}/nn/model/modules/AlphazeroInterface.h
 		)
 
-
-set(TARGET_SOURCES main.cpp)
-# set(TEST_SOURCES  run_tests.cpp test_file1.cpp test_file2.cpp)
-include_directories("${PROJECT_SOURCE_DIR}/../deps")
-include_directories("${PROJECT_SOURCE_DIR}")
+include_directories("${LIBRARY_SOURCE_DIR}/../deps")
+include_directories("${LIBRARY_SOURCE_DIR}")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall")
 
-add_executable(AlphaZero++ ${PROJECT_SOURCES} ${TARGET_SOURCES})
+add_library(alphazeroPP STATIC ${LIBRARY_SOURCES})
+
 
 # set(SANITIZE_OPTIONS -fsanitize=address -fsanitize=undefined)
 set(SANITIZE_OPTIONS )
@@ -78,9 +65,8 @@ add_compile_options(${SANITIZE_OPTIONS})
 add_link_options(${SANITIZE_OPTIONS})
 # add_link_options(--verbose)
 
-target_link_libraries(AlphaZero++ "${TORCH_LIBRARIES}")
-target_link_libraries(AlphaZero++ "${CUDNN_LIBRARY}")
-
 # stdc++fs is needed for static linking against the std::filesystem library (not needed for GCC >=9)
-#target_link_libraries(Stratego_CPP stdc++fs)
-# add_executable(tests ${COMMON_SOURCES} ${TEST_SOURCES})
+#target_link_libraries(alphazero++ stdc++fs)
+target_link_libraries(alphazeroPP "${TORCH_LIBRARIES}")
+target_link_libraries(alphazeroPP "${CUDNN_LIBRARY}")
+

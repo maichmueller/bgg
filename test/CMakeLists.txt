@@ -21,20 +21,21 @@ if(NOT Torch_FOUND)
     set(Torch_FOUND TRUE PARENT_SCOPE)
 ENDIF()
 
-set(PROJECT_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../azpp")
+set(LIBRARY_SOURCE_DIR "${PROJECT_SOURCE_DIR}/azpp")
+set(STRATEGO_SOURCE_DIR "${PROJECT_SOURCE_DIR}/stratego")
 set(TEST_SOURCES
-        ${PROJECT_SOURCE_DIR}/game/GameState.h
-        ${PROJECT_SOURCE_DIR}/board/Piece.h
-        ${PROJECT_SOURCE_DIR}/board/Board.h
-        ${PROJECT_SOURCE_DIR}/nn/model/ActionRepresenter.h
-        ${PROJECT_SOURCE_DIR}/board/Position.h
-        ${PROJECT_SOURCE_DIR}/board/Move.h
+        ${LIBRARY_SOURCE_DIR}/game/GameState.h
+        ${LIBRARY_SOURCE_DIR}/board/Piece.h
+        ${LIBRARY_SOURCE_DIR}/board/Board.h
+        ${LIBRARY_SOURCE_DIR}/nn/model/representation/ActionRepresenter.h
+        ${LIBRARY_SOURCE_DIR}/board/Position.h
+        ${LIBRARY_SOURCE_DIR}/board/Move.h
+        ${LIBRARY_SOURCE_DIR}/nn/model/representation/Action.h
 
-        ${PROJECT_SOURCE_DIR}/board/PieceStratego.h
-        ${PROJECT_SOURCE_DIR}/game/GameStateStratego.h
-        ${PROJECT_SOURCE_DIR}/board/BoardStratego.cpp
-        ${PROJECT_SOURCE_DIR}/nn/model/Action.h
-        ${PROJECT_SOURCE_DIR}/nn/model/ActionRepresenterStratego.cpp)
+        ${STRATEGO_SOURCE_DIR}/board/PieceStratego.h
+        ${STRATEGO_SOURCE_DIR}/game/GameStateStratego.h
+        ${STRATEGO_SOURCE_DIR}/board/BoardStratego.cpp
+        ${STRATEGO_SOURCE_DIR}/nn/model/representation/ActionRepresenterStratego.cpp)
 
 
 set(TARGET_TEST_SOURCES
@@ -44,6 +45,6 @@ set(TARGET_TEST_SOURCES
         BoardTest.cpp)
 
 add_executable(tests ${TEST_SOURCES} ${TARGET_TEST_SOURCES})
-include_directories("${CMAKE_SOURCE_DIR}/azpp")
+include_directories("${PROJECT_SOURCE_DIR}/azpp")
 target_link_libraries(tests stdc++fs gtest_main)
 add_test(NAME google_testing COMMAND ./tests)

@@ -23,44 +23,30 @@ if(NOT Torch_FOUND)
 ENDIF()
 
 
-set(PROJECT_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
+set(EXEC_SOURCE_DIR "${PROJECT_SOURCE_DIR}/stratego")
 set(PROJECT_SOURCES
-		${PROJECT_SOURCE_DIR}/board/PieceStratego.h
-		${PROJECT_SOURCE_DIR}/board/BoardStratego.cpp
+		${EXEC_SOURCE_DIR}/board/PieceStratego.h
+		${EXEC_SOURCE_DIR}/board/BoardStratego.cpp
 
-		#		${PROJECT_SOURCE_DIR}/game/Arena.cpp
-		${PROJECT_SOURCE_DIR}/game/Game.h
-		${PROJECT_SOURCE_DIR}/game/GameState.h
+		#		${PROJECT_EXEC_SOURCE_DIR}/game/Arena.cpp
+		${EXEC_SOURCE_DIR}/game/GameStratego.h
+		${EXEC_SOURCE_DIR}/game/GameStrategoState.h
 
-		${PROJECT_SOURCE_DIR}/nn/model/ActionRepresenter.h
-		${PROJECT_SOURCE_DIR}/nn/model/Action.h
+		${EXEC_SOURCE_DIR}/nn/model/ActionRepresenterStratego.h
 
-		${PROJECT_SOURCE_DIR}/logic/Logic.h
+		${EXEC_SOURCE_DIR}/logic/LogicStratego.h
 
-		${PROJECT_SOURCE_DIR}/agent/Agent.h
-		${PROJECT_SOURCE_DIR}/agent/AgentReinforce.h
-		${PROJECT_SOURCE_DIR}/agent/AgentAlphazero.h
-
-		${PROJECT_SOURCE_DIR}/nn/model/NeuralNet.h
-		${PROJECT_SOURCE_DIR}/nn/model/modules/Convolutional.cpp
-		${PROJECT_SOURCE_DIR}/nn/model/modules/FullyConnected.cpp
-		${PROJECT_SOURCE_DIR}/nn/model/modules/AlphazeroInterface.h
+		${EXEC_SOURCE_DIR}/nn/model/modules/AlphazeroStratego.h
 		)
 
-
-add_library(mylib SHARED
-		sources/animation.cpp
-		sources/buffers.cpp
-		[...]
-		)
 
 set(TARGET_SOURCES main.cpp)
-# set(TEST_SOURCES  run_tests.cpp test_file1.cpp test_file2.cpp)
-include_directories("${PROJECT_SOURCE_DIR}/../deps")
-include_directories("${PROJECT_SOURCE_DIR}")
+include_directories("${EXEC_SOURCE_DIR}/../deps")
+include_directories("${EXEC_SOURCE_DIR}")
+
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall")
 
-add_executable(AlphaZero++ ${PROJECT_SOURCES} ${TARGET_SOURCES})
+add_executable(alphazero_stratego ${EXEC_SOURCE_DIR} ${TARGET_SOURCES})
 
 # set(SANITIZE_OPTIONS -fsanitize=address -fsanitize=undefined)
 set(SANITIZE_OPTIONS )
@@ -68,8 +54,9 @@ add_compile_options(${SANITIZE_OPTIONS})
 add_link_options(${SANITIZE_OPTIONS})
 # add_link_options(--verbose)
 
-target_link_libraries(AlphaZero++ "${TORCH_LIBRARIES}")
-target_link_libraries(AlphaZero++ "${CUDNN_LIBRARY}")
+target_link_libraries(alphazero_stratego alphazeroPP)
+target_link_libraries(alphazero_stratego "${TORCH_LIBRARIES}")
+target_link_libraries(alphazero_stratego "${CUDNN_LIBRARY}")
 
 # stdc++fs is needed for static linking against the std::filesystem library (not needed for GCC >=9)
 #target_link_libraries(Stratego_CPP stdc++fs)
