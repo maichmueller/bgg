@@ -3,7 +3,7 @@
 //
 
 #include "ActionRepresenterStratego.h"
-#include "../../utils/torch_utils.h"
+#include "utils/torch_utils.h"
 
 /**
 * We are trying to build a state representation of a Stratego board.
@@ -36,27 +36,27 @@ ActionRepStratego::condition_container ActionRepStratego::_build_conditions_vect
     // [flag, 1, 2, 3, 4, ..., 10, bombs] UNHIDDEN
     for(const auto& entry : counter) {
         int type = entry.first;
-        for (int version = 0; version < entry.second; ++version) {
-            conditions.emplace_back(std::make_tuple(own_team, type, version, false));
+        for (decltype(entry.second) version = 0; version < entry.second; ++version) {
+            conditions.emplace_back(std::make_tuple(kin_type(type, version), own_team, false));
         }
     }
     // [all own pieces] HIDDEN
     // Note: type and version info are unused
     // in the check in this case (thus -1)
-    conditions.emplace_back(std::make_tuple(own_team, -1, -1, true));
+    conditions.emplace_back(std::make_tuple(kin_type(-1, -1), own_team, true));
 
     // enemy m_team 1
     // [flag, 1, 2, 3, 4, ..., 10, bombs] UNHIDDEN
     for(const auto& entry : counter) {
         int type = entry.first;
-        for (int version = 0; version < entry.second; ++version) {
-            conditions.emplace_back(std::make_tuple(1-own_team, type, version, false));
+        for (decltype(entry.second) version = 0; version < entry.second; ++version) {
+            conditions.emplace_back(std::make_tuple(kin_type(type, version), 1-own_team, false));
         }
     }
     // [all enemy pieces] HIDDEN
     // Note: type and version info are unused
     // in the check in this case (thus -1)
-    conditions.emplace_back(std::make_tuple(1-own_team, -1, -1, true));
+    conditions.emplace_back(std::make_tuple(kin_type(-1, -1), 1-own_team, true));
     return conditions;
 }
 
@@ -112,56 +112,6 @@ std::vector<ActionRepStratego::action_type> ActionRepStratego::_build_actions_ve
         }
     }
     return acts;
-}
-
-template<typename Piece>
-bool
-ActionRepStratego::_check_condition(
-        const std::shared_ptr<Piece> &piece,
-        const kin_type &kin,
-        int team,
-        bool hidden,
-        bool flip_teams) {
-
-    // if we flip the teams, we want pieces of m_team 1 to appear as m_team 0
-    // and vice versa
-    int team_piece = flip_teams ? 1 - piece->get_team() : piece->get_team();
-
-    if (team == 0) {
-        if (!hidden) {
-            // if it is about m_team 0, the 'hidden' status is unimportant
-            // (since the alpha zero agent always plays from the perspective
-            // of player 0, therefore it can see all its own pieces)
-            bool eq_team = team_piece == team;
-            bool eq_kin = piece->get_kin() == kin;
-            return eq_team && eq_kin;
-        } else {
-            // 'hidden' is only important for the single condition that specifically
-            // checks for this property (information about own pieces visible or not).
-            bool eq_team = team_piece == team;
-            bool hide = piece->get_flag_hidden() == hidden;
-            return eq_team && hide;
-        }
-    } else if (team == 1) {
-        // for m_team 1 we only get the info about type and version if it isn't hidden
-        // otherwise it will fall into the 'hidden' layer
-        if (!hidden) {
-            if (piece->get_flag_hidden())
-                return false;
-            else {
-                bool eq_team = team_piece == team;
-                bool eq_kin = piece->get_kin() == kin;
-                return eq_team && eq_kin;
-            }
-        } else {
-            bool eq_team = team_piece == team;
-            bool hide = piece->get_flag_hidden() == hidden;
-            return eq_team && hide;
-        }
-    } else {
-        // only the obstacle should reach here
-        return team_piece == team;
-    }
 }
 
 

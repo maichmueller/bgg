@@ -48,6 +48,7 @@ public:
     Position(Types&&...args)
     : Position(std::index_sequence_for<Types...>{}, std::forward<Types>(args)...) {}
 
+    Position() : coordinates(   ) {}
     explicit Position(container_type coords) : coordinates(std::move(coords)) {};
     explicit Position(container_type & coords) : coordinates() {
         for (int i = 0; i < N; ++i) {
@@ -239,7 +240,7 @@ Position<LengthType, N> Position<LengthType, N>::invert(const container_start & 
     }
 
     Position<LengthType, N> inverted;
-    for(int i = 0; i < N; ++i) {
+    for(size_t i = 0; i < N; ++i) {
         inverted[i] = starts[i] + ends[i] - coordinates[i];
     }
     return inverted;

@@ -40,14 +40,14 @@ public:
     auto end() { return specifiers.end();}
     auto begin() const {return specifiers.begin();}
     auto end() const { return specifiers.end();}
-    bool operator==(const Kin & other) {
+    bool operator==(const Kin & other) const {
         for(size_t i = 0; i < NrIds; ++i) {
             if(specifiers[i] != other[i])
                 return false;
         }
         return true;
     }
-    bool operator!=(const Kin & other) {return !(this == other);}
+    bool operator!=(const Kin & other) const {return !(this == other);}
     std::string to_string() {
         std::ostringstream ss;
         ss << "{";
@@ -64,26 +64,13 @@ namespace std {
     template<size_t NrIds>
     struct hash<Kin<NrIds>> {
 
-        constexpr static std::array<unsigned long, NrIds + 1> get_primes() {
-            constexpr std::array<unsigned long, NrIds + 1> out_arr;
-            std::sample(
-                    primes::primes_list.begin(), primes::primes_list.end(),
-                    out_arr.begin(),
-                    NrIds+1,
-                    std::mt19937{std::random_device{}()}
-            );
-            return out_arr;
-        }
-
-        constexpr static std::array<unsigned long, NrIds+1> primes = get_primes();
-
-        constexpr size_t operator()(const Kin<NrIds> & kin) {
+        constexpr size_t operator()(const Kin<NrIds> & kin) const {
             // ( x*p1 xor y*p2 xor z*p3) mod n is supposedly a better spatial hash function
-            long int curr = kin[0] * primes[0];
+            long int curr = kin[0] * primes::primes_list[0];
             for(size_t i = 1; i < NrIds; ++i ) {
-                curr ^= kin[i] * primes[i];
+                curr ^= kin[i] * primes::primes_list[i];
             }
-            return curr % primes.back();
+            return curr % primes::primes_list.back();
         }
     };
 }

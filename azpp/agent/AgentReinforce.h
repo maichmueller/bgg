@@ -11,17 +11,16 @@
 #include "nn/model/NeuralNet.h"
 #include "utils/torch_utils.h"
 #include "torch/torch.h"
-#include "nn/training/StateRepresentation.h"
-#include "nn/model/ActionRepresenter.h"
+#include "nn/model/representation/ActionRepresenter.h"
 
 
-template <class Board>
-class AgentReinforceBase: public Agent<Board> {
+template <class StateType>
+class AgentReinforceBase: public Agent<StateType> {
 
 public:
-    using base_type = Agent<Board>;
+    using base_type = Agent<StateType>;
     using base_type::base_type;
-    using piece_type = typename Board::piece_type;
+    using piece_type = typename base_type::piece_type;
 
 protected:
     std::shared_ptr<NetworkWrapper> m_model;
