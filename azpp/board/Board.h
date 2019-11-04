@@ -16,14 +16,14 @@
 #include "utils/utils.h"
 
 
-template<typename Piece>
+template<typename PieceType>
 class Board {
 public:
-    using piece_type = Piece;
+    using piece_type = PieceType;
     using kin_type = typename piece_type::kin_type;
     using position_type = typename piece_type::position_type;
     using move_type = Move<position_type>;
-    using map_type = std::map<position_type, std::shared_ptr<Piece>>;
+    using map_type = std::map<position_type, std::shared_ptr<PieceType>>;
     using inverse_map_type = std::array<std::unordered_map<kin_type, position_type>, 2>;
     using iterator = typename map_type::iterator;
     using const_iterator = typename map_type::const_iterator;
@@ -69,9 +69,9 @@ public:
           const std::map<position_type, typename piece_type::kin_type> &setup_0,
           const std::map<position_type, typename piece_type::kin_type> &setup_1);
 
-    std::shared_ptr<Piece> &operator[](const position_type &position);
+    std::shared_ptr<PieceType> &operator[](const position_type &position);
 
-    const std::shared_ptr<Piece> &operator[](const position_type &position) const;
+    const std::shared_ptr<PieceType> &operator[](const position_type &position) const;
 
     [[nodiscard]] iterator begin() { return m_board_map.begin(); }
 
@@ -101,8 +101,8 @@ public:
 
 };
 
-template<typename Piece>
-void Board<Piece>::check_pos_bounds(const position_type &pos) const {
+template<typename PieceType>
+void Board<PieceType>::check_pos_bounds(const position_type &pos) const {
     for (size_t i = 0; i < m_dim; ++i) {
         if (pos[0] < m_board_starts[i] || (pos[i] > 0 && (size_t) pos[i] >= m_shape[i])) {
             std::ostringstream ss;
@@ -116,18 +116,18 @@ void Board<Piece>::check_pos_bounds(const position_type &pos) const {
     }
 }
 
-template<typename Piece>
-const std::shared_ptr<Piece> &Board<Piece>::operator[](const position_type &position) const {
+template<typename PieceType>
+const std::shared_ptr<PieceType> &Board<PieceType>::operator[](const position_type &position) const {
     return m_board_map.find(position)->second;
 }
 
-template<typename Piece>
-std::shared_ptr<Piece> &Board<Piece>::operator[](const position_type &position) {
+template<typename PieceType>
+std::shared_ptr<PieceType> &Board<PieceType>::operator[](const position_type &position) {
     return m_board_map.find(position)->second;
 }
 
-template<typename Piece>
-void Board<Piece>::update_board(const position_type &pos, std::shared_ptr<piece_type> &pc_ptr) {
+template<typename PieceType>
+void Board<PieceType>::update_board(const position_type &pos, std::shared_ptr<piece_type> &pc_ptr) {
     check_pos_bounds(pos);
     pc_ptr->set_position(pos);
     (*this)[pos] = pc_ptr;
@@ -135,9 +135,9 @@ void Board<Piece>::update_board(const position_type &pos, std::shared_ptr<piece_
 }
 
 
-template<typename Piece>
+template<typename PieceType>
 template<size_t dim>
-void Board<Piece>::_fill_board_null_pieces(const std::array<size_t, dim> &shape,
+void Board<PieceType>::_fill_board_null_pieces(const std::array<size_t, dim> &shape,
                                            const std::array<int, dim> &board_starts,
                                            std::array<int, m_dim> &&position_pres) {
     if constexpr(dim == m_dim) {
@@ -156,16 +156,16 @@ void Board<Piece>::_fill_board_null_pieces(const std::array<size_t, dim> &shape,
     }
 }
 
-template<typename Piece>
-Board<Piece>::Board(const std::array<int, m_dim> &shape)
+template<typename PieceType>
+Board<PieceType>::Board(const std::array<int, m_dim> &shape)
         : m_shape(shape),
           m_board_map(),
           m_board_map_inverse() {
     _fill_board_null_pieces(m_shape, m_board_starts);
 }
 
-template<typename Piece>
-Board<Piece>::Board(const std::array<size_t, m_dim> &shape,
+template<typename PieceType>
+Board<PieceType>::Board(const std::array<size_t, m_dim> &shape,
                     const std::array<int, m_dim> &board_starts)
         : m_shape(shape),
           m_board_starts(board_starts),
@@ -174,8 +174,8 @@ Board<Piece>::Board(const std::array<size_t, m_dim> &shape,
     _fill_board_null_pieces(m_shape, m_board_starts);
 }
 
-template<typename Piece>
-Board<Piece>::Board(const std::array<size_t, m_dim> &shape,
+template<typename PieceType>
+Board<PieceType>::Board(const std::array<size_t, m_dim> &shape,
                     const std::array<int, m_dim> &board_starts,
                     const std::vector<std::shared_ptr<piece_type>> &setup_0,
                     const std::vector<std::shared_ptr<piece_type>> &setup_1)
@@ -200,14 +200,14 @@ Board<Piece>::Board(const std::array<size_t, m_dim> &shape,
     _fill_inverse_board();
 }
 
-template<typename Piece>
-Board<Piece>::Board(const std::array<size_t, m_dim> &shape,
+template<typename PieceType>
+Board<PieceType>::Board(const std::array<size_t, m_dim> &shape,
                     const std::vector<std::shared_ptr<piece_type>> &setup_0,
                     const std::vector<std::shared_ptr<piece_type>> &setup_1)
         : Board(shape, m_board_starts, setup_0, setup_1) {}
 
-template<typename Piece>
-Board<Piece>::Board(const std::array<size_t, m_dim> &shape,
+template<typename PieceType>
+Board<PieceType>::Board(const std::array<size_t, m_dim> &shape,
                     const std::array<int, m_dim> &board_starts,
                     const std::map<position_type, kin_type> &setup_0,
                     const std::map<position_type, kin_type> &setup_1)
@@ -244,14 +244,14 @@ Board<Piece>::Board(const std::array<size_t, m_dim> &shape,
     _fill_inverse_board();
 }
 
-template<typename Piece>
-Board<Piece>::Board(const std::array<size_t, m_dim> &shape,
+template<typename PieceType>
+Board<PieceType>::Board(const std::array<size_t, m_dim> &shape,
                     const std::map<position_type, typename piece_type::kin_type> &setup_0,
                     const std::map<position_type, typename piece_type::kin_type> &setup_1)
         : Board(shape, m_board_starts, setup_0, setup_1) {}
 
-template<typename Piece>
-std::string Board<Piece>::to_string_2D(bool flip_board, bool hide_unknowns) const {
+template<typename PieceType>
+std::string Board<PieceType>::to_string_2D(bool flip_board, bool hide_unknowns) const {
     if (m_dim > 2) {
         throw std::logic_error("Board has dimension > 2, thus cannot create 2D representation.");
     }
@@ -267,7 +267,7 @@ std::string Board<Piece>::to_string_2D(bool flip_board, bool hide_unknowns) cons
     // "-1 \n
     // 10.1 \n
     //   1"
-    auto create_piece_str = [&H_SIZE_PER_PIECE, &mid, &flip_board, &hide_unknowns](const Piece &piece, int line) {
+    auto create_piece_str = [&H_SIZE_PER_PIECE, &mid, &flip_board, &hide_unknowns](const PieceType &piece, int line) {
         if (piece.is_null())
             return std::string(static_cast<unsigned long> (H_SIZE_PER_PIECE), ' ');
         std::string reset = "\x1B[0m";
@@ -313,7 +313,7 @@ std::string Board<Piece>::to_string_2D(bool flip_board, bool hide_unknowns) cons
 
     board_print << init_space << h_border << "\n";
     std::string init = board_print.str();
-    std::shared_ptr<Piece> curr_piece;
+    std::shared_ptr<PieceType> curr_piece;
 
     // row means row of the board. not actual rows of console output.
     for (int row = m_board_starts[1]; row < dim_y; ++row) {
@@ -363,17 +363,17 @@ std::string Board<Piece>::to_string_2D(bool flip_board, bool hide_unknowns) cons
     return board_print.str();
 }
 
-template<typename Piece>
-std::string Board<Piece>::print_board(bool flip_board, bool hide_unknowns) const {
+template<typename PieceType>
+std::string Board<PieceType>::print_board(bool flip_board, bool hide_unknowns) const {
     if (m_dim == 2) {
         return to_string_2D(flip_board, hide_unknowns);
     }
     return std::string();
 }
 
-template<typename Piece>
-std::vector<std::shared_ptr<typename Board<Piece>::piece_type> >
-Board<Piece>::get_pieces(int player) {
+template<typename PieceType>
+std::vector<std::shared_ptr<typename Board<PieceType>::piece_type> >
+Board<PieceType>::get_pieces(int player) {
     std::vector<std::shared_ptr<piece_type> > pieces;
     for (auto &pos_piece : m_board_map) {
         std::shared_ptr<piece_type> piece = pos_piece->second;
@@ -384,8 +384,8 @@ Board<Piece>::get_pieces(int player) {
     return pieces;
 }
 
-template<class Piece>
-void Board<Piece>::_fill_inverse_board() {
+template<class PieceType>
+void Board<PieceType>::_fill_inverse_board() {
     for (const auto &piece_ptr : m_board_map) {
         auto & piece = piece_ptr.second;
         if (!piece->is_null()) {

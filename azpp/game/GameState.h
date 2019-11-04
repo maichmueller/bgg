@@ -12,14 +12,14 @@
 #include "unordered_map"
 
 
-template<class Board>
+template<class BoardType>
 class GameState {
 
 public:
-    using board_type = Board;
-    using piece_type = typename Board::piece_type;
-    using kin_type = typename Board::kin_type;
-    using position_type = typename Board::position_type;
+    using board_type = BoardType;
+    using piece_type = typename BoardType::piece_type;
+    using kin_type = typename BoardType::kin_type;
+    using position_type = typename BoardType::position_type;
     using move_type = Move<position_type>;
 
 protected:
@@ -82,8 +82,8 @@ public:
     board_type const *get_board() const { return &m_board; }
 };
 
-template<class Board>
-GameState<Board>::GameState(board_type &&board,
+template<class BoardType>
+GameState<BoardType>::GameState(board_type &&board,
                             int move_count)
         : m_board(std::move(board)),
           m_dead_pieces(),
@@ -96,41 +96,41 @@ GameState<Board>::GameState(board_type &&board,
           m_canonical_teams(true)
 {}
 
-template<class Board>
-GameState<Board>::GameState(const board_type &board,
+template<class BoardType>
+GameState<BoardType>::GameState(const board_type &board,
                             int move_count)
         : GameState(board_type(board), move_count) {}
 
-template<class Board>
+template<class BoardType>
 template<size_t dim>
-GameState<Board>::GameState(const std::array<size_t, dim> &shape,
+GameState<BoardType>::GameState(const std::array<size_t, dim> &shape,
                             const std::array<int, dim> &board_starts)
         : GameState(board_type(shape, board_starts)) {}
 
-template<class Board>
+template<class BoardType>
 template<size_t dim>
-GameState<Board>::GameState(const std::array<size_t, dim> &shape,
+GameState<BoardType>::GameState(const std::array<size_t, dim> &shape,
                             const std::array<int, dim> &board_starts,
                             const std::map<position_type, typename piece_type::kin_type> &setup_0,
                             const std::map<position_type, typename piece_type::kin_type> &setup_1)
         : GameState(board_type(shape, board_starts, setup_0, setup_1)) {}
 
-template<class Board>
-int GameState<Board>::is_terminal(bool force_check) {
+template<class BoardType>
+int GameState<BoardType>::is_terminal(bool force_check) {
     if (!m_terminal_checked || force_check)
         check_terminal(false);
     return m_terminal;
 }
 
-template<class Board>
-void GameState<Board>::canonical_board(int player) {
+template<class BoardType>
+void GameState<BoardType>::canonical_board(int player) {
     // if the 0 player is team 1, then canonical is false,
     // if it is 0 otherwise, then the teams are canonical
     m_canonical_teams = bool(1 - player);
 }
 
-template<class Board>
-int GameState<Board>::get_canonical_team(piece_type &piece) {
+template<class BoardType>
+int GameState<BoardType>::get_canonical_team(piece_type &piece) {
     if (m_canonical_teams) {
         return piece.get_team();
     } else {
@@ -138,9 +138,9 @@ int GameState<Board>::get_canonical_team(piece_type &piece) {
     }
 }
 
-template<class Board>
-typename GameState<Board>::position_type
-GameState<Board>::get_canonical_pos(piece_type &piece) {
+template<class BoardType>
+typename GameState<BoardType>::position_type
+GameState<BoardType>::get_canonical_pos(piece_type &piece) {
     if (m_canonical_teams) {
         return piece.get_position();
     } else {
@@ -152,8 +152,8 @@ GameState<Board>::get_canonical_pos(piece_type &piece) {
     }
 }
 
-template<class Board>
-void GameState<Board>::undo_last_rounds(int n) {
+template<class BoardType>
+void GameState<BoardType>::undo_last_rounds(int n) {
     for (int i = 0; i < n; ++i) {
         move_type move = m_move_history.back();
         auto move_pieces = m_piece_history.back();
@@ -170,8 +170,8 @@ void GameState<Board>::undo_last_rounds(int n) {
     m_move_count -= n;
 }
 
-template<class Board>
-void GameState<Board>::restore_to_round(int round) {
+template<class BoardType>
+void GameState<BoardType>::restore_to_round(int round) {
     undo_last_rounds(m_move_count - round);
 }
 

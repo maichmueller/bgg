@@ -11,6 +11,7 @@
 #include "utils/prime_list.h"
 
 
+
 template <size_t NrIds>
 struct Kin{
 
@@ -57,7 +58,6 @@ public:
         ss << specifiers.back() << "}";
         return ss.str();
     }
-
 };
 
 namespace std {

@@ -48,8 +48,9 @@ public:
     Position(Types&&...args)
     : Position(std::index_sequence_for<Types...>{}, std::forward<Types>(args)...) {}
 
-    Position() : coordinates(   ) {}
-    explicit Position(container_type coords) : coordinates(std::move(coords)) {};
+    Position() : coordinates() {}
+    Position(const Position & position) : coordinates(position.get_coordinates()) {}
+    explicit Position(container_type coords) : coordinates(std::move(coords)) {}
     explicit Position(container_type & coords) : coordinates() {
         for (int i = 0; i < N; ++i) {
             coordinates[i] = coords[i];
@@ -84,6 +85,7 @@ public:
     bool operator>(const Position & other) const;
     bool operator>=(const Position & other) const;
 
+    container_type get_coordinates() const {return coordinates;}
     template <typename container_start, typename container_end>
     Position invert(const container_start & starts, const container_end & ends);
     std::string to_string();

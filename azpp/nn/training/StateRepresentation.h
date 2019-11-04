@@ -29,8 +29,8 @@ namespace StateRepresentation {
         return 1 - team;
     }
 
-    template <typename Piece>
-    inline bool check_condition(const std::shared_ptr<Piece>& piece,
+    template <typename PieceType>
+    inline bool check_condition(const std::shared_ptr<PieceType>& piece,
                          int team,
                          int type,
                          int version,
@@ -85,8 +85,8 @@ namespace StateRepresentation {
     }
 
 
-    template < typename Board>
-    inline torch::Tensor b2s_cond_check(const Board & board,
+    template < typename BoardType>
+    inline torch::Tensor b2s_cond_check(const BoardType & board,
                                         const std::vector<std::tuple<int, int, int, bool>>& conditions,
                                         int player = 0) {
         /**

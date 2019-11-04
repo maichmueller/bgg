@@ -20,9 +20,9 @@ struct BattleMatrix {
 };
 
 
-template <class Board>
-struct LogicStratego : public Logic<Board, LogicStratego<Board>>{
-    using base_type = Logic<Board, LogicStratego<Board>>;
+template <class BoardType>
+struct LogicStratego : public Logic<BoardType, LogicStratego<BoardType>>{
+    using base_type = Logic<BoardType, LogicStratego<BoardType>>;
     using board_type = typename base_type::board_type;
     using move_type = typename base_type::move_type;
     using position_type = typename base_type::position_type;
@@ -111,8 +111,8 @@ struct LogicStratego : public Logic<Board, LogicStratego<Board>>{
 
 };
 
-template<typename Board>
-bool LogicStratego<Board>::is_legal_move(const board_type &board, const move_type & move) {
+template<typename BoardType>
+bool LogicStratego<BoardType>::is_legal_move(const board_type &board, const move_type & move) {
     int shape_x = board.get_shape()[0];
     int shape_y = board.get_shape()[1];
     int starts_x = board.get_starts()[0];
@@ -172,9 +172,9 @@ bool LogicStratego<Board>::is_legal_move(const board_type &board, const move_typ
     return true;
 }
 
-template <class Board>
-std::vector<typename LogicStratego<Board>::move_type>
-LogicStratego<Board>::get_legal_moves(const board_type &board, int player, bool flip_board) {
+template <class BoardType>
+std::vector<typename LogicStratego<BoardType>::move_type>
+LogicStratego<BoardType>::get_legal_moves(const board_type &board, int player, bool flip_board) {
     int shape_x = board.get_shape()[0];
     int shape_y = board.get_shape()[1];
     int starts_x = board.get_starts()[0];
@@ -246,8 +246,8 @@ LogicStratego<Board>::get_legal_moves(const board_type &board, int player, bool 
     return moves_possible;
 }
 
-template <class Board>
-bool LogicStratego<Board>::has_legal_moves(const board_type &board, int player) {
+template <class BoardType>
+bool LogicStratego<BoardType>::has_legal_moves(const board_type &board, int player) {
     int shape_x = board.get_shape()[0];
     int shape_y = board.get_shape()[1];
     int starts_x = board.get_starts()[0];

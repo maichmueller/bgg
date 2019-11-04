@@ -9,9 +9,9 @@
 #include <functional>
 
 
-template <class Board, class Derived>
+template <class BoardType, class Derived>
 struct Logic {
-    using board_type = Board;
+    using board_type = BoardType;
     using position_type = typename board_type::position_type;
     using move_type = typename board_type::move_type;
 

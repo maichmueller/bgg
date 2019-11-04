@@ -54,8 +54,8 @@ namespace utils {
         return repeat(std::move(str), n);
     }
 
-    template <typename Board, typename Piece>
-    std::string board_str_rep(const Board& board, bool flip_board=false, bool hide_unknowns=false) {
+    template <typename BoardType, typename PieceType>
+    std::string board_str_rep(const BoardType& board, bool flip_board=false, bool hide_unknowns=false) {
         int H_SIZE_PER_PIECE = 9;
         int V_SIZE_PER_PIECE = 3;
         // the space needed to assign row indices to the rows and to add a splitting bar "|"
@@ -72,7 +72,7 @@ namespace utils {
         // "-1 \n
         // 10.1 \n
         //   1"
-        auto create_piece_str = [&H_SIZE_PER_PIECE, &mid, &flip_board, &hide_unknowns] (const Piece& piece, int line) {
+        auto create_piece_str = [&H_SIZE_PER_PIECE, &mid, &flip_board, &hide_unknowns] (const PieceType& piece, int line) {
             if(piece.is_null())
                 return std::string(static_cast<unsigned long> (H_SIZE_PER_PIECE), ' ');
             std::string reset = "\x1B[0m";
@@ -93,7 +93,7 @@ namespace utils {
                 if(hide_unknowns && piece.get_flag_hidden() && piece.get_team(flip_board)){
                     return color + std::string(static_cast<unsigned long> (H_SIZE_PER_PIECE), ' ') + reset;
                 }
-//                std::cout << "Piece: type " << piece.get_kin() << "." << piece.get_version() << " at (" <<
+//                std::cout << "PieceType: type " << piece.get_kin() << "." << piece.get_version() << " at (" <<
 //                                                                                                          piece.get_position()[0] << ", " << piece.get_position()[1] <<") \n";
                 return color + center(std::to_string(piece.get_type()) + '.' + std::to_string(piece.get_version()),
                               H_SIZE_PER_PIECE, " ") + reset ;
@@ -123,7 +123,7 @@ namespace utils {
 
         board_print << init_space << h_border << "\n";
         std::string init = board_print.str();
-        std::shared_ptr<Piece> curr_piece;
+        std::shared_ptr<PieceType> curr_piece;
 
         // row means row of the board. not actual rows of console output.
         for(int row = 0; row < dim; ++row) {
@@ -176,9 +176,9 @@ namespace utils {
         return board_print.str();
     }
 
-    template <typename Board, typename Piece>
-    inline void print_board(const Board &board, bool flip_board=false, bool hide_unknowns=false) {
-        std::string output = board_str_rep<Board, Piece>(board, flip_board, hide_unknowns);
+    template <typename BoardType, typename PieceType>
+    inline void print_board(const BoardType &board, bool flip_board=false, bool hide_unknowns=false) {
+        std::string output = board_str_rep<BoardType, PieceType>(board, flip_board, hide_unknowns);
         std::cout << output << std::endl;
     }
 
