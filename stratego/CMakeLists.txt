@@ -31,14 +31,10 @@ set(PROJECT_SOURCES
 		#		${PROJECT_SOURCE_DIR}/game/Arena.cpp
 		${PROJECT_SOURCE_DIR}/game/Game.h
 		${PROJECT_SOURCE_DIR}/game/GameState.h
-		${PROJECT_SOURCE_DIR}/game/GameStateStratego.cpp
-		${PROJECT_SOURCE_DIR}/game/GameStratego.h
 
 		${PROJECT_SOURCE_DIR}/nn/model/ActionRepresenter.h
-		${PROJECT_SOURCE_DIR}/nn/model/ActionRepresenterStratego.cpp
 		${PROJECT_SOURCE_DIR}/nn/model/Action.h
 
-		${PROJECT_SOURCE_DIR}/logic/LogicStratego.cpp
 		${PROJECT_SOURCE_DIR}/logic/Logic.h
 
 		${PROJECT_SOURCE_DIR}/agent/Agent.h
@@ -49,13 +45,14 @@ set(PROJECT_SOURCES
 		${PROJECT_SOURCE_DIR}/nn/model/modules/Convolutional.cpp
 		${PROJECT_SOURCE_DIR}/nn/model/modules/FullyConnected.cpp
 		${PROJECT_SOURCE_DIR}/nn/model/modules/AlphazeroInterface.h
-		${PROJECT_SOURCE_DIR}/nn/model/modules/AlphazeroStratego.h
-		#		${PROJECT_SOURCE_DIR}/nn/alphazero/MCTS.cpp
-		#		${PROJECT_SOURCE_DIR}/nn/training/StateRepresentation.cpp
-		#		${PROJECT_SOURCE_DIR}/nn/training/Coach.cpp
-#		${PROJECT_SOURCE_DIR}/nn/model/ActionRepresenterStratego.cpp
 		)
 
+
+add_library(mylib SHARED
+		sources/animation.cpp
+		sources/buffers.cpp
+		[...]
+		)
 
 set(TARGET_SOURCES main.cpp)
 # set(TEST_SOURCES  run_tests.cpp test_file1.cpp test_file2.cpp)
