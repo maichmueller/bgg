@@ -39,7 +39,10 @@ if(NOT Torch_FOUND)
     set(Torch_FOUND TRUE)
 ENDIF()
 
-add_subdirectory (azpp)
+set(LIBRARY_SOURCE_DIR "${PROJECT_SOURCE_DIR}/include/azpp")
+set(LIBRARY_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/include")
+
+add_subdirectory (include)
 
 # Download and unpack googletest at configure time
 configure_file(CMakeLists.txt.in googletest-download/CMakeLists.txt)

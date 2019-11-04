@@ -7,11 +7,11 @@
 #include <algorithm>    // std::find
 
 #include "Agent.h"
-#include "board/Piece.h"
-#include "nn/model/NeuralNet.h"
-#include "utils/torch_utils.h"
-#include "torch/torch.h"
-#include "nn/model/representation/ActionRepresenter.h"
+#include "azpp/board/Piece.h"
+#include "azpp/nn/model/NeuralNet.h"
+#include "azpp/utils/torch_utils.h"
+#include "azpp/torch/torch.h"
+#include "azpp/nn/model/representation/ActionRepresenter.h"
 
 
 template <class StateType>

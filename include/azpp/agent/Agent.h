@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include "logic/LogicStratego.h"
-#include "board/Board.h"
+#include "azpp/logic/LogicStratego.h"
+#include "azpp/board/Board.h"
 #include "vector"
 
 

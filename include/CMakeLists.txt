@@ -23,7 +23,6 @@ if(NOT Torch_FOUND)
 ENDIF()
 
 
-set(LIBRARY_SOURCE_DIR "${PROJECT_SOURCE_DIR}/azpp")
 set(LIBRARY_SOURCES
 		${LIBRARY_SOURCE_DIR}/board/Position.h
 		${LIBRARY_SOURCE_DIR}/board/Move.h
