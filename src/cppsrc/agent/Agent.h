@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "azpp/logic/Logic.h"
+#include "logic/Logic.h"
 #include "azpp/board/Board.h"
 #include "vector"
 

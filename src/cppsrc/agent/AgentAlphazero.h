@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "azpp/agent/AgentReinforce.h"
+#include "agent/AgentReinforce.h"
 
 template <class StateType, class ActionRep>
 class AlphaZeroAgent : public AgentReinforceBase<StateType> {

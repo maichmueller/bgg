@@ -11,9 +11,9 @@
 #include <memory>
 #include <algorithm>
 
-#include "azpp/board/Piece.h"
-#include "azpp//board/Move.h"
-#include "azpp/utils/utils.h"
+#include "board/Piece.h"
+#include "board/Move.h"
+#include "utils/utils.h"
 
 
 template<typename PieceType>

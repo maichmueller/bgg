@@ -7,8 +7,8 @@
 #include <array>
 #include <algorithm>
 #include <random>
-#include "azpp/utils/utils.h"
-#include "azpp/utils/prime_list.h"
+#include "utils/utils.h"
+#include "utils/prime_list.h"
 
 
 

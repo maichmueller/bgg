@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "game.h"
+#include "include_header/game.h"
 #include "board/BoardStratego.h"
 #include "logic/LogicStratego.h"
 

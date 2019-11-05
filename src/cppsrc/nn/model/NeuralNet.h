@@ -5,7 +5,7 @@
 #include <algorithm>
 
 #include "tqdm/tqdm.h"
-#include "azpp/utils/torch_utils.h"
+#include "utils/torch_utils.h"
 
 
 class NetworkWrapper {

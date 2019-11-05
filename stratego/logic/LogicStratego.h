@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include "board.h"
-#include "logic.h"
+#include "include_header/board.h"
+#include "include_header/logic.h"
 
 #include "board/BoardStratego.h"
 

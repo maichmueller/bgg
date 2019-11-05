@@ -4,10 +4,11 @@
 #include <string>
 #include <memory>
 
-#include "azpp/nn/model/NeuralNet.h"
-#include "azpp/utils/utils.h"
-#include "azpp/game/GameState.h"
-#include "azpp/logic/LogicStratego.h"
+#include "game/GameState.h"
+#include "nn/model/NeuralNet.h"
+#include "nn/model/NeuralNet.h"
+#include "utils/utils.h"
+#include "logic/LogicStratego.h"
 
 
 class MCTS {

@@ -53,6 +53,6 @@ out/*
 .vs
 .idea/*
 .idea/workspace.xml
-picklingtools
+deps/picklingtools
 
 cmake-build-debug/*

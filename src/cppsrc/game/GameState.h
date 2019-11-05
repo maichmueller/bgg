@@ -4,10 +4,10 @@
 
 #pragma once
 
-#include "azpp/board/Board.h"
-#include "azpp/board/Piece.h"
-#include "azpp/board/Move.h"
-#include "azpp/board/Position.h"
+#include "board/Board.h"
+#include "board/Piece.h"
+#include "board/Move.h"
+#include "board/Position.h"
 //#include "logic/LogicStratego.h"
 #include "unordered_map"
 

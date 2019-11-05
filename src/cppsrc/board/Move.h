@@ -7,7 +7,7 @@
 #include <vector>
 #include "array"
 
-#include "azpp//board/Position.h"
+#include "board/Position.h"
 
 // forward declare class and operators in conjunction with number types
 template <class Position>

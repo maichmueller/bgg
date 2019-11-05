@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include "azpp/board/Board.h"
-#include "azpp/board/Move.h"
+#include "board/Board.h"
+#include "board/Move.h"
 #include <functional>
 
 

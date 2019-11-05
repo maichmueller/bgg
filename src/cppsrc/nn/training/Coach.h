@@ -5,9 +5,9 @@
 #include "vector"
 #include "deque"
 
-#include "azpp/nn/model/NeuralNet.h"
-#include "azpp/game/Game.h"
-#include "azpp/board/Board.h"
+#include "nn/model/NeuralNet.h"
+#include "game/Game.h"
+#include "board/Board.h"
 
 
 template <typename BoardType>

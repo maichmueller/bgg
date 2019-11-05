@@ -38,10 +38,10 @@ if(NOT Torch_FOUND)
     set(Torch_FOUND TRUE)
 ENDIF()
 
-set(LIBRARY_SOURCE_DIR "${PROJECT_SOURCE_DIR}/include/azpp")
-set(LIBRARY_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/include")
+set(LIBRARY_SOURCE_DIR "${PROJECT_SOURCE_DIR}/src/cppsrc")
+set(LIBRARY_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/src/include_header")
 
-add_subdirectory (include)
+add_subdirectory (src)
 
 # Download and unpack googletest at configure time
 configure_file(CMakeLists.txt.in googletest-download/CMakeLists.txt)
