@@ -23,8 +23,8 @@ class MCTS {
     int m_num_mcts_sims;
 
     // maps for Q-values and visit count (N) per state s and action a
-    std::unordered_map<std::tuple<std::string, int>, double, utils::StringIntHasher, utils::StringIntEqCompare> m_Qsa;
-    std::unordered_map<std::tuple<std::string, int>, int, utils::StringIntHasher, utils::StringIntEqCompare> m_Nsa;
+    std::unordered_map<std::tuple<std::string, int>, double> m_Qsa;
+    std::unordered_map<std::tuple<std::string, int>, int> m_Nsa;
 
     // maps for visit counts (N), initial policy (P), terminality (E), valid actions (V) per state s
     std::unordered_map<std::string, int> m_Ns;

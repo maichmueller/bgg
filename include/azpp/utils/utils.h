@@ -192,19 +192,6 @@ namespace utils {
         return rv;
     }
 
-    struct StringIntHasher {
-        std::hash<std::string> hasher;
-        size_t operator()(const std::tuple<std::string, int>& s) const {
-            return hasher(std::get<0>(s) + std::to_string(std::get<1>(s)));
-        }
-    };
-
-    struct StringIntEqCompare {
-        bool operator()(const std::tuple<std::string, int>& s1, const std::tuple<std::string, int>& s2) const {
-            return (std::get<0>(s1) == std::get<0>(s2)) && (std::get<1>(s1) == std::get<1>(s2));
-        }
-    };
-
     template<int N>
     struct faculty {
         static constexpr int n_faculty() {
@@ -291,8 +278,7 @@ namespace tuple {
     };
 }
 
-namespace eqcomp_tuple {
-
+namespace {
     template < typename T , typename... Ts >
     auto head( std::tuple<T,Ts...> const & t )
     {
@@ -317,14 +303,23 @@ namespace eqcomp_tuple {
             return ! ((tt1 < tt2) || (tt2 < tt1));
         }
     };
+}
 
+namespace std {
     template <typename T1, typename ...TT>
-    struct eqcomp<std::tuple<T1, TT...>> {
+    struct equal_to<std::tuple<T1, TT...>> {
         bool operator()(std::tuple<T1, TT...> const & tuple1, std::tuple<T1, TT...> const & tuple2) const {
             return eqcomp<T1>()(std::get<0>(tuple1), std::get<0>(tuple2)) &&
                     eqcomp<std::tuple<TT...>>()(tail(tuple1), tail(tuple2));
         }
     };
-}
 
+    template <>
+    struct hash<tuple<string, int>> {
+        std::hash<std::string> hasher;
+        size_t operator()(const std::tuple<std::string, int>& s) const {
+            return hasher(std::get<0>(s) + std::to_string(std::get<1>(s)));
+        }
+    };
+}
 

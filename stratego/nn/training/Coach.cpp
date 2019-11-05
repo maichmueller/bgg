@@ -30,11 +30,11 @@ Coach::Coach(std::shared_ptr<Game> game, std::shared_ptr<NetworkWrapper> nnet,
 }
 
 
-std::vector<TrainingTurn> Coach::exec_ep(GameState state) const {
+std::vector<TrainData> Coach::exec_ep(GameState state) const {
 
     int ep_step = 0;
 
-    std::vector<TrainingTurn> ep_exs;
+    std::vector<TrainData> ep_exs;
 
     MCTS mcts = MCTS(m_nnet, m_num_mcts_simulations);
 
@@ -56,7 +56,7 @@ std::vector<TrainingTurn> Coach::exec_ep(GameState state) const {
         if(turn==1)
             move = MCTS::flip_move(move, state.get_board()->get_shape());
 //        std::cout << "After action to move: " << state.get_board()->size()<< "\n";
-        ep_exs.emplace_back(TrainingTurn(*state.get_board(), pi, null_v, turn));
+        ep_exs.emplace_back(TrainData(*state.get_board(), pi, null_v, turn));
 
         std::cout << "Move: (" << move[0][0] << ", " << move[0][1] << ") -> ("
           << move[1][0] << ", " << move[1][1] << ")" << "\n";
@@ -115,7 +115,7 @@ void Coach::teach(bool from_prev_examples,
     }
 
     for(int iter = 0; iter < m_num_iters; ++iter) {
-        std::vector<TrainingTurn> train_examples{m_train_examples.begin(), m_train_examples.end()};
+        std::vector<TrainData> train_examples{m_train_examples.begin(), m_train_examples.end()};
         if(!skip_first_self_play || iter > 0) {
             for(int episode = 0; episode < m_num_episodes; ++episode) {
                 for(auto && example : exec_ep(*(m_game->get_gamestate()))) {

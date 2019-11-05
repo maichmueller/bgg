@@ -30,53 +30,6 @@ Coach::Coach(std::shared_ptr<Game> game, std::shared_ptr<NetworkWrapper> nnet,
 }
 
 
-std::vector<TrainingTurn> Coach::exec_ep(GameState state) const {
-
-    int ep_step = 0;
-
-    std::vector<TrainingTurn> ep_exs;
-
-    MCTS mcts = MCTS(m_nnet, m_num_mcts_simulations);
-
-    constexpr int null_v = -100;
-
-    while(true) {
-        ep_step += 1;
-        int expl_rate = static_cast<int>(ep_step < m_exploration_rate);
-
-        int turn = state.get_move_count() % 2;
-        std::vector<double> pi = mcts.get_action_probs(state, /*player=*/turn, expl_rate);
-
-//        std::cout << "After action probs: " << state.get_board()->size()<< "\n";
-        std::default_random_engine generator{std::random_device()()};
-        std::discrete_distribution<int> qs_sampler {pi.begin(), pi.end()};
-
-        int action = qs_sampler(generator);
-        strat_move_t move = state.action_to_move(action, turn);
-        if(turn==1)
-            move = MCTS::flip_move(move, state.get_board()->get_shape());
-//        std::cout << "After action to move: " << state.get_board()->size()<< "\n";
-        ep_exs.emplace_back(TrainingTurn(*state.get_board(), pi, null_v, turn));
-
-        std::cout << "Move: (" << move[0][0] << ", " << move[0][1] << ") -> ("
-          << move[1][0] << ", " << move[1][1] << ")" << "\n";
-        std::cout  << "Board before move done: \n" << utils::board_str_rep<Board, Piece>(*state.get_board(), false, false) << "\n";
-        state.do_move(move);
-        std::cout  << "Board after move done: \n" << utils::board_str_rep<Board, Piece>(*state.get_board(), false, false) << "\n";
-
-        int r = state.is_terminal(true, /*turn=*/0);
-
-        if(r != 404) {
-            for(auto & train_turn : ep_exs) {
-                // since v is always return as -v from the MCTS _search (the endvalue
-                // as seen from the opponent's side), we will have to adapt the value
-                // in each turn to reflect the changing player.
-                train_turn.m_v = turn != train_turn.m_player ? r : -r;
-            }
-            return ep_exs;
-        }
-    }
-}
 
 void Coach::teach(bool from_prev_examples,
                            bool load_current_best,
