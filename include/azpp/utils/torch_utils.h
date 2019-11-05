@@ -1,10 +1,4 @@
-//
-// Created by michael on 17.04.19.
-//
-
-#ifndef STRATEGO_CPP_TORCH_UTILS_H
-#define STRATEGO_CPP_TORCH_UTILS_H
-
+#pragma once
 
 #include "torch/torch.h"
 #include "type_traits"
@@ -126,6 +120,3 @@ namespace torch_utils {
     }
 
 };
-
-
-#endif //STRATEGO_CPP_TORCH_UTILS_H

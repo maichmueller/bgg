@@ -23,31 +23,34 @@ ENDIF()
 
 
 set(LIBRARY_SOURCES
+		${LIBRARY_SOURCE_DIR}/agent/Agent.h
+		${LIBRARY_SOURCE_DIR}/agent/AgentReinforce.h
+		${LIBRARY_SOURCE_DIR}/agent/AgentAlphazero.h
+
 		${LIBRARY_SOURCE_DIR}/board/Position.h
 		${LIBRARY_SOURCE_DIR}/board/Move.h
 		${LIBRARY_SOURCE_DIR}/board/Piece.h
 		${LIBRARY_SOURCE_DIR}/board/Board.h
 
-		${LIBRARY_SOURCE_DIR}/utils/utils.h
-		${LIBRARY_SOURCE_DIR}/utils/prime_list.h
-
 		#		${PROJECT_SOURCE_DIR}/game/Arena.cpp
 		${LIBRARY_SOURCE_DIR}/game/Game.h
 		${LIBRARY_SOURCE_DIR}/game/GameState.h
 
+		${LIBRARY_SOURCE_DIR}/logic/Logic.h
+
+		${LIBRARY_SOURCE_DIR}/mcts/MCTS.cpp
+
 		${LIBRARY_SOURCE_DIR}/nn/model/representation/ActionRepresenter.h
 		${LIBRARY_SOURCE_DIR}/nn/model/representation/Action.h
 
-		${LIBRARY_SOURCE_DIR}/logic/Logic.h
-
-		${LIBRARY_SOURCE_DIR}/agent/Agent.h
-		${LIBRARY_SOURCE_DIR}/agent/AgentReinforce.h
-		${LIBRARY_SOURCE_DIR}/agent/AgentAlphazero.h
 
 		${LIBRARY_SOURCE_DIR}/nn/model/NeuralNet.h
 		${LIBRARY_SOURCE_DIR}/nn/model/modules/Convolutional.cpp
 		${LIBRARY_SOURCE_DIR}/nn/model/modules/FullyConnected.cpp
 		${LIBRARY_SOURCE_DIR}/nn/model/modules/AlphazeroInterface.h
+
+		${LIBRARY_SOURCE_DIR}/utils/utils.h
+		${LIBRARY_SOURCE_DIR}/utils/prime_list.h
 		)
 
 include_directories("${LIBRARY_SOURCE_DIR}/../deps")
