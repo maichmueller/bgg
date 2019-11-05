@@ -1,7 +1,6 @@
 cmake_minimum_required(VERSION 3.13)
 
 if(NOT Torch_FOUND)
-	message(STATUS "Torch_FOUND=${Torch_FOUND}")
 	if(UNIX)
 		set(CMAKE_PREFIX_PATH ../deps/libtorch)
 		if(USE_CUDA)

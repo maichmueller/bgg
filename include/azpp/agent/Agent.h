@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "azpp/logic/LogicStratego.h"
+#include "azpp/logic/Logic.h"
 #include "azpp/board/Board.h"
 #include "vector"
 
@@ -24,7 +24,7 @@ public:
             : m_team(team), m_is_learner(learner) {
     }
 
-    virtual move_type decide_move(const state_type *board) = 0;
+    virtual move_type decide_move(const state_type & state, const std::vector<move_type> & poss_moves) = 0;
 
 };
 
@@ -41,11 +41,7 @@ public:
     explicit RandomAgent(int team)
             : base_type(team) {}
 
-    move_type decide_move(const state_type &state) override {
-        std::vector<move_type> poss_moves = LogicStratego<board_type>::get_poss_moves(
-                state->get_board(),
-                base_type::m_team
-        );
+    move_type decide_move(const state_type & state, const std::vector<move_type> & poss_moves) override {
         std::array<move_type, 1> selected_move;
         std::sample(
                 poss_moves.begin(), poss_moves.end(),

@@ -30,7 +30,7 @@ public:
               m_action_repper(params...)
     {}
 
-    move_type decide_move(const state_type & state) override {
+    move_type decide_move(const state_type & state, const std::vector<move_type> & poss_moves) override {
         torch::Tensor state_rep = m_action_repper.state_representation(state);
         auto [pi, v] = base_type::m_model->predict(state_rep);
 

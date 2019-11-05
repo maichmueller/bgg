@@ -6,11 +6,12 @@
 
 #include <algorithm>    // std::find
 
+#include "torch/torch.h"
+
 #include "Agent.h"
 #include "azpp/board/Piece.h"
 #include "azpp/nn/model/NeuralNet.h"
 #include "azpp/utils/torch_utils.h"
-#include "azpp/torch/torch.h"
 #include "azpp/nn/model/representation/ActionRepresenter.h"
 
 

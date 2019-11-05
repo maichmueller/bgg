@@ -1,7 +1,6 @@
 cmake_minimum_required(VERSION 3.13)
 
 if(NOT Torch_FOUND)
-	message(STATUS "Torch_FOUND=${Torch_FOUND}")
 	if(UNIX)
 		set(CMAKE_PREFIX_PATH ../deps/libtorch)
 		if(USE_CUDA)
@@ -53,6 +52,7 @@ set(LIBRARY_SOURCES
 
 include_directories("${LIBRARY_SOURCE_DIR}/../deps")
 include_directories("${LIBRARY_SOURCE_DIR}")
+message("Library source dir=${LIBRARY_SOURCE_DIR}")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall")
 
 add_library(alphazeroPP STATIC ${LIBRARY_SOURCES})

@@ -6,4 +6,4 @@
 #include "azpp/nn/model/modules/Convolutional.h"
 #include "azpp/nn/model/modules/FullyConnected.h"
 #include "azpp/nn/model/NeuralNet.h"
-#include "azpp/nn/model/Coach.h"
+#include "azpp/nn/training/Coach.h"

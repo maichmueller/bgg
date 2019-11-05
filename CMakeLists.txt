@@ -18,7 +18,6 @@ set(Torch_FOUND FALSE)
 set(USE_CUDA FALSE)
 
 if(NOT Torch_FOUND)
-    message(STATUS "Torch_FOUND=${Torch_FOUND}")
     if(UNIX)
         set(CMAKE_PREFIX_PATH deps/libtorch)
         if(USE_CUDA)

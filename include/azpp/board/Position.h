@@ -6,7 +6,7 @@
 
 #include <vector>
 #include <string>
-#include "array"
+#include <array>
 #include <sstream>
 
 // forward declare class and operators in conjunction with number types
