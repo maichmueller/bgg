@@ -10,7 +10,7 @@
 #include "memory"
 
 #include "PieceStratego.h"
-#include "Board.h"
+#include "board.h"
 
 
 class BoardStratego : public Board<PieceStratego> {

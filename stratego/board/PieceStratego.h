@@ -1,8 +1,7 @@
 #pragma once
 
 #include "array"
-#include "Position.h"
-#include "Piece.h"
+#include "board.h"
 
 
 class PieceStratego : public Piece<Position<int, 2>, 2> {

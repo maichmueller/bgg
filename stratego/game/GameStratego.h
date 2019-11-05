@@ -5,8 +5,7 @@
 
 #pragma once
 
-#include "Game.h"
-#include "GameStateStratego.h"
+#include "game.h"
 
 
 class GameStratego : public Game<GameStateStratego, GameStratego> {

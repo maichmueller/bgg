@@ -1,10 +1,8 @@
 #pragma once
 
 #include "torch/torch.h"
-#include "AlphazeroInterface.h"
-#include "Convolutional.h"
-#include "FullyConnected.h"
-#include "utils/torch_utils.h"
+#include "nn.h"
+#include "utils.h"
 
 
 class StrategoAlphaZero : public AlphaZeroInterface {

@@ -1,11 +1,10 @@
 
 #pragma once
 
-#include "game/GameStateStratego.h"
-#include "utils/torch_utils.h"
-#include "ActionRepresenter.h"
-#include "Action.h"
+#include "nn.h"
 #include "torch/torch.h"
+
+#include "game/GameStateStratego.h"
 
 
 class ActionRepStratego :

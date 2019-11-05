@@ -4,9 +4,9 @@
 
 #pragma once
 
-#include "board/Board.h"
-#include "board/Move.h"
-#include "Logic.h"
+#include "board.h"
+#include "logic.h"
+
 #include "board/BoardStratego.h"
 
 #include <functional>
