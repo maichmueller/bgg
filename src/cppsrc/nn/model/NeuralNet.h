@@ -1,89 +1,69 @@
 #pragma once
 
-#include "torch/torch.h"
 #include <random>
 #include <algorithm>
-#include <nn/model/modules/AlphazeroInterface.h>
+#include <filesystem>
 
+#include "torch/torch.h"
 #include "tqdm/tqdm.h"
+
+#include <nn/model/modules/AlphazeroInterface.h>
 #include "utils/torch_utils.h"
 
-
+template<size_t Dims>
 class NetworkWrapper {
 
     std::shared_ptr<AlphaZeroInterface> m_nnet;
-    int board_dim;
-    int action_dim;
+    std::array<size_t, Dims> board_shape;
+    size_t nr_actions;
 
-    static std::vector<int> _sample_without_replacement(int pool_len, int sample_len);
+    [[nodiscard]] std::vector<size_t> prepend_to_shape(
+            const torch::Tensor &tensor,
+            size_t value
+    ) const;
 
 public:
 
-    NetworkWrapper(std::shared_ptr<AlphaZeroInterface> net, int board_len, int action_len)
-            : m_nnet(std::move(net)), board_dim(board_len), action_dim(action_len)
-    {}
+    NetworkWrapper(
+            std::shared_ptr<AlphaZeroInterface> network,
+            std::array<size_t, Dims> board_shape,
+            size_t nr_actions)
+            : m_nnet(std::move(network)),
+              board_shape(board_shape),
+              nr_actions(nr_actions) {}
 
-    void to_device(torch::Device dev);
-
-    static inline torch::Tensor loss_pi(const torch::Tensor& targets, const torch::Tensor& outputs) {
+    static inline torch::Tensor loss_pi(const torch::Tensor &targets, const torch::Tensor &outputs) {
         return -(targets * outputs).sum() / targets.size(1);
     }
-    static inline torch::Tensor loss_v(const torch::Tensor& targets, const torch::Tensor& outputs) {
+
+    static inline torch::Tensor loss_v(const torch::Tensor &targets, const torch::Tensor &outputs) {
         return (targets - outputs).pow(2).sum() / targets.size(1);
     }
 
-    template <typename TrainExampleContainer>
+    template<typename TrainExampleContainer>
     void train(TrainExampleContainer train_examples,
-               int epochs, int batch_size=128);
+               size_t epochs,
+               size_t batch_size = 128);
 
-    std::tuple<torch::Tensor, double> predict(const torch::Tensor& board_tensor);
+    std::tuple<torch::Tensor, double> predict(const torch::Tensor &board_tensor);
 
-    void save_checkpoint(std::string const & folder, std::string const & filename);
-    void load_checkpoint(std::string const & folder, std::string const & filename);
+    void save_checkpoint(std::string const &folder, std::string const &filename);
 
+    void load_checkpoint(std::string const &folder, std::string const &filename);
 
-    /// Forwarding methods for torch::nn::Module within nnet
-    auto to(torch::Device device) {m_nnet->to_device(device);}
+    /// Forwarding method for torch::nn::Module within nnet
+    void to(torch::Device device) { m_nnet->to(device); }
 
 };
 
-
-std::vector<int> NetworkWrapper::_sample_without_replacement(int pool_len, int sample_len) {
-    /// We have to first build a vector of all the possible numbers,
-    /// since we want to sample WITHOUT replacement. This can only
-    /// be achieved by knowing all the numbers at draw time, i.e.
-    /// all the numbers allocated.
-
-    // fill the pool with ints from 0 to pool_len
-    std::vector<int> pool(pool_len);
-    for(int i = 0; i < pool_len; ++i) {
-        pool[i] = i;
-    }
-
-    std::random_device rd;
-    std::mt19937 g(rd());
-    // shuffle all the values in the pool uniformly
-    std::shuffle(pool.begin(), pool.end(), g);
-
-    // draw sample_len many samples
-    std::vector<int> sample(sample_len);
-    for(int i = 0; i < sample_len; ++i) {
-        sample[i] = pool[i];
-    }
-    return sample;
-}
-
-void NetworkWrapper::to_device(torch::Device dev) {
-    m_nnet->to(dev);
-}
-
-
-std::tuple<torch::Tensor, double> NetworkWrapper::predict(const torch::Tensor & board_tensor) {
+template<size_t Dims>
+std::tuple<torch::Tensor, double>
+NetworkWrapper<Dims>::predict(const torch::Tensor &board_tensor) {
     m_nnet->eval();
 
     // We dont want gradient updates here, so we need the NoGradGuard
     torch::NoGradGuard no_grad;
-    auto [pi_tensor, v_tensor] = m_nnet->forward(board_tensor);
+    auto[pi_tensor, v_tensor] = m_nnet->forward(board_tensor);
 
 //    // copy the pi tensor data into a std::vector
 //    std::vector<double> pi_vec(pi_tensor.size(1));
@@ -95,13 +75,15 @@ std::tuple<torch::Tensor, double> NetworkWrapper::predict(const torch::Tensor & 
     return std::make_tuple(pi_tensor, v_tensor.template item<float>());
 }
 
-void NetworkWrapper::save_checkpoint(std::string const & folder, std::string const & filename) {
+
+template<size_t Dims>
+void NetworkWrapper<Dims>::save_checkpoint(std::string const &folder, std::string const &filename) {
     namespace fs = std::filesystem;
     fs::path dir(folder);
-    fs::path file (filename);
+    fs::path file(filename);
     fs::path full_path = dir / file;
     // if directory doesn't exist, create it
-    if(!fs::exists(dir)) {
+    if (!fs::exists(dir)) {
         std::cout << "Checkpoint directory doesn't exist yet. Creating it." << std::endl;
         fs::create_directory(dir);
     }
@@ -110,13 +92,14 @@ void NetworkWrapper::save_checkpoint(std::string const & folder, std::string con
 }
 
 
-void NetworkWrapper::load_checkpoint(std::string const &folder, std::string const &filename) {
+template<size_t Dims>
+void NetworkWrapper<Dims>::load_checkpoint(std::string const &folder, std::string const &filename) {
     namespace fs = std::filesystem;
     fs::path dir(folder);
-    fs::path file (filename);
+    fs::path file(filename);
     fs::path full_path = dir / file;
     // if file doesnt exist, raise an error
-    if(!fs::exists(full_path)) {
+    if (!fs::exists(full_path)) {
         std::cout << "Checkpoint directory doesn't exists yet. Creating it." << std::endl;
         throw std::invalid_argument("No file found for filename " + filename + ".");
     }
@@ -124,56 +107,68 @@ void NetworkWrapper::load_checkpoint(std::string const &folder, std::string cons
     torch::load(m_nnet, full_path.string());
 }
 
+template<size_t Dims>
 template<typename TrainExampleContainer>
-void NetworkWrapper::train(TrainExampleContainer train_examples, int epochs, int batch_size) {
+void NetworkWrapper<Dims>::train(
+        TrainExampleContainer train_examples,
+        size_t epochs,
+        size_t batch_size) {
     // send model to the right device
-    to_device(GLOBAL_DEVICE::get_device());
+    to(GLOBAL_DEVICE::get_device());
 
     auto optimizer = torch::optim::Adam(
             m_nnet->parameters(),
             torch::optim::AdamOptions(/*learning_rate=*/0.01));
 
+    auto board_tensor_sizes = prepend_to_shape(train_examples[0].get_tensor(), batch_size);
+    auto pi_tensor_sizes = prepend_to_shape(train_examples[0].get_policy(), batch_size);
+
     tqdm bar;
-    for(int epoch = 0; epoch < epochs; ++epoch) {
+    for (size_t epoch = 0; epoch < epochs; ++epoch) {
         bar.progress(epoch, epochs);
         // set the nnet into train mode (i.e. demands gradient updates for tensors)
         m_nnet->train();
 
-        for(int b = 0; b < static_cast<int> (train_examples.size() / batch_size); ++b) {
+        for (size_t b = 0; b < train_examples.size(); b += batch_size) {
 
             // get a randomly drawn sample index batch
-            auto sample_ids = _sample_without_replacement(train_examples.size(), batch_size);
+            std::vector<TrainExampleContainer> examples_batch(batch_size);
+            std::sample(train_examples.begin(), train_examples.end(),
+                        examples_batch.begin(),
+                        batch_size,
+                        std::mt19937{std::random_device{}()});
 
             std::vector<torch::Tensor> board_batch(batch_size);
             std::vector<std::vector<double>> pi_batch(batch_size);
             std::vector<int> v_batch(batch_size);
 
-            // fill the batch vectors with the respective part of the sample-tuple
-            for(const auto& i : sample_ids) {
-                auto& sample = train_examples[i];
-                board_batch.push_back(sample.get_tensor());
-                pi_batch.push_back(sample.get_policy());
-                v_batch.push_back(sample.get_evaluation());
-            }
-
-            torch::TensorOptions options_int = torch::TensorOptions()
+            torch::TensorOptions options_nograd = torch::TensorOptions()
                     .device(GLOBAL_DEVICE::get_device())
-                    .dtype(torch::kInt64)
+                    .dtype(torch::kFloat)
                     .requires_grad(false);
 
-            torch::TensorOptions options_float = torch::TensorOptions()
+            torch::TensorOptions options_grad = torch::TensorOptions()
                     .device(GLOBAL_DEVICE::get_device())
                     .dtype(torch::kFloat)
                     .requires_grad(true);
 
+            // i suppose the board_tensor doesnt need a gradient (as implied in options_int) as it is only used
+            // to compute the network output
+            torch::Tensor board_tensor = torch::empty(board_tensor_sizes, options_nograd);
+            torch::Tensor policy_tensor = torch::empty(pi_tensor_sizes, options_grad);
+            torch::Tensor value_tensor = torch::empty(batch_size, options_grad);
 
-            torch::Tensor board_tensor = torch::from_blob(board_batch.data(), board_batch.size(), options_int);
-            torch::Tensor target_pis = torch_utils::tensor_from_vector(pi_batch, options_float);
-            torch::Tensor target_vs = torch::from_blob(v_batch.data(), v_batch.size());
+            // fill the batch tensors with the respective part of the sample-tuple
+            for (const auto &[i, sample] : std::make_tuple(0, examples_batch)) {
+                board_tensor[i] = sample.get_tensor();
+                policy_tensor[i] = sample.get_policy();
+                value_tensor[i] = sample.get_evaluation();
+                ++i;
+            }
 
-            auto nnet_out = m_nnet->forward(board_tensor);
-            auto l_pi = loss_pi(target_pis, std::get<0>(nnet_out));
-            auto l_v = loss_v(target_vs, std::get<1>(nnet_out));
+            auto[policy_output, value_output] = m_nnet->forward(board_tensor);
+            auto l_pi = loss_pi(policy_tensor, policy_output);
+            auto l_v = loss_v(value_tensor, value_output);
             auto total_loss = l_pi + l_v;
             total_loss.requires_grad();
 
@@ -183,4 +178,18 @@ void NetworkWrapper::train(TrainExampleContainer train_examples, int epochs, int
         }
     }
     bar.finish();
+}
+
+template<size_t Dims>
+std::vector<size_t> NetworkWrapper<Dims>::prepend_to_shape(
+        const torch::Tensor &tensor,
+        size_t value) const {
+    // get current shape and initialize +1
+    auto sizes = tensor.sizes().vec();
+    std::vector<size_t> sizes_out(sizes.size() + 1);
+    // size 0 is batch size, rest of the shape needs to be kept from input
+    sizes_out[0] = value;
+    std::copy(sizes.begin(), sizes.end(), sizes_out.begin() + 1);
+
+    return sizes_out;
 }

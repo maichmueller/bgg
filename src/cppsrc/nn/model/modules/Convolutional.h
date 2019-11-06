@@ -30,8 +30,4 @@ public:
                   const torch::nn::Functional & activation_function=torch::nn::Functional(torch::relu));
 
     torch::Tensor forward (const torch::Tensor & input);
-    void to(torch::Device dev) {
-        torch::nn::Module::to(dev);
-    }
-
 };
