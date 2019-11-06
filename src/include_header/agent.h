@@ -1,5 +1,5 @@
 #pragma once
 
-#include "azpp/agent/Agent.h"
-#include "azpp/agent/AgentReinforce.h"
-#include "azpp/agent/AgentAlphazero.h"
+#include "agent/Agent.h"
+#include "agent/AgentReinforce.h"
+#include "agent/AgentAlphazero.h"

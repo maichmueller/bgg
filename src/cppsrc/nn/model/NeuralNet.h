@@ -3,6 +3,7 @@
 #include "torch/torch.h"
 #include <random>
 #include <algorithm>
+#include <nn/model/modules/AlphazeroInterface.h>
 
 #include "tqdm/tqdm.h"
 #include "utils/torch_utils.h"

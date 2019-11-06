@@ -54,8 +54,8 @@ set(LIBRARY_SOURCES
 		${LIBRARY_SOURCE_DIR}/utils/prime_list.h
 		)
 
-include_directories(LIBRARY_SOURCE_DIR})
-include_directories("${LIBRARY_SOURCE_DIR}/../deps")
+include_directories(${LIBRARY_SOURCE_DIR})
+include_directories("${PROJECT_SOURCE_DIR}/deps")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall")
 
 add_library(alphazeroPP STATIC ${LIBRARY_SOURCES})
@@ -71,4 +71,3 @@ add_link_options(${SANITIZE_OPTIONS})
 #target_link_libraries(alphazero++ stdc++fs)
 target_link_libraries(alphazeroPP "${TORCH_LIBRARIES}")
 target_link_libraries(alphazeroPP "${CUDNN_LIBRARY}")
-

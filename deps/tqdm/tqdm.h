@@ -9,6 +9,10 @@
 #include <unistd.h>
 #endif
 
+#ifdef APPLE
+#include <unistd.h>
+#endif
+
 #include <chrono>
 #include <ctime>
 #include <numeric>

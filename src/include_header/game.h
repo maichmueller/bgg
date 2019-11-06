@@ -1,4 +1,4 @@
 #pragma once
 
-#include "azpp/game/Game.h"
-#include "azpp/game/GameState.h"
+#include "game/Game.h"
+#include "game/GameState.h"
