@@ -8,7 +8,6 @@
 #include "nn/model/NeuralNet.h"
 #include "nn/model/NeuralNet.h"
 #include "utils/utils.h"
-#include "logic/LogicStratego.h"
 
 
 class MCTS {

@@ -9,7 +9,7 @@
 #include <unistd.h>
 #endif
 
-#ifdef APPLE
+#ifdef __APPLE__
 #include <unistd.h>
 #endif
 
