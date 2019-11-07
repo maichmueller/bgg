@@ -48,6 +48,7 @@ set(LIBRARY_SOURCES
 		${LIBRARY_SOURCE_DIR}/nn/model/modules/Convolutional.cpp
 		${LIBRARY_SOURCE_DIR}/nn/model/modules/FullyConnected.cpp
 		${LIBRARY_SOURCE_DIR}/nn/model/modules/AlphazeroInterface.h
+		${LIBRARY_SOURCE_DIR}/nn/training/Coach.h
 
 		${LIBRARY_SOURCE_DIR}/utils/utils.h
 		${LIBRARY_SOURCE_DIR}/utils/torch_utils.h

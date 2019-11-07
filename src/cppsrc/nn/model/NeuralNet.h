@@ -71,8 +71,7 @@ NetworkWrapper<Dims>::predict(const torch::Tensor &board_tensor) {
 //    for(int i = 0; i < pi_tensor.size(1); ++i) {
 //        pi_vec[i] = pi_acc[i];
 //    }
-
-    return std::make_tuple(pi_tensor, v_tensor.template item<float>());
+    return std::make_tuple(pi_tensor, v_tensor.template item<double>());
 }
 
 
@@ -87,7 +86,6 @@ void NetworkWrapper<Dims>::save_checkpoint(std::string const &folder, std::strin
         std::cout << "Checkpoint directory doesn't exist yet. Creating it." << std::endl;
         fs::create_directory(dir);
     }
-
     torch::save(m_nnet, full_path.string());
 }
 
@@ -103,7 +101,6 @@ void NetworkWrapper<Dims>::load_checkpoint(std::string const &folder, std::strin
         std::cout << "Checkpoint directory doesn't exists yet. Creating it." << std::endl;
         throw std::invalid_argument("No file found for filename " + filename + ".");
     }
-
     torch::load(m_nnet, full_path.string());
 }
 
