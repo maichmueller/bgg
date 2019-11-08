@@ -5,7 +5,7 @@
 // no unistd.h on windows
 #endif
 
-#ifdef LINUX
+#ifdef __linux__
 #include <unistd.h>
 #endif
 
@@ -23,6 +23,7 @@
 #include <vector>
 #include <math.h>
 #include <algorithm>
+
 
 class tqdm {
 private:

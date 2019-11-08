@@ -6,7 +6,6 @@
 
 #include "game/GameState.h"
 #include "nn/model/NeuralNet.h"
-#include "nn/model/NeuralNet.h"
 #include "utils/utils.h"
 
 

@@ -9,10 +9,10 @@
 #include "torch/torch.h"
 
 #include "Agent.h"
-#include "azpp/board/Piece.h"
-#include "azpp/nn/model/NeuralNet.h"
-#include "azpp/utils/torch_utils.h"
-#include "azpp/nn/model/representation/ActionRepresenter.h"
+#include "board/Piece.h"
+#include "nn/model/NeuralNet.h"
+#include "utils/torch_utils.h"
+#include "nn/model/representation/ActionRepresenter.h"
 
 
 template <class StateType>
