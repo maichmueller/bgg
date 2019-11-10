@@ -39,7 +39,7 @@ if(NOT Torch_FOUND)
 ENDIF()
 
 set(LIBRARY_SOURCE_DIR "${PROJECT_SOURCE_DIR}/src/cppsrc")
-set(LIBRARY_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/src/include_header")
+set(LIBRARY_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/src/api/include")
 
 add_subdirectory (src)
 

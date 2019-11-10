@@ -43,15 +43,15 @@ struct TrainData {
         converted = true;
     }
 
-    board_type *get_board() {return m_board;}
+    board_type *get_board() { return m_board; }
 
-    torch::Tensor *get_tensor() {return m_board_tensor;}
+    torch::Tensor *get_tensor() { return m_board_tensor; }
 
-    std::vector<double> *get_policy() {return m_pi;}
+    std::vector<double> *get_policy() { return m_pi; }
 
-    double get_evaluation() {return m_v;}
+    double get_evaluation() { return m_v; }
 
-    int get_player() {return m_player;}
+    int get_player() { return m_player; }
 
 };
 
@@ -87,8 +87,8 @@ private:
 public:
 
     Coach(std::shared_ptr<game_type> game,
-          const std::shared_ptr<neural_network_type > & nnet,
-          const action_rep_type & action_representer,
+          const std::shared_ptr<neural_network_type> &nnet,
+          const action_rep_type &action_representer,
           int num_iters = 100,
           float win_frac = 0.55,
           int num_episodes = 100,
@@ -120,9 +120,9 @@ public:
 
 template<class GameType, class NeuralNetworkType, class ActionRepType>
 Coach<GameType, NeuralNetworkType, ActionRepType>::Coach(
-        std::shared_ptr<game_type > game,
-        const std::shared_ptr<neural_network_type > & nnet,
-        const action_rep_type & action_representer,
+        std::shared_ptr<game_type> game,
+        const std::shared_ptr<neural_network_type> &nnet,
+        const action_rep_type &action_representer,
         int num_iters,
         float win_frac,
         int num_episodes,
@@ -148,6 +148,7 @@ Coach<GameType, NeuralNetworkType, ActionRepType>::Coach(
 template<class GameType, class NeuralNetworkType, class ActionRepType>
 std::vector<typename Coach<GameType, NeuralNetworkType, ActionRepType>::train_data_type>
 Coach<GameType, NeuralNetworkType, ActionRepType>::execute_episode(const state_type &state) const {
+    using action_type = typename action_rep_type::action_type;
 
     unsigned int ep_step = 0;
 
@@ -161,26 +162,25 @@ Coach<GameType, NeuralNetworkType, ActionRepType>::execute_episode(const state_t
         ep_step += 1;
         auto expl_rate = static_cast<unsigned int>(ep_step < m_exploration_rate);
 
-        unsigned int turn = state.get_move_count() % 2;
-        std::vector<double> pi = mcts.get_action_probs(state, turn, expl_rate);
+        unsigned int player = state.get_move_count() % 2;
+        std::vector<double> pi = mcts.get_action_probabilities(state, player, expl_rate);
 
 //        std::cout << "After action probs: " << state.get_board()->size()<< "\n";
         std::default_random_engine generator{std::random_device()()};
         std::discrete_distribution<int> qs_sampler{pi.begin(), pi.end()};
 
-        unsigned int action = qs_sampler(generator);
-        move_type move = state.action_to_move(action, turn);
-        if (turn == 1)
-            move = MCTS::flip_move(move, state.get_board()->get_shape());
+        unsigned int action_index = qs_sampler(generator);
+        move_type move = m_action_representer.action_to_move(state, action_index, player);
+
 //        std::cout << "After action to move: " << state.get_board()->size()<< "\n";
-        ep_examples.emplace_back(train_data_type(*state.get_board(), pi, null_v, turn));
+        ep_examples.emplace_back(train_data_type(*state.get_board(), pi, null_v, player));
 
         std::cout << "Move: (" << move[0][0] << ", " << move[0][1] << ") -> ("
                   << move[1][0] << ", " << move[1][1] << ")" << "\n";
         std::cout << "Board before move done: \n"
-                  << utils::board_str_rep<Board, Piece>(*state.get_board(), false, false) << "\n";
+                  << state.get_board->print_board(false, false) << "\n";
         state.do_move(move);
-        std::cout << "Board after move done: \n" << utils::board_str_rep<Board, Piece>(*state.get_board(), false, false)
+        std::cout << "Board after move done: \n" << state.get_board->print_board(false, false)
                   << "\n";
 
         int r = state.is_terminal(true, /*turn=*/0);
@@ -190,7 +190,7 @@ Coach<GameType, NeuralNetworkType, ActionRepType>::execute_episode(const state_t
                 // since v is always return as -v from the MCTS _search (the endvalue
                 // as seen from the opponent's side), we will have to adapt the value
                 // in each turn to reflect the changing player.
-                train_turn.m_v = turn != train_turn.m_player ? r : -r;
+                train_turn.m_v = player != train_turn.m_player ? r : -r;
             }
             return ep_examples;
         }
@@ -198,16 +198,18 @@ Coach<GameType, NeuralNetworkType, ActionRepType>::execute_episode(const state_t
 }
 
 
+template<class GameType, class NeuralNetworkType, class ActionRepType>
+void Coach<GameType, NeuralNetworkType, ActionRepType>::teach(
+        bool from_prev_examples,
+        bool load_current_best,
+        bool skip_first_self_play,
+        bool multiprocess) {
 
-void Coach::teach(bool from_prev_examples,
-                  bool load_current_best,
-                  bool skip_first_self_play,
-                  bool multiprocess) {
     bool checkpoint_found = false;
 
     namespace fs = std::filesystem;
     fs::path checkpoint_path;
-    if(from_prev_examples) {
+    if (from_prev_examples) {
         int i = 0;
 
         while (true) {
@@ -224,22 +226,22 @@ void Coach::teach(bool from_prev_examples,
         }
     }
 
-    if(load_current_best || checkpoint_found) {
+    if (load_current_best || checkpoint_found) {
 
         //load_train_examples(checkpoint_path);
         //for(auto & example : m_train_examples)
         //    example.convert_board();
 
-        if(fs::exists(fs::path(m_model_folder + "best.pth.tar"))) {
+        if (fs::exists(fs::path(m_model_folder + "best.pth.tar"))) {
             m_nnet->load_checkpoint(m_model_folder, "best.pth.tar");
         }
     }
 
-    for(int iter = 0; iter < m_num_iters; ++iter) {
-        std::vector<TrainingTurn> train_examples{m_train_examples.begin(), m_train_examples.end()};
-        if(!skip_first_self_play || iter > 0) {
-            for(int episode = 0; episode < m_num_episodes; ++episode) {
-                for(auto && example : exec_ep(*(m_game->get_gamestate()))) {
+    for (int iter = 0; iter < m_num_iters; ++iter) {
+        std::vector<train_data_type> train_examples{m_train_examples.begin(), m_train_examples.end()};
+        if (!skip_first_self_play || iter > 0) {
+            for (int episode = 0; episode < m_num_episodes; ++episode) {
+                for (auto &&example : exec_ep(*(m_game->get_gamestate()))) {
                     example.convert_board();
                     train_examples.emplace_back(std::move(example));
                 }
@@ -250,8 +252,8 @@ void Coach::teach(bool from_prev_examples,
         //    save_train_examples(iter);
         //}
 
-        if(int nr_exs_to_pop = m_train_examples.size() - m_num_iters_train_examples_hist; nr_exs_to_pop > 0) {
-            for(int k = 0; k < nr_exs_to_pop; ++k) {
+        if (int nr_exs_to_pop = m_train_examples.size() - m_num_iters_train_examples_hist; nr_exs_to_pop > 0) {
+            for (int k = 0; k < nr_exs_to_pop; ++k) {
                 m_train_examples.pop_front();
             }
         }
@@ -261,12 +263,11 @@ void Coach::teach(bool from_prev_examples,
         m_nnet->train(train_examples, /*epochs=*/100, /*batch_size=*/4096);
 
         m_opp_nnet->load_checkpoint(m_model_folder, "temp.pth.tar");
-        auto [res0, res1] = Arena::pit(*m_game, 1000);
-        if(res0.wins + res1.wins > 0 && (res0.wins / (res0.wins + res1.wins) < m_win_frac)) {
+        auto[res0, res1] = Arena::pit(*m_game, 1000);
+        if (res0.wins + res1.wins > 0 && (res0.wins / (res0.wins + res1.wins) < m_win_frac)) {
             std::cout << "Rejecting new model\n";
             m_nnet->load_checkpoint(m_model_folder, "temp.pth.tar");
-        }
-        else {
+        } else {
             std::cout << "Accepting new model\n";
             m_nnet->save_checkpoint(m_model_folder, "checkpoint_" + std::to_string(iter) + ".pth.tar");
             m_nnet->save_checkpoint(m_model_folder, "best.pth.tar");
@@ -274,11 +275,14 @@ void Coach::teach(bool from_prev_examples,
     }
 }
 
-void Coach::save_train_examples(int iteration) {
+
+template<class GameType, class NeuralNetworkType, class ActionRepType>
+void Coach<GameType, NeuralNetworkType, ActionRepType>::save_train_examples(int iteration) {
 // TODO: I need to find a serialization method ._.
     return;
 }
 
-void Coach::load_train_examples(std::string examples_fname) {
+template<class GameType, class NeuralNetworkType, class ActionRepType>
+void Coach<GameType, NeuralNetworkType, ActionRepType>::load_train_examples(std::string examples_fname) {
     return;
 }

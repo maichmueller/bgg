@@ -34,7 +34,7 @@ set(LIBRARY_SOURCES
 
 		${LIBRARY_SOURCE_DIR}/game/Arena.h
 		${LIBRARY_SOURCE_DIR}/game/Game.h
-		${LIBRARY_SOURCE_DIR}/game/GameState.h
+		${LIBRARY_SOURCE_DIR}/game/State.h
 
 		${LIBRARY_SOURCE_DIR}/logic/Logic.h
 
@@ -53,6 +53,15 @@ set(LIBRARY_SOURCES
 		${LIBRARY_SOURCE_DIR}/utils/utils.h
 		${LIBRARY_SOURCE_DIR}/utils/torch_utils.h
 		${LIBRARY_SOURCE_DIR}/utils/prime_list.h
+
+		${LIBRARY_SOURCE_DIR}/../api/include/azpp/all.h
+		${LIBRARY_SOURCE_DIR}/../api/include/azpp/agent.h
+		${LIBRARY_SOURCE_DIR}/../api/include/azpp/board.h
+		${LIBRARY_SOURCE_DIR}/../api/include/azpp/game.h
+		${LIBRARY_SOURCE_DIR}/../api/include/azpp/logic.h
+		${LIBRARY_SOURCE_DIR}/../api/include/azpp/mcts.h
+		${LIBRARY_SOURCE_DIR}/../api/include/azpp/nn.h
+		${LIBRARY_SOURCE_DIR}/../api/include/azpp/utils.h
 		)
 
 include_directories(${LIBRARY_SOURCE_DIR})

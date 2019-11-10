@@ -4,7 +4,7 @@
 
 #include "BoardStratego.h"
 
-std::vector<std::shared_ptr<BoardStratego::piece_type>> BoardStratego::adapt_setup(
+std::vector<std::shared_ptr<typename BoardStratego::piece_type>> BoardStratego::adapt_setup(
         const std::map<position_type, int> &setup) {
 
     std::vector<std::shared_ptr<BoardStratego::piece_type>> vector_out;
@@ -28,5 +28,117 @@ std::vector<std::shared_ptr<BoardStratego::piece_type>> BoardStratego::adapt_set
         vector_out.push_back(std::make_shared<piece_type>(pos, kin_type(type, version), 0));
     }
     return vector_out;
+}
+
+std::string BoardStratego::to_string_2D(bool flip_board, bool hide_unknowns) const {
+    if (m_dim > 2) {
+        throw std::logic_error("Board has dimension > 2, thus cannot create 2D representation.");
+    }
+    int H_SIZE_PER_PIECE = 9;
+    int V_SIZE_PER_PIECE = 3;
+    // the space needed to assign row indices to the rows and to add a splitting bar "|"
+    int row_ind_space = 4;
+    int dim_x = m_shape[0];
+    int dim_y = m_shape[1];
+    int mid = V_SIZE_PER_PIECE / 2;
+
+    // piece string lambda function that returns a str of the kin
+    // "-1 \n
+    // 10.1 \n
+    //   1"
+    auto create_piece_str = [&H_SIZE_PER_PIECE, &mid, &flip_board, &hide_unknowns](const PieceType &piece, int line) {
+        if (piece.is_null())
+            return std::string(static_cast<unsigned long> (H_SIZE_PER_PIECE), ' ');
+        std::string reset = "\x1B[0m";
+        std::string color = "\x1B[44m"; // blue by default (for player 1)
+        if (piece.get_team() == 99)
+            return "\x1B[30;47m" + utils::center("", H_SIZE_PER_PIECE, " ") + "\x1B[0m";
+        else if (piece.get_team(flip_board) == 0) {
+            color = "\x1B[41m"; // background red, text "white"
+        }
+        if (line == mid - 1) {
+            // hidden info line
+            std::string h = piece.get_flag_hidden() ? "?" : " ";
+            return color + utils::center(h, H_SIZE_PER_PIECE, " ") + reset;
+        } else if (line == mid) {
+            // type and version info line
+            if (hide_unknowns && piece.get_flag_hidden() && piece.get_team(flip_board)) {
+                return color + std::string(static_cast<unsigned long> (H_SIZE_PER_PIECE), ' ') + reset;
+            }
+            return color + center(std::to_string(piece.get_type()) + '.' + std::to_string(piece.get_version()),
+                                  H_SIZE_PER_PIECE, " ") + reset;
+        } else if (line == mid + 1)
+            // team info line
+            // return color + center(std::to_string(piece.get_team(flip_board)), H_SIZE_PER_PIECE, " ") + reset;
+            return color + utils::center("", H_SIZE_PER_PIECE, " ") + reset;
+        else
+            // empty line
+            return std::string(static_cast<unsigned long> (H_SIZE_PER_PIECE), ' ');
+
+    };
+
+    std::stringstream board_print;
+    board_print << "\n";
+    // column width for the row index plus vertical dash
+    board_print << std::string(static_cast<unsigned long> (row_ind_space), ' ');
+    // print the column index rows
+    for (int i = m_board_starts[0]; i < dim_x; ++i) {
+        board_print << utils::center(std::to_string(i), H_SIZE_PER_PIECE + 1, " ");
+    }
+    board_print << "\n";
+
+    std::string init_space = std::string(static_cast<unsigned long> (row_ind_space), ' ');
+    std::string h_border = std::string(static_cast<unsigned long> (dim_x * (H_SIZE_PER_PIECE + 1)), '-');
+
+    board_print << init_space << h_border << "\n";
+    std::string init = board_print.str();
+    std::shared_ptr<PieceType> curr_piece;
+
+    // row means row of the board. not actual rows of console output.
+    for (int row = m_board_starts[1]; row < dim_y; ++row) {
+        // per piece we have V_SIZE_PER_PIECE many lines to fill consecutively.
+        // Iterate over every column and append the new segment to the right line.
+        std::vector<std::stringstream> line_streams(static_cast<unsigned int> (V_SIZE_PER_PIECE));
+
+        for (int col = m_board_starts[0]; col < dim_x; ++col) {
+
+            if (flip_board) {
+                curr_piece = (*this)[{dim_x - 1 - row, dim_y - 1 - col}];
+            } else
+                curr_piece = (*this)[{row, col}];
+
+            for (int i = 0; i < V_SIZE_PER_PIECE; ++i) {
+
+                std::stringstream curr_stream;
+
+                if (i == mid - 1 || i == mid + 1) {
+                    if (col == 0) {
+                        curr_stream << std::string(static_cast<unsigned long> (row_ind_space), ' ');
+                    }
+                    curr_stream << "|" << create_piece_str(*curr_piece, i);
+                } else if (i == mid) {
+
+                    if (col == 0) {
+                        if (row < 10)
+                            curr_stream << " " << row;
+                        else
+                            curr_stream << row;
+
+                        curr_stream << std::string(static_cast<unsigned long> (row_ind_space - 2), ' ') << "|";
+                    }
+                    curr_stream << create_piece_str(*curr_piece, i);
+                    if (col != dim_x - 1)
+                        curr_stream << "|";
+                }
+                // extend the current line i by the new information
+                line_streams[i] << curr_stream.str();
+            }
+        }
+        for (auto &stream : line_streams) {
+            board_print << stream.str() << "|\n";
+        }
+        board_print << init_space << h_border << "\n";
+    }
+    return board_print.str();
 }
 

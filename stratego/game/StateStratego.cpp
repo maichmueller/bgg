@@ -2,23 +2,23 @@
 // Created by michael on 07.09.19.
 //
 
-#include "GameStateStratego.h"
+#include "StateStratego.h"
 
 
 
-GameStateStratego::GameStateStratego(size_t shape_x, size_t shape_y)
+StateStratego::StateStratego(size_t shape_x, size_t shape_y)
         : base_type(std::array<size_t, 2>{shape_x, shape_y}, {0, 0}) {}
 
-GameStateStratego::GameStateStratego(size_t shape)
-        : GameStateStratego(shape, shape) {}
+StateStratego::StateStratego(size_t shape)
+        : StateStratego(shape, shape) {}
 
 
-GameStateStratego::GameStateStratego(size_t shape,
-                                     const std::map<position_type, typename piece_type::kin_type> &setup_0,
-                                     const std::map<position_type, typename piece_type::kin_type> &setup_1)
+StateStratego::StateStratego(size_t shape,
+                             const std::map<position_type, typename piece_type::kin_type> &setup_0,
+                             const std::map<position_type, typename piece_type::kin_type> &setup_1)
         : base_type(std::array<size_t, 2>{shape, shape}, {0, 0}, setup_0, setup_1) {}
 
-void GameStateStratego::check_terminal() {
+void StateStratego::check_terminal() {
     if (auto dead_pieces = m_dead_pieces[0];
             std::find(dead_pieces.begin(), dead_pieces.end(), kin_type{0, 0}) != dead_pieces.end()
             ) {
@@ -60,11 +60,11 @@ void GameStateStratego::check_terminal() {
 }
 
 
-int GameStateStratego::fight(piece_type &attacker, piece_type &defender) {
+int StateStratego::fight(piece_type &attacker, piece_type &defender) {
     return LogicStratego<board_type >::fight_outcome(attacker, defender);
 }
 
-int GameStateStratego::do_move(const move_type &move) {
+int StateStratego::do_move(const move_type &move) {
     // preliminaries
     const position_type &from = move[0];
     const position_type &to = move[1];

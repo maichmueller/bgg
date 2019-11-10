@@ -1,22 +1,22 @@
 
 #pragma once
 
-#include "nn.h"
+#include "include/azpp/nn.h"
 #include "torch/torch.h"
 
-#include "game/GameStateStratego.h"
+#include "game/StateStratego.h"
 
 
 class ActionRepStratego :
         public ActionRepBase<
                 Action<typename BoardStratego::position_type,
                         typename BoardStratego::kin_type>,
-                GameStateStratego,
-                ActionRepStratego
+        StateStratego,
+        ActionRepStratego
         > {
 
 public:
-    using state_type = GameStateStratego;
+    using state_type = StateStratego;
     using position_type = state_type::position_type;
     using kin_type = state_type::piece_type::kin_type;
     using move_type = state_type::move_type;

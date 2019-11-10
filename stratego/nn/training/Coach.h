@@ -92,7 +92,7 @@ public:
             std::string model_folder = "checkpoints",
             int exploration_rate = 100);
 
-    std::vector<TrainData> exec_ep(GameState state) const;
+    std::vector<TrainData> exec_ep(State state) const;
     void teach(bool from_prev_examples=false, bool load_current_best=false, bool skip_first_self_play=false,
             bool multiprocess=false);
 

@@ -30,7 +30,7 @@ Coach::Coach(std::shared_ptr<Game> game, std::shared_ptr<NetworkWrapper> nnet,
 }
 
 
-std::vector<TrainData> Coach::exec_ep(GameState state) const {
+std::vector<TrainData> Coach::exec_ep(State state) const {
 
     int ep_step = 0;
 

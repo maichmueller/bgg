@@ -10,27 +10,15 @@
 #include <nn/model/modules/AlphazeroInterface.h>
 #include "utils/torch_utils.h"
 
-template<size_t Dims>
+
 class NetworkWrapper {
 
     std::shared_ptr<AlphaZeroInterface> m_nnet;
-    std::array<size_t, Dims> board_shape;
-    size_t nr_actions;
 
     [[nodiscard]] std::vector<size_t> prepend_to_shape(
             const torch::Tensor &tensor,
             size_t value
     ) const;
-
-public:
-
-    NetworkWrapper(
-            std::shared_ptr<AlphaZeroInterface> network,
-            std::array<size_t, Dims> board_shape,
-            size_t nr_actions)
-            : m_nnet(std::move(network)),
-              board_shape(board_shape),
-              nr_actions(nr_actions) {}
 
     static inline torch::Tensor loss_pi(const torch::Tensor &targets, const torch::Tensor &outputs) {
         return -(targets * outputs).sum() / targets.size(1);
@@ -40,15 +28,20 @@ public:
         return (targets - outputs).pow(2).sum() / targets.size(1);
     }
 
+public:
+
+    explicit NetworkWrapper(
+            std::shared_ptr<AlphaZeroInterface> network)
+            : m_nnet(std::move(network))
+            {}
+
     template<typename TrainExampleContainer>
     void train(TrainExampleContainer train_examples,
                size_t epochs,
                size_t batch_size = 128);
-
     std::tuple<torch::Tensor, double> predict(const torch::Tensor &board_tensor);
 
     void save_checkpoint(std::string const &folder, std::string const &filename);
-
     void load_checkpoint(std::string const &folder, std::string const &filename);
 
     /// Forwarding method for torch::nn::Module within nnet
@@ -56,9 +49,8 @@ public:
 
 };
 
-template<size_t Dims>
 std::tuple<torch::Tensor, double>
-NetworkWrapper<Dims>::predict(const torch::Tensor &board_tensor) {
+NetworkWrapper::predict(const torch::Tensor &board_tensor) {
     m_nnet->eval();
 
     // We dont want gradient updates here, so we need the NoGradGuard
@@ -75,8 +67,7 @@ NetworkWrapper<Dims>::predict(const torch::Tensor &board_tensor) {
 }
 
 
-template<size_t Dims>
-void NetworkWrapper<Dims>::save_checkpoint(std::string const &folder, std::string const &filename) {
+void NetworkWrapper::save_checkpoint(std::string const &folder, std::string const &filename) {
     namespace fs = std::filesystem;
     fs::path dir(folder);
     fs::path file(filename);
@@ -90,8 +81,7 @@ void NetworkWrapper<Dims>::save_checkpoint(std::string const &folder, std::strin
 }
 
 
-template<size_t Dims>
-void NetworkWrapper<Dims>::load_checkpoint(std::string const &folder, std::string const &filename) {
+void NetworkWrapper::load_checkpoint(std::string const &folder, std::string const &filename) {
     namespace fs = std::filesystem;
     fs::path dir(folder);
     fs::path file(filename);
@@ -104,9 +94,8 @@ void NetworkWrapper<Dims>::load_checkpoint(std::string const &folder, std::strin
     torch::load(m_nnet, full_path.string());
 }
 
-template<size_t Dims>
 template<typename TrainExampleContainer>
-void NetworkWrapper<Dims>::train(
+void NetworkWrapper::train(
         TrainExampleContainer train_examples,
         size_t epochs,
         size_t batch_size) {
@@ -177,8 +166,8 @@ void NetworkWrapper<Dims>::train(
     bar.finish();
 }
 
-template<size_t Dims>
-std::vector<size_t> NetworkWrapper<Dims>::prepend_to_shape(
+
+std::vector<size_t> NetworkWrapper::prepend_to_shape(
         const torch::Tensor &tensor,
         size_t value) const {
     // get current shape and initialize +1

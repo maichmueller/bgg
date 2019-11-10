@@ -8,9 +8,9 @@
 #include "include_header/game.h"
 
 
-class GameStratego : public Game<GameStateStratego, GameStratego> {
+class GameStratego : public Game<StateStratego, GameStratego> {
 public:
-    using base_type = Game<GameStateStratego, GameStratego>;
+    using base_type = Game<StateStratego, GameStratego>;
     using base_type::base_type;
 
     std::map<position_type, sptr_piece_type> draw_setup(int team) {

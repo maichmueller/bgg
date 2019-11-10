@@ -10,15 +10,15 @@
 #include <iterator>
 #include <functional>
 
-#include "GameState.h"
+#include "State.h"
 #include "azpp/agent/Agent.h"
 #include "azpp/utils/utils.h"
 
 
-template<class GameStateType, class LogicType ,class Derived>
+template<class StateType, class LogicType ,class Derived>
 class Game {
 public:
-    using state_type = GameStateType;
+    using state_type = StateType;
     using logic_type = LogicType;
     using piece_type = typename state_type::piece_type;
     using kin_type = typename state_type::kin_type;
@@ -105,8 +105,8 @@ public:
 };
 
 
-template<class GameStateType, class LogicType, class Derived>
-Game<GameStateType, LogicType, Derived>::Game(board_type &&board,
+template<class StateType, class LogicType, class Derived>
+Game<StateType, LogicType, Derived>::Game(board_type &&board,
                                std::shared_ptr<Agent<board_type>> ag0,
                                std::shared_ptr<Agent<board_type>> ag1,
                                bool fixed_setups,
@@ -118,9 +118,9 @@ Game<GameStateType, LogicType, Derived>::Game(board_type &&board,
           m_fixed_setups(fixed_setups) {}
 
 
-template<class GameStateType, class LogicType, class Derived>
+template<class StateType, class LogicType, class Derived>
 template<size_t dim>
-Game<GameStateType, LogicType, Derived>::Game(const std::array<int, dim> &shape,
+Game<StateType, LogicType, Derived>::Game(const std::array<int, dim> &shape,
                                const std::array<int, dim> &board_starts,
                                std::shared_ptr<Agent<board_type>> ag0,
                                std::shared_ptr<Agent<board_type>> ag1,
@@ -134,8 +134,8 @@ Game<GameStateType, LogicType, Derived>::Game(const std::array<int, dim> &shape,
                fixed_setups) {}
 
 
-template<class GameStateType, class LogicType, class Derived>
-Game<GameStateType, LogicType, Derived>::Game(const board_type &board,
+template<class StateType, class LogicType, class Derived>
+Game<StateType, LogicType, Derived>::Game(const board_type &board,
                                std::shared_ptr<Agent<board_type>> ag0,
                                std::shared_ptr<Agent<board_type>> ag1,
                                bool fixed_setups,
@@ -147,9 +147,9 @@ Game<GameStateType, LogicType, Derived>::Game(const board_type &board,
                move_count) {}
 
 
-template<class GameStateType, class LogicType, class Derived>
+template<class StateType, class LogicType, class Derived>
 template<size_t dim>
-Game<GameStateType, LogicType, Derived>::Game(const std::array<int, dim> &shape,
+Game<StateType, LogicType, Derived>::Game(const std::array<int, dim> &shape,
                                const std::array<int, dim> &board_starts,
                                const std::map<position_type, kin_type> &setup_0,
                                const std::map<position_type, kin_type> &setup_1,
@@ -165,9 +165,9 @@ Game<GameStateType, LogicType, Derived>::Game(const std::array<int, dim> &shape,
                fixed_setups) {}
 
 
-template<class GameStateType, class LogicType, class Derived>
-std::vector<typename Game<GameStateType, LogicType, Derived>::piece_type>
-Game<GameStateType, LogicType, Derived>::extract_pieces_from_setup(const std::vector<sptr_piece_type> &setup) {
+template<class StateType, class LogicType, class Derived>
+std::vector<typename Game<StateType, LogicType, Derived>::piece_type>
+Game<StateType, LogicType, Derived>::extract_pieces_from_setup(const std::vector<sptr_piece_type> &setup) {
     std::vector<piece_type> pc_vec(setup.size());
     std::transform(
             setup.begin(),
@@ -179,9 +179,9 @@ Game<GameStateType, LogicType, Derived>::extract_pieces_from_setup(const std::ve
 }
 
 
-template<class GameStateType, class LogicType, class Derived>
-std::vector<typename Game<GameStateType, LogicType, Derived>::piece_type>
-Game<GameStateType, LogicType, Derived>::extract_pieces_from_setup(const std::map<position_type, kin_type> &setup,
+template<class StateType, class LogicType, class Derived>
+std::vector<typename Game<StateType, LogicType, Derived>::piece_type>
+Game<StateType, LogicType, Derived>::extract_pieces_from_setup(const std::map<position_type, kin_type> &setup,
                                                     int team) {
     using val_type = typename std::map<position_type, kin_type>::value_type;
     std::vector<piece_type> pc_vec(setup.size());
@@ -196,8 +196,8 @@ Game<GameStateType, LogicType, Derived>::extract_pieces_from_setup(const std::ma
 }
 
 
-template<class GameStateType, class LogicType, class Derived>
-void Game<GameStateType, LogicType, Derived>::reset() {
+template<class StateType, class LogicType, class Derived>
+void Game<StateType, LogicType, Derived>::reset() {
     auto curr_board_ptr = m_game_state->get_board();
     auto &setup0 = m_setups[0];
     auto &setup1 = m_setups[1];
@@ -214,8 +214,8 @@ void Game<GameStateType, LogicType, Derived>::reset() {
 }
 
 
-template<class GameStateType, class LogicType, class Derived>
-int Game<GameStateType, LogicType, Derived>::run_step() {
+template<class StateType, class LogicType, class Derived>
+int Game<StateType, LogicType, Derived>::run_step() {
     size_t turn = (m_game_state.get_move_count() + 1) % 2;
     int outcome = m_game_state->do_move(
             m_agents[turn]->decide_move(
@@ -227,8 +227,8 @@ int Game<GameStateType, LogicType, Derived>::run_step() {
 }
 
 
-template<class GameStateType, class LogicType, class Derived>
-int Game<GameStateType, LogicType, Derived>::run_game(bool show) {
+template<class StateType, class LogicType, class Derived>
+int Game<StateType, LogicType, Derived>::run_game(bool show) {
 
     while (true) {
         if (show)

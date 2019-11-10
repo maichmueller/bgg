@@ -40,7 +40,7 @@ set(PROJECT_SOURCES
 
 
 set(TARGET_SOURCES main.cpp)
-include_directories("${EXEC_SOURCE_DIR}/../deps")
+include_directories("${CMAKE_SOURCE_DIR}/deps")
 include_directories("${EXEC_SOURCE_DIR}")
 include_directories("${LIBRARY_INCLUDE_DIR}")
 

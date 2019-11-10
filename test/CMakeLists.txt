@@ -23,7 +23,7 @@ ENDIF()
 
 set(STRATEGO_SOURCE_DIR "${PROJECT_SOURCE_DIR}/stratego")
 set(TEST_SOURCES
-        ${LIBRARY_SOURCE_DIR}/game/GameState.h
+        ${LIBRARY_SOURCE_DIR}/game/State.h
         ${LIBRARY_SOURCE_DIR}/board/Piece.h
         ${LIBRARY_SOURCE_DIR}/board/Board.h
         ${LIBRARY_SOURCE_DIR}/nn/model/representation/ActionRepresenter.h
@@ -32,7 +32,7 @@ set(TEST_SOURCES
         ${LIBRARY_SOURCE_DIR}/nn/model/representation/Action.h
 
         ${STRATEGO_SOURCE_DIR}/board/PieceStratego.h
-        ${STRATEGO_SOURCE_DIR}/game/GameStateStratego.h
+        ${STRATEGO_SOURCE_DIR}/game/StateStratego.h
         ${STRATEGO_SOURCE_DIR}/board/BoardStratego.cpp
         ${STRATEGO_SOURCE_DIR}/nn/model/representation/ActionRepresenterStratego.cpp)
 

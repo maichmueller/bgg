@@ -1,9 +1,9 @@
 //#include <iostream>
 //#include "board/Board.h"
 //#include "board/Piece.h"
-#include "include_header/game.h"
+#include "azpp/game.h"
 
-#include "game/GameStateStratego.h"
+#include "game/StateStratego.h"
 ////#include "game/Game.h"
 ////#include "nn/model/NeuralNetwork.h"
 ////#include "nn/training/Coach.h"
@@ -28,8 +28,8 @@
 
 
 int main() {
-    auto gs = GameStateStratego();
-    auto game = GameStateStratego();
+    auto gs = StateStratego();
+    auto game = StateStratego();
     ActionRepStratego a(5);
 }
 

@@ -10,7 +10,11 @@
 
 FullyConnected::FullyConnected(int D_in, int D_out, int nr_lin_layers, int start_expo,
                                const torch::nn::Functional & activation_function)
-        : m_D_in(D_in), m_D_out(D_out), m_nr_lin_layers(nr_lin_layers), m_start_exponent(start_expo), m_layers()
+        : m_D_in(D_in),
+          m_D_out(D_out),
+          m_start_exponent(start_expo),
+          m_nr_lin_layers(nr_lin_layers),
+          m_layers()
 {
 
     if(nr_lin_layers < 1) {
