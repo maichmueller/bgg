@@ -47,6 +47,7 @@ add_executable(alphazero_stratego ${EXEC_SOURCE_DIR} ${TARGET_SOURCES})
 target_include_directories(alphazero_stratego
 		INTERFACE
 		$<BUILD_INTERFACE:${LIBRARY_INCLUDE_DIR}>
+		$<INSTALL_INTERFACE:${CMAKE_INSTALL_PREFIX}/include>
 
 		PRIVATE
 #		${LIBRARY_SOURCE_DIR}
