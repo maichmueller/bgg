@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.13)
 
-if(NOT Torch_FOUND)
+if(NOT TORCH_FOUND)
 	if(UNIX)
 		set(CMAKE_PREFIX_PATH ../deps/libtorch)
 		if(USE_CUDA)
@@ -54,22 +54,34 @@ set(LIBRARY_SOURCES
 		${LIBRARY_SOURCE_DIR}/utils/torch_utils.h
 		${LIBRARY_SOURCE_DIR}/utils/prime_list.h
 
-		${LIBRARY_SOURCE_DIR}/../api/include/azpp/all.h
-		${LIBRARY_SOURCE_DIR}/../api/include/azpp/agent.h
-		${LIBRARY_SOURCE_DIR}/../api/include/azpp/board.h
-		${LIBRARY_SOURCE_DIR}/../api/include/azpp/game.h
-		${LIBRARY_SOURCE_DIR}/../api/include/azpp/logic.h
-		${LIBRARY_SOURCE_DIR}/../api/include/azpp/mcts.h
-		${LIBRARY_SOURCE_DIR}/../api/include/azpp/nn.h
-		${LIBRARY_SOURCE_DIR}/../api/include/azpp/utils.h
+		${LIBRARY_SOURCE_DIR}/../include/azpp/all.h
+		${LIBRARY_SOURCE_DIR}/../include/azpp/agent.h
+		${LIBRARY_SOURCE_DIR}/../include/azpp/board.h
+		${LIBRARY_SOURCE_DIR}/../include/azpp/game.h
+		${LIBRARY_SOURCE_DIR}/../include/azpp/logic.h
+		${LIBRARY_SOURCE_DIR}/../include/azpp/mcts.h
+		${LIBRARY_SOURCE_DIR}/../include/azpp/nn.h
+		${LIBRARY_SOURCE_DIR}/../include/azpp/utils.h
 		)
 
-include_directories(${LIBRARY_SOURCE_DIR})
-include_directories("${PROJECT_SOURCE_DIR}/deps")
+#include_directories(${LIBRARY_SOURCE_DIR})
+#include_directories("${PROJECT_SOURCE_DIR}/deps")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall")
 
 add_library(alphazeroPP STATIC ${LIBRARY_SOURCES})
 
+target_include_directories(alphazeroPP
+		PUBLIC
+		$<INSTALL_INTERFACE:include>
+		$<BUILD_INTERFACE:${LIBRARY_INCLUDE_DIR}>
+		PRIVATE
+		${LIBRARY_SOURCE_DIR}
+		${PROJECT_SOURCE_DIR}/deps
+		)
+
+set_target_properties(alphazeroPP PROPERTIES
+		CXX_STANDARD 17
+		)
 
 # set(SANITIZE_OPTIONS -fsanitize=address -fsanitize=undefined)
 set(SANITIZE_OPTIONS )
@@ -78,6 +90,6 @@ add_link_options(${SANITIZE_OPTIONS})
 # add_link_options(--verbose)
 
 # stdc++fs is needed for static linking against the std::filesystem library (not needed for GCC >=9)
-#target_link_libraries(alphazero++ stdc++fs)
+target_link_libraries(alphazeroPP stdc++fs)
 target_link_libraries(alphazeroPP "${TORCH_LIBRARIES}")
 target_link_libraries(alphazeroPP "${CUDNN_LIBRARY}")

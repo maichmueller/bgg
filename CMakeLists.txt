@@ -1,23 +1,20 @@
 cmake_minimum_required(VERSION 3.13)
 
 project(AlphaZero++ CXX)
-set(CMAKE_CXX_STANDARD 17)
+#set(CMAKE_CXX_STANDARD 17)
 
 set (APPLICATION_NAME "AlphaZero++")
 set (APPLICATION_CODENAME "${PROJECT_NAME}")
 set (APPLICATION_COPYRIGHT_YEARS "2019-")
 
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall")
-#
 #set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/build/lib)
 #set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/build/lib)
 #set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/build/bin)
 
-set(Torch_FOUND FALSE)
 #set(USE_CUDA TRUE)
 set(USE_CUDA FALSE)
 
-if(NOT Torch_FOUND)
+if(NOT TORCH_FOUND)
     if(UNIX)
         set(CMAKE_PREFIX_PATH deps/libtorch)
         if(USE_CUDA)
@@ -34,14 +31,14 @@ if(NOT Torch_FOUND)
     ENDIF(WIN32)
 
     find_package(Torch REQUIRED)
-    # PARENT_SCOPE is necessary to set the torch_found variable of the main cmakelists and not a local only version of it
-    set(Torch_FOUND TRUE)
 ENDIF()
 
-set(LIBRARY_SOURCE_DIR "${PROJECT_SOURCE_DIR}/src/cppsrc")
-set(LIBRARY_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/src/api/include")
+set(LIBRARY_SOURCE_DIR "${PROJECT_SOURCE_DIR}/alphazeroPP/cppsrc")
+set(LIBRARY_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/alphazeroPP/include/azpp")
 
-add_subdirectory (src)
+add_subdirectory (alphazeroPP)
+
+enable_testing ()
 
 # Download and unpack googletest at configure time
 configure_file(CMakeLists.txt.in googletest-download/CMakeLists.txt)
@@ -67,8 +64,6 @@ set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 add_subdirectory(${CMAKE_CURRENT_BINARY_DIR}/googletest-src
         ${CMAKE_CURRENT_BINARY_DIR}/googletest-build
         EXCLUDE_FROM_ALL)
-
-enable_testing ()
 
 add_subdirectory(stratego)
 

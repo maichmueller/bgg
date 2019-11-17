@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.13)
 
-if(NOT Torch_FOUND)
+if(NOT TORCH_FOUND)
 	if(UNIX)
 		set(CMAKE_PREFIX_PATH ../deps/libtorch)
 		if(USE_CUDA)
@@ -17,7 +17,8 @@ if(NOT Torch_FOUND)
 	ENDIF(WIN32)
 
 	find_package(Torch REQUIRED)
-	# PARENT_SCOPE is necessary to set the torch_found variable of the main cmakelists and not a local only version of it
+	# PARENT_SCOPE is necessary to set the torch_found variable of the main cmakelists
+	# and not a local only version of it
 	set(Torch_FOUND TRUE PARENT_SCOPE)
 ENDIF()
 
@@ -40,24 +41,25 @@ set(PROJECT_SOURCES
 
 
 set(TARGET_SOURCES main.cpp)
-include_directories("${CMAKE_SOURCE_DIR}/deps")
-include_directories("${EXEC_SOURCE_DIR}")
-include_directories("${LIBRARY_INCLUDE_DIR}")
-
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall")
 
 add_executable(alphazero_stratego ${EXEC_SOURCE_DIR} ${TARGET_SOURCES})
 
-# set(SANITIZE_OPTIONS -fsanitize=address -fsanitize=undefined)
-set(SANITIZE_OPTIONS )
-add_compile_options(${SANITIZE_OPTIONS})
-add_link_options(${SANITIZE_OPTIONS})
-# add_link_options(--verbose)
+target_include_directories(alphazero_stratego
+		INTERFACE
+		$<BUILD_INTERFACE:${LIBRARY_INCLUDE_DIR}>
 
-target_link_libraries(alphazero_stratego alphazeroPP)
+		PRIVATE
+#		${LIBRARY_SOURCE_DIR}
+		${PROJECT_SOURCE_DIR}/deps
+		${EXEC_SOURCE_DIR}
+		)
+
+# set(SANITIZE_OPTIONS -fsanitize=address -fsanitize=undefined)
+target_compile_options(alphazero_stratego PRIVATE -Wall ${SANITIZE_OPTIONS})
+target_link_options(alphazero_stratego PRIVATE ${SANITIZE_OPTIONS} --verbose)
+
+target_link_libraries(alphazero_stratego "${alphazeroPP}")
 target_link_libraries(alphazero_stratego "${TORCH_LIBRARIES}")
 target_link_libraries(alphazero_stratego "${CUDNN_LIBRARY}")
-
 # stdc++fs is needed for static linking against the std::filesystem library (not needed for GCC >=9)
-#target_link_libraries(Stratego_CPP stdc++fs)
-# add_executable(tests ${COMMON_SOURCES} ${TEST_SOURCES})
+target_link_libraries(alphazero_stratego stdc++fs)
