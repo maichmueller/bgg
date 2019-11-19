@@ -1,8 +1,9 @@
 #pragma once
 
-#include "torch/torch.h"
-#include "nn.h"
-#include "utils.h"
+#include <torch/torch.h>
+
+#include <azpp/utils.h>
+#include <azpp/nn.h>
 
 
 class StrategoAlphaZero : public AlphaZeroInterface {
@@ -23,12 +24,12 @@ public:
                       std::vector<int> kernel_sizes_vec,
                       std::vector<bool> maxpool_used_vec,
                       std::vector<float> dropout_probs,
-                      const torch::nn::Functional & activation_function=torch::nn::Functional(torch::relu));
+                      const torch::nn::Functional &activation_function = torch::nn::Functional(torch::relu));
 
-    std::tuple<torch::Tensor, torch::Tensor> forward(const torch::Tensor & input) override;
-    void to_device(torch::Device device) override;
+    std::tuple<torch::Tensor, torch::Tensor> forward(const torch::Tensor &input) override;
+
+    void to_device(torch::Device device);
 };
-
 
 
 StrategoAlphaZero::StrategoAlphaZero(int D_in, int D_out,
@@ -38,7 +39,7 @@ StrategoAlphaZero::StrategoAlphaZero(int D_in, int D_out,
                                      std::vector<int> kernel_sizes_vec,
                                      std::vector<bool> maxpool_used_vec,
                                      std::vector<float> dropout_probs,
-                                     const torch::nn::Functional & activation_function)
+                                     const torch::nn::Functional &activation_function)
         : D_in(D_in),
           convo_layers(
                   std::move(
@@ -53,10 +54,9 @@ StrategoAlphaZero::StrategoAlphaZero(int D_in, int D_out,
                                   )
                   )
           ),
-          pi_act_layer(nullptr), v_act_layer(nullptr)
-{
-    if(nr_lin_layers < 2) {
-        throw std::invalid_argument("Less than 2 linear m_layers requested. Aborting.");
+          pi_act_layer(nullptr), v_act_layer(nullptr) {
+    if (nr_lin_layers < 2) {
+        throw std::invalid_argument("Less than 2 linear layers requested. Aborting.");
     }
 
     unsigned int hidden_nodes = 2u << static_cast<unsigned int>(start_exponent - 1);
@@ -64,15 +64,17 @@ StrategoAlphaZero::StrategoAlphaZero(int D_in, int D_out,
 
     linear_layers = std::make_unique<FullyConnected>(
             D_in,
-            /*D_out=*/substitute_d_out,
+            substitute_d_out,
             nr_lin_layers - 1,
             start_exponent,
             activation_function);
 
     pi_act_layer = torch::nn::Linear(
-            torch::nn::LinearOptions(substitute_d_out, D_out));
+            torch::nn::LinearOptions(substitute_d_out, D_out)
+    );
     v_act_layer = torch::nn::Linear(
-            torch::nn::LinearOptions(substitute_d_out, 1));
+            torch::nn::LinearOptions(substitute_d_out, 1)
+    );
 
 }
 
@@ -82,7 +84,10 @@ std::tuple<torch::Tensor, torch::Tensor> StrategoAlphaZero::forward(const torch:
     torch::Tensor output = convo_layers->forward(input).view({-1, D_in});
     output = linear_layers->forward(output);
 
-    torch::Tensor pi = torch::log_softmax(pi_act_layer->forward(output), /*m_dim=*/1);
+    torch::Tensor pi = torch::log_softmax(
+            pi_act_layer->forward(output),
+            1
+    );
     torch::Tensor v = torch::tanh(v_act_layer->forward(output));
 
     return std::make_tuple(pi, v);
