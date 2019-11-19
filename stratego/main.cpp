@@ -1,7 +1,7 @@
 //#include <iostream>
 //#include "board/Board.h"
 //#include "board/Piece.h"
-#include "azpp/game.h"
+#include <azpp/game.h>
 
 #include "game/StateStratego.h"
 ////#include "game/Game.h"

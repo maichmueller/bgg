@@ -23,45 +23,48 @@ ENDIF()
 
 
 set(LIBRARY_SOURCES
-		${LIBRARY_SOURCE_DIR}/agent/Agent.h
-		${LIBRARY_SOURCE_DIR}/agent/AgentReinforce.h
-		${LIBRARY_SOURCE_DIR}/agent/AgentAlphazero.h
+		${LIBRARY_INCLUDE_DIR}/azpp/agent/Agent.h
+		${LIBRARY_INCLUDE_DIR}/azpp/agent/AgentReinforce.h
+		${LIBRARY_INCLUDE_DIR}/azpp/agent/AgentAlphazero.h
 
-		${LIBRARY_SOURCE_DIR}/board/Position.h
-		${LIBRARY_SOURCE_DIR}/board/Move.h
-		${LIBRARY_SOURCE_DIR}/board/Piece.h
-		${LIBRARY_SOURCE_DIR}/board/Board.h
+		${LIBRARY_INCLUDE_DIR}/azpp/board/Position.h
+		${LIBRARY_INCLUDE_DIR}/azpp/board/Move.h
+		${LIBRARY_INCLUDE_DIR}/azpp/board/Piece.h
+		${LIBRARY_INCLUDE_DIR}/azpp/board/Board.h
 
-		${LIBRARY_SOURCE_DIR}/game/Arena.h
-		${LIBRARY_SOURCE_DIR}/game/Game.h
-		${LIBRARY_SOURCE_DIR}/game/State.h
+		${LIBRARY_INCLUDE_DIR}/azpp/game/Arena.h
+		${LIBRARY_INCLUDE_DIR}/azpp/game/Game.h
+		${LIBRARY_INCLUDE_DIR}/azpp/game/State.h
 
-		${LIBRARY_SOURCE_DIR}/logic/Logic.h
+		${LIBRARY_INCLUDE_DIR}/azpp/logic/Logic.h
+
+		${LIBRARY_INCLUDE_DIR}/azpp/mcts/MCTS.h
+
+		${LIBRARY_INCLUDE_DIR}/azpp/nn/model/representation/ActionRepresenter.h
+		${LIBRARY_INCLUDE_DIR}/azpp/nn/model/representation/Action.h
+
+		${LIBRARY_INCLUDE_DIR}/azpp/nn/model/NeuralNet.h
+		${LIBRARY_INCLUDE_DIR}/azpp/nn/model/modules/AlphazeroInterface.h
+		${LIBRARY_INCLUDE_DIR}/azpp/nn/training/Coach.h
+
+		${LIBRARY_INCLUDE_DIR}/azpp/utils/utils.h
+		${LIBRARY_INCLUDE_DIR}/azpp/utils/torch_utils.h
+		${LIBRARY_INCLUDE_DIR}/azpp/utils/prime_list.h
 
 		${LIBRARY_SOURCE_DIR}/mcts/MCTS.cpp
-		${LIBRARY_SOURCE_DIR}/mcts/MCTS.h
-
-		${LIBRARY_SOURCE_DIR}/nn/model/representation/ActionRepresenter.h
-		${LIBRARY_SOURCE_DIR}/nn/model/representation/Action.h
-
-		${LIBRARY_SOURCE_DIR}/nn/model/NeuralNet.h
+		${LIBRARY_SOURCE_DIR}/nn/model/NeuralNet.cpp
 		${LIBRARY_SOURCE_DIR}/nn/model/modules/Convolutional.cpp
 		${LIBRARY_SOURCE_DIR}/nn/model/modules/FullyConnected.cpp
-		${LIBRARY_SOURCE_DIR}/nn/model/modules/AlphazeroInterface.h
-		${LIBRARY_SOURCE_DIR}/nn/training/Coach.h
 
-		${LIBRARY_SOURCE_DIR}/utils/utils.h
-		${LIBRARY_SOURCE_DIR}/utils/torch_utils.h
-		${LIBRARY_SOURCE_DIR}/utils/prime_list.h
 
-		${LIBRARY_SOURCE_DIR}/../include/azpp/all.h
-		${LIBRARY_SOURCE_DIR}/../include/azpp/agent.h
-		${LIBRARY_SOURCE_DIR}/../include/azpp/board.h
-		${LIBRARY_SOURCE_DIR}/../include/azpp/game.h
-		${LIBRARY_SOURCE_DIR}/../include/azpp/logic.h
-		${LIBRARY_SOURCE_DIR}/../include/azpp/mcts.h
-		${LIBRARY_SOURCE_DIR}/../include/azpp/nn.h
-		${LIBRARY_SOURCE_DIR}/../include/azpp/utils.h
+		${LIBRARY_INCLUDE_DIR}/azpp/all.h
+		${LIBRARY_INCLUDE_DIR}/azpp/agent.h
+		${LIBRARY_INCLUDE_DIR}/azpp/board.h
+		${LIBRARY_INCLUDE_DIR}/azpp/game.h
+		${LIBRARY_INCLUDE_DIR}/azpp/logic.h
+		${LIBRARY_INCLUDE_DIR}/azpp/mcts.h
+		${LIBRARY_INCLUDE_DIR}/azpp/nn.h
+		${LIBRARY_INCLUDE_DIR}/azpp/utils.h
 		)
 
 #include_directories(${LIBRARY_SOURCE_DIR})
@@ -83,6 +86,7 @@ set_target_properties(alphazeroPP PROPERTIES
 		CXX_STANDARD 17
 		)
 
+target_compile_features(alphazeroPP PRIVATE cxx_std_17)
 # set(SANITIZE_OPTIONS -fsanitize=address -fsanitize=undefined)
 set(SANITIZE_OPTIONS )
 add_compile_options(${SANITIZE_OPTIONS})
@@ -90,6 +94,6 @@ add_link_options(${SANITIZE_OPTIONS})
 # add_link_options(--verbose)
 
 # stdc++fs is needed for static linking against the std::filesystem library (not needed for GCC >=9)
-target_link_libraries(alphazeroPP stdc++fs)
+#target_link_libraries(alphazeroPP stdc++fs)
 target_link_libraries(alphazeroPP "${TORCH_LIBRARIES}")
 target_link_libraries(alphazeroPP "${CUDNN_LIBRARY}")

@@ -6,10 +6,10 @@
 
 #include <unordered_map>
 
-#include "board/Board.h"
-#include "board/Piece.h"
-#include "board/Move.h"
-#include "board/Position.h"
+#include "azpp/board/Board.h"
+#include "azpp/board/Piece.h"
+#include "azpp/board/Move.h"
+#include "azpp/board/Position.h"
 
 
 template <class BoardType>

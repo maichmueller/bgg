@@ -1,8 +1,8 @@
 #include <random>
 
-#include "mcts/MCTS.h"
-#include "agent/AgentReinforce.h"
-#include "nn/model/representation/ActionRepresenter.h"
+#include "azpp/mcts/MCTS.h"
+#include "azpp/agent/AgentReinforce.h"
+#include "azpp/nn/model/representation/ActionRepresenter.h"
 
 double MCTS::m_EPS = 10e-8;
 

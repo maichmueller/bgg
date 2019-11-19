@@ -4,9 +4,9 @@
 
 #pragma once
 
-#include "logic/Logic.h"
-#include "board/Board.h"
-#include "vector"
+#include "azpp/logic/Logic.h"
+#include "azpp/board/Board.h"
+#include <vector>
 
 
 template<class StateType>

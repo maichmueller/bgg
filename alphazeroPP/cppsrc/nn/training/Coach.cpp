@@ -3,10 +3,10 @@
 //
 
 #include "Coach.h"
-#include "../../alphazero/MCTS.h"
-#include "../../utils/torch_utils.h"
-#include "../../agent/AgentReinforce.h"
-#include "../../game/Arena.h"
+#include "azpp/nn/alphazero/MCTS.h"
+#include "azpp/utils/torch_utils.h"
+#include "azpp/agent/AgentReinforce.h"
+#include "azpp/game/Arena.h"
 
 #include "torch/torch.h"
 

@@ -2,8 +2,8 @@
 // Created by Michael on 04.11.19.
 //
 
-#include "Convolutional.h"
-#include "utils/torch_utils.h"
+#include "azpp/nn/model/modules/Convolutional.h"
+#include "azpp/utils/torch_utils.h"
 
 
 Convolutional::Convolutional(int channels_in, std::vector<int> &&filter_sizes,

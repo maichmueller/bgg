@@ -1,8 +1,8 @@
 
 #pragma once
 
-#include "board/Position.h"
-#include "board/Move.h"
+#include "azpp/board/Position.h"
+#include "azpp/board/Move.h"
 
 template <typename Vector, typename KinType>
 struct Action {

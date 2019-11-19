@@ -30,7 +30,7 @@ std::vector<std::shared_ptr<typename BoardStratego::piece_type>> BoardStratego::
     return vector_out;
 }
 
-std::string BoardStratego::to_string_2D(bool flip_board, bool hide_unknowns) const {
+std::string BoardStratego::print_board(bool flip_board, bool hide_unknowns) const {
     if (m_dim > 2) {
         throw std::logic_error("Board has dimension > 2, thus cannot create 2D representation.");
     }
@@ -46,7 +46,7 @@ std::string BoardStratego::to_string_2D(bool flip_board, bool hide_unknowns) con
     // "-1 \n
     // 10.1 \n
     //   1"
-    auto create_piece_str = [&H_SIZE_PER_PIECE, &mid, &flip_board, &hide_unknowns](const PieceType &piece, int line) {
+    auto create_piece_str = [&H_SIZE_PER_PIECE, &mid, &flip_board, &hide_unknowns](const piece_type &piece, int line) {
         if (piece.is_null())
             return std::string(static_cast<unsigned long> (H_SIZE_PER_PIECE), ' ');
         std::string reset = "\x1B[0m";
@@ -65,7 +65,8 @@ std::string BoardStratego::to_string_2D(bool flip_board, bool hide_unknowns) con
             if (hide_unknowns && piece.get_flag_hidden() && piece.get_team(flip_board)) {
                 return color + std::string(static_cast<unsigned long> (H_SIZE_PER_PIECE), ' ') + reset;
             }
-            return color + center(std::to_string(piece.get_type()) + '.' + std::to_string(piece.get_version()),
+            const auto & kin = piece.get_kin();
+            return color + utils::center(std::to_string(kin[0]) + '.' + std::to_string(kin[1]),
                                   H_SIZE_PER_PIECE, " ") + reset;
         } else if (line == mid + 1)
             // team info line
@@ -92,7 +93,7 @@ std::string BoardStratego::to_string_2D(bool flip_board, bool hide_unknowns) con
 
     board_print << init_space << h_border << "\n";
     std::string init = board_print.str();
-    std::shared_ptr<PieceType> curr_piece;
+    std::shared_ptr<piece_type > curr_piece;
 
     // row means row of the board. not actual rows of console output.
     for (int row = m_board_starts[1]; row < dim_y; ++row) {

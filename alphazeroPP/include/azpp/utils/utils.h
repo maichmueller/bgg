@@ -32,7 +32,7 @@ namespace utils {
             return str;
         }
         str.reserve(period * n);
-        std::size_t m {2};
+        std::size_t m{2};
         for (; m < n; m *= 2) str += str;
         str.append(str.c_str(), (n - (m / 2)) * period);
         return str;

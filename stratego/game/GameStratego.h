@@ -5,12 +5,12 @@
 
 #pragma once
 
-#include "include_header/game.h"
+#include "azpp/game.h"
 
 
-class GameStratego : public Game<StateStratego, GameStratego> {
+class GameStratego : public Game<StateStratego, LogicStratego<BoardStratego>, GameStratego> {
 public:
-    using base_type = Game<StateStratego, GameStratego>;
+    using base_type = Game<StateStratego, LogicStratego<BoardStratego>, GameStratego>;
     using base_type::base_type;
 
     std::map<position_type, sptr_piece_type> draw_setup(int team) {

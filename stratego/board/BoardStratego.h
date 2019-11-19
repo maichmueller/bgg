@@ -10,7 +10,7 @@
 #include "memory"
 
 #include "PieceStratego.h"
-#include "include/azpp/board.h"
+#include "azpp/board.h"
 
 
 class BoardStratego : public Board<PieceStratego> {
@@ -25,7 +25,7 @@ public:
                   const std::map<position_type, int> &setup_1)
             : base_type(shape, adapt_setup(setup_0), adapt_setup(setup_1))
             {}
-    std::string to_string_2D(bool flip_board, bool hide_unknowns) const override;
+    [[nodiscard]] std::string print_board(bool flip_board, bool hide_unknowns) const;
 private:
     static std::vector<std::shared_ptr<piece_type>> adapt_setup(const std::map<position_type , int> &setup);
 

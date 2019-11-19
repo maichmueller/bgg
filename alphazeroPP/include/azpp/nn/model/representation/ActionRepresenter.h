@@ -13,9 +13,9 @@
 
 #include "torch/torch.h"
 
-#include "board/Position.h"
-#include "board/Move.h"
-#include "game/State.h"
+#include "azpp/board/Position.h"
+#include "azpp/board/Move.h"
+#include "azpp/game/State.h"
 
 #include <type_traits>
 

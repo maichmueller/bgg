@@ -24,17 +24,17 @@ ENDIF()
 
 
 set(EXEC_SOURCE_DIR "${PROJECT_SOURCE_DIR}/stratego")
-set(PROJECT_SOURCES
+set(EXEC_SOURCES
 		${EXEC_SOURCE_DIR}/board/PieceStratego.h
 		${EXEC_SOURCE_DIR}/board/BoardStratego.cpp
 
 		#		${PROJECT_EXEC_SOURCE_DIR}/game/Arena.cpp
 		${EXEC_SOURCE_DIR}/game/GameStratego.h
-		${EXEC_SOURCE_DIR}/game/GameStrategoState.h
+		${EXEC_SOURCE_DIR}/game/StateStratego.cpp
 
-		${EXEC_SOURCE_DIR}/nn/model/ActionRepresenterStratego.h
+		${EXEC_SOURCE_DIR}/nn/model/representation/ActionRepresenterStratego.cpp
 
-		${EXEC_SOURCE_DIR}/logic/LogicStratego.h
+		${EXEC_SOURCE_DIR}/logic/LogicStratego.cpp
 
 		${EXEC_SOURCE_DIR}/nn/model/modules/AlphazeroStratego.h
 		)
@@ -42,14 +42,16 @@ set(PROJECT_SOURCES
 
 set(TARGET_SOURCES main.cpp)
 
-add_executable(alphazero_stratego ${EXEC_SOURCE_DIR} ${TARGET_SOURCES})
-
+add_executable(alphazero_stratego ${EXEC_SOURCES} ${TARGET_SOURCES})
+#include_directories(../alphazeroPP/include)
+message(STATUS ${LIBRARY_INCLUDE_DIR})
 target_include_directories(alphazero_stratego
-		INTERFACE
-		$<BUILD_INTERFACE:${LIBRARY_INCLUDE_DIR}>
-		$<INSTALL_INTERFACE:${CMAKE_INSTALL_PREFIX}/include>
+#		INTERFACE
+#		$<BUILD_INTERFACE:${LIBRARY_INCLUDE_DIR}>
+#		$<INSTALL_INTERFACE:${CMAKE_INSTALL_PREFIX}/include>
 
 		PRIVATE
+		${LIBRARY_INCLUDE_DIR}
 #		${LIBRARY_SOURCE_DIR}
 		${PROJECT_SOURCE_DIR}/deps
 		${EXEC_SOURCE_DIR}
@@ -63,4 +65,4 @@ target_link_libraries(alphazero_stratego "${alphazeroPP}")
 target_link_libraries(alphazero_stratego "${TORCH_LIBRARIES}")
 target_link_libraries(alphazero_stratego "${CUDNN_LIBRARY}")
 # stdc++fs is needed for static linking against the std::filesystem library (not needed for GCC >=9)
-target_link_libraries(alphazero_stratego stdc++fs)
+#target_link_libraries(alphazero_stratego stdc++fs)

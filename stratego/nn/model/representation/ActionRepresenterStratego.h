@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include "include/azpp/nn.h"
+#include "azpp/nn.h"
 #include "torch/torch.h"
 
 #include "game/StateStratego.h"
