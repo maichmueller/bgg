@@ -23,37 +23,36 @@ if(NOT TORCH_FOUND)
 ENDIF()
 
 
-set(EXEC_SOURCE_DIR "${PROJECT_SOURCE_DIR}/stratego")
-set(EXEC_SOURCES
-		${EXEC_SOURCE_DIR}/board/PieceStratego.h
-		${EXEC_SOURCE_DIR}/board/BoardStratego.cpp
+set(STRATEGO_SOURCE_DIR "${PROJECT_SOURCE_DIR}/stratego")
+set(STRATEGO_SOURCES
+		${STRATEGO_SOURCE_DIR}/board/PieceStratego.h
+		${STRATEGO_SOURCE_DIR}/board/BoardStratego.cpp
 
-		#		${PROJECT_EXEC_SOURCE_DIR}/game/Arena.cpp
-		${EXEC_SOURCE_DIR}/game/GameStratego.h
-		${EXEC_SOURCE_DIR}/game/StateStratego.cpp
+		#		${PROJECT_STRATEGO_SOURCE_DIR}/game/Arena.cpp
+		${STRATEGO_SOURCE_DIR}/game/GameStratego.h
+		${STRATEGO_SOURCE_DIR}/game/StateStratego.cpp
 
-		${EXEC_SOURCE_DIR}/nn/model/representation/ActionRepresenterStratego.cpp
+		${STRATEGO_SOURCE_DIR}/nn/model/representation/ActionRepresenterStratego.cpp
 
-		${EXEC_SOURCE_DIR}/logic/LogicStratego.cpp
+		${STRATEGO_SOURCE_DIR}/logic/LogicStratego.cpp
 
-		${EXEC_SOURCE_DIR}/nn/model/modules/AlphazeroStratego.h
+		${STRATEGO_SOURCE_DIR}/nn/model/modules/AlphazeroStratego.h
 		)
 
 
 set(TARGET_SOURCES main.cpp)
 
-add_executable(alphazero_stratego ${EXEC_SOURCES} ${TARGET_SOURCES})
+add_executable(alphazero_stratego ${STRATEGO_SOURCES} ${TARGET_SOURCES})
 
 target_include_directories(alphazero_stratego
-#		INTERFACE
-#		$<BUILD_INTERFACE:${LIBRARY_INCLUDE_DIR}>
-#		$<INSTALL_INTERFACE:${CMAKE_INSTALL_PREFIX}/include>
-
 		PRIVATE
 		${LIBRARY_INCLUDE_DIR}
-#		${LIBRARY_SOURCE_DIR}
 		${PROJECT_SOURCE_DIR}/deps
-		${EXEC_SOURCE_DIR}
+		${STRATEGO_SOURCE_DIR}
+		)
+
+set_target_properties(alphazero_stratego PROPERTIES
+		CXX_STANDARD 17
 		)
 
 # set(SANITIZE_OPTIONS -fsanitize=address -fsanitize=undefined)

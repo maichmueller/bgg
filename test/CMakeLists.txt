@@ -22,10 +22,10 @@ if(NOT Torch_FOUND)
 ENDIF()
 
 set(STRATEGO_SOURCE_DIR "${PROJECT_SOURCE_DIR}/stratego")
+
 set(TEST_SOURCES
         ${LIBRARY_INCLUDE_DIR}/azpp/all.h
         )
-
 
 set(TARGET_TEST_SOURCES
         main_test.cpp
@@ -34,6 +34,18 @@ set(TARGET_TEST_SOURCES
         BoardTest.cpp)
 
 add_executable(tests ${TEST_SOURCES} ${TARGET_TEST_SOURCES})
+
+target_include_directories(tests
+        PRIVATE
+        ${LIBRARY_INCLUDE_DIR}
+        ${PROJECT_SOURCE_DIR}/deps
+        ${EXEC_SOURCE_DIR}
+        )
+
+set_target_properties(tests PROPERTIES
+        CXX_STANDARD 17
+        )
+
 include_directories("${PROJECT_SOURCE_DIR}/azpp")
 target_link_libraries(tests stdc++fs gtest_main)
 add_test(NAME google_testing COMMAND ./tests)

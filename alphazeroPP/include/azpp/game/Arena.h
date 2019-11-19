@@ -5,9 +5,9 @@
 #include <memory>
 #include <cxxabi.h>
 
-#include "utils/utils.h"
-#include "agent/Agent.h"
-#include "game/Game.h"
+#include "azpp/utils/utils.h"
+#include "azpp/agent/Agent.h"
+
 
 struct StatTrack {
     int wins;
@@ -86,7 +86,7 @@ void Arena::print_round_results(
 
 
 template<typename T>
-char *get_typename(T &object) {
+char * get_typename(T &object) {
     return abi::__cxa_demangle(typeid(object).name(), 0, 0, 0);
 }
 

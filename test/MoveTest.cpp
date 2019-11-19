@@ -1,7 +1,3 @@
-//
-// Created by michael on 20.10.19.
-//
-
 #include <cmath>
 #include "MoveTest.h"
 #include "gtest/gtest.h"

@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "board/Board.h"
+#include "azpp/board/Board.h"
 
 namespace BoardTest{
     using position_type = Position<int, 2>;

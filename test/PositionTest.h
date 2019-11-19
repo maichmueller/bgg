@@ -1,9 +1,5 @@
-//
-// Created by michael on 20.10.19.
-//
-
 #pragma once
-#include "board/Position.h"
+#include "azpp/board/Position.h"
 
 namespace {
     template <size_t N>

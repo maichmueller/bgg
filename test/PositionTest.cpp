@@ -1,6 +1,3 @@
-//
-// Created by michael on 20.10.19.
-//
 
 #include "PositionTest.h"
 #include "gtest/gtest.h"

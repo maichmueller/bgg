@@ -58,6 +58,7 @@ set(LIBRARY_SOURCES
 
 
 		${LIBRARY_INCLUDE_DIR}/azpp/all.h
+		${LIBRARY_INCLUDE_DIR}/azpp/azpp.h
 		${LIBRARY_INCLUDE_DIR}/azpp/agent.h
 		${LIBRARY_INCLUDE_DIR}/azpp/board.h
 		${LIBRARY_INCLUDE_DIR}/azpp/game.h
@@ -67,8 +68,6 @@ set(LIBRARY_SOURCES
 		${LIBRARY_INCLUDE_DIR}/azpp/utils.h
 		)
 
-#include_directories(${LIBRARY_SOURCE_DIR})
-#include_directories("${PROJECT_SOURCE_DIR}/deps")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall")
 
 add_library(alphazeroPP STATIC ${LIBRARY_SOURCES})

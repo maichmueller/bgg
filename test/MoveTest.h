@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "board/Move.h"
+#include "azpp/board/Move.h"
 
 namespace {
     template <size_t N>

@@ -87,7 +87,7 @@ public:
 };
 
 
-// free operators for switched positions
+// free operators for switched call positions
 
 template <typename Number, typename Length, size_t N>
 Position<Length, N> operator*(const Number & n, const Position<Length, N> & pos) {return pos * n;}
