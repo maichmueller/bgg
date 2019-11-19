@@ -75,8 +75,8 @@ add_library(alphazeroPP STATIC ${LIBRARY_SOURCES})
 
 target_include_directories(alphazeroPP
 		PUBLIC
-		$<INSTALL_INTERFACE:include>
 		$<BUILD_INTERFACE:${LIBRARY_INCLUDE_DIR}>
+		$<INSTALL_INTERFACE:${CMAKE_INSTALL_PREFIX}/include>
 		PRIVATE
 		${LIBRARY_SOURCE_DIR}
 		${PROJECT_SOURCE_DIR}/deps

@@ -38,9 +38,7 @@ protected:
 
     void check_pos_bounds(const position_type &pos) const;
 
-    template<size_t dim>
-    void _fill_board_null_pieces(const std::array<size_t, dim> &shape,
-                                 const std::array<int, dim> &board_starts,
+    void _fill_board_null_pieces(size_t dim,
                                  std::array<int, m_dim> &&position_pres = std::array<int, m_dim>{0});
 
     void _fill_inverse_board();
@@ -135,23 +133,22 @@ void Board<PieceType>::update_board(const position_type &pos, std::shared_ptr<pi
 
 
 template<typename PieceType>
-template<size_t dim>
-void Board<PieceType>::_fill_board_null_pieces(const std::array<size_t, dim> &shape,
-                                           const std::array<int, dim> &board_starts,
+void Board<PieceType>::_fill_board_null_pieces(size_t dim,
                                            std::array<int, m_dim> &&position_pres) {
-    if constexpr(dim == m_dim) {
+    if (dim == m_dim) {
         for (int i = m_board_starts[m_dim - 1];
-             i < static_cast<int>(m_board_starts[m_dim - 1] + shape[m_dim - 1]); ++i) {
+             i < static_cast<int>(m_board_starts[m_dim - 1] + m_shape[m_dim - 1]); ++i) {
             position_pres[m_dim - 1] = i;
-            _fill_board_null_pieces(shape, board_starts, std::forward<std::array<int, m_dim>>(position_pres));
+            _fill_board_null_pieces(dim - 1, std::forward<std::array<int, m_dim>>(position_pres));
         }
-    } else if constexpr (dim > 0) {
-        for (int i = m_board_starts[dim - 1]; i < static_cast<int>(m_board_starts[dim - 1] + shape[dim - 1]); ++i) {
+    } else if (dim > 0) {
+        for (int i = m_board_starts[dim - 1]; i < static_cast<int>(m_board_starts[dim - 1] + m_shape[dim - 1]); ++i) {
             position_pres[dim - 1] = i;
-            _fill_board_null_pieces(shape, board_starts, std::forward<std::array<int, m_dim>>(position_pres));
+            _fill_board_null_pieces(dim-1, std::forward<std::array<int, m_dim>>(position_pres));
         }
     } else {
-        m_board_map[position_pres] = std::make_shared<piece_type>(position_pres);
+        position_type pos(position_pres);
+        m_board_map[pos] = std::make_shared<piece_type>(pos);
     }
 }
 
@@ -160,7 +157,7 @@ Board<PieceType>::Board(const std::array<int, m_dim> &shape)
         : m_shape(shape),
           m_board_map(),
           m_board_map_inverse() {
-    _fill_board_null_pieces(m_shape, m_board_starts);
+    _fill_board_null_pieces(m_dim);
 }
 
 template<typename PieceType>
@@ -170,7 +167,7 @@ Board<PieceType>::Board(const std::array<size_t, m_dim> &shape,
           m_board_starts(board_starts),
           m_board_map(),
           m_board_map_inverse() {
-    _fill_board_null_pieces(m_shape, m_board_starts);
+    _fill_board_null_pieces(m_dim);
 }
 
 template<typename PieceType>

@@ -43,8 +43,7 @@ set(EXEC_SOURCES
 set(TARGET_SOURCES main.cpp)
 
 add_executable(alphazero_stratego ${EXEC_SOURCES} ${TARGET_SOURCES})
-#include_directories(../alphazeroPP/include)
-message(STATUS ${LIBRARY_INCLUDE_DIR})
+
 target_include_directories(alphazero_stratego
 #		INTERFACE
 #		$<BUILD_INTERFACE:${LIBRARY_INCLUDE_DIR}>

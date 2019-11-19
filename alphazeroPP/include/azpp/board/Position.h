@@ -51,11 +51,6 @@ public:
     Position() : coordinates() {}
     Position(const Position & position) : coordinates(position.get_coordinates()) {}
     explicit Position(container_type coords) : coordinates(std::move(coords)) {}
-    explicit Position(container_type & coords) : coordinates() {
-        for (int i = 0; i < N; ++i) {
-            coordinates[i] = coords[i];
-        }
-    };
 
     const LengthType & operator[](unsigned int index) const {return coordinates[index];}
     LengthType & operator[](unsigned int index) {return coordinates[index];}
