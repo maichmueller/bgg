@@ -16,15 +16,18 @@ class StrategoAlphaZero : public AlphaZeroInterface {
 
 public:
 
-    StrategoAlphaZero(int D_in, int D_out,
-                      int nr_lin_layers,
-                      int start_exponent,
-                      int channels,
-                      std::vector<int> filter_sizes,
-                      std::vector<int> kernel_sizes_vec,
-                      std::vector<bool> maxpool_used_vec,
-                      std::vector<float> dropout_probs,
-                      const torch::nn::Functional &activation_function = torch::nn::Functional(torch::relu));
+    StrategoAlphaZero(
+            int D_in,
+            int D_out,
+            int nr_lin_layers,
+            int start_exponent,
+            int channels,
+            std::vector<int> filter_sizes,
+            std::vector<int> kernel_sizes_vec,
+            std::vector<bool> maxpool_used_vec,
+            std::vector<float> dropout_probs,
+            const torch::nn::Functional &activation_function = torch::nn::Functional(torch::relu)
+    );
 
     std::tuple<torch::Tensor, torch::Tensor> forward(const torch::Tensor &input) override;
 

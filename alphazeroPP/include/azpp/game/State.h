@@ -38,8 +38,6 @@ protected:
     std::vector<bool> m_move_equals_prev_move;
     unsigned int m_rounds_without_fight;
 
-    bool m_canonical_teams;
-
 public:
     template<size_t dim>
     explicit State(const std::array<size_t, dim> &shape,
@@ -63,19 +61,11 @@ public:
 
     virtual int do_move(const move_type &move) = 0;
 
-    void restore_to_round(int round);
+    virtual void restore_to_round(int round);
 
     void undo_last_rounds(int n = 1);
 
-    int get_canonical_team(piece_type &piece);
-
-    position_type get_canonical_pos(piece_type &piece);
-
     int get_move_count() { return m_move_count; }
-
-    bool is_canonical() { return m_canonical_teams; }
-
-    void canonical_board(int player);
 
     void set_board(board_type brd) { this->m_board = std::move(brd); }
 
@@ -92,8 +82,7 @@ State<BoardType>::State(board_type &&board,
           m_move_count(move_count),
           m_move_history(),
           m_move_equals_prev_move(0),
-          m_rounds_without_fight(0),
-          m_canonical_teams(true)
+          m_rounds_without_fight(0)
 {}
 
 template<class BoardType>
@@ -120,36 +109,6 @@ int State<BoardType>::is_terminal(bool force_check) {
     if (!m_terminal_checked || force_check)
         check_terminal(false);
     return m_terminal;
-}
-
-template<class BoardType>
-void State<BoardType>::canonical_board(int player) {
-    // if the 0 player is team 1, then canonical is false,
-    // if it is 0 otherwise, then the teams are canonical
-    m_canonical_teams = bool(1 - player);
-}
-
-template<class BoardType>
-int State<BoardType>::get_canonical_team(piece_type &piece) {
-    if (m_canonical_teams) {
-        return piece.get_team();
-    } else {
-        return 1 - piece.get_team();
-    }
-}
-
-template<class BoardType>
-typename State<BoardType>::position_type
-State<BoardType>::get_canonical_pos(piece_type &piece) {
-    if (m_canonical_teams) {
-        return piece.get_position();
-    } else {
-        int len = m_board.get_shape();
-        position_type pos = piece.get_position();
-        pos[0] = len - 1 - pos[0];
-        pos[1] = len - 1 - pos[1];
-        return pos;
-    }
 }
 
 template<class BoardType>

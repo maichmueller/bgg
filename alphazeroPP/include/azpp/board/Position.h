@@ -134,9 +134,10 @@ Position<LengthType, N> Position<LengthType, N>::operator+(const Position<Length
 }
 
 template<typename LengthType, size_t N>
-Position<LengthType, N> Position<LengthType, N>::operator-(const Position<LengthType, N> &pos) const { return *this +
-                                                                                                              (-1 *
-                                                                                                               pos);
+Position<LengthType, N> Position<LengthType, N>::operator-(const Position<LengthType, N> &pos) const {
+    return *this +
+           (-1 *
+            pos);
 }
 
 template<typename LengthType, size_t N>
@@ -204,17 +205,21 @@ bool Position<LengthType, N>::operator!=(const Position &other) const {
 template<typename LengthType, size_t N>
 bool Position<LengthType, N>::operator<(const Position &other) const {
     for (size_t i = 0; i < N; ++i) {
-        if ((*this)[i] >= other[i])
+        if ((*this)[i] < other[i])
+            return true;
+        else if ((*this)[i] > other[i])
             return false;
+        // the else case is the == case for which we simply continue onto the next dimension
     }
-    return true;
+    return false;
 }
 
 template<typename LengthType, size_t N>
 bool Position<LengthType, N>::operator<=(const Position &other) const {
     for (size_t i = 0; i < N; ++i) {
-        if ((*this)[i] > other[i])
-            return false;
+        if ((*this)[i] == other[i])
+            continue;
+        else return !((*this)[i] > other[i]);
     }
     return true;
 }
@@ -222,23 +227,27 @@ bool Position<LengthType, N>::operator<=(const Position &other) const {
 template<typename LengthType, size_t N>
 bool Position<LengthType, N>::operator>(const Position &other) const {
     for (size_t i = 0; i < N; ++i) {
-        if ((*this)[i] <= other[i])
+        if ((*this)[i] > other[i])
+            return true;
+        else if ((*this)[i] < other[i])
             return false;
+        // the else case is the == case for which we simply continue onto the next dimension
     }
-    return true;
+    return false;
 }
 
 template<typename LengthType, size_t N>
 bool Position<LengthType, N>::operator>=(const Position &other) const {
     for (size_t i = 0; i < N; ++i) {
-        if ((*this)[i] < other[i])
-            return false;
+        if ((*this)[i] == other[i])
+            continue;
+        else return !((*this)[i] < other[i]);
     }
     return true;
 }
 
 template<typename LengthType, size_t N>
-std::string Position<LengthType, N>::to_string() const{
+std::string Position<LengthType, N>::to_string() const {
     std::stringstream ss;
     ss << "(";
     for (size_t i = 0; i < N - 1; ++i) {

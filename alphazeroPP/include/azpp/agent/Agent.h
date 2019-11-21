@@ -1,7 +1,3 @@
-//
-// Created by Michael on 04/03/2019.
-//
-
 #pragma once
 
 #include "azpp/logic/Logic.h"
@@ -33,8 +29,8 @@ class RandomAgent : public Agent<StateType> {
     using state_type = StateType;
     using base_type = Agent<state_type>;
     using base_type::base_type;
-    using board_type = typename base_type::board_type;
-    using move_type = typename base_type::move_type;
+    using board_type = typename state_type::board_type;
+    using move_type = typename state_type::move_type;
 
 public:
 

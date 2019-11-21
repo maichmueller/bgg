@@ -19,7 +19,7 @@ if(NOT TORCH_FOUND)
 	find_package(Torch REQUIRED)
 	# PARENT_SCOPE is necessary to set the torch_found variable of the main cmakelists
 	# and not a local only version of it
-	set(Torch_FOUND TRUE PARENT_SCOPE)
+#	set(Torch_FOUND TRUE PARENT_SCOPE)
 ENDIF()
 
 
@@ -28,8 +28,7 @@ set(STRATEGO_SOURCES
 		${STRATEGO_SOURCE_DIR}/board/PieceStratego.h
 		${STRATEGO_SOURCE_DIR}/board/BoardStratego.cpp
 
-		#		${PROJECT_STRATEGO_SOURCE_DIR}/game/Arena.cpp
-		${STRATEGO_SOURCE_DIR}/game/GameStratego.h
+		${STRATEGO_SOURCE_DIR}/game/GameStratego.cpp
 		${STRATEGO_SOURCE_DIR}/game/StateStratego.cpp
 
 		${STRATEGO_SOURCE_DIR}/nn/model/representation/ActionRepresenterStratego.cpp

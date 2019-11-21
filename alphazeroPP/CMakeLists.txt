@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.15)
 
+message(STATUS "TORCH STATUS: ${TORCH_FOUND}")
 if(NOT TORCH_FOUND)
+
 	if(UNIX)
 		set(CMAKE_PREFIX_PATH ../deps/libtorch)
 		if(USE_CUDA)
@@ -18,7 +20,7 @@ if(NOT TORCH_FOUND)
 
 	find_package(Torch REQUIRED)
 	# PARENT_SCOPE is necessary to set the torch_found variable of the main cmakelists and not a local only version of it
-	set(Torch_FOUND TRUE PARENT_SCOPE)
+#	set(Torch_FOUND TRUE PARENT_SCOPE)
 ENDIF()
 
 

@@ -5,18 +5,59 @@
 #include "StateStratego.h"
 
 
-
 StateStratego::StateStratego(size_t shape_x, size_t shape_y)
-        : base_type(std::array<size_t, 2>{shape_x, shape_y}, {0, 0}) {}
+        :
+        base_type(std::array<size_t, 2>{shape_x, shape_y}, {0, 0}) {}
 
 StateStratego::StateStratego(size_t shape)
-        : StateStratego(shape, shape) {}
+        :
+        StateStratego(shape, shape) {}
 
 
-StateStratego::StateStratego(size_t shape,
-                             const std::map<position_type, typename piece_type::kin_type> &setup_0,
-                             const std::map<position_type, typename piece_type::kin_type> &setup_1)
-        : base_type(std::array<size_t, 2>{shape, shape}, {0, 0}, setup_0, setup_1) {}
+StateStratego::StateStratego(
+        std::array<size_t, 2> shape,
+        const std::map<position_type, kin_type> &setup_0,
+        const std::map<position_type, kin_type> &setup_1)
+        :
+        base_type(
+                shape,
+                {0, 0},
+                setup_0,
+                setup_1) {}
+
+StateStratego::StateStratego(
+        size_t shape,
+        const std::map<position_type, kin_type> &setup_0,
+        const std::map<position_type, kin_type> &setup_1)
+        :
+        StateStratego(
+                std::array<size_t, 2>{shape, shape},
+                setup_0,
+                setup_1) {}
+
+StateStratego::StateStratego(
+        std::array<size_t, 2> shape,
+        const std::map<position_type, int> &setup_0,
+        const std::map<position_type, int> &setup_1)
+        :
+        base_type(
+                board_type(
+                        shape,
+                        setup_0,
+                        setup_1)
+        ) {}
+
+StateStratego::StateStratego(
+        size_t shape,
+        const std::map<position_type, int> &setup_0,
+        const std::map<position_type, int> &setup_1)
+        :
+        StateStratego(
+                {shape, shape},
+                setup_0,
+                setup_1
+        ) {}
+
 
 void StateStratego::check_terminal() {
     if (auto dead_pieces = m_dead_pieces[0];
@@ -33,10 +74,10 @@ void StateStratego::check_terminal() {
         return;
     }
 
-    if (!LogicStratego<board_type >::has_legal_moves(m_board, 0)) {
+    if (!LogicStratego<board_type>::has_legal_moves(m_board, 0)) {
         m_terminal = -2;
         return;
-    } else if (!LogicStratego<board_type >::has_legal_moves(m_board, 1)) {
+    } else if (!LogicStratego<board_type>::has_legal_moves(m_board, 1)) {
         m_terminal = 2;
         return;
     }
@@ -61,7 +102,7 @@ void StateStratego::check_terminal() {
 
 
 int StateStratego::fight(piece_type &attacker, piece_type &defender) {
-    return LogicStratego<board_type >::fight_outcome(attacker, defender);
+    return LogicStratego<board_type>::fight_outcome(attacker, defender);
 }
 
 int StateStratego::do_move(const move_type &move) {
@@ -133,5 +174,8 @@ int StateStratego::do_move(const move_type &move) {
     m_terminal_checked = false;
     return fight_outcome;
 }
+
+
+
 
 

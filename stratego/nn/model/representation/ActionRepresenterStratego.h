@@ -27,13 +27,17 @@ public:
     static_assert(std::is_same_v<typename move_type::position_type, typename board_type::position_type>);
 
     explicit ActionRepStratego(size_t shape)
-            : actions(_build_actions_vector(shape)),
-              default_conditions(_build_conditions_vector(shape)) {}
+            : m_actions(_build_actions(shape)),
+              m_conditions(_build_default_conditions(shape)) {}
+
+    ActionRepStratego(size_t shape, const condition_container & conditions)
+            : m_actions(_build_actions(shape)),
+              m_conditions(conditions) {}
 
 
     torch::Tensor state_representation(const state_type &state,
                                        int player) {
-        return state_representation(state, player, default_conditions);
+        return state_representation(state, player, m_conditions);
     }
 
     template<typename condition_type=std::tuple<kin_type, int, bool>>
@@ -41,7 +45,9 @@ public:
                                        int player,
                                        std::vector<condition_type> conditions);
 
-    std::vector<action_type> get_action_vector() { return actions; }
+    [[nodiscard]] const std::vector<action_type> & get_actions() const { return m_actions; }
+
+    [[nodiscard]] const std::vector<action_type> & get_conditions() const { return m_actions; }
 
     template<typename Board>
     std::vector<int> get_action_mask(
@@ -58,9 +64,9 @@ public:
 
 
 private:
-    static std::vector<action_type> _build_actions_vector(size_t shape);
+    static std::vector<action_type> _build_actions(size_t shape);
 
-    static condition_container _build_conditions_vector(size_t shape);
+    static condition_container _build_default_conditions(size_t shape);
 
     template<typename Piece>
     inline bool _check_condition(const std::shared_ptr<Piece> &piece,
@@ -70,8 +76,8 @@ private:
                                  bool flip_teams = false
     );
 
-    const std::vector<action_type> actions;
-    const condition_container default_conditions;
+    const std::vector<action_type> m_actions;
+    const condition_container m_conditions;
 };
 
 
@@ -130,7 +136,7 @@ torch::Tensor ActionRepStratego::state_representation(
 
 template<typename Board>
 std::vector<int> ActionRepStratego::get_action_mask(const Board &board, int player) {
-    return get_action_mask(actions, board, player);
+    return get_action_mask(m_actions, board, player);
 }
 
 template<typename Board>

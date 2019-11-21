@@ -13,7 +13,7 @@
 
 class NetworkWrapper {
 
-    std::shared_ptr<AlphaZeroInterface> m_nnet;
+    std::shared_ptr<AlphaZeroInterface> m_network;
 
     [[nodiscard]] std::vector<size_t> prepend_to_shape(
             const torch::Tensor &tensor,
@@ -32,7 +32,7 @@ public:
 
     explicit NetworkWrapper(
             std::shared_ptr<AlphaZeroInterface> network)
-            : m_nnet(std::move(network))
+            : m_network(std::move(network))
             {}
 
     template<typename TrainExampleContainer>
@@ -44,8 +44,8 @@ public:
     void save_checkpoint(std::string const &folder, std::string const &filename);
     void load_checkpoint(std::string const &folder, std::string const &filename);
 
-    /// Forwarding method for torch::nn::Module within nnet
-    void to(torch::Device device) { m_nnet->to(device); }
+    /// Forwarding method for torch::nn::Module within network
+    void to(torch::Device device) { m_network->to(device); }
 
 };
 
@@ -59,7 +59,7 @@ void NetworkWrapper::train(
     to(GLOBAL_DEVICE::get_device());
 
     auto optimizer = torch::optim::Adam(
-            m_nnet->parameters(),
+            m_network->parameters(),
             torch::optim::AdamOptions(/*learning_rate=*/0.01));
 
     auto board_tensor_sizes = prepend_to_shape(train_examples[0].get_tensor(), batch_size);
@@ -68,8 +68,8 @@ void NetworkWrapper::train(
     tqdm bar;
     for (size_t epoch = 0; epoch < epochs; ++epoch) {
         bar.progress(epoch, epochs);
-        // set the nnet into train mode (i.e. demands gradient updates for tensors)
-        m_nnet->train();
+        // set the network into train mode (i.e. demands gradient updates for tensors)
+        m_network->train();
 
         for (size_t b = 0; b < train_examples.size(); b += batch_size) {
 
@@ -108,7 +108,7 @@ void NetworkWrapper::train(
                 ++i;
             }
 
-            auto[policy_output, value_output] = m_nnet->forward(board_tensor);
+            auto[policy_output, value_output] = m_network->forward(board_tensor);
             auto l_pi = loss_pi(policy_tensor, policy_output);
             auto l_v = loss_v(value_tensor, value_output);
             auto total_loss = l_pi + l_v;

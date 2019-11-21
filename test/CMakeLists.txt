@@ -1,7 +1,7 @@
 
 
-if(NOT Torch_FOUND)
-    message(STATUS "Torch_FOUND=${Torch_FOUND}")
+if(NOT TORCH_FOUND)
+
     if(UNIX)
         set(CMAKE_PREFIX_PATH ../deps/libtorch)
         if(USE_CUDA)
@@ -16,9 +16,10 @@ if(NOT Torch_FOUND)
             set(CMAKE_PREFIX_PATH deps/Torch_build/libtorch)
         ENDIF()
     ENDIF(WIN32)
+
     find_package(Torch REQUIRED)
     # PARENT_SCOPE is necessary to set the torch_found variable of the main cmakelists and not a local only version of it
-    set(Torch_FOUND TRUE PARENT_SCOPE)
+    #	set(Torch_FOUND TRUE PARENT_SCOPE)
 ENDIF()
 
 set(STRATEGO_SOURCE_DIR "${PROJECT_SOURCE_DIR}/stratego")
@@ -31,8 +32,9 @@ set(TARGET_TEST_SOURCES
         main_test.cpp
         PositionTest.cpp
         MoveTest.cpp
-        BoardTest.cpp
         PieceTest.cpp
+        BoardTest.cpp
+        StateTest.cpp
         )
 
 add_executable(tests ${TEST_SOURCES} ${TARGET_TEST_SOURCES})

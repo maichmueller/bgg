@@ -6,6 +6,7 @@
 #pragma once
 
 #include "azpp/game.h"
+#include "StateStratego.h"
 
 
 class GameStratego : public Game<StateStratego, LogicStratego<BoardStratego>, GameStratego> {
@@ -13,32 +14,42 @@ public:
     using base_type = Game<StateStratego, LogicStratego<BoardStratego>, GameStratego>;
     using base_type::base_type;
 
-    std::map<position_type, sptr_piece_type> draw_setup(int team) {
-        int shape = m_game_state.get_board()->get_shape()[0];
-            auto avail_types = LogicStratego<board_type>::get_available_types(shape);
+    GameStratego(
+            const std::array<size_t, 2> &shape,
+            const std::map<position_type, int> &setup_0,
+            const std::map<position_type, int> &setup_1,
+            const std::shared_ptr<agent_type> &ag0,
+            const std::shared_ptr<agent_type> &ag1,
+            bool fixed_setups = false
+    );
 
-            std::vector<position_type> poss_pos = LogicStratego<board_type>::get_start_positions(shape, team);
+    GameStratego(
+            size_t shape,
+            const std::map<position_type, int> &setup_0,
+            const std::map<position_type, int> &setup_1,
+            const std::shared_ptr<agent_type> &ag0,
+            const std::shared_ptr<agent_type> &ag1,
+            bool fixed_setups = false
+    );
 
-            std::map<position_type, sptr_piece_type> setup_out;
+    GameStratego(
+            const std::array<size_t, 2> &shape,
+            const std::map<position_type, kin_type> &setup_0,
+            const std::map<position_type, kin_type> &setup_1,
+            const std::shared_ptr<agent_type> &ag0,
+            const std::shared_ptr<agent_type> &ag1,
+            bool fixed_setups = false
+    );
 
-            std::random_device rd;
-            std::mt19937 rng(rd());
-            std::shuffle(poss_pos.begin(), poss_pos.end(), rng);
-            std::shuffle(avail_types.begin(), avail_types.end(), rng);
+    GameStratego(
+            size_t shape,
+            const std::map<position_type, kin_type> &setup_0,
+            const std::map<position_type, kin_type> &setup_1,
+            const std::shared_ptr<agent_type> &ag0,
+            const std::shared_ptr<agent_type> &ag1,
+            bool fixed_setups = false
+    );
 
-            auto counter = utils::counter(avail_types);
 
-            while(!poss_pos.empty()) {
-                auto& pos = poss_pos.back();
-                auto& type = avail_types.back();
-
-                setup_out[pos] = std::make_shared<piece_type >(pos,
-                                                               typename piece_type::kin_type(type, counter[type] - 1),
-                                                               team);
-
-                poss_pos.pop_back();
-                avail_types.pop_back();
-            }
-            return setup_out;
-    }
+    std::map<position_type, sptr_piece_type> draw_setup(int team) override;
 };

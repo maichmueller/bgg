@@ -3,45 +3,16 @@
 
 using namespace BoardTest;
 
-TEST(BoardTest, BoardTest_BinaryOperator_Tests_Ints) {
+TEST(BoardTest, BoardTest_Constructor_Ints_2D) {
     std::map<position_type, kin_type> setup0;
     std::map<position_type, kin_type> setup1;
 
-    kin_type k{11,11};
-    std::cout << "Hash of " << k.to_string() << std::hash<kin_type >()(k) << "\n";
-    kin_type k1{22,22};
-    std::cout << "Hash of " << k.to_string() << std::hash<kin_type >()(k1) << "\n";
-    kin_type k2{33,33};
-    std::cout << "Hash of " << k.to_string() << std::hash<kin_type >()(k2) << "\n";
-    kin_type k3{44,44};
-    std::cout << "Hash of " << k.to_string() << std::hash<kin_type >()(k3) << "\n";
-    kin_type k4{55,55};
-    std::cout << "Hash of " << k.to_string() << std::hash<kin_type >()(k4) << "\n";
-
     setup0[{0, 0}] = {11, 11};
-    for(auto elem : setup0){
-        std::cout<< elem.first.to_string() << elem.second.to_string() << std::endl;
-    }
     setup0[{0, 1}] = {22, 22};
-    for(auto elem : setup0){
-        std::cout<< elem.first.to_string() << elem.second.to_string() << std::endl;
-    }
-//    setup0[{0, 2}] = {33, 33};
-//    for(auto elem : setup0){
-//        std::cout<< elem.first.to_string() << elem.second.to_string() << std::endl;
-//    }
-//    setup0[{1, 0}] = {44, 44};
-//    for(auto elem : setup0){
-//        std::cout<< elem.first.to_string() << elem.second.to_string() << std::endl;
-//    }
-//    setup0[{1, 1}] = {55, 55};
-//    for(auto elem : setup0){
-//        std::cout<< elem.first.to_string() << elem.second.to_string() << std::endl;
-//    }
-//    setup0[{1, 2}] = {66, 66};
-//    for(auto elem : setup0){
-//        std::cout<< elem.first.to_string() << elem.second.to_string() << std::endl;
-//    }
+    setup0[{0, 2}] = {33, 33};
+    setup0[{1, 0}] = {44, 44};
+    setup0[{1, 1}] = {55, 55};
+    setup0[{1, 2}] = {66, 66};
 
     kin_type test_kin{20, 1};
     position_type test_pos{3, 2};
@@ -53,13 +24,6 @@ TEST(BoardTest, BoardTest_BinaryOperator_Tests_Ints) {
     setup1[{4, 0}] = {3, 0};
     setup1[{4, 1}] = {3, 2};
     setup1[{4, 2}] = {4, 0};
-
-//    for(auto elem : setup0){
-//        std::cout<< elem.first.to_string() << elem.second.to_string() << std::endl;
-//    }
-//    for(auto elem : setup1){
-//        std::cout<< elem.first.to_string() << elem.second.to_string() << std::endl;
-//    }
 
     std::array<size_t, 2> shape{5, 3};
     std::array<int, 2> starts{0, 0};

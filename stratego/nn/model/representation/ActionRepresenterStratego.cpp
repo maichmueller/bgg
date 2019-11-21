@@ -28,7 +28,7 @@
 * @return tensor of 0's and 1's on the positions for which the relevant condition was
 *      true (1) or wrong (0)
 **/
-ActionRepStratego::condition_container ActionRepStratego::_build_conditions_vector(size_t shape) {
+ActionRepStratego::condition_container ActionRepStratego::_build_default_conditions(size_t shape) {
     std::vector<std::tuple<kin_type, int, bool>> conditions(0);
     int own_team = 0;
     auto counter = utils::counter(LogicStratego<board_type>::get_available_types(shape));
@@ -61,7 +61,7 @@ ActionRepStratego::condition_container ActionRepStratego::_build_conditions_vect
 }
 
 
-std::vector<ActionRepStratego::action_type> ActionRepStratego::_build_actions_vector(size_t shape) {
+std::vector<ActionRepStratego::action_type> ActionRepStratego::_build_actions(size_t shape) {
     std::vector<action_type> acts;
     const auto &available_types = LogicStratego<board_type>::get_available_types(shape);
     int curr_kin = -1;

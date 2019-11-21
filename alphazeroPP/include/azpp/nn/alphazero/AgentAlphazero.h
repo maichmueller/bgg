@@ -1,7 +1,3 @@
-//
-// Created by michael on 13.08.19.
-//
-
 #pragma once
 
 #include "agent/AgentReinforce.h"

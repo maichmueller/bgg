@@ -59,13 +59,13 @@ public:
           const std::vector<std::shared_ptr<piece_type>> &setup_1);
 
     Board(const std::array<size_t, m_dim> &shape,
-          const std::map<position_type, typename piece_type::kin_type> &setup_0,
-          const std::map<position_type, typename piece_type::kin_type> &setup_1);
+          const std::map<position_type, kin_type> &setup_0,
+          const std::map<position_type, kin_type> &setup_1);
 
     Board(const std::array<size_t, m_dim> &shape,
           const std::array<int, m_dim> &board_starts,
-          const std::map<position_type, typename piece_type::kin_type> &setup_0,
-          const std::map<position_type, typename piece_type::kin_type> &setup_1);
+          const std::map<position_type, kin_type> &setup_0,
+          const std::map<position_type, kin_type> &setup_1);
 
     std::shared_ptr<PieceType> &operator[](const position_type &position);
 
@@ -85,13 +85,13 @@ public:
 
     [[nodiscard]] auto size() const { return m_board_map.size(); }
 
-    map_type const *get_map() const { return m_board_map; }
+    map_type const * get_map() const { return m_board_map; }
 
     position_type get_position_of_kin(int team, const kin_type &kin) { return m_board_map_inverse[team][kin]; }
 
     std::vector<std::shared_ptr<piece_type> > get_pieces(int player);
 
-    void update_board(const position_type &pos, std::shared_ptr<piece_type> &pc);
+    void update_board(const position_type &pos, const std::shared_ptr<piece_type> &pc);
 
     [[nodiscard]] virtual std::string print_board(bool flip_board = false, bool hide_unknowns = false) const = 0;
 
@@ -124,7 +124,7 @@ std::shared_ptr<PieceType> &Board<PieceType>::operator[](const position_type &po
 }
 
 template<typename PieceType>
-void Board<PieceType>::update_board(const position_type &pos, std::shared_ptr<piece_type> &pc_ptr) {
+void Board<PieceType>::update_board(const position_type &pos, const std::shared_ptr<piece_type> &pc_ptr) {
     check_pos_bounds(pos);
     pc_ptr->set_position(pos);
     (*this)[pos] = pc_ptr;

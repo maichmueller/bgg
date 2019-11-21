@@ -5,11 +5,11 @@
 
 std::tuple<torch::Tensor, double>
 NetworkWrapper::predict(const torch::Tensor &board_tensor) {
-    m_nnet->eval();
+    m_network->eval();
 
     // We dont want gradient updates here, so we need the NoGradGuard
     torch::NoGradGuard no_grad;
-    auto[pi_tensor, v_tensor] = m_nnet->forward(board_tensor);
+    auto[pi_tensor, v_tensor] = m_network->forward(board_tensor);
 
 //    // copy the pi tensor data into a std::vector
 //    std::vector<double> pi_vec(pi_tensor.size(1));
@@ -31,7 +31,7 @@ void NetworkWrapper::save_checkpoint(std::string const &folder, std::string cons
         std::cout << "Checkpoint directory doesn't exist yet. Creating it." << std::endl;
         fs::create_directory(dir);
     }
-    torch::save(m_nnet, full_path.string());
+    torch::save(m_network, full_path.string());
 }
 
 
@@ -45,7 +45,7 @@ void NetworkWrapper::load_checkpoint(std::string const &folder, std::string cons
         std::cout << "Checkpoint directory doesn't exists yet. Creating it." << std::endl;
         throw std::invalid_argument("No file found for filename " + filename + ".");
     }
-    torch::load(m_nnet, full_path.string());
+    torch::load(m_network, full_path.string());
 }
 
 
