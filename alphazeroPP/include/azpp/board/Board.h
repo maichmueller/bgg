@@ -251,7 +251,7 @@ std::vector<std::shared_ptr<typename Board<PieceType>::piece_type> >
 Board<PieceType>::get_pieces(int player) {
     std::vector<std::shared_ptr<piece_type> > pieces;
     for (auto &pos_piece : m_board_map) {
-        std::shared_ptr<piece_type> piece = pos_piece->second;
+        std::shared_ptr<piece_type> piece = pos_piece.second;
         if (!piece->is_null() && piece->get_team() == player) {
             pieces.emplace_back(piece);
         }

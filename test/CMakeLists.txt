@@ -31,7 +31,9 @@ set(TARGET_TEST_SOURCES
         main_test.cpp
         PositionTest.cpp
         MoveTest.cpp
-        BoardTest.cpp)
+        BoardTest.cpp
+        PieceTest.cpp
+        )
 
 add_executable(tests ${TEST_SOURCES} ${TARGET_TEST_SOURCES})
 
@@ -47,5 +49,5 @@ set_target_properties(tests PROPERTIES
         )
 
 include_directories("${PROJECT_SOURCE_DIR}/azpp")
-target_link_libraries(tests stdc++fs gtest_main)
+target_link_libraries(tests gtest_main)
 add_test(NAME google_testing COMMAND ./tests)
