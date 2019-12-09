@@ -105,7 +105,7 @@ int StateStratego::fight(piece_type &attacker, piece_type &defender) {
     return LogicStratego<board_type>::fight_outcome(attacker, defender);
 }
 
-int StateStratego::do_move(const move_type &move) {
+int StateStratego::_do_move(const move_type &move) {
     // preliminaries
     const position_type &from = move[0];
     const position_type &to = move[1];
@@ -116,18 +116,6 @@ int StateStratego::do_move(const move_type &move) {
     std::shared_ptr<piece_type> piece_from = m_board[from];
     std::shared_ptr<piece_type> piece_to = m_board[to];
     piece_from->set_flag_has_moved();
-
-    // save all info to the history
-    if (m_move_equals_prev_move.empty())
-        m_move_equals_prev_move.push_back(false);
-    else {
-        auto &last_move = m_move_history.back();
-        m_move_equals_prev_move.push_back((move[0] == last_move[0]) && (move[1] == last_move[1]));
-    }
-    m_move_history.push_back(move);
-    // copying the pieces here, bc this way they can be fully restored later on
-    // (especially when flags have been altered - needed e.g. in undoing last rounds)
-    m_piece_history.push_back({std::make_shared<piece_type>(*piece_from), std::make_shared<piece_type>(*piece_to)});
 
     // enact the move
     if (!piece_to->is_null()) {
@@ -170,8 +158,6 @@ int StateStratego::do_move(const move_type &move) {
 
         m_rounds_without_fight += 1;
     }
-    m_move_count += 1;
-    m_terminal_checked = false;
     return fight_outcome;
 }
 

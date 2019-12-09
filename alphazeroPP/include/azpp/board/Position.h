@@ -28,42 +28,41 @@ public:
     using ConstIterator = typename container_type::const_iterator;
     static constexpr size_t dim = N;
 private:
-    container_type coordinates;
+    container_type m_coordinates;
 
 
     template<size_t ... Indices, typename ... Types>
     Position(std::index_sequence<Indices...>, Types &&... args) {
         // c++17 fold expression
-        (static_cast<void>(coordinates[Indices] = args), ...);
+        (static_cast<void>(m_coordinates[Indices] = args), ...);
     }
 
 public:
     /*
      * Constructor that allows to initialize the position by typing out all N coordinates.
-     * The seeming complexity of this method comes from the usage of templates and needing to restrict
-     * the number of valid parameters to exactly N.
+     * For details on how this implementation works read up on 'SFINAE'.
      */
     template<typename ... Types, typename std::enable_if<sizeof...(Types) == N, int>::type = 0>
     Position(Types &&...args)
             : Position(std::index_sequence_for<Types...>{}, std::forward<Types>(args)...) {}
 
-    Position() : coordinates() {}
+    Position() : m_coordinates() {}
 
-    Position(const Position &position) : coordinates(position.get_coordinates()) {}
+    Position(const Position &position) : m_coordinates(position.get_coordinates()) {}
 
-    explicit Position(container_type coords) : coordinates(std::move(coords)) {}
+    explicit Position(container_type coords) : m_coordinates(std::move(coords)) {}
 
-    const LengthType &operator[](unsigned int index) const { return coordinates[index]; }
+    const LengthType &operator[](unsigned int index) const { return m_coordinates[index]; }
 
-    LengthType &operator[](unsigned int index) { return coordinates[index]; }
+    LengthType &operator[](unsigned int index) { return m_coordinates[index]; }
 
-    Iterator begin() { return coordinates.begin(); }
+    Iterator begin() { return m_coordinates.begin(); }
 
-    ConstIterator begin() const { return coordinates.begin(); }
+    ConstIterator begin() const { return m_coordinates.begin(); }
 
-    Iterator end() { return coordinates.end(); }
+    Iterator end() { return m_coordinates.end(); }
 
-    ConstIterator end() const { return coordinates.end(); }
+    ConstIterator end() const { return m_coordinates.end(); }
 
     Position<LengthType, N> operator+(const Position<LengthType, N> &pos) const;
 
@@ -97,7 +96,7 @@ public:
 
     bool operator>=(const Position &other) const;
 
-    container_type get_coordinates() const { return coordinates; }
+    container_type get_coordinates() const { return m_coordinates; }
 
     template<typename container_start, typename container_end>
     Position invert(const container_start &starts, const container_end &ends);
@@ -143,7 +142,7 @@ Position<LengthType, N> Position<LengthType, N>::operator-(const Position<Length
 template<typename LengthType, size_t N>
 Position<LengthType, N> Position<LengthType, N>::operator*(const Position<LengthType, N> &pos) const {
     Position<LengthType, N> p(*this);
-    for (size_t i = 0; i < coordinates.size(); ++i) {
+    for (size_t i = 0; i < m_coordinates.size(); ++i) {
         p[i] *= pos[i];
     }
     return p;
@@ -251,9 +250,9 @@ std::string Position<LengthType, N>::to_string() const {
     std::stringstream ss;
     ss << "(";
     for (size_t i = 0; i < N - 1; ++i) {
-        ss << std::to_string(coordinates[i]) << ", ";
+        ss << std::to_string(m_coordinates[i]) << ", ";
     }
-    ss << std::to_string(coordinates.back()) << ")";
+    ss << std::to_string(m_coordinates.back()) << ")";
     return ss.str();
 }
 
@@ -283,7 +282,7 @@ Position<LengthType, N> Position<LengthType, N>::invert(const container_start &s
 
     Position<LengthType, N> inverted;
     for (size_t i = 0; i < N; ++i) {
-        inverted[i] = starts[i] + ends[i] - coordinates[i];
+        inverted[i] = starts[i] + ends[i] - m_coordinates[i];
     }
     return inverted;
 }

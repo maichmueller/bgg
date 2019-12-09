@@ -91,7 +91,7 @@ class Piece {
      * A typical Piece class holding the most relevant data to describe a piece.
      * Each piece is assigned a team (0 or 1), a PositionType position, and given a Type (int as the basic idea 0-11).
      * Since there can be more than one piece of a type each piece also receives a version (part of the type member).
-     * Meta-attributes are 'hidden', 'has_moved', 'can_move'.
+     * Meta-attributes are 'hidden', 'has_moved'.
      *
      * Null-Pieces are set by the flag 'null_piece', which is necessary
      * since every position on a board needs a piece at any time.
@@ -161,6 +161,6 @@ public:
                 m_has_moved == other.get_flag_has_moved();
     }
 
-    bool operator!=(const Piece &other) const { return !(this == other); }
+    bool operator!=(const Piece &other) const { return !(*this == other); }
 
 };

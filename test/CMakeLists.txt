@@ -11,15 +11,13 @@ if(NOT TORCH_FOUND)
     ENDIF(UNIX)
     IF(WIN32)
         IF(CMAKE_BUILD_TYPE STREQUAL "Debug")
-            set(CMAKE_PREFIX_PATH deps/libtorch_debug)
+            set(CMAKE_PREFIX_PATH ../deps/libtorch_debug)
         ELSE()
-            set(CMAKE_PREFIX_PATH deps/Torch_build/libtorch)
+            set(CMAKE_PREFIX_PATH ../deps/libtorch)
         ENDIF()
     ENDIF(WIN32)
 
     find_package(Torch REQUIRED)
-    # PARENT_SCOPE is necessary to set the torch_found variable of the main cmakelists and not a local only version of it
-    #	set(Torch_FOUND TRUE PARENT_SCOPE)
 ENDIF()
 
 set(STRATEGO_SOURCE_DIR "${PROJECT_SOURCE_DIR}/stratego")
@@ -29,12 +27,12 @@ set(TEST_SOURCES
         )
 
 set(TARGET_TEST_SOURCES
-        main_test.cpp
-        PositionTest.cpp
-        MoveTest.cpp
-        PieceTest.cpp
-        BoardTest.cpp
-        StateTest.cpp
+        azpp_library_tests/main_test.cpp
+        azpp_library_tests/PositionTest.cpp
+        azpp_library_tests/MoveTest.cpp
+        azpp_library_tests/PieceTest.cpp
+        azpp_library_tests/BoardTest.cpp
+        azpp_library_tests/StateTest.cpp
         )
 
 add_executable(tests ${TEST_SOURCES} ${TARGET_TEST_SOURCES})
@@ -50,6 +48,9 @@ set_target_properties(tests PROPERTIES
         CXX_STANDARD 17
         )
 
-include_directories("${PROJECT_SOURCE_DIR}/azpp")
 target_link_libraries(tests gtest_main)
+target_link_libraries(tests "${alphazeroPP}")
+target_link_libraries(tests "${TORCH_LIBRARIES}")
+target_link_libraries(tests "${CUDNN_LIBRARY}")
+
 add_test(NAME google_testing COMMAND ./tests)

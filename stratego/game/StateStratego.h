@@ -40,6 +40,6 @@ public:
 
     void check_terminal() override;
 
-    int do_move(const move_type &move) override;
+    int _do_move(const move_type &move) override;
 
 };

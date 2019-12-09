@@ -135,7 +135,7 @@ std::tuple<std::vector<float>, std::vector<int>, double> MCTS::_evaluate_new_sta
         Ps_filtered[i] = temp;
     }
     // normalize the likelihoods
-    for (int i = 0; i < Ps_filtered.size(); ++i) {
+    for (size_t i = 0; i < Ps_filtered.size(); ++i) {
         Ps_filtered[i] /= Ps_sum;
     }
     return std::make_tuple(Ps_filtered, action_mask, v);
@@ -203,7 +203,7 @@ double MCTS::_search(StateType &state, int player, bool root) {
             new_sum_val += pi;
         }
         // Normalize
-        for (int i = 0; i < Ps.size(); ++i) { Ps[i] /= new_sum_val; }
+        for (size_t i = 0; i < Ps.size(); ++i) { Ps[i] /= new_sum_val; }
     }
 
     for (size_t a = 0; a < Ps.size(); ++a) {

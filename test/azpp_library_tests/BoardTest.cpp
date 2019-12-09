@@ -34,9 +34,6 @@ TEST(BoardTest, BoardTest_Constructor_Ints_2D) {
 
     // check get all pieces of one player method
     std::vector<std::shared_ptr<piece_type> > pieces_0 = b.get_pieces(0);
-    for(const auto & piece : pieces_0) {
-
-    }
 
     // check update board method
     kin_type new_test_kin{5, 1};
@@ -45,9 +42,4 @@ TEST(BoardTest, BoardTest_Constructor_Ints_2D) {
 
     EXPECT_EQ(*b[test_pos], *new_test_piece);
 
-
-//    EXPECT_TRUE(m1 == m3);
-//    EXPECT_TRUE(m1 == m1);
-//    EXPECT_TRUE(m2 != m3);
-//    EXPECT_FALSE(m4 == m3);
 }
