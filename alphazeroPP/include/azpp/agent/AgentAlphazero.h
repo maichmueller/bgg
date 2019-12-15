@@ -20,22 +20,21 @@ public:
             const std::shared_ptr<NetworkWrapper> & model_sptr,
             const std::shared_ptr<action_rep_type>  & action_repper
             )
-            : base_type(team, true, model_sptr),
+            : base_type(team, model_sptr),
               m_action_repper_sptr(action_repper)
     {}
     template <typename... Params>
     AlphaZeroAgent(int team, const std::shared_ptr<NetworkWrapper> & model_sptr, const Params & ...params)
-            : base_type(team, true, model_sptr),
+            : base_type(team, model_sptr),
               m_action_repper_sptr(std::make_shared<action_rep_type >(params...))
     {}
 
     move_type decide_move(const state_type & state, const std::vector<move_type> & poss_moves) override {
-        torch::Tensor state_rep = m_action_repper_sptr->state_representation(state);
+        torch::Tensor state_rep = m_action_repper_sptr->state_representation(state, base_type::m_team);
         auto [pi, v] = base_type::m_model->predict(state_rep);
 
-        int action = pi.argmax().template item<int64_t>();
-
-        move_type move = action_rep_type::action_to_move(action, base_type::m_team);
+        int action_idx = pi.argmax().template item<int64_t>();
+        move_type move = m_action_repper_sptr->action_to_move(state, action_idx, base_type::m_team);
 
         return move;
     };

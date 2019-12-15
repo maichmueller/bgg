@@ -34,8 +34,10 @@ class RandomAgent : public Agent<StateType> {
 
 public:
 
-    explicit RandomAgent(int team)
-            : base_type(team) {}
+    explicit RandomAgent(int team, int seed=std::random_device{}())
+            : base_type(team),
+              mt{seed}
+              {}
 
     move_type decide_move(const state_type & state, const std::vector<move_type> & poss_moves) override {
         std::array<move_type, 1> selected_move;
@@ -43,10 +45,13 @@ public:
                 poss_moves.begin(), poss_moves.end(),
                 selected_move.begin(),
                 1,
-                std::mt19937{std::random_device{}()});
+                mt());
 
         return selected_move[0];
     }
+
+private:
+    std::mt19937 mt;
 };
 
 

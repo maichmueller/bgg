@@ -1,7 +1,3 @@
-//
-// Created by michael on 21.11.19.
-//
-
 #include "StateTest.h"
 
 

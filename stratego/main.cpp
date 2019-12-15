@@ -19,7 +19,7 @@ int main(int argc, char const *argv[]) {
     std::vector<int> filters{128, 128, 128, 128};
     auto alphazero_net_ptr = std::make_shared<StrategoAlphaZero>(
             board_size * board_size * filters.front(),
-            action_rep_sptr->get_actions().size(),
+            action_rep_sptr->get_actions_vec().size(),
             5,
             10,
             action_rep_sptr->get_conditions().size(),

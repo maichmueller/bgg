@@ -20,8 +20,8 @@ struct Action {
     [[nodiscard]] vector_type get_effect() const {return m_displacement_vec_player;}
     [[nodiscard]] kin_type get_piece_id() const {return m_piece_id;}
 
-    template <typename LengthType, size_t dim>
-    Move<Position<LengthType, dim>> to_move(const Position<LengthType, dim> & pos, int player) {
+    template <typename ValueType, size_t dim>
+    Move<Position<ValueType, dim>> to_move(const Position<ValueType, dim> & pos, int player) {
         return pos + m_displacement_vec_player;
     }
 };

@@ -45,7 +45,7 @@ public:
                                        int player,
                                        std::vector<condition_type> conditions);
 
-    [[nodiscard]] const std::vector<action_type> & get_actions() const { return m_actions; }
+    [[nodiscard]] const std::vector<action_type> & get_actions_vec() const { return m_actions; }
 
     [[nodiscard]] const std::vector<action_type> & get_conditions() const { return m_actions; }
 

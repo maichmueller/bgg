@@ -88,9 +88,9 @@ public:
 
     map_type const * get_map() const { return m_map; }
 
-    position_type get_position_of_kin(int team, const kin_type &kin) { return m_map_inverse[team][kin]; }
+    position_type get_position_of_kin(int team, const kin_type &kin) const { return m_map_inverse[team][kin]; }
 
-    std::vector<std::shared_ptr<piece_type> > get_pieces(int player);
+    std::vector<std::shared_ptr<piece_type> > get_pieces(int player) const;
 
     void update_board(const position_type &pos, const std::shared_ptr<piece_type> &pc);
 
@@ -252,7 +252,7 @@ Board<PieceType>::Board(const std::array<size_t, m_dim> &shape,
 
 template<typename PieceType>
 std::vector<std::shared_ptr<typename Board<PieceType>::piece_type> >
-Board<PieceType>::get_pieces(int player) {
+Board<PieceType>::get_pieces(int player) const {
     std::vector<std::shared_ptr<piece_type> > pieces;
     for (auto &pos_piece : m_map) {
         std::shared_ptr<piece_type> piece = pos_piece.second;

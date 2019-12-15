@@ -1,6 +1,7 @@
 #pragma once
 
 #include <algorithm>    // std::find
+#include <utility>
 
 #include "torch/torch.h"
 
@@ -23,9 +24,9 @@ protected:
     std::shared_ptr<NetworkWrapper> m_model;
 
 public:
-    AgentReinforceBase(int team, const std::shared_ptr<NetworkWrapper> & model_sptr)
+    AgentReinforceBase(int team, std::shared_ptr<NetworkWrapper>  model_sptr)
     : base_type(team, true),
-      m_model(model_sptr)
+      m_model(std::move(model_sptr))
     {}
 
     std::shared_ptr<NetworkWrapper> get_model_sptr() {return m_model;}
