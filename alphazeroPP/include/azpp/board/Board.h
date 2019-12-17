@@ -37,7 +37,6 @@ protected:
     inverse_map_type m_map_inverse;
 
 private:
-    void check_pos_bounds(const position_type &pos) const;
 
     void _fill_board_null_pieces(size_t dim,
                                  std::array<int, m_dim> &&position_pres = std::array<int, m_dim>{0});
@@ -88,9 +87,11 @@ public:
 
     map_type const * get_map() const { return m_map; }
 
-    position_type get_position_of_kin(int team, const kin_type &kin) const { return m_map_inverse[team][kin]; }
+    position_type get_position_of_kin(int team, const kin_type &kin) const { return m_map_inverse.at(team).at(kin); }
 
     std::vector<std::shared_ptr<piece_type> > get_pieces(int player) const;
+
+    std::tuple<bool, size_t> check_bounds(const position_type &pos) const;
 
     void update_board(const position_type &pos, const std::shared_ptr<piece_type> &pc);
 
@@ -100,33 +101,37 @@ public:
 
 
 template<typename PieceType>
-void Board<PieceType>::check_pos_bounds(const position_type &pos) const {
+std::tuple<bool, size_t> Board<PieceType>::check_bounds(const position_type &pos) const {
     for (size_t i = 0; i < m_dim; ++i) {
-        if (pos[0] < m_starts[i] || (pos[i] > 0 && (size_t) pos[i] >= m_shape[i])) {
-            std::ostringstream ss;
-            std::string val_str = std::to_string(pos[i]);
-            std::string bounds_str = std::to_string(m_starts[i]) + ", " + std::to_string(m_shape[i]);
-            ss << "Index at dimension " << std::to_string(i) << " out of bounds " <<
-               "(Value :" << val_str <<
-               ", Bounds: [" << bounds_str << "])";
-            throw std::invalid_argument(ss.str());
+        if (pos[i] < m_starts[i] || (pos[i] > 0 && (size_t) pos[i] >= m_shape[i])) {
+            return std::make_tuple(false, i);
         }
     }
+    return std::make_tuple(true, 0);
 }
 
 template<typename PieceType>
 const std::shared_ptr<PieceType> &Board<PieceType>::operator[](const position_type &position) const {
-    return m_map.find(position)->second;
+    return m_map.at(position);
 }
 
 template<typename PieceType>
 std::shared_ptr<PieceType> &Board<PieceType>::operator[](const position_type &position) {
-    return m_map.find(position)->second;
+    return m_map[position];
 }
 
 template<typename PieceType>
 void Board<PieceType>::update_board(const position_type &pos, const std::shared_ptr<piece_type> &pc_ptr) {
-    check_pos_bounds(pos);
+    if(auto [in_bounds, idx] = check_bounds(pos); !in_bounds) {
+        std::ostringstream ss;
+        std::string val_str = std::to_string(pos[idx]);
+        std::string bounds_str = std::to_string(m_starts[idx]) + ", " + std::to_string(m_shape[idx]);
+        ss << "Index at dimension " << std::to_string(idx) << " out of bounds " <<
+           "(Value :" << val_str <<
+           ", Bounds: [" << bounds_str << "])";
+        throw std::invalid_argument(ss.str());
+    }
+
     pc_ptr->set_position(pos);
     (*this)[pos] = pc_ptr;
     int team = pc_ptr->get_team();

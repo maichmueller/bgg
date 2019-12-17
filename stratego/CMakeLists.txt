@@ -58,7 +58,7 @@ set_target_properties(alphazero_stratego PROPERTIES
 target_compile_options(alphazero_stratego PRIVATE -Wall ${SANITIZE_OPTIONS})
 target_link_options(alphazero_stratego PRIVATE ${SANITIZE_OPTIONS} --verbose)
 
-target_link_libraries(alphazero_stratego "${alphazeroPP}")
+target_link_libraries(alphazero_stratego "${AZPP_LIBRARIES}")
 target_link_libraries(alphazero_stratego "${TORCH_LIBRARIES}")
 target_link_libraries(alphazero_stratego "${CUDNN_LIBRARY}")
 # stdc++fs is needed for static linking against the std::filesystem library (not needed for GCC >=9)

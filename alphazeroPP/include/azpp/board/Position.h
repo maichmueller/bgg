@@ -283,7 +283,7 @@ Position<ValueType, N> Position<ValueType, N>::invert(const container_start &sta
 
     Position<ValueType, N> inverted;
     for (size_t i = 0; i < N; ++i) {
-        inverted[i] = starts[i] + ends[i] - m_coordinates[i];
+        inverted[i] = starts[i] + (ends[i] - 1) - m_coordinates[i];
     }
     return inverted;
 }

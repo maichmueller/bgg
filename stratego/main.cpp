@@ -62,7 +62,7 @@ int main(int argc, char const *argv[]) {
     setup1[{4,0}] = {3, 0};
     setup1[{4,1}] = {1, 0};
     setup1[{4,2}] = {11, 1};
-    setup1[{4,3}] = {3, 0};
+    setup1[{4,3}] = {3, 1};
     setup1[{4,4}] = {10, 0};
 
     auto g = GameStratego(std::array<size_t, 2>{5, 5},
@@ -79,6 +79,7 @@ int main(int argc, char const *argv[]) {
             agent_1,
             true);
 
+    game->run_game(true);
 
 //    Coach coach(game, network_0, network_1);
 //    coach.teach(false, false, false, false);

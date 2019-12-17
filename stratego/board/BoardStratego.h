@@ -31,7 +31,7 @@ public:
                     adapt_setup(setup_1)
             ) {}
 
-    [[nodiscard]] std::string print_board(bool flip_board, bool hide_unknowns) const;
+    [[nodiscard]] std::string print_board(bool flip_board, bool hide_unknowns) const override;
 
 private:
     static std::vector<std::shared_ptr<piece_type>> adapt_setup(const std::map<position_type, int> &setup);

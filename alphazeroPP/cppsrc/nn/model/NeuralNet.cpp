@@ -1,5 +1,3 @@
-#pragma once
-
 #include "azpp/nn/model/NeuralNet.h"
 
 

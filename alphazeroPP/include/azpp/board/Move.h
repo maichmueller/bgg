@@ -29,8 +29,8 @@ public:
     Move(const position_type & pos_from, const position_type & pos_to) : from_to{pos_from, pos_to} {}
     Move(position_type && pos_from, position_type && pos_to) : from_to{pos_from, pos_to} {}
 
-    const Position & operator[](unsigned int index) const {return from_to[index];}
-    Position & operator[](unsigned int index) {return from_to[index];}
+    const position_type & operator[](unsigned int index) const {return from_to[index];}
+    position_type & operator[](unsigned int index) {return from_to[index];}
 
     iterator begin() {return from_to.begin();}
     const_iterator begin() const {return from_to.begin();}
@@ -62,11 +62,13 @@ public:
         return !(*this == other);
     }
     
-    template <typename container>
-    Move<Position> invert(const container & starts, const container & ends) {
-        for(auto & pos : from_to) {
+    template <typename start_container, typename end_container>
+    Move<position_type> invert(const start_container & starts, const end_container & ends) {
+        Move<position_type> copy(*this);
+        for(position_type & pos : copy) {
             pos = pos.invert(starts, ends);
         }
+        return copy;
     };
 };
 

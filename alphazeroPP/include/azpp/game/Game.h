@@ -239,7 +239,7 @@ Game<StateType, LogicType, Derived>::extract_pieces_from_setup(const std::map<po
 
 template<class StateType, class LogicType, class Derived>
 void Game<StateType, LogicType, Derived>::reset() {
-    auto curr_board_ptr = m_game_state->get_board();
+    auto curr_board_ptr = m_game_state.get_board();
     auto &setup0 = m_setups[0];
     auto &setup1 = m_setups[1];
     if (!m_fixed_setups) {
@@ -258,10 +258,10 @@ void Game<StateType, LogicType, Derived>::reset() {
 template<class StateType, class LogicType, class Derived>
 int Game<StateType, LogicType, Derived>::run_step() {
     size_t turn = (m_game_state.get_move_count() + 1) % 2;
-    int outcome = m_game_state->do_move(
+    int outcome = m_game_state.do_move(
             m_agents[turn]->decide_move(
                     m_game_state,
-                    logic_type::get_legal_moves(m_game_state->get_board(), turn)
+                    logic_type::get_legal_moves(*m_game_state.get_board(), turn)
             )
     );
     return outcome;
@@ -273,18 +273,16 @@ int Game<StateType, LogicType, Derived>::run_game(bool show) {
 
     while (true) {
         if (show)
-            std::cout << m_game_state->get_board->print_board();
+            std::cout << m_game_state.get_board()->print_board(false, true);
 
-        // test for terminal
+        // test for game end status
         int outcome = m_game_state.is_terminal();
 
         std::cout << "Status: " << outcome << std::endl;
 
         if (outcome != 404)
-            break;
+            return outcome;
         else
-            outcome = run_step();
-
-        return outcome;
+            run_step();
     }
 }
