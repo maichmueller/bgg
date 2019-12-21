@@ -39,6 +39,7 @@ protected:
     unsigned int m_rounds_without_fight;
 
     virtual int _do_move(const move_type &move);
+    virtual ~State() = default;
 
 public:
     template<size_t dim>

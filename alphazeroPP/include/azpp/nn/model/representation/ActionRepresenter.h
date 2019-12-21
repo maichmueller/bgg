@@ -32,7 +32,7 @@ public:
     using kin_type = typename state_type::kin_type;
 
 
-    const std::vector<Action> & get_actions_vec() const { return static_cast<const Derived *>(this)->get_actions_vec(); }
+    const std::vector<Action> & get_actions_vec() const { return static_cast<const Derived *>(this)->_get_actions_vec(); }
 
     // depending on the game/representation strategy of the subclass, a positional variable amount of parameters
     // can be passed to allow differing implementations without knowing each use case beforehand.

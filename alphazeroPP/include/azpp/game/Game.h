@@ -29,6 +29,8 @@ public:
 
     using sptr_piece_type = std::shared_ptr<piece_type>;
 
+    virtual ~Game() = default;
+
 protected:
 
     state_type m_game_state;

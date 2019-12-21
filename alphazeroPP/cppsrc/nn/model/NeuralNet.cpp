@@ -51,7 +51,7 @@ std::vector<size_t> NetworkWrapper::prepend_to_shape(
         const torch::Tensor &tensor,
         size_t value) const {
     // get current shape and initialize +1
-    auto sizes = tensor.sizes().vec();
+    auto sizes = tensor.sizes();
     std::vector<size_t> sizes_out(sizes.size() + 1);
     // size 0 is batch size, rest of the shape needs to be kept from input
     sizes_out[0] = value;

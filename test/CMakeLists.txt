@@ -24,6 +24,19 @@ set(STRATEGO_SOURCE_DIR "${PROJECT_SOURCE_DIR}/stratego")
 
 set(TEST_SOURCES
         ${LIBRARY_INCLUDE_DIR}/azpp/all.h
+
+        ${STRATEGO_SOURCE_DIR}/board/PieceStratego.h
+        ${STRATEGO_SOURCE_DIR}/board/BoardStratego.cpp
+
+        ${STRATEGO_SOURCE_DIR}/game/GameStratego.cpp
+        ${STRATEGO_SOURCE_DIR}/game/StateStratego.cpp
+
+        ${STRATEGO_SOURCE_DIR}/nn/model/representation/ActionRepresenterStratego.cpp
+
+        ${STRATEGO_SOURCE_DIR}/logic/LogicStratego.cpp
+
+        ${STRATEGO_SOURCE_DIR}/nn/model/modules/AlphazeroStratego.h
+
         )
 
 set(TARGET_TEST_SOURCES
@@ -33,6 +46,8 @@ set(TARGET_TEST_SOURCES
         azpp_library_tests/PieceTest.cpp
         azpp_library_tests/BoardTest.cpp
         azpp_library_tests/StateTest.cpp
+
+        stratego_tests/StateStrategoTest.cpp
         )
 
 add_executable(tests ${TEST_SOURCES} ${TARGET_TEST_SOURCES})
@@ -40,6 +55,7 @@ add_executable(tests ${TEST_SOURCES} ${TARGET_TEST_SOURCES})
 target_include_directories(tests
         PRIVATE
         ${LIBRARY_INCLUDE_DIR}
+        ${STRATEGO_SOURCE_DIR}
         ${PROJECT_SOURCE_DIR}/deps
         ${EXEC_SOURCE_DIR}
         )
@@ -49,7 +65,7 @@ set_target_properties(tests PROPERTIES
         )
 
 target_link_libraries(tests gtest_main)
-target_link_libraries(tests "${alphazeroPP}")
+target_link_libraries(tests "${AZPP_LIBRARY}")
 target_link_libraries(tests "${TORCH_LIBRARIES}")
 target_link_libraries(tests "${CUDNN_LIBRARY}")
 

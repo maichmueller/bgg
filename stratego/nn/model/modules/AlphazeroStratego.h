@@ -35,29 +35,32 @@ public:
 };
 
 
-StrategoAlphaZero::StrategoAlphaZero(int D_in, int D_out,
-                                     int nr_lin_layers, int start_exponent,
-                                     int channels,
-                                     std::vector<int> filter_sizes,
-                                     std::vector<int> kernel_sizes_vec,
-                                     std::vector<bool> maxpool_used_vec,
-                                     std::vector<float> dropout_probs,
-                                     const torch::nn::Functional &activation_function)
+StrategoAlphaZero::StrategoAlphaZero(
+        int D_in,
+        int D_out,
+        int nr_lin_layers,
+        int start_exponent,
+        int channels,
+        std::vector<int> filter_sizes,
+        std::vector<int> kernel_sizes_vec,
+        std::vector<bool> maxpool_used_vec,
+        std::vector<float> dropout_probs,
+        const torch::nn::Functional &activation_function
+)
         : D_in(D_in),
           convo_layers(
-                  std::move(
-                          std::make_unique<Convolutional>
-                                  (
-                                          channels,
-                                          std::move(filter_sizes),
-                                          std::move(kernel_sizes_vec),
-                                          std::move(maxpool_used_vec),
-                                          std::move(dropout_probs),
-                                          activation_function
-                                  )
-                  )
+                  std::make_unique<Convolutional>
+                          (
+                                  channels,
+                                  std::move(filter_sizes),
+                                  std::move(kernel_sizes_vec),
+                                  std::move(maxpool_used_vec),
+                                  std::move(dropout_probs),
+                                  activation_function
+                          )
           ),
-          pi_act_layer(nullptr), v_act_layer(nullptr) {
+          pi_act_layer(nullptr),
+          v_act_layer(nullptr) {
     if (nr_lin_layers < 2) {
         throw std::invalid_argument("Less than 2 linear layers requested. Aborting.");
     }
@@ -84,14 +87,14 @@ StrategoAlphaZero::StrategoAlphaZero(int D_in, int D_out,
 std::tuple<torch::Tensor, torch::Tensor> StrategoAlphaZero::forward(const torch::Tensor &input) {
     input.to(GLOBAL_DEVICE::get_device());
 
-    torch::Tensor output = convo_layers->forward(input).view({-1, D_in});
-    output = linear_layers->forward(output);
+    torch::Tensor features = convo_layers->forward(input);
+    features = linear_layers->forward(features.view({-1, D_in}));
 
     torch::Tensor pi = torch::log_softmax(
-            pi_act_layer->forward(output),
+            pi_act_layer->forward(features),
             1
     );
-    torch::Tensor v = torch::tanh(v_act_layer->forward(output));
+    torch::Tensor v = torch::tanh(v_act_layer->forward(features));
 
     return std::make_tuple(pi, v);
 }

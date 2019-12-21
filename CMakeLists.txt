@@ -36,7 +36,7 @@ ENDIF()
 set(LIBRARY_SOURCE_DIR "${PROJECT_SOURCE_DIR}/alphazeroPP/cppsrc")
 set(LIBRARY_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/alphazeroPP/include")
 
-set(AZPP_LIBRARIES ${CMAKE_SOURCE_DIR}/build/debug/alphazeroPP/libalphazeroPP.a)
+set(AZPP_LIBRARY ${CMAKE_SOURCE_DIR}/build/debug/alphazeroPP/libalphazeroPP.a)
 add_subdirectory (alphazeroPP)
 
 enable_testing ()

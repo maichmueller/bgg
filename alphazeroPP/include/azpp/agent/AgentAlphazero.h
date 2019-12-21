@@ -31,7 +31,8 @@ public:
 
     move_type decide_move(const state_type & state, const std::vector<move_type> & poss_moves) override {
         torch::Tensor state_rep = m_action_repper_sptr->state_representation(state, base_type::m_team);
-        auto [pi, v] = base_type::m_model->predict(state_rep);
+
+        auto [pi, v] = base_type::m_model->predict(state_rep.unsqueeze(0));
 
         int action_idx = pi.argmax().template item<int64_t>();
         move_type move = m_action_repper_sptr->action_to_move(state, action_idx, base_type::m_team);

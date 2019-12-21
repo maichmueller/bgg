@@ -45,9 +45,9 @@ public:
                                        int player,
                                        std::vector<condition_type> conditions);
 
-    [[nodiscard]] const std::vector<action_type> & get_actions_vec() const { return m_actions; }
+    [[nodiscard]] const std::vector<action_type> & _get_actions_vec() const { return m_actions; }
 
-    [[nodiscard]] const std::vector<action_type> & get_conditions() const { return m_actions; }
+    [[nodiscard]] const condition_container & get_conditions() const { return m_conditions; }
 
     template<typename Board>
     std::vector<int> get_action_mask(
