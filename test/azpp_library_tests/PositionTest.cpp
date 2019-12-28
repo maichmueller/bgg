@@ -89,8 +89,8 @@ TEST(PositionTest, PositionTest_BinaryOperators_Ints_4D) {
     // div by zero check
     EXPECT_DEATH(p1 / p3, "");
 
-    EXPECT_EQ(p1.invert(std::array{0, 0, 0, 0}, std::array{100, 20, 100, 50}), int_pos<dim>(96, 14, 93, 48));
-    EXPECT_EQ(p1.invert(std::array{-10, 4, 3, 0}, std::array{100, 20, 100, 50}), int_pos<dim>(86, 18, 96, 48));
+    EXPECT_EQ(p1.invert(std::array{0, 0, 0, 0}, std::array{100, 20, 100, 50}), int_pos<dim>(95, 13, 92, 47));
+    EXPECT_EQ(p1.invert(std::array{-10, 4, 3, 0}, std::array{100, 20, 100, 50}), int_pos<dim>(85, 17, 95, 47));
 }
 
 TEST(PositionTest, PositionTest_BinaryOperators_Ints_7D) {

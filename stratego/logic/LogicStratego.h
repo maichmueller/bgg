@@ -261,11 +261,15 @@ bool LogicStratego<BoardType>::is_legal_move(const board_type &board, const move
 
     if (p_b->is_null())
         return false;
+    if (int type = p_b->get_kin()[0]; type == 0 || type == 11) {
+        return false;
+    }
     if (!p_a->is_null()) {
         if (p_a->get_team() == p_b->get_team())
             return false; // cant fight pieces of own team
-        if (p_a->get_kin()[0] == 99)
+        if (p_a->get_kin()[0] == 99) {
             return false; // cant fight obstacle
+        }
     }
 
     int move_dist = abs(pos_after[1] - pos_before[1]) + abs(pos_after[0] - pos_before[0]);

@@ -31,7 +31,7 @@ set(TEST_SOURCES
         ${STRATEGO_SOURCE_DIR}/game/GameStratego.cpp
         ${STRATEGO_SOURCE_DIR}/game/StateStratego.cpp
 
-        ${STRATEGO_SOURCE_DIR}/nn/model/representation/ActionRepresenterStratego.cpp
+        ${STRATEGO_SOURCE_DIR}/nn/model/representation/RepresenterStratego.cpp
 
         ${STRATEGO_SOURCE_DIR}/logic/LogicStratego.cpp
 
@@ -48,6 +48,8 @@ set(TARGET_TEST_SOURCES
         azpp_library_tests/StateTest.cpp
 
         stratego_tests/StateStrategoTest.cpp
+        stratego_tests/LogicStrategoTest.cpp
+        stratego_tests/RepresenterStrategoTest.cpp
         )
 
 add_executable(tests ${TEST_SOURCES} ${TARGET_TEST_SOURCES})

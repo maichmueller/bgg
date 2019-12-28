@@ -3,6 +3,7 @@
 //
 
 #include "BoardStratego.h"
+#include "logic/LogicStratego.h"
 
 std::vector<std::shared_ptr<typename BoardStratego::piece_type>> BoardStratego::adapt_setup(
         const std::map<position_type, int> &setup) {
@@ -31,9 +32,6 @@ std::vector<std::shared_ptr<typename BoardStratego::piece_type>> BoardStratego::
 }
 
 std::string BoardStratego::print_board(bool flip_board, bool hide_unknowns) const {
-    if (m_dim > 2) {
-        throw std::logic_error("Board has dimension > 2, thus cannot create 2D representation.");
-    }
     int H_SIZE_PER_PIECE = 9;
     int V_SIZE_PER_PIECE = 3;
     // the space needed to assign row indices to the rows and to add a splitting bar "|"
@@ -141,5 +139,12 @@ std::string BoardStratego::print_board(bool flip_board, bool hide_unknowns) cons
         board_print << init_space << h_border << "\n";
     }
     return board_print.str();
+}
+
+void BoardStratego::_add_obstacles() {
+    auto obstacle_positions = LogicStratego<BoardStratego>::get_obstacle_positions(m_shape[0]);
+    for(const auto & obstacle_pos : obstacle_positions) {
+        m_map[obstacle_pos] = std::make_shared<piece_type>(obstacle_pos, kin_type{99, 99}, 99);
+    }
 }
 

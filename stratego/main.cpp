@@ -5,7 +5,7 @@
 #include "torch/torch.h"
 #include "board/PieceStratego.h"
 #include "game/GameStratego.h"
-#include "nn/model/representation/ActionRepresenterStratego.h"
+#include "nn/model/representation/RepresenterStratego.h"
 #include <nn/model/modules/AlphazeroStratego.h>
 
 #include<iostream>
@@ -15,7 +15,7 @@
 
 int main(int argc, char const *argv[]) {
     size_t board_size = 5;
-    auto action_rep_sptr = std::make_shared<ActionRepStratego>(5);
+    auto action_rep_sptr = std::make_shared<RepresenterStratego>(5);
     std::vector<int> filters{128, 128, 128, 128};
     auto alphazero_net_ptr = std::make_shared<StrategoAlphaZero>(
             board_size * board_size * filters.front(),
@@ -31,15 +31,21 @@ int main(int argc, char const *argv[]) {
 
     auto network_0 = std::make_shared<NetworkWrapper>(alphazero_net_ptr);
     auto network_1 = std::make_shared<NetworkWrapper>(*network_0);
-    auto agent_0 = std::make_shared<AlphaZeroAgent<StateStratego, ActionRepStratego>>(
-            0,
-            network_0,
-            action_rep_sptr
+//    auto agent_0 = std::make_shared<AlphaZeroAgent<StateStratego, ActionRepStratego>>(
+////            0,
+////            network_0,
+////            action_rep_sptr
+////    );
+////    auto agent_1 = std::make_shared<AlphaZeroAgent<StateStratego, ActionRepStratego>>(
+////            1,
+////            network_1,
+////            action_rep_sptr
+////    );
+    auto agent_0 = std::make_shared<RandomAgent<StateStratego>>(
+            0
     );
-    auto agent_1 = std::make_shared<AlphaZeroAgent<StateStratego, ActionRepStratego>>(
-            1,
-            network_1,
-            action_rep_sptr
+    auto agent_1 = std::make_shared<RandomAgent<StateStratego>>(
+            1
     );
     std::map<BoardStratego::position_type, BoardStratego::kin_type> setup0;
     std::map<BoardStratego::position_type, BoardStratego::kin_type> setup1;
@@ -80,7 +86,7 @@ int main(int argc, char const *argv[]) {
             true
     );
 
-    game.run_game(true);
+    game.run_game(false);
 
 //    Coach coach(game, network_0, network_1);
 //    coach.teach(false, false, false, false);

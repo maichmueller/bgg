@@ -13,6 +13,7 @@
 #include "State.h"
 #include "azpp/agent/Agent.h"
 #include "azpp/utils/utils.h"
+#include "azpp/utils/logging_macros.h"
 
 
 template<class StateType, class LogicType, class Derived>
@@ -198,7 +199,7 @@ Game<StateType, LogicType, Derived>::Game(
 
 template<class StateType, class LogicType, class Derived>
 Game<StateType, LogicType, Derived>::Game(
-        state_type && state,
+        state_type &&state,
         std::shared_ptr<agent_type> ag0,
         std::shared_ptr<agent_type> ag1,
         bool fixed_setups)
@@ -245,8 +246,8 @@ void Game<StateType, LogicType, Derived>::reset() {
     auto &setup0 = m_setups[0];
     auto &setup1 = m_setups[1];
     if (!m_fixed_setups) {
-        auto &setup0 = draw_setup(0);
-        auto &setup1 = draw_setup(1);
+        setup0 = draw_setup(0);
+        setup1 = draw_setup(1);
     }
     m_game_state = state_type(
             board_type(curr_board_ptr->get_shape(),
@@ -260,12 +261,15 @@ void Game<StateType, LogicType, Derived>::reset() {
 template<class StateType, class LogicType, class Derived>
 int Game<StateType, LogicType, Derived>::run_step() {
     size_t turn = (m_game_state.get_move_count() + 1) % 2;
-    int outcome = m_game_state.do_move(
-            m_agents[turn]->decide_move(
-                    m_game_state,
-                    logic_type::get_legal_moves(*m_game_state.get_board(), turn)
-            )
+    auto move = m_agents[turn]->decide_move(
+            m_game_state,
+            logic_type::get_legal_moves(*m_game_state.get_board(), turn)
     );
+    LOGD2("Possible Moves", logic_type::get_legal_moves(*m_game_state.get_board(), turn));
+    LOGD2("Selected Move by player " + std::to_string(turn), move);
+
+    int outcome = m_game_state.do_move(move);
+
     return outcome;
 }
 
@@ -280,7 +284,8 @@ int Game<StateType, LogicType, Derived>::run_game(bool show) {
         // test for game end status
         int outcome = m_game_state.is_terminal();
 
-        std::cout << "Status: " << outcome << std::endl;
+        LOGD(std::string("\n") + m_game_state.get_board()->print_board(false, false));
+        LOGD2("Status", outcome);
 
         if (outcome != 404)
             return outcome;

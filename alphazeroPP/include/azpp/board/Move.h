@@ -70,6 +70,15 @@ public:
         }
         return copy;
     };
+
+    std::string to_string() {
+        return from_to[0].to_string() + std::string(" -> ") + from_to[1].to_string();
+    }
+
+    friend std::ostream& operator<<(std::ostream& os, const Move<position_type> move) {
+        os << move[0].to_string() << "->" << move[1].to_string();
+        return os;
+    }
 };
 
 template <typename Number, typename Position>
@@ -78,4 +87,18 @@ Move<Position> operator/(const Number & n, const Move<Position> & pos) {
     m[0] = 1/m[0];
     m[1] = 1/m[1];
     return m;
+}
+
+
+namespace std {
+    template<typename Position>
+    struct hash<Move<Position>> {
+        constexpr size_t operator()(const Move<Position> &move) const {
+            // ( x*p1 xor y*p2 xor z*p3) mod n is supposedly a better spatial hash function
+            auto pos_hasher = hash<Position>();
+            long int curr = pos_hasher(move[0]) * primes::primes_list[0];
+            curr ^= pos_hasher(move[1]) * primes::primes_list[1];
+            return curr % primes::primes_list.back();
+        }
+    };
 }

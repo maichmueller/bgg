@@ -129,7 +129,7 @@ int StateStratego::_do_move(const move_type &move) {
             auto null_piece = std::make_shared<piece_type>(from);
             m_board.update_board(from, null_piece);
 
-            m_dead_pieces[piece_to->get_team()].push_back(piece_to->get_kin());
+            _update_dead_pieces(piece_to);
         } else if (fight_outcome == 0) {
             // 0 means stalemate, both die
             auto null_piece_from = std::make_shared<piece_type>(from);
@@ -137,14 +137,14 @@ int StateStratego::_do_move(const move_type &move) {
             auto null_piece_to = std::make_shared<piece_type>(to);
             m_board.update_board(to, null_piece_to);
 
-            m_dead_pieces[piece_from->get_team()].push_back(piece_from->get_kin());
-            m_dead_pieces[piece_to->get_team()].push_back(piece_to->get_kin());
+            _update_dead_pieces(piece_from);
+            _update_dead_pieces(piece_to);
         } else {
             // -1 means defender won, attacker died
             auto null_piece = std::make_shared<piece_type>(from);
             m_board.update_board(from, null_piece);
 
-            m_dead_pieces[piece_from->get_team()].push_back(piece_from->get_kin());
+            _update_dead_pieces(piece_from);
         }
     } else {
         // no fight happened, simply move piece_from onto new position

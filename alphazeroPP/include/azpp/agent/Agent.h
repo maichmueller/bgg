@@ -19,9 +19,10 @@ public:
     explicit Agent(int team, bool learner = false)
             : m_team(team), m_is_learner(learner) {
     }
+
     virtual ~Agent() = default;
 
-    virtual move_type decide_move(const state_type & state, const std::vector<move_type> & poss_moves) = 0;
+    virtual move_type decide_move(const state_type &state, const std::vector<move_type> &poss_moves) = 0;
 
 };
 
@@ -35,18 +36,17 @@ class RandomAgent : public Agent<StateType> {
 
 public:
 
-    explicit RandomAgent(int team, unsigned int seed=std::random_device{}())
+    explicit RandomAgent(int team, unsigned int seed = std::random_device{}())
             : base_type(team),
-              mt{seed}
-              {}
+              mt{seed} {}
 
-    move_type decide_move(const state_type & state, const std::vector<move_type> & poss_moves) override {
-        std::array<move_type, 1> selected_move;
+    move_type decide_move(const state_type &state, const std::vector<move_type> &poss_moves) override {
+        std::array<move_type, 1> selected_move{move_type{{0, 0}, {0, 0}}};
         std::sample(
                 poss_moves.begin(), poss_moves.end(),
                 selected_move.begin(),
                 1,
-                mt());
+                mt);
 
         return selected_move[0];
     }

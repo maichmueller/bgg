@@ -39,6 +39,7 @@ protected:
     unsigned int m_rounds_without_fight;
 
     virtual int _do_move(const move_type &move);
+    void _update_dead_pieces(const std::shared_ptr<piece_type> & piece);
     virtual ~State() = default;
 
 public:
@@ -165,6 +166,12 @@ int State<BoardType>::do_move(const State::move_type &move) {
     m_move_count += 1;
 
     return _do_move(move);
+}
+
+template<class BoardType>
+void State<BoardType>::_update_dead_pieces(const std::shared_ptr<piece_type> &piece) {
+    if(!piece->is_null())
+        m_dead_pieces[piece->get_team()].push_back(piece->get_kin());
 }
 
 

@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include "azpp/utils/prime_list.h"
+
 #include <vector>
 #include <string>
 #include <array>
@@ -286,4 +288,19 @@ Position<ValueType, N> Position<ValueType, N>::invert(const container_start &sta
         inverted[i] = starts[i] + (ends[i] - 1) - m_coordinates[i];
     }
     return inverted;
+}
+
+
+namespace std {
+    template<typename ValueType, size_t N>
+    struct hash<Position<ValueType, N>> {
+        constexpr size_t operator()(const Position<ValueType, N> &pos) const {
+            // ( x*p1 xor y*p2 xor z*p3) mod n is supposedly a better spatial hash function
+            long int curr = pos[0] * primes::primes_list[0];
+            for (size_t i = 1; i < N; ++i) {
+                curr ^= pos[i] * primes::primes_list[i];
+            }
+            return curr % primes::primes_list.back();
+        }
+    };
 }

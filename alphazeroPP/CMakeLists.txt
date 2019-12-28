@@ -42,7 +42,7 @@ set(LIBRARY_SOURCES
 
 		${LIBRARY_INCLUDE_DIR}/azpp/mcts/MCTS.h
 
-		${LIBRARY_INCLUDE_DIR}/azpp/nn/model/representation/ActionRepresenter.h
+		${LIBRARY_INCLUDE_DIR}/azpp/nn/model/representation/Representer.h
 		${LIBRARY_INCLUDE_DIR}/azpp/nn/model/representation/Action.h
 
 		${LIBRARY_INCLUDE_DIR}/azpp/nn/model/NeuralNet.h

@@ -18,11 +18,12 @@ namespace {
 }
 
 
-class StateTest : public ::testing::Test {
+class StateStrategoTest : public ::testing::Test {
 
 protected:
     std::map<position_type, kin_type> setup0;
     std::map<position_type, kin_type> setup1;
+    state_type state;
 
     void SetUp() override {
 
@@ -47,11 +48,14 @@ protected:
         setup1[{4, 3}] = {3, 1};
         setup1[{4, 4}] = {10, 0};
 
-        auto state = state_type(
+        auto board = typename state_type::board_type(
                 std::array<size_t, 2>{5, 5},
-                std::array<int, 2>{0, 0},
                 setup0,
                 setup1
+        );
+        state = state_type(
+                board,
+                17
         );
     }
 };

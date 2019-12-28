@@ -24,9 +24,11 @@ public:
     using position_type = typename piece_type::position_type;
     using move_type = Move<position_type>;
     using map_type = std::map<position_type, std::shared_ptr<PieceType>>;
-    using inverse_map_type = std::array<std::unordered_map<kin_type, position_type>, 2>;
+    using inverse_map_type = std::unordered_map<kin_type, position_type>;
     using iterator = typename map_type::iterator;
     using const_iterator = typename map_type::const_iterator;
+    using inverse_iterator = typename inverse_map_type::iterator;
+    using const_inverse_iterator = typename inverse_map_type::const_iterator;
 
     static constexpr size_t m_dim = position_type::dim;
 
@@ -34,12 +36,15 @@ protected:
     std::array<size_t, m_dim> m_shape;
     std::array<int, m_dim> m_starts;
     map_type m_map;
-    inverse_map_type m_map_inverse;
+    std::array<inverse_map_type, 2> m_map_inverse;
 
 private:
 
+    template<class T, size_t N>
+    static std::array<T, N> make_array(const T &value);
+
     void _fill_board_null_pieces(size_t dim,
-                                 std::array<int, m_dim> &&position_pres = std::array<int, m_dim>{0});
+                                 std::array<int, m_dim> &&position_pres = make_array<int, m_dim>(0));
 
     void _fill_inverse_board();
 
@@ -79,25 +84,50 @@ public:
 
     [[nodiscard]] const_iterator end() const { return m_map.end(); }
 
+    [[nodiscard]] inverse_iterator begin_inverse(int team) { return m_map_inverse.at(team).begin(); }
+
+    [[nodiscard]] inverse_iterator end_inverse(int team) { return m_map_inverse.at(team).end(); }
+
+    [[nodiscard]] const_inverse_iterator begin_inverse(int team) const { return m_map_inverse.at(team).begin(); }
+
+    [[nodiscard]] const_inverse_iterator end_inverse(int team) const { return m_map_inverse.at(team).end(); }
+
     [[nodiscard]] auto get_shape() const { return m_shape; }
 
     [[nodiscard]] auto get_starts() const { return m_starts; }
 
     [[nodiscard]] auto size() const { return m_map.size(); }
 
-    map_type const * get_map() const { return m_map; }
+    map_type const *get_map() const { return m_map; }
 
-    position_type get_position_of_kin(int team, const kin_type &kin) const { return m_map_inverse.at(team).at(kin); }
+    const_inverse_iterator get_position_of_kin(int team, const kin_type &kin) const {
+        return m_map_inverse.at(team).find(kin);
+    }
+
+    size_t get_count_of_kin(int team, const kin_type &kin) const {
+        return m_map_inverse.at(team).count(kin);
+    }
 
     std::vector<std::shared_ptr<piece_type> > get_pieces(int player) const;
 
     std::tuple<bool, size_t> check_bounds(const position_type &pos) const;
+
+    inline void is_in_bounds(const position_type &pos);
 
     void update_board(const position_type &pos, const std::shared_ptr<piece_type> &pc);
 
     [[nodiscard]] virtual std::string print_board(bool flip_board, bool hide_unknowns) const = 0;
 
 };
+
+template<typename PieceType>
+template<class T, size_t N>
+std::array<T, N> Board<PieceType>::make_array(const T &value) {
+    // only works for default constructible value types T! (intended for int in this class)
+    std::array<T, N> ret;
+    ret.fill(value);
+    return ret;
+}
 
 
 template<typename PieceType>
@@ -122,37 +152,35 @@ std::shared_ptr<PieceType> &Board<PieceType>::operator[](const position_type &po
 
 template<typename PieceType>
 void Board<PieceType>::update_board(const position_type &pos, const std::shared_ptr<piece_type> &pc_ptr) {
-    if(auto [in_bounds, idx] = check_bounds(pos); !in_bounds) {
-        std::ostringstream ss;
-        std::string val_str = std::to_string(pos[idx]);
-        std::string bounds_str = std::to_string(m_starts[idx]) + ", " + std::to_string(m_shape[idx]);
-        ss << "Index at dimension " << std::to_string(idx) << " out of bounds " <<
-           "(Value :" << val_str <<
-           ", Bounds: [" << bounds_str << "])";
-        throw std::invalid_argument(ss.str());
+    is_in_bounds(pos);
+    auto pc_before = m_map[pos];
+
+    if (!pc_before->is_null()) {
+        int team_pc_before = pc_before->get_team();
+        if (team_pc_before == 0 || team_pc_before == 1) {
+            m_map_inverse[team_pc_before].erase(pc_before->get_kin());
+        }
     }
 
     pc_ptr->set_position(pos);
     (*this)[pos] = pc_ptr;
     int team = pc_ptr->get_team();
-    if(team == 0 || team == 1)
+    if (!pc_ptr->is_null() && (team == 0 || team == 1))
         m_map_inverse[pc_ptr->get_team()][pc_ptr->get_kin()] = pos;
 }
 
 
 template<typename PieceType>
-void Board<PieceType>::_fill_board_null_pieces(size_t dim,
-                                           std::array<int, m_dim> &&position_pres) {
-    if (dim == m_dim) {
-        for (int i = m_starts[m_dim - 1];
-             i < static_cast<int>(m_starts[m_dim - 1] + m_shape[m_dim - 1]); ++i) {
-            position_pres[m_dim - 1] = i;
-            _fill_board_null_pieces(dim - 1, std::forward<std::array<int, m_dim>>(position_pres));
-        }
-    } else if (dim > 0) {
-        for (int i = m_starts[dim - 1]; i < static_cast<int>(m_starts[dim - 1] + m_shape[dim - 1]); ++i) {
+void Board<PieceType>::_fill_board_null_pieces(
+        size_t dim,
+        std::array<int, m_dim> &&position_pres
+) {
+    if (dim > 0) {
+        for (int i = m_starts[dim - 1];
+             i < static_cast<int>(m_starts[dim - 1] + m_shape[dim - 1]);
+             ++i) {
             position_pres[dim - 1] = i;
-            _fill_board_null_pieces(dim-1, std::forward<std::array<int, m_dim>>(position_pres));
+            _fill_board_null_pieces(dim - 1, std::forward<std::array<int, m_dim>>(position_pres));
         }
     } else {
         position_type pos(position_pres);
@@ -163,7 +191,7 @@ void Board<PieceType>::_fill_board_null_pieces(size_t dim,
 template<typename PieceType>
 Board<PieceType>::Board(const std::array<int, m_dim> &shape)
         : m_shape(shape),
-          m_starts(0),
+          m_starts(make_array<int, m_dim>(0)),
           m_map(),
           m_map_inverse() {
     _fill_board_null_pieces(m_dim);
@@ -171,7 +199,7 @@ Board<PieceType>::Board(const std::array<int, m_dim> &shape)
 
 template<typename PieceType>
 Board<PieceType>::Board(const std::array<size_t, m_dim> &shape,
-                    const std::array<int, m_dim> &board_starts)
+                        const std::array<int, m_dim> &board_starts)
         : m_shape(shape),
           m_starts(board_starts),
           m_map(),
@@ -181,9 +209,9 @@ Board<PieceType>::Board(const std::array<size_t, m_dim> &shape,
 
 template<typename PieceType>
 Board<PieceType>::Board(const std::array<size_t, m_dim> &shape,
-                    const std::array<int, m_dim> &board_starts,
-                    const std::vector<std::shared_ptr<piece_type>> &setup_0,
-                    const std::vector<std::shared_ptr<piece_type>> &setup_1)
+                        const std::array<int, m_dim> &board_starts,
+                        const std::vector<std::shared_ptr<piece_type>> &setup_0,
+                        const std::vector<std::shared_ptr<piece_type>> &setup_1)
         : Board(shape, board_starts) {
 
     auto setup_unwrap = [&](const std::vector<std::shared_ptr<piece_type>> &setup) {
@@ -207,15 +235,15 @@ Board<PieceType>::Board(const std::array<size_t, m_dim> &shape,
 
 template<typename PieceType>
 Board<PieceType>::Board(const std::array<size_t, m_dim> &shape,
-                    const std::vector<std::shared_ptr<piece_type>> &setup_0,
-                    const std::vector<std::shared_ptr<piece_type>> &setup_1)
-        : Board(shape, m_starts, setup_0, setup_1) {}
+                        const std::vector<std::shared_ptr<piece_type>> &setup_0,
+                        const std::vector<std::shared_ptr<piece_type>> &setup_1)
+        : Board(shape, decltype(m_starts){0}, setup_0, setup_1) {}
 
 template<typename PieceType>
 Board<PieceType>::Board(const std::array<size_t, m_dim> &shape,
-                    const std::array<int, m_dim> &board_starts,
-                    const std::map<position_type, kin_type> &setup_0,
-                    const std::map<position_type, kin_type> &setup_1)
+                        const std::array<int, m_dim> &board_starts,
+                        const std::map<position_type, kin_type> &setup_0,
+                        const std::map<position_type, kin_type> &setup_1)
         : Board(shape, board_starts) {
     auto setup_unwrap = [&](const std::map<position_type, kin_type> &setup, int team) {
         // because of the short length of the vectors they might be faster than using a map (fit in cache)
@@ -251,9 +279,9 @@ Board<PieceType>::Board(const std::array<size_t, m_dim> &shape,
 
 template<typename PieceType>
 Board<PieceType>::Board(const std::array<size_t, m_dim> &shape,
-                    const std::map<position_type, typename piece_type::kin_type> &setup_0,
-                    const std::map<position_type, typename piece_type::kin_type> &setup_1)
-        : Board(shape, m_starts, setup_0, setup_1) {}
+                        const std::map<position_type, typename piece_type::kin_type> &setup_0,
+                        const std::map<position_type, typename piece_type::kin_type> &setup_1)
+        : Board(shape, make_array<int, m_dim>(0), setup_0, setup_1) {}
 
 template<typename PieceType>
 std::vector<std::shared_ptr<typename Board<PieceType>::piece_type> >
@@ -271,9 +299,22 @@ Board<PieceType>::get_pieces(int player) const {
 template<class PieceType>
 void Board<PieceType>::_fill_inverse_board() {
     for (const auto &piece_ptr : m_map) {
-        auto & piece = piece_ptr.second;
+        auto &piece = piece_ptr.second;
         if (!piece->is_null()) {
             m_map_inverse[piece->get_team()][piece->get_kin()] = piece->get_position();
         }
+    }
+}
+
+template<typename PieceType>
+inline void Board<PieceType>::is_in_bounds(const position_type &pos) {
+    if (auto[in_bounds, idx] = check_bounds(pos); !in_bounds) {
+        std::ostringstream ss;
+        std::string val_str = std::to_string(pos[idx]);
+        std::string bounds_str = std::to_string(m_starts[idx]) + ", " + std::to_string(m_shape[idx]);
+        ss << "Index at dimension " << std::to_string(idx) << " out of bounds " <<
+           "(Value :" << val_str <<
+           ", Bounds: [" << bounds_str << "])";
+        throw std::invalid_argument(ss.str());
     }
 }

@@ -17,11 +17,9 @@ class BoardStratego : public Board<PieceStratego> {
 
 public:
     using base_type = Board<PieceStratego>;
-    // inheriting base constructors
-    using base_type::base_type;
 
     // also specializing one
-    BoardStratego(const std::array<size_t, m_dim> &shape,
+    BoardStratego(const std::array<size_t, 2> &shape,
                   const std::map<position_type, int> &setup_0,
                   const std::map<position_type, int> &setup_1)
             :
@@ -29,11 +27,21 @@ public:
                     shape,
                     adapt_setup(setup_0),
                     adapt_setup(setup_1)
-            ) {}
+            ) {
+        _add_obstacles();
+    }
+
+    // decorating the constructors with add_obstacles after construction
+    template <typename ... Params>
+    BoardStratego(Params... params)
+    : base_type(params...) {
+        _add_obstacles();
+    }
 
     [[nodiscard]] std::string print_board(bool flip_board, bool hide_unknowns) const override;
 
 private:
+    void _add_obstacles();
     static std::vector<std::shared_ptr<piece_type>> adapt_setup(const std::map<position_type, int> &setup);
 
 

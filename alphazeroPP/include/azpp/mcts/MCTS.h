@@ -8,7 +8,7 @@
 #include "azpp/game/State.h"
 #include "azpp/nn/model/NeuralNet.h"
 #include "azpp/utils/utils.h"
-#include "azpp/nn/model/representation/ActionRepresenter.h"
+#include "azpp/nn/model/representation/Representer.h"
 
 
 class MCTS {

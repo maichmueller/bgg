@@ -7,12 +7,12 @@
 #include "game/StateStratego.h"
 
 
-class ActionRepStratego :
-        public ActionRepBase<
+class RepresenterStratego :
+        public RepresenterBase<
                 Action<typename BoardStratego::position_type,
                         typename BoardStratego::kin_type>,
-        StateStratego,
-        ActionRepStratego
+                StateStratego,
+                RepresenterStratego
         > {
 
 public:
@@ -26,13 +26,11 @@ public:
     using condition_container = std::vector<std::tuple<typename BoardStratego::piece_type::kin_type, int, bool>>;
     static_assert(std::is_same_v<typename move_type::position_type, typename board_type::position_type>);
 
-    explicit ActionRepStratego(size_t shape)
-            : m_actions(_build_actions(shape)),
-              m_conditions(_build_default_conditions(shape)) {}
+    explicit RepresenterStratego(size_t shape)
+            : RepresenterStratego(_build_actions(shape), _build_default_conditions(shape)) {}
 
-    ActionRepStratego(size_t shape, const condition_container & conditions)
-            : m_actions(_build_actions(shape)),
-              m_conditions(conditions) {}
+    RepresenterStratego(size_t shape, const condition_container &conditions)
+            : RepresenterStratego(_build_actions(shape), conditions) {}
 
 
     torch::Tensor state_representation(const state_type &state,
@@ -45,18 +43,25 @@ public:
                                        int player,
                                        std::vector<condition_type> conditions);
 
-    [[nodiscard]] const std::vector<action_type> & _get_actions_vec() const { return m_actions; }
+    [[nodiscard]] const auto &get_actions_vec() const { return m_actions; }
 
-    [[nodiscard]] const condition_container & get_conditions() const { return m_conditions; }
+    [[nodiscard]] const auto &get_kin_to_actions_map() const { return m_kin_to_actions_map; }
+
+    [[nodiscard]] const auto &get_conditions() const { return m_conditions; }
+
+    [[nodiscard]] const std::vector<action_type> &
+    get_actions_by_kin(const kin_type &kin) const {
+        return m_kin_to_actions_map.at(kin);
+    }
 
     template<typename Board>
-    std::vector<int> get_action_mask(
+    std::vector<unsigned int> get_action_mask(
             const Board &board,
             int player
     );
 
     template<typename Board>
-    static std::vector<int> get_action_mask(
+    static std::vector<unsigned int> get_action_mask(
             const std::vector<action_type> &actions,
             const Board &board,
             int player
@@ -64,7 +69,21 @@ public:
 
 
 private:
-    static std::vector<action_type> _build_actions(size_t shape);
+    // Delegator constructor to initialize both const fields actions and kin_to_actions_map.
+    RepresenterStratego(
+            std::tuple<
+                    std::vector<action_type>,
+                    std::unordered_map<kin_type, std::vector<action_type>>
+            > &&actions_map,
+            const condition_container &conditions)
+            : m_actions(std::move(std::get<0>(actions_map))),
+              m_kin_to_actions_map(std::move(std::get<1>(actions_map))),
+              m_conditions(conditions) {}
+
+    static std::tuple<
+            std::vector<action_type>,
+            std::unordered_map<kin_type, std::vector<action_type>>
+    > _build_actions(size_t shape);
 
     static condition_container _build_default_conditions(size_t shape);
 
@@ -77,12 +96,13 @@ private:
     );
 
     const std::vector<action_type> m_actions;
+    const std::unordered_map<kin_type, std::vector<action_type>> m_kin_to_actions_map;
     const condition_container m_conditions;
 };
 
 
 template<typename condition_type>
-torch::Tensor ActionRepStratego::state_representation(
+torch::Tensor RepresenterStratego::state_representation(
         const state_type &state,
         int player,
         std::vector<condition_type> conditions) {
@@ -111,10 +131,14 @@ torch::Tensor ActionRepStratego::state_representation(
     // state_dim = dimension of the state rep, i.e. how many layers of the conditions
     // shape[0] = first board dimension
     // shape[1] = second board dimension
-    torch::Tensor board_state_rep = torch::zeros({state_dim,
-                                                  static_cast<long>(shape[0]),
-                                                  static_cast<long>(shape[1])},
-                                                 options);
+    torch::Tensor board_state_rep = torch::zeros(
+            {
+                    1,                           // batch size
+                    state_dim,                   // nr conditions
+                    static_cast<long>(shape[0]), // board shape x
+                    static_cast<long>(shape[1])  // board shape y
+            },
+            options);
 
     for (const auto &pos_piece : *board) {
         Position pos = pos_piece.first;
@@ -127,7 +151,7 @@ torch::Tensor ActionRepStratego::state_representation(
                 // unpack the condition
                 auto[kin, team, hidden] = *cond_it;
                 // write the result of the condition check to the tensor
-                board_state_rep[i][pos[0]][pos[1]] = _check_condition(piece, kin, team, hidden, flip_teams);
+                board_state_rep[0][i][pos[0]][pos[1]] = _check_condition(piece, kin, team, hidden, flip_teams);
             }
         }
     }
@@ -135,22 +159,26 @@ torch::Tensor ActionRepStratego::state_representation(
 }
 
 template<typename Board>
-std::vector<int> ActionRepStratego::get_action_mask(const Board &board, int player) {
+std::vector<unsigned int> RepresenterStratego::get_action_mask(const Board &board, int player) {
     return get_action_mask(m_actions, board, player);
 }
 
 template<typename Board>
-std::vector<int> ActionRepStratego::get_action_mask(
+std::vector<unsigned int> RepresenterStratego::get_action_mask(
         const std::vector<action_type> &actions,
         const Board &board,
         int player) {
-    std::vector<int> action_mask(actions.size(), 0);
-    for (size_t i = 0; i < actions.size(); ++i) {
-        const action_type &action = actions[i];
-        position_type old_pos = board.get_position_of_kin(player, action.get_piece_id());
+    std::vector<unsigned int> action_mask(actions.size(), 0);
+    for (const auto &action : actions) {
+        position_type old_pos{0, 0};
+        if (auto pos_pointer = board.get_position_of_kin(player, action.get_assoc_kin());
+                pos_pointer == board.end_inverse(player)) {
+            continue;
+        } else
+            old_pos = pos_pointer->second;
         position_type new_pos = old_pos + action.get_effect();
         if (LogicStratego<board_type>::is_legal_move(board, {old_pos, new_pos})) {
-            action_mask[i] = 1;
+            action_mask[action.get_index()] = 1;
         }
     }
     return action_mask;
@@ -159,7 +187,7 @@ std::vector<int> ActionRepStratego::get_action_mask(
 
 template<typename Piece>
 bool
-ActionRepStratego::_check_condition(
+RepresenterStratego::_check_condition(
         const std::shared_ptr<Piece> &piece,
         const kin_type &kin,
         int team,
