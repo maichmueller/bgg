@@ -64,7 +64,7 @@ public:
                     int>
             ::type = 0>
     typename BType::move_type action_to_move(const BType &board, const action_type & action, int player) const {
-        typename BType::position_type pos = board.get_position_of_kin(player, action.get_piece_id());
+        typename BType::position_type pos = board.get_position_of_kin(player, action.get_assoc_kin())->second;
         return {pos, pos + action.get_effect()};
     }
 

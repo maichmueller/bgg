@@ -31,22 +31,22 @@ int main(int argc, char const *argv[]) {
 
     auto network_0 = std::make_shared<NetworkWrapper>(alphazero_net_ptr);
     auto network_1 = std::make_shared<NetworkWrapper>(*network_0);
-//    auto agent_0 = std::make_shared<AlphaZeroAgent<StateStratego, ActionRepStratego>>(
-////            0,
-////            network_0,
-////            action_rep_sptr
-////    );
-////    auto agent_1 = std::make_shared<AlphaZeroAgent<StateStratego, ActionRepStratego>>(
-////            1,
-////            network_1,
-////            action_rep_sptr
-////    );
-    auto agent_0 = std::make_shared<RandomAgent<StateStratego>>(
-            0
+    auto agent_0 = std::make_shared<AlphaZeroAgent<StateStratego, RepresenterStratego>>(
+            0,
+            network_0,
+            action_rep_sptr
     );
-    auto agent_1 = std::make_shared<RandomAgent<StateStratego>>(
-            1
+    auto agent_1 = std::make_shared<AlphaZeroAgent<StateStratego, RepresenterStratego>>(
+            1,
+            network_1,
+            action_rep_sptr
     );
+//    auto agent_0 = std::make_shared<RandomAgent<StateStratego>>(
+//            0
+//    );
+//    auto agent_1 = std::make_shared<RandomAgent<StateStratego>>(
+//            1
+//    );
     std::map<BoardStratego::position_type, BoardStratego::kin_type> setup0;
     std::map<BoardStratego::position_type, BoardStratego::kin_type> setup1;
 

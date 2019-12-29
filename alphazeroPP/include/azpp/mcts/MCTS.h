@@ -164,10 +164,9 @@ double MCTS::_search(StateType &state, int player, bool root) {
         auto[Ps_filtered, action_mask, v] = std::move(_evaluate_new_state(state, player));
 
         // storing these found values for this state for later lookup
-        // && is fine to be passed here, since standard containers always copy their input
-        this->m_Ps[s] = Ps_filtered;
-        this->m_Vs[s] = action_mask;
-        this->m_Ns[s] = 0;
+        m_Ps[s] = Ps_filtered;
+        m_Vs[s] = action_mask;
+        m_Ns[s] = 0;
 
         return -v;
     }
@@ -260,6 +259,7 @@ double MCTS::_search(StateType &state, int player, bool root) {
 }
 
 template<typename BoardType, typename DerivedActionRepType, typename DerivedLogicType>
+// TODO: reroute this to general representer class
 std::vector<int> MCTS::_get_action_mask(const BoardType &board, int player) {
     const auto &actions = DerivedActionRepType().get_actions_vec();
     std::vector<int> action_mask(actions->size(), 0);
