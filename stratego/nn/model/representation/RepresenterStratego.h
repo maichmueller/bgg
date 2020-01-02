@@ -9,11 +9,8 @@
 
 class RepresenterStratego :
         public RepresenterBase<
-                Action<typename BoardStratego::position_type,
-                        typename BoardStratego::kin_type>,
                 StateStratego,
-                RepresenterStratego
-        > {
+                RepresenterStratego> {
 
 public:
     using state_type = StateStratego;
@@ -27,23 +24,23 @@ public:
     static_assert(std::is_same_v<typename move_type::position_type, typename board_type::position_type>);
 
     explicit RepresenterStratego(size_t shape)
-            : RepresenterStratego(_build_actions(shape), _build_default_conditions(shape)) {}
+            : RepresenterStratego(_build_actions(shape), _build_conditions(shape)) {}
 
     RepresenterStratego(size_t shape, const condition_container &conditions)
             : RepresenterStratego(_build_actions(shape), conditions) {}
 
 
-    torch::Tensor state_representation(const state_type &state,
-                                       int player) {
-        return state_representation(state, player, m_conditions);
+    torch::Tensor state_representation_(const state_type &state,
+                                        int player) const {
+        return state_representation_(state, player, m_conditions);
     }
 
     template<typename condition_type=std::tuple<kin_type, int, bool>>
-    torch::Tensor state_representation(const state_type &state,
-                                       int player,
-                                       std::vector<condition_type> conditions);
+    torch::Tensor state_representation_(const state_type &state,
+                                        int player,
+                                        std::vector<condition_type> conditions) const;
 
-    [[nodiscard]] const auto &get_actions_vec() const { return m_actions; }
+    [[nodiscard]] const auto &get_actions_() const { return m_actions; }
 
     [[nodiscard]] const auto &get_kin_to_actions_map() const { return m_kin_to_actions_map; }
 
@@ -55,18 +52,17 @@ public:
     }
 
     template<typename Board>
-    std::vector<unsigned int> get_action_mask(
+    std::vector<unsigned int> get_action_mask_(
             const Board &board,
             int player
     );
 
     template<typename Board>
-    static std::vector<unsigned int> get_action_mask(
+    static std::vector<unsigned int> get_action_mask_(
             const std::vector<action_type> &actions,
             const Board &board,
             int player
     );
-
 
 private:
     // Delegator constructor to initialize both const fields actions and kin_to_actions_map.
@@ -85,7 +81,7 @@ private:
             std::unordered_map<kin_type, std::vector<action_type>>
     > _build_actions(size_t shape);
 
-    static condition_container _build_default_conditions(size_t shape);
+    static condition_container _build_conditions(size_t shape);
 
     template<typename Piece>
     inline bool _check_condition(const std::shared_ptr<Piece> &piece,
@@ -93,7 +89,7 @@ private:
                                  int team,
                                  bool hidden,
                                  bool flip_teams = false
-    );
+    ) const;
 
     const std::vector<action_type> m_actions;
     const std::unordered_map<kin_type, std::vector<action_type>> m_kin_to_actions_map;
@@ -102,10 +98,10 @@ private:
 
 
 template<typename condition_type>
-torch::Tensor RepresenterStratego::state_representation(
+torch::Tensor RepresenterStratego::state_representation_(
         const state_type &state,
         int player,
-        std::vector<condition_type> conditions) {
+        std::vector<condition_type> conditions) const {
 
     auto board = state.get_board();
     auto shape = board->get_shape();
@@ -159,29 +155,10 @@ torch::Tensor RepresenterStratego::state_representation(
 }
 
 template<typename Board>
-std::vector<unsigned int> RepresenterStratego::get_action_mask(const Board &board, int player) {
-    return get_action_mask(m_actions, board, player);
-}
-
-template<typename Board>
-std::vector<unsigned int> RepresenterStratego::get_action_mask(
-        const std::vector<action_type> &actions,
+std::vector<unsigned int> RepresenterStratego::get_action_mask_(
         const Board &board,
         int player) {
-    std::vector<unsigned int> action_mask(actions.size(), 0);
-    for (const auto &action : actions) {
-        position_type old_pos{0, 0};
-        if (auto pos_pointer = board.get_position_of_kin(player, action.get_assoc_kin());
-                pos_pointer == board.end_inverse(player)) {
-            continue;
-        } else
-            old_pos = pos_pointer->second;
-        position_type new_pos = old_pos + action.get_effect();
-        if (LogicStratego<board_type>::is_legal_move(board, {old_pos, new_pos})) {
-            action_mask[action.get_index()] = 1;
-        }
-    }
-    return action_mask;
+    return get_action_mask_(m_actions, board, player);
 }
 
 
@@ -192,7 +169,7 @@ RepresenterStratego::_check_condition(
         const kin_type &kin,
         int team,
         bool hidden,
-        bool flip_teams) {
+        bool flip_teams) const {
 
     // if we flip the teams, we want pieces of m_team 1 to appear as m_team 0
     // and vice versa
@@ -233,4 +210,27 @@ RepresenterStratego::_check_condition(
         // only the obstacle should reach here
         return team_piece == team;
     }
+}
+
+template<typename Board>
+std::vector<unsigned int>
+RepresenterStratego::get_action_mask_(
+        const std::vector<action_type> &actions,
+        const Board &board,
+        int player) {
+
+    std::vector<unsigned int> action_mask(actions.size(), 0);
+    for (const auto &action : actions) {
+        position_type old_pos{0, 0};
+        if (auto pos_pointer = board.get_position_of_kin(player, action.get_assoc_kin());
+                pos_pointer == board.end_inverse(player)) {
+            continue;
+        } else
+            old_pos = pos_pointer->second;
+        position_type new_pos = old_pos + action.get_effect();
+        if (LogicStratego<board_type>::is_legal_move_(board, {old_pos, new_pos})) {
+            action_mask[action.get_index()] = 1;
+        }
+    }
+    return action_mask;
 }

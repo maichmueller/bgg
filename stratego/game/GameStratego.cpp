@@ -5,8 +5,8 @@ GameStratego::GameStratego(
         const std::array<size_t, 2> &shape,
         const std::map<position_type, int> &setup_0,
         const std::map<position_type, int> &setup_1,
-        const std::shared_ptr<agent_type> & ag0,
-        const std::shared_ptr<agent_type> & ag1,
+        const std::shared_ptr<Agent<state_type>> & ag0,
+        const std::shared_ptr<Agent<state_type>> & ag1,
         bool fixed_setups)
         :
         base_type(
@@ -22,8 +22,8 @@ GameStratego::GameStratego(
         const std::array<size_t, 2> &shape,
         const std::map<position_type, kin_type > &setup_0,
         const std::map<position_type, kin_type > &setup_1,
-        const std::shared_ptr<agent_type> & ag0,
-        const std::shared_ptr<agent_type> & ag1,
+        const std::shared_ptr<Agent<state_type>> & ag0,
+        const std::shared_ptr<Agent<state_type>> & ag1,
         bool fixed_setups)
         :
         base_type(
@@ -40,8 +40,8 @@ GameStratego::GameStratego(
         size_t shape,
         const std::map<position_type, int> &setup_0,
         const std::map<position_type, int> &setup_1,
-        const std::shared_ptr<agent_type> & ag0,
-        const std::shared_ptr<agent_type> & ag1,
+        const std::shared_ptr<Agent<state_type>> & ag0,
+        const std::shared_ptr<Agent<state_type>> & ag1,
         bool fixed_setups)
         :
         base_type(
@@ -57,8 +57,8 @@ GameStratego::GameStratego(
         size_t shape,
         const std::map<position_type, kin_type > &setup_0,
         const std::map<position_type, kin_type > &setup_1,
-        const std::shared_ptr<agent_type> & ag0,
-        const std::shared_ptr<agent_type> & ag1,
+        const std::shared_ptr<Agent<state_type>> & ag0,
+        const std::shared_ptr<Agent<state_type>> & ag1,
         bool fixed_setups)
         :
         base_type(
@@ -71,7 +71,7 @@ GameStratego::GameStratego(
                 fixed_setups) {}
 
 
-std::map<GameStratego::position_type, GameStratego::sptr_piece_type> GameStratego::draw_setup(int team) {
+std::map<GameStratego::position_type, GameStratego::sptr_piece_type> GameStratego::draw_setup_(int team) {
     int shape = m_game_state.get_board()->get_shape()[0];
     auto avail_types = LogicStratego<board_type>::get_available_types(shape);
 

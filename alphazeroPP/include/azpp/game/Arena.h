@@ -34,8 +34,8 @@ struct Arena {
 
     template <typename StateType>
     static void print_round_results(int round, int num_rounds,
-                                    const std::shared_ptr<Agent<StateType>> * agent_0,
-                                    const std::shared_ptr<Agent<StateType>> * agent_1,
+                                    const Agent<StateType> & agent_0,
+                                    const Agent<StateType> & agent_1,
                                     const StatTrack & stats0,
                                     const StatTrack & stats1);
 
@@ -53,8 +53,8 @@ template <typename StateType>
 void Arena::print_round_results(
         int round,
         int num_rounds,
-        const std::shared_ptr<Agent<StateType>> * agent_0,
-        const std::shared_ptr<Agent<StateType>> * agent_1,
+        const Agent<StateType> & agent_0,
+        const Agent<StateType> & agent_1,
         const StatTrack &stats0, const StatTrack &stats1) {
 
     std::string red("\033[1;31m");
@@ -113,7 +113,7 @@ std::tuple<StatTrack, StatTrack> Arena::pit(GameType &game, int num_sims, bool s
         }
 
         if (sim % 10 == 0)
-            print_round_results(sim, num_sims, game.get_agent_0(), game.get_agent_1(), stats0, stats1);
+            Arena::print_round_results(sim, num_sims, *game.get_agent_0(), *game.get_agent_1(), stats0, stats1);
     }
     std::cout << std::endl;
     return std::make_tuple(stats0, stats1);

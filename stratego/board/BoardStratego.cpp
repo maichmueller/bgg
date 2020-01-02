@@ -144,7 +144,7 @@ std::string BoardStratego::print_board(bool flip_board, bool hide_unknowns) cons
 void BoardStratego::_add_obstacles() {
     auto obstacle_positions = LogicStratego<BoardStratego>::get_obstacle_positions(m_shape[0]);
     for(const auto & obstacle_pos : obstacle_positions) {
-        m_map[obstacle_pos] = std::make_shared<piece_type>(obstacle_pos, kin_type{99, 99}, 99);
+        m_map[obstacle_pos] = std::make_shared<piece_type>(obstacle_pos, kin_type{99, 99}, -1);
     }
 }
 

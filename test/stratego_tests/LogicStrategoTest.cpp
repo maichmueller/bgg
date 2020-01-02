@@ -15,8 +15,8 @@ TEST_F(LogicStrategoTest, LogicStrategoTest_poss_moves_Test) {
             board_start,
             17
     );
-    auto poss_moves_0 = logic_type::get_legal_moves(*state_start.get_board(), 0);
-    auto poss_moves_1 = logic_type::get_legal_moves(*state_start.get_board(), 1);
+    auto poss_moves_0 = logic_type::get_legal_moves_(*state_start.get_board(), 0);
+    auto poss_moves_1 = logic_type::get_legal_moves_(*state_start.get_board(), 1);
 
     std::unordered_set<move_type> real_poss_moves_0{
         {{1, 1}, {2, 1}},
@@ -55,8 +55,8 @@ TEST_F(LogicStrategoTest, LogicStrategoTest_poss_moves_Test) {
             board_mid,
             17
     );
-    auto poss_moves_mid_0 = logic_type::get_legal_moves(*state_mid.get_board(), 0);
-    auto poss_moves_mid_1 = logic_type::get_legal_moves(*state_mid.get_board(), 1);
+    auto poss_moves_mid_0 = logic_type::get_legal_moves_(*state_mid.get_board(), 0);
+    auto poss_moves_mid_1 = logic_type::get_legal_moves_(*state_mid.get_board(), 1);
 
     std::unordered_set<move_type> real_poss_moves_mid_0{
             {{1, 1}, {1, 2}},

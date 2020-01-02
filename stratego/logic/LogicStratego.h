@@ -30,15 +30,15 @@ struct LogicStratego : public Logic<BoardType, LogicStratego<BoardType>> {
     using piece_type = typename board_type::piece_type;
     using kin_type = typename board_type::kin_type;
 
-    static bool is_legal_move(const board_type &board, const move_type &move);
+    static bool is_legal_move_(const board_type &board, const move_type &move);
 
-    static std::vector<move_type> get_legal_moves(
+    static std::vector<move_type> get_legal_moves_(
             const board_type &board,
             int player,
             bool flip_board = false
     );
 
-    static bool has_legal_moves(const board_type &board, int player);
+    static bool has_legal_moves_(const board_type &board, int player);
 
     static auto get_battle_matrix() { return BattleMatrix::battle_matrix; }
 
@@ -249,7 +249,7 @@ struct LogicStratego : public Logic<BoardType, LogicStratego<BoardType>> {
 };
 
 template<typename BoardType>
-bool LogicStratego<BoardType>::is_legal_move(const board_type &board, const move_type &move) {
+bool LogicStratego<BoardType>::is_legal_move_(const board_type &board, const move_type &move) {
     const auto &[pos_before, pos_after] = move.get_positions();
 
     if (!(std::get<0>(board.check_bounds(pos_before))) ||
@@ -301,7 +301,7 @@ bool LogicStratego<BoardType>::is_legal_move(const board_type &board, const move
 
 template<class BoardType>
 std::vector<typename LogicStratego<BoardType>::move_type>
-LogicStratego<BoardType>::get_legal_moves(const board_type &board, int player, bool flip_board) {
+LogicStratego<BoardType>::get_legal_moves_(const board_type &board, int player, bool flip_board) {
     int shape_x = board.get_shape()[0];
     int shape_y = board.get_shape()[1];
     int starts_x = board.get_starts()[0];
@@ -318,7 +318,7 @@ LogicStratego<BoardType>::get_legal_moves(const board_type &board, int player, b
                 for (int i = 1; i < starts_x + shape_x - pos[0]; ++i) {
                     position_type pos_to{pos[0] + i, pos[1]};
                     move_type move{pos, pos_to};
-                    if (is_legal_move(board, move)) {
+                    if (is_legal_move_(board, move)) {
                         moves_possible.push_back(move);
                     }
                 }
@@ -326,7 +326,7 @@ LogicStratego<BoardType>::get_legal_moves(const board_type &board, int player, b
                 for (int i = 1; i < starts_y + shape_y - pos[1]; ++i) {
                     position_type pos_to{pos[0], pos[1] + i};
                     move_type move{pos, pos_to};
-                    if (is_legal_move(board, move)) {
+                    if (is_legal_move_(board, move)) {
                         moves_possible.push_back(move);
                     }
                 }
@@ -334,7 +334,7 @@ LogicStratego<BoardType>::get_legal_moves(const board_type &board, int player, b
                 for (int i = 1; i < starts_x + pos[0] + 1; ++i) {
                     position_type pos_to{pos[0] - i, pos[1]};
                     move_type move{pos, pos_to};
-                    if (is_legal_move(board, move)) {
+                    if (is_legal_move_(board, move)) {
                         moves_possible.push_back(move);
                     }
 
@@ -343,7 +343,7 @@ LogicStratego<BoardType>::get_legal_moves(const board_type &board, int player, b
                 for (int i = 1; i < starts_y + pos[1] + 1; ++i) {
                     position_type pos_to{pos[0], pos[1] - i};
                     move_type move{pos, pos_to};
-                    if (is_legal_move(board, move)) {
+                    if (is_legal_move_(board, move)) {
                         moves_possible.push_back(move);
                     }
                 }
@@ -355,7 +355,7 @@ LogicStratego<BoardType>::get_legal_moves(const board_type &board, int player, b
                                                       {pos[0],     pos[1] - 1}};
                 for (auto &pos_to : pos_tos) {
                     move_type move{pos, pos_to};
-                    if (is_legal_move(board, move)) {
+                    if (is_legal_move_(board, move)) {
                         moves_possible.push_back(move);
                     }
                 }
@@ -373,7 +373,7 @@ LogicStratego<BoardType>::get_legal_moves(const board_type &board, int player, b
 }
 
 template<class BoardType>
-bool LogicStratego<BoardType>::has_legal_moves(const board_type &board, int player) {
+bool LogicStratego<BoardType>::has_legal_moves_(const board_type &board, int player) {
     int shape_x = board.get_shape()[0];
     int shape_y = board.get_shape()[1];
     int starts_x = board.get_starts()[0];
@@ -390,7 +390,7 @@ bool LogicStratego<BoardType>::has_legal_moves(const board_type &board, int play
                 for (int i = 1; i < starts_x + shape_x - pos[0]; ++i) {
                     position_type pos_to{pos[0] + i, pos[1]};
                     move_type move{pos, pos_to};
-                    if (is_legal_move(board, move)) {
+                    if (is_legal_move_(board, move)) {
                         return true;
                     }
                 }
@@ -398,7 +398,7 @@ bool LogicStratego<BoardType>::has_legal_moves(const board_type &board, int play
                 for (int i = 1; i < starts_y + shape_y - pos[1]; ++i) {
                     position_type pos_to{pos[0], pos[1] + i};
                     move_type move{pos, pos_to};
-                    if (is_legal_move(board, move)) {
+                    if (is_legal_move_(board, move)) {
                         return true;
                     }
                 }
@@ -406,7 +406,7 @@ bool LogicStratego<BoardType>::has_legal_moves(const board_type &board, int play
                 for (int i = 1; i < starts_x + pos[0] + 1; ++i) {
                     position_type pos_to{pos[0] - i, pos[1]};
                     move_type move{pos, pos_to};
-                    if (is_legal_move(board, move)) {
+                    if (is_legal_move_(board, move)) {
                         return true;
                     }
 
@@ -415,7 +415,7 @@ bool LogicStratego<BoardType>::has_legal_moves(const board_type &board, int play
                 for (int i = 1; i < starts_y + pos[1] + 1; ++i) {
                     position_type pos_to{pos[0], pos[1] - i};
                     move_type move{pos, pos_to};
-                    if (is_legal_move(board, move)) {
+                    if (is_legal_move_(board, move)) {
                         return true;
                     }
                 }
@@ -427,7 +427,7 @@ bool LogicStratego<BoardType>::has_legal_moves(const board_type &board, int play
                                                       {pos[0],     pos[1] - 1}};
                 for (const auto &pos_to : pos_tos) {
                     move_type move{pos, pos_to};
-                    if (is_legal_move(board, move)) {
+                    if (is_legal_move_(board, move)) {
                         return true;
                     }
                 }

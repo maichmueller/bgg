@@ -27,44 +27,64 @@ class MCTS {
     std::unordered_map<std::string, int> m_Ns;
     std::unordered_map<std::string, std::vector<float>> m_Ps;
     std::unordered_map<std::string, int> m_Es;
-    std::unordered_map<std::string, std::vector<int>> m_Vs;
+    std::unordered_map<std::string, std::vector<unsigned int>> m_Vs;
 
     static std::vector<double> _sample_dirichlet(size_t size);
 
-    template<typename StateType>
-    double _search(StateType &state, int player, bool root = false);
+    template<typename StateType, typename ActionRepresenterType>
+    double _search(
+            StateType &state,
+            int player,
+            RepresenterBase<
+                    StateType,
+                    ActionRepresenterType
+            > &action_repper,
+            bool root = false
+    );
 
-    template<typename StateType>
-    std::tuple<std::vector<float>, std::vector<int>, double> _evaluate_new_state(StateType &state, int player);
-
-    template<typename BoardType, typename ActionType, typename DerivedLogicType>
-    std::vector<int> _get_action_mask(
-            const BoardType &board,
-            int player);
+    template<typename StateType, typename ActionRepresenterType>
+    std::tuple<std::vector<float>, std::vector<unsigned int>, double> _evaluate_new_state(
+            StateType &state,
+            int player,
+            RepresenterBase<
+                    StateType,
+                    ActionRepresenterType
+            > & action_repper
+    );
 
 
 public:
 
-    MCTS(std::shared_ptr<NetworkWrapper> nnet_sptr,
-         int num_mcts_sims,
-         double cpuct = 4);
+    MCTS(
+            std::shared_ptr<NetworkWrapper> nnet_sptr,
+            int num_mcts_sims,
+            double cpuct = 4
+    );
 
-    template<typename StateType, typename ActionRepType>
-    std::vector<double> get_action_probabilities(StateType &state, int player, double expl_rate = 1.);
-
-
+    template<typename StateType, typename ActionRepresenterType>
+    std::vector<double> get_action_probabilities(
+            StateType &state,
+            int player,
+            RepresenterBase<StateType, ActionRepresenterType> &action_repper,
+            double expl_rate = 1.
+    );
 };
 
 
-template<typename StateType, typename ActionRepType>
-std::vector<double> MCTS::get_action_probabilities(StateType &state, int player, double expl_rate) {
+template<typename StateType, typename ActionRepresenterType>
+std::vector<double> MCTS::get_action_probabilities(
+        StateType &state,
+        int player,
+        RepresenterBase<StateType, ActionRepresenterType> &action_repper,
+        double expl_rate) {
+
     for (int i = 0; i < m_num_mcts_sims; ++i) {
-        _search(state, player, true);
+        _search(state, player, action_repper, /*root=*/true);
     }
 
-    std::string state_rep = *state.get_board()->print_board(static_cast<bool>(player), true);
-    ActionRepType action_rep;
-    std::vector<int> counts(action_rep.get_act_rep(state.get_board()->get_shape()).size());
+    std::string state_rep = state.get_board()->print_board(static_cast<bool>(player), true);
+
+    std::vector<int> counts(action_repper.get_actions().size());
 
     double sum_counts = 0;
     double highest_count = 0;
@@ -107,12 +127,18 @@ std::vector<double> MCTS::get_action_probabilities(StateType &state, int player,
     return probabilities;
 }
 
-template<typename StateType>
-std::tuple<std::vector<float>, std::vector<int>, double> MCTS::_evaluate_new_state(StateType &state, int player) {
+template<typename StateType, typename ActionRepresenterType>
+std::tuple<std::vector<float>, std::vector<unsigned int>, double> MCTS::_evaluate_new_state(
+        StateType &state,
+        int player,
+        RepresenterBase<
+                StateType,
+                ActionRepresenterType
+        > &action_repper) {
+
     auto board = state.get_board();
-    auto board_len = board->get_shape();
     // convert State to torch::tensor representation
-    const torch::Tensor state_tensor = state.torch_represent(player);
+    const torch::Tensor state_tensor = action_repper.state_representation(state, player);
 
     auto[Ps, v] = m_nnet_sptr->predict(state_tensor);
 
@@ -122,33 +148,37 @@ std::tuple<std::vector<float>, std::vector<int>, double> MCTS::_evaluate_new_sta
     Ps = Ps.view(-1); // flatten the tensor as the first dim is the batch size dim
 
     // mask for invalid actions
-    auto action_mask = _get_action_mask(*board, player);
+    const auto action_mask = action_repper.get_action_mask(*board, player);
 
     torch::TensorAccessor Ps_acc = Ps.template accessor<float, 1>();
     std::vector<float> Ps_filtered(action_mask.size());
     float Ps_sum = 0;
 
     // mask invalid actions
-    for (int i = 0; i < action_mask.size(); ++i) {
+    for (size_t i = 0; i < action_mask.size(); ++i) {
         auto temp = Ps_acc[i] * action_mask[i];
         Ps_sum += temp;
         Ps_filtered[i] = temp;
     }
     // normalize the likelihoods
-    for (size_t i = 0; i < Ps_filtered.size(); ++i) {
-        Ps_filtered[i] /= Ps_sum;
-    }
+    for (auto &p_val : Ps_filtered) { p_val /= Ps_sum; }
     return std::make_tuple(Ps_filtered, action_mask, v);
 }
 
 
-template<typename StateType>
-double MCTS::_search(StateType &state, int player, bool root) {
+template<typename StateType, typename ActionRepresenterType>
+double MCTS::_search(
+        StateType &state,
+        int player,
+        RepresenterBase<
+                StateType,
+                ActionRepresenterType
+        > &action_repper,
+        bool root) {
     // for the state rep we flip the board if player == 1 and we dont if player == 0!
     // all the enemy hidden pieces wont be printed out -> unknown pieces are also hidden
     // for the neural net
-    std::string s = utils::board_str_rep<Board, Piece>(
-            *state.get_board(),
+    std::string s = state.get_board()->print_board(
             static_cast<bool>(player),
             true
     );
@@ -161,7 +191,7 @@ double MCTS::_search(StateType &state, int player, bool root) {
     if (auto state_pi_exists = m_Ps.find(s); state_pi_exists == m_Ps.end()) {
         // if the state wasn't found (== end)
 
-        auto[Ps_filtered, action_mask, v] = std::move(_evaluate_new_state(state, player));
+        auto[Ps_filtered, action_mask, v] = std::move(_evaluate_new_state(state, player, action_repper));
 
         // storing these found values for this state for later lookup
         m_Ps[s] = Ps_filtered;
@@ -171,7 +201,7 @@ double MCTS::_search(StateType &state, int player, bool root) {
         return -v;
     }
 
-    std::vector<int> valids = m_Vs[s];
+    std::vector<unsigned int> valids = m_Vs[s];
     // DEBUG
 //    std::vector<strat_move_t > all_moves(valids.size());
 //    std::cout  << utils::board_str_rep<Board, Piece>(*state.get_board(), static_cast<bool>(player), false) << "\n";
@@ -202,7 +232,7 @@ double MCTS::_search(StateType &state, int player, bool root) {
             new_sum_val += pi;
         }
         // Normalize
-        for (size_t i = 0; i < Ps.size(); ++i) { Ps[i] /= new_sum_val; }
+        for (auto &p : Ps) { p /= new_sum_val; }
     }
 
     for (size_t a = 0; a < Ps.size(); ++a) {
@@ -225,13 +255,13 @@ double MCTS::_search(StateType &state, int player, bool root) {
     // DEBUG
 //    std::cout << "Player: "<< player << "\t"<< "Best action: " << a << "\t";
 
-    typename StateType::move_type move = state.action_to_move(a, player);
+    typename StateType::move_type move = action_repper.action_to_move(state, a, player);
 
     // flip the move for player 1
-    if (player) {
-        move = flip_move(move, state.get_board()->get_shape());
-
-    }
+//    if (player) {
+//        move = flip_move(move, state.get_board()->get_shape());
+//
+//    }
     // DEBUG
 //    std::cout << "Move: (" << move[0][0] << ", " << move[0][1] << ") -> ("
 //              << move[1][0] << ", " << move[1][1] << ")" << "\n";
@@ -239,7 +269,7 @@ double MCTS::_search(StateType &state, int player, bool root) {
     // DEBUG
 //    std::cout  << "Board after move done: \n" << utils::board_str_rep<Board, Piece>(*state.get_board(), static_cast<bool>(0), false) << "\n";
 //
-    double v = _search(state, (player + 1) % 2, /*root=*/false);
+    double v = _search(state, (player + 1) % 2, action_repper, /*root=*/false);
     state.undo_last_rounds();
     // DEBUG
 //    std::cout  << "Board after move undone: \n" << utils::board_str_rep<Board, Piece>(*state.get_board(), static_cast<bool>(player), false) << "\n";
@@ -256,20 +286,4 @@ double MCTS::_search(StateType &state, int player, bool root) {
 
     m_Ns[s] += 1;
     return -v;
-}
-
-template<typename BoardType, typename DerivedActionRepType, typename DerivedLogicType>
-// TODO: reroute this to general representer class
-std::vector<int> MCTS::_get_action_mask(const BoardType &board, int player) {
-    const auto &actions = DerivedActionRepType().get_actions_vec();
-    std::vector<int> action_mask(actions->size(), 0);
-    for (size_t i = 0; i < actions->size(); ++i) {
-        const auto &action = actions[i];
-        typename BoardType::position_type old_pos = board.get_position_of_kin(player, action.get_piece_id());
-        typename BoardType::position_type new_pos = old_pos + action.get_effect();
-        if (Logic<BoardType, DerivedLogicType>::is_legal_move(board, {old_pos, new_pos})) {
-            action_mask[i] = 1;
-        }
-    }
-    return action_mask;
 }

@@ -70,10 +70,10 @@ void StateStratego::check_terminal() {
         return;
     }
 
-    if (!LogicStratego<board_type>::has_legal_moves(m_board, 0)) {
+    if (!LogicStratego<board_type>::has_legal_moves_(m_board, 0)) {
         m_terminal = -2;
         return;
-    } else if (!LogicStratego<board_type>::has_legal_moves(m_board, 1)) {
+    } else if (!LogicStratego<board_type>::has_legal_moves_(m_board, 1)) {
         m_terminal = 2;
         return;
     }

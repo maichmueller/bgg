@@ -31,7 +31,7 @@
     of 0's and 1's on the positions for which the relevant condition was
 *   true (1) or wrong (0)
 **/
-RepresenterStratego::condition_container RepresenterStratego::_build_default_conditions(size_t shape) {
+RepresenterStratego::condition_container RepresenterStratego::_build_conditions(size_t shape) {
     std::vector<std::tuple<kin_type, int, bool>> conditions(0);
     int own_team = 0;
     auto counter = utils::counter(LogicStratego<board_type>::get_available_types(shape));

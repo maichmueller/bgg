@@ -47,12 +47,12 @@ void NetworkWrapper::load_checkpoint(std::string const &folder, std::string cons
 }
 
 
-std::vector<size_t> NetworkWrapper::prepend_to_shape(
+std::vector<long long> NetworkWrapper::prepend_to_shape(
         const torch::Tensor &tensor,
         size_t value) const {
     // get current shape and initialize +1
     auto sizes = tensor.sizes();
-    std::vector<size_t> sizes_out(sizes.size() + 1);
+    std::vector<long long> sizes_out(static_cast<long long>(sizes.size()) + 1);
     // size 0 is batch size, rest of the shape needs to be kept from input
     sizes_out[0] = value;
     std::copy(sizes.begin(), sizes.end(), sizes_out.begin() + 1);

@@ -15,7 +15,7 @@ class NetworkWrapper {
 
     std::shared_ptr<AlphaZeroInterface> m_network;
 
-    [[nodiscard]] std::vector<size_t> prepend_to_shape(
+    [[nodiscard]] std::vector<long long> prepend_to_shape(
             const torch::Tensor &tensor,
             size_t value
     ) const;
@@ -32,16 +32,17 @@ public:
 
     explicit NetworkWrapper(
             std::shared_ptr<AlphaZeroInterface> network)
-            : m_network(std::move(network))
-            {}
+            : m_network(std::move(network)) {}
 
     template<typename TrainExampleContainer>
     void train(TrainExampleContainer train_examples,
                size_t epochs,
                size_t batch_size = 128);
+
     std::tuple<torch::Tensor, double> predict(const torch::Tensor &board_tensor);
 
     void save_checkpoint(std::string const &folder, std::string const &filename);
+
     void load_checkpoint(std::string const &folder, std::string const &filename);
 
     /// Forwarding method for torch::nn::Module within network
@@ -50,9 +51,9 @@ public:
 };
 
 
-template<typename TrainExampleContainer>
+template<typename TrainDataContainer>
 void NetworkWrapper::train(
-        TrainExampleContainer train_examples,
+        TrainDataContainer train_examples,
         size_t epochs,
         size_t batch_size) {
     // send model to the right device
@@ -63,7 +64,10 @@ void NetworkWrapper::train(
             torch::optim::AdamOptions(/*learning_rate=*/0.01));
 
     auto board_tensor_sizes = prepend_to_shape(train_examples[0].get_tensor(), batch_size);
-    auto pi_tensor_sizes = prepend_to_shape(train_examples[0].get_policy(), batch_size);
+    auto pi_tensor_sizes = std::vector<long long>{
+            static_cast<long long>(batch_size),
+            static_cast<long long>(train_examples[0].get_policy().size())
+    };
 
     tqdm bar;
     for (size_t epoch = 0; epoch < epochs; ++epoch) {
@@ -74,7 +78,8 @@ void NetworkWrapper::train(
         for (size_t b = 0; b < train_examples.size(); b += batch_size) {
 
             // get a randomly drawn sample index batch
-            std::vector<TrainExampleContainer> examples_batch(batch_size);
+            TrainDataContainer examples_batch;
+            examples_batch.reserve(batch_size);
             std::sample(train_examples.begin(), train_examples.end(),
                         examples_batch.begin(),
                         batch_size,
@@ -101,10 +106,17 @@ void NetworkWrapper::train(
             torch::Tensor value_tensor = torch::empty(batch_size, options_grad);
 
             // fill the batch tensors with the respective part of the sample-tuple
-            for (const auto &[i, sample] : std::make_tuple(0, examples_batch)) {
+            int i = 0;
+            for (const auto &sample : examples_batch) {
                 board_tensor[i] = sample.get_tensor();
-                policy_tensor[i] = sample.get_policy();
                 value_tensor[i] = sample.get_evaluation();
+                policy_tensor[i] = torch::from_blob(
+                        sample.get_policy().data(),
+                        {pi_tensor_sizes[1]},
+                        torch::TensorOptions()
+                                .device(GLOBAL_DEVICE::get_device())
+                                .dtype(torch::kFloat)
+                );
                 ++i;
             }
 

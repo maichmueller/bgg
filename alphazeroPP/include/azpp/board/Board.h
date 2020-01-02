@@ -14,7 +14,7 @@
 #include "azpp/board/Piece.h"
 #include "azpp/board/Move.h"
 #include "azpp/utils/utils.h"
-
+#include "azpp/utils/logging_macros.h"
 
 template<typename PieceType>
 class Board {
@@ -100,6 +100,8 @@ public:
 
     map_type const *get_map() const { return m_map; }
 
+    inverse_map_type const *get_inverse_map() const { return m_map_inverse; }
+
     const_inverse_iterator get_position_of_kin(int team, const kin_type &kin) const {
         return m_map_inverse.at(team).find(kin);
     }
@@ -156,17 +158,42 @@ void Board<PieceType>::update_board(const position_type &pos, const std::shared_
     auto pc_before = m_map[pos];
 
     if (!pc_before->is_null()) {
-        int team_pc_before = pc_before->get_team();
-        if (team_pc_before == 0 || team_pc_before == 1) {
-            m_map_inverse[team_pc_before].erase(pc_before->get_kin());
+        if (int team = pc_before->get_team();
+                team != -1) {
+            LOGD2("Count of team " + std::to_string(team) + " kins at removal time",
+                  std::to_string(m_map_inverse[team].size()));
+            LOGD2("Count of team " + std::to_string(team) + " pieces at removal time",
+                  std::to_string(get_pieces(team).size()));
+            LOGD2("Count of team " + std::to_string((team + 1) % 2 ) + " kins at removal time",
+                  std::to_string(m_map_inverse[(team + 1) % 2  ].size()));
+            LOGD2("Count of team " + std::to_string((team + 1) % 2  ) + " pieces at removal time",
+                  std::to_string(get_pieces((team + 1) % 2 ).size()));
+            m_map_inverse[team].erase(pc_before->get_kin());
+
         }
+
     }
 
     pc_ptr->set_position(pos);
     (*this)[pos] = pc_ptr;
-    int team = pc_ptr->get_team();
-    if (!pc_ptr->is_null() && (team == 0 || team == 1))
-        m_map_inverse[pc_ptr->get_team()][pc_ptr->get_kin()] = pos;
+
+    if (int team = pc_ptr->get_team();
+            !pc_ptr->is_null() && team != -1) {
+        LOGD2("Count of team " + std::to_string(team) + " kins at addition time",
+              std::to_string(m_map_inverse[team].size()));
+        LOGD2("Count of team " + std::to_string(team) + " pieces at addition time",
+              std::to_string(get_pieces(team).size()));
+        LOGD2("Count of team " + std::to_string((team+1) % 2) + " kins at addition time",
+              std::to_string(m_map_inverse[(team+1) % 2].size()));
+        LOGD2("Count of team " + std::to_string((team+1) % 2) + " pieces at addition time",
+              std::to_string(get_pieces((team+1) % 2).size()));
+        m_map_inverse[team][pc_ptr->get_kin()] = pos;
+
+        LOGD2("Count of team " + std::to_string(team) + " kins after addition",
+              std::to_string(m_map_inverse[team].size()));
+        LOGD2("Count of team " + std::to_string((team+1)%2) + " kins after addition",
+              std::to_string(m_map_inverse[(team+1)%2].size()) + "\n");
+    }
 }
 
 

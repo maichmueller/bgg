@@ -73,11 +73,11 @@ public:
 
     void undo_last_rounds(int n = 1);
 
-    int get_move_count() { return m_move_count; }
+    int get_move_count() const { return m_move_count; }
 
     void set_board(board_type brd) { this->m_board = std::move(brd); }
 
-    board_type const *get_board() const { return &m_board; }
+    const board_type *get_board() const { return &m_board; }
 };
 
 template<class BoardType>
@@ -135,8 +135,8 @@ void State<BoardType>::undo_last_rounds(int n) {
         m_piece_history.pop_back();
         m_move_equals_prev_move.pop_back();
 
-        m_board.update_board(move[0], move_pieces[0]);
         m_board.update_board(move[1], move_pieces[1]);
+        m_board.update_board(move[0], move_pieces[0]);
     }
     m_move_count -= n;
 }

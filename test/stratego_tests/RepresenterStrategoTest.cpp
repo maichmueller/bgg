@@ -37,18 +37,18 @@ TEST_F(RepresenterStrategoTest, RepresenterStrategoTest_action_mask_Test) {
     std::vector<unsigned int> expect_action_mask_1_start(64, 0);
 
     fill_mask(
-            logic_type::get_legal_moves(*state_start.get_board(), 0),
+            logic_type::get_legal_moves_(*state_start.get_board(), 0),
             action_rep,
             state_start,
             expect_action_mask_0_start);
     fill_mask(
-            logic_type::get_legal_moves(*state_start.get_board(), 1),
+            logic_type::get_legal_moves_(*state_start.get_board(), 1),
             action_rep,
             state_start,
             expect_action_mask_1_start);
 
-    auto action_mask_start_0 = action_rep.get_action_mask(board_start, 0);
-    auto action_mask_start_1 = action_rep.get_action_mask(board_start, 1);
+    auto action_mask_start_0 = action_rep.get_action_mask_(board_start, 0);
+    auto action_mask_start_1 = action_rep.get_action_mask_(board_start, 1);
 
     EXPECT_EQ(action_mask_start_0, expect_action_mask_0_start);
     EXPECT_EQ(action_mask_start_1, expect_action_mask_1_start);
@@ -67,18 +67,18 @@ TEST_F(RepresenterStrategoTest, RepresenterStrategoTest_action_mask_Test) {
     std::vector<unsigned int> expect_action_mask_1_mid(64, 0);
 
     fill_mask(
-            logic_type::get_legal_moves(*state_mid.get_board(), 0),
+            logic_type::get_legal_moves_(*state_mid.get_board(), 0),
             action_rep,
             state_mid,
             expect_action_mask_0_mid);
     fill_mask(
-            logic_type::get_legal_moves(*state_mid.get_board(), 1),
+            logic_type::get_legal_moves_(*state_mid.get_board(), 1),
             action_rep,
             state_mid,
             expect_action_mask_1_mid);
 
-    auto action_mask_mid_0 = action_rep.get_action_mask(*state_mid.get_board(), 0);
-    auto action_mask_mid_1 = action_rep.get_action_mask(*state_mid.get_board(), 1);
+    auto action_mask_mid_0 = action_rep.get_action_mask_(*state_mid.get_board(), 0);
+    auto action_mask_mid_1 = action_rep.get_action_mask_(*state_mid.get_board(), 1);
 
     EXPECT_EQ(action_mask_mid_0, expect_action_mask_0_mid);
     EXPECT_EQ(action_mask_mid_1, expect_action_mask_1_mid);
