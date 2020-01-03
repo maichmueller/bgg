@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <unordered_map>
+#include <unordered_set>
 
 #include "azpp/board/Board.h"
 #include "azpp/board/Piece.h"
@@ -25,7 +25,7 @@ public:
 protected:
     board_type m_board;
 
-    using dead_pieces_type = std::array<std::vector<kin_type>, 2>;
+    using dead_pieces_type = std::array<std::unordered_set<kin_type>, 2>;
     dead_pieces_type m_dead_pieces;
 
     int m_terminal;

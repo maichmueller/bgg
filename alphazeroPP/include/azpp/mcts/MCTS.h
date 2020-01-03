@@ -13,21 +13,62 @@
 
 class MCTS {
 
+    // Container for visit count, terminal value, policy vector, valid actions per state s
+    struct StateInfo {
+        size_t count = 0;
+        int terminal_value;
+        std::vector<double> policy;
+        std::vector<unsigned int> validity_mask;
+
+        StateInfo(
+                size_t count,
+                int terminal_value,
+                const std::vector<double> &policy,
+                const std::vector<unsigned int> &validity_mask)
+                : count(count),
+                  terminal_value(terminal_value),
+                  policy(policy),
+                  validity_mask(validity_mask) {}
+
+        bool operator==(const StateInfo &other) {
+            return
+                    count == other.count &&
+                    terminal_value == other.terminal_value &&
+                    policy == other.policy &&
+                    validity_mask == other.validity_mask;
+        }
+
+        void operator+=(size_t c) { count += c; }
+    };
+
+    // Container for Q-values and visit count per state s and action a
+    struct StateActionInfo {
+        size_t count = 0;
+        double qvalue;
+
+        StateActionInfo(
+                size_t count,
+                double qvalue)
+                : count(count),
+                  qvalue(qvalue) {}
+
+        bool operator==(const StateActionInfo &other) {
+            return count == other.count && qvalue == other.qvalue;
+        }
+
+        void operator+=(size_t c) { count += c; }
+    };
+
     std::shared_ptr<NetworkWrapper> m_nnet_sptr;
     double m_cpuct;
     int m_num_mcts_sims;
 
-    static double m_EPS;
+    size_t search_depth = 0;
+    constexpr static const double m_EPS = 1e-10;
 
-    // maps for Q-values and visit count (N) per state s and action a
-    std::unordered_map<std::tuple<std::string, int>, double> m_Qsa;
-    std::unordered_map<std::tuple<std::string, int>, int> m_Nsa;
+    std::unordered_map<std::string, StateInfo> m_NTPVs;
+    std::unordered_map<std::tuple<std::string, int>, StateActionInfo> m_NQsa;
 
-    // maps for visit counts (N), initial policy (P), terminality (E), valid actions (V) per state s
-    std::unordered_map<std::string, int> m_Ns;
-    std::unordered_map<std::string, std::vector<float>> m_Ps;
-    std::unordered_map<std::string, int> m_Es;
-    std::unordered_map<std::string, std::vector<unsigned int>> m_Vs;
 
     static std::vector<double> _sample_dirichlet(size_t size);
 
@@ -43,13 +84,13 @@ class MCTS {
     );
 
     template<typename StateType, typename ActionRepresenterType>
-    std::tuple<std::vector<float>, std::vector<unsigned int>, double> _evaluate_new_state(
+    std::tuple<std::vector<double>, std::vector<unsigned int>, double> _evaluate_new_state(
             StateType &state,
             int player,
             RepresenterBase<
                     StateType,
                     ActionRepresenterType
-            > & action_repper
+            > &action_repper
     );
 
 
@@ -79,6 +120,10 @@ std::vector<double> MCTS::get_action_probabilities(
         double expl_rate) {
 
     for (int i = 0; i < m_num_mcts_sims; ++i) {
+        LOGD2("MCTS sim", std::to_string(i));
+        LOGD2("NTPVs size", std::to_string(m_NTPVs.size()));
+        LOGD2("NQsa size", std::to_string(m_NQsa.size()));
+        search_depth = -1;
         _search(state, player, action_repper, /*root=*/true);
     }
 
@@ -90,13 +135,14 @@ std::vector<double> MCTS::get_action_probabilities(
     double highest_count = 0;
     int best_act = 0;
     for (size_t a = 0; a < counts.size(); ++a) {
-        auto count_entry = m_Nsa.find(std::make_tuple(state_rep, a));
-        if (count_entry == m_Nsa.end()) {
+
+        if (auto count_entry = m_NQsa.find(std::make_tuple(state_rep, a));
+                count_entry == m_NQsa.end()) {
             // not found
             counts[a] = 0;
         } else {
             // found
-            int const &count = count_entry->second;
+            size_t count = count_entry->second.count;
             counts[a] = count;
             sum_counts += count;
             if (count > highest_count) {
@@ -128,7 +174,7 @@ std::vector<double> MCTS::get_action_probabilities(
 }
 
 template<typename StateType, typename ActionRepresenterType>
-std::tuple<std::vector<float>, std::vector<unsigned int>, double> MCTS::_evaluate_new_state(
+std::tuple<std::vector<double>, std::vector<unsigned int>, double> MCTS::_evaluate_new_state(
         StateType &state,
         int player,
         RepresenterBase<
@@ -137,13 +183,10 @@ std::tuple<std::vector<float>, std::vector<unsigned int>, double> MCTS::_evaluat
         > &action_repper) {
 
     auto board = state.get_board();
-    // convert State to torch::tensor representation
+    // convert State to torch tensor representation
     const torch::Tensor state_tensor = action_repper.state_representation(state, player);
 
     auto[Ps, v] = m_nnet_sptr->predict(state_tensor);
-
-    // DEBUG
-    // std::cout << torch::exp(Ps) << "\n";
 
     Ps = Ps.view(-1); // flatten the tensor as the first dim is the batch size dim
 
@@ -151,7 +194,7 @@ std::tuple<std::vector<float>, std::vector<unsigned int>, double> MCTS::_evaluat
     const auto action_mask = action_repper.get_action_mask(*board, player);
 
     torch::TensorAccessor Ps_acc = Ps.template accessor<float, 1>();
-    std::vector<float> Ps_filtered(action_mask.size());
+    std::vector<double> Ps_filtered(action_mask.size());
     float Ps_sum = 0;
 
     // mask invalid actions
@@ -175,6 +218,9 @@ double MCTS::_search(
                 ActionRepresenterType
         > &action_repper,
         bool root) {
+    search_depth += 1;
+    LOGD2("Search depth", search_depth);
+    LOGD(state.get_board()->print_board(false, false));
     // for the state rep we flip the board if player == 1 and we dont if player == 0!
     // all the enemy hidden pieces wont be printed out -> unknown pieces are also hidden
     // for the neural net
@@ -182,52 +228,26 @@ double MCTS::_search(
             static_cast<bool>(player),
             true
     );
-
-    if (auto state_end_found = m_Es.find(s); state_end_found == m_Es.end())
-        m_Es[s] = state.is_terminal();
-    else if (state_end_found->second != 404)
-        return -1 * state_end_found->second;
-
-    if (auto state_pi_exists = m_Ps.find(s); state_pi_exists == m_Ps.end()) {
-        // if the state wasn't found (== end)
-
+    auto state_data_iter = m_NTPVs.find(s);
+    if (state_data_iter == m_NTPVs.end()) {
         auto[Ps_filtered, action_mask, v] = std::move(_evaluate_new_state(state, player, action_repper));
-
-        // storing these found values for this state for later lookup
-        m_Ps[s] = Ps_filtered;
-        m_Vs[s] = action_mask;
-        m_Ns[s] = 0;
-
+        m_NTPVs.emplace(s, StateInfo{1, state.is_terminal(), Ps_filtered, action_mask});
         return -v;
+    } else if (int terminal_value = state_data_iter->second.terminal_value; terminal_value != 404) {
+        return -terminal_value;
     }
-
-    std::vector<unsigned int> valids = m_Vs[s];
-    // DEBUG
-//    std::vector<strat_move_t > all_moves(valids.size());
-//    std::cout  << utils::board_str_rep<Board, Piece>(*state.get_board(), static_cast<bool>(player), false) << "\n";
-//    for(int i = 0; i < valids.size(); ++i) {
-//        strat_move_t move = state.action_to_move(i, player);
-//        std::cout << "Action: " << std::to_string(i) << "\t" << "(" << move[0][0] << ", " << move[0][1] << ") -> (" << move[1][0] << ", " << move[1][1] << ") \t valid: " << valids[i] << "\n";
-//    }
-//    const Board * board = state.get_board();
-//    int m_shape = board->get_shape();
-//    auto action_mask = LogicStratego::get_action_mask(
-//            *board,
-//            ActionRep::get_act_rep(m_shape),
-//            ActionRep::get_act_map(m_shape),
-//            player);
-
-    double curr_best = -std::numeric_limits<double>::infinity();
-    int best_action = -1;
-
-    std::vector<float> Ps = this->m_Ps[s];
+    StateInfo &ntpv = state_data_iter->second;
+    // the mask never changes -> const ref
+    const std::vector<unsigned int> &validity_mask = ntpv.validity_mask;
+    // the policy may be adapted though -> copy
+    std::vector<double> Ps = ntpv.policy;
 
     if (root) {
         std::vector<double> dirichlet = _sample_dirichlet(Ps.size());
         double new_sum_val = 0;
         for (size_t i = 0; i < Ps.size(); ++i) {
             // Check the alphazero paper for adding dirichlet noise to the priors.
-            double pi = (0.75 * Ps[i] + 0.25 * dirichlet[i]) * valids[i];
+            double pi = (0.75 * Ps[i] + 0.25 * dirichlet[i]) * validity_mask[i];
             Ps[i] = pi;
             new_sum_val += pi;
         }
@@ -235,14 +255,26 @@ double MCTS::_search(
         for (auto &p : Ps) { p /= new_sum_val; }
     }
 
-    for (size_t a = 0; a < Ps.size(); ++a) {
-        if (valids[a]) {
+    // setting up the initial values for action selection
+    double curr_best = -std::numeric_limits<double>::infinity();
+    int best_action = -1;
+
+    std::vector<decltype(m_NQsa)::iterator> sa_iterators;
+    size_t nr_actions = Ps.size();
+    sa_iterators.reserve(nr_actions);
+    const auto sa_end_iter = m_NQsa.end();
+    for (size_t a = 0; a < nr_actions; ++a) {
+        if (validity_mask[a]) {
             double u;
-            auto s_a = std::make_tuple(s, a);
-            if (auto Qs = m_Qsa.find(s_a); Qs != m_Qsa.end()) {
-                u = Qs->second + m_cpuct * Ps[a] * sqrt(m_Ns[s]) / (1 + m_Nsa.find(s_a)->second);
+            const auto sa = std::make_tuple(s, a);
+            const auto sa_iter = m_NQsa.find(sa);
+            sa_iterators[a] = sa_iter;
+            if (sa_iter != sa_end_iter) {
+                auto &qn = sa_iter->second;
+                u = qn.qvalue + m_cpuct * Ps[a] * sqrt(
+                        ntpv.count) / static_cast<double>((1 + qn.count));
             } else {
-                u = m_cpuct * Ps[a] * sqrt(m_Ns[s] + m_EPS);
+                u = m_cpuct * Ps[a] * sqrt(ntpv.count + m_EPS);
             }
             if (u > curr_best) {
                 curr_best = u;
@@ -252,38 +284,23 @@ double MCTS::_search(
     }
 
     int a = best_action;
-    // DEBUG
-//    std::cout << "Player: "<< player << "\t"<< "Best action: " << a << "\t";
 
-    typename StateType::move_type move = action_repper.action_to_move(state, a, player);
-
-    // flip the move for player 1
-//    if (player) {
-//        move = flip_move(move, state.get_board()->get_shape());
-//
-//    }
-    // DEBUG
-//    std::cout << "Move: (" << move[0][0] << ", " << move[0][1] << ") -> ("
-//              << move[1][0] << ", " << move[1][1] << ")" << "\n";
+    auto move = action_repper.action_to_move(state, a, player);
     state.do_move(move);
-    // DEBUG
-//    std::cout  << "Board after move done: \n" << utils::board_str_rep<Board, Piece>(*state.get_board(), static_cast<bool>(0), false) << "\n";
-//
+
     double v = _search(state, (player + 1) % 2, action_repper, /*root=*/false);
     state.undo_last_rounds();
-    // DEBUG
-//    std::cout  << "Board after move undone: \n" << utils::board_str_rep<Board, Piece>(*state.get_board(), static_cast<bool>(player), false) << "\n";
 
-    auto s_a = std::make_tuple(s, a);
-    if (auto qs_found = m_Qsa.find(s_a); qs_found != m_Qsa.end()) {
-        int n_sa = m_Nsa.at(s_a);
-        m_Qsa[s_a] = (n_sa * m_Qsa[s_a] + v) / (n_sa + 1);
-        m_Nsa[s_a] += 1;
+    if (auto &container = sa_iterators[a]->second; sa_iterators[a] != sa_end_iter) {
+        size_t &n_sa = container.count;
+        double &q_sa = container.qvalue;
+
+        q_sa = (n_sa * q_sa + v) / static_cast<double>(n_sa + 1);
+        n_sa += 1;
     } else {
-        m_Qsa[s_a] = v;
-        m_Nsa[s_a] += 1;
+        m_NQsa.emplace(std::make_tuple(s, a), StateActionInfo{1, v});
     }
 
-    m_Ns[s] += 1;
+    ntpv += 1;
     return -v;
 }

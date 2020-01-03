@@ -49,7 +49,7 @@ std::string BoardStratego::print_board(bool flip_board, bool hide_unknowns) cons
             return std::string(static_cast<unsigned long> (H_SIZE_PER_PIECE), ' ');
         std::string reset = "\x1B[0m";
         std::string color = "\x1B[44m"; // blue by default (for player 1)
-        if (piece.get_team() == 99)
+        if (piece.get_team() == -1 && !piece.is_null())
             return "\x1B[30;47m" + utils::center("", H_SIZE_PER_PIECE, " ") + "\x1B[0m";
         else if (piece.get_team(flip_board) == 0) {
             color = "\x1B[41m"; // background red, text "white"
@@ -63,9 +63,9 @@ std::string BoardStratego::print_board(bool flip_board, bool hide_unknowns) cons
             if (hide_unknowns && piece.get_flag_hidden() && piece.get_team(flip_board)) {
                 return color + std::string(static_cast<unsigned long> (H_SIZE_PER_PIECE), ' ') + reset;
             }
-            const auto & kin = piece.get_kin();
+            const auto &kin = piece.get_kin();
             return color + utils::center(std::to_string(kin[0]) + '.' + std::to_string(kin[1]),
-                                  H_SIZE_PER_PIECE, " ") + reset;
+                                         H_SIZE_PER_PIECE, " ") + reset;
         } else if (line == mid + 1)
             // team info line
             // return color + center(std::to_string(piece.get_team(flip_board)), H_SIZE_PER_PIECE, " ") + reset;
@@ -91,7 +91,7 @@ std::string BoardStratego::print_board(bool flip_board, bool hide_unknowns) cons
 
     board_print << init_space << h_border << "\n";
     std::string init = board_print.str();
-    std::shared_ptr<piece_type > curr_piece;
+    std::shared_ptr<piece_type> curr_piece;
 
     // row means row of the board. not actual rows of console output.
     for (int row = m_starts[1]; row < dim_y; ++row) {
@@ -143,7 +143,7 @@ std::string BoardStratego::print_board(bool flip_board, bool hide_unknowns) cons
 
 void BoardStratego::_add_obstacles() {
     auto obstacle_positions = LogicStratego<BoardStratego>::get_obstacle_positions(m_shape[0]);
-    for(const auto & obstacle_pos : obstacle_positions) {
+    for (const auto &obstacle_pos : obstacle_positions) {
         m_map[obstacle_pos] = std::make_shared<piece_type>(obstacle_pos, kin_type{99, 99}, -1);
     }
 }

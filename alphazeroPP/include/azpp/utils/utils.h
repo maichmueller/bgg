@@ -316,9 +316,8 @@ namespace std {
 
     template <>
     struct hash<tuple<string, int>> {
-        std::hash<std::string> hasher;
         size_t operator()(const std::tuple<std::string, int>& s) const {
-            return hasher(std::get<0>(s) + std::to_string(std::get<1>(s)));
+            return std::hash<std::string>()(std::get<0>(s) + "!@#$%^&*()_" + std::to_string(std::get<1>(s)));
         }
     };
 }

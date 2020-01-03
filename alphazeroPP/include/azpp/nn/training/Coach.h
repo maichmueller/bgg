@@ -214,6 +214,7 @@ Coach<GameType, NetworkType>::execute_episode(
                 // in each turn to reflect the changing player.
                 train_turn.m_v = player != train_turn.m_player ? r : -r;
             }
+//            delete mcts;
             return ep_examples;
         }
     }

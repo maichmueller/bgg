@@ -4,19 +4,13 @@
 #include "azpp/agent/AgentReinforce.h"
 #include "azpp/nn/model/representation/Representer.h"
 
-double MCTS::m_EPS = 10e-8;
-
 
 MCTS::MCTS(std::shared_ptr<NetworkWrapper> nnet_sptr, int num_mcts_sims, double cpuct)
         : m_nnet_sptr(std::move(nnet_sptr)),
           m_cpuct(cpuct),
           m_num_mcts_sims(num_mcts_sims),
-          m_Qsa(),
-          m_Nsa(),
-          m_Ns(),
-          m_Ps(),
-          m_Es(),
-          m_Vs()
+          m_NTPVs(),
+          m_NQsa()
 {}
 
 

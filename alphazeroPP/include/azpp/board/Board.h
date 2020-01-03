@@ -160,14 +160,16 @@ void Board<PieceType>::update_board(const position_type &pos, const std::shared_
     if (!pc_before->is_null()) {
         if (int team = pc_before->get_team();
                 team != -1) {
-            LOGD2("Count of team " + std::to_string(team) + " kins at removal time",
-                  std::to_string(m_map_inverse[team].size()));
-            LOGD2("Count of team " + std::to_string(team) + " pieces at removal time",
-                  std::to_string(get_pieces(team).size()));
-            LOGD2("Count of team " + std::to_string((team + 1) % 2 ) + " kins at removal time",
-                  std::to_string(m_map_inverse[(team + 1) % 2  ].size()));
-            LOGD2("Count of team " + std::to_string((team + 1) % 2  ) + " pieces at removal time",
-                  std::to_string(get_pieces((team + 1) % 2 ).size()));
+//            LOGD2("Count of team " + std::to_string(team) + " kins at removal time",
+//                  std::to_string(m_map_inverse[team].size()));
+//            unsigned int size_team = get_pieces(team).size();
+//            LOGD2("Count of team " + std::to_string(team) + " pieces at removal time",
+//                  std::to_string(size_team));
+//            LOGD2("Count of team " + std::to_string((team + 1) % 2 ) + " kins at removal time",
+//                  std::to_string(m_map_inverse[(team + 1) % 2  ].size()));
+//            unsigned int size_team_other = get_pieces((team+1)%2).size();
+//            LOGD2("Count of team " + std::to_string((team + 1) % 2  ) + " pieces at removal time",
+//                  std::to_string(size_team_other));
             m_map_inverse[team].erase(pc_before->get_kin());
 
         }
@@ -179,20 +181,20 @@ void Board<PieceType>::update_board(const position_type &pos, const std::shared_
 
     if (int team = pc_ptr->get_team();
             !pc_ptr->is_null() && team != -1) {
-        LOGD2("Count of team " + std::to_string(team) + " kins at addition time",
-              std::to_string(m_map_inverse[team].size()));
-        LOGD2("Count of team " + std::to_string(team) + " pieces at addition time",
-              std::to_string(get_pieces(team).size()));
-        LOGD2("Count of team " + std::to_string((team+1) % 2) + " kins at addition time",
-              std::to_string(m_map_inverse[(team+1) % 2].size()));
-        LOGD2("Count of team " + std::to_string((team+1) % 2) + " pieces at addition time",
-              std::to_string(get_pieces((team+1) % 2).size()));
+//        LOGD2("Count of team " + std::to_string(team) + " kins at addition time",
+//              std::to_string(m_map_inverse[team].size()));
+//        LOGD2("Count of team " + std::to_string(team) + " pieces at addition time",
+//              std::to_string(get_pieces(team).size()));
+//        LOGD2("Count of team " + std::to_string((team+1) % 2) + " kins at addition time",
+//              std::to_string(m_map_inverse[(team+1) % 2].size()));
+//        LOGD2("Count of team " + std::to_string((team+1) % 2) + " pieces at addition time",
+//              std::to_string(get_pieces((team+1) % 2).size()));
         m_map_inverse[team][pc_ptr->get_kin()] = pos;
 
-        LOGD2("Count of team " + std::to_string(team) + " kins after addition",
-              std::to_string(m_map_inverse[team].size()));
-        LOGD2("Count of team " + std::to_string((team+1)%2) + " kins after addition",
-              std::to_string(m_map_inverse[(team+1)%2].size()) + "\n");
+//        LOGD2("Count of team " + std::to_string(team) + " kins after addition",
+//              std::to_string(m_map_inverse[team].size()));
+//        LOGD2("Count of team " + std::to_string((team+1)%2) + " kins after addition",
+//              std::to_string(m_map_inverse[(team+1)%2].size()) + "\n");
     }
 }
 
@@ -314,10 +316,10 @@ template<typename PieceType>
 std::vector<std::shared_ptr<typename Board<PieceType>::piece_type> >
 Board<PieceType>::get_pieces(int player) const {
     std::vector<std::shared_ptr<piece_type> > pieces;
-    for (auto &pos_piece : m_map) {
-        std::shared_ptr<piece_type> piece = pos_piece.second;
-        if (!piece->is_null() && piece->get_team() == player) {
-            pieces.emplace_back(piece);
+    for (const auto &pos_piece : m_map) {
+        std::shared_ptr<piece_type> piece_ptr = pos_piece.second;
+        if (!piece_ptr->is_null() && piece_ptr->get_team() == player) {
+            pieces.emplace_back(piece_ptr);
         }
     }
     return pieces;
