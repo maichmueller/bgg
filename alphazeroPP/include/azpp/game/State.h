@@ -135,6 +135,9 @@ void State<BoardType>::undo_last_rounds(int n) {
         m_piece_history.pop_back();
         m_move_equals_prev_move.pop_back();
 
+        for(const auto & piece : move_pieces) {
+            m_dead_pieces[piece->get_team()].erase(piece->get_kin());
+        }
         m_board.update_board(move[1], move_pieces[1]);
         m_board.update_board(move[0], move_pieces[0]);
     }
@@ -171,7 +174,7 @@ int State<BoardType>::do_move(const State::move_type &move) {
 template<class BoardType>
 void State<BoardType>::_update_dead_pieces(const std::shared_ptr<piece_type> &piece) {
     if(!piece->is_null())
-        m_dead_pieces[piece->get_team()].push_back(piece->get_kin());
+        m_dead_pieces[piece->get_team()].emplace(piece->get_kin());
 }
 
 

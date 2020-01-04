@@ -231,7 +231,7 @@ double MCTS::_search(
     auto state_data_iter = m_NTPVs.find(s);
     if (state_data_iter == m_NTPVs.end()) {
         auto[Ps_filtered, action_mask, v] = std::move(_evaluate_new_state(state, player, action_repper));
-        m_NTPVs.emplace(s, StateInfo{1, state.is_terminal(), Ps_filtered, action_mask});
+        m_NTPVs.emplace(s, StateInfo{0, state.is_terminal(), Ps_filtered, action_mask});
         return -v;
     } else if (int terminal_value = state_data_iter->second.terminal_value; terminal_value != 404) {
         return -terminal_value;
@@ -271,8 +271,8 @@ double MCTS::_search(
             sa_iterators[a] = sa_iter;
             if (sa_iter != sa_end_iter) {
                 auto &qn = sa_iter->second;
-                u = qn.qvalue + m_cpuct * Ps[a] * sqrt(
-                        ntpv.count) / static_cast<double>((1 + qn.count));
+                u = qn.qvalue + m_cpuct * Ps[a] *
+                        sqrt(ntpv.count) / static_cast<double>((1 + qn.count));
             } else {
                 u = m_cpuct * Ps[a] * sqrt(ntpv.count + m_EPS);
             }

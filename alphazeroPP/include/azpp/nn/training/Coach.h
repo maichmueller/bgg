@@ -83,9 +83,9 @@ private:
     std::deque<evaluated_turn_type> m_turns_queue;
 
     float m_win_frac = 0.55;
-    unsigned int m_num_iters = 100;
-    unsigned int m_num_episodes = 100;
-    unsigned int m_num_mcts_simulations = 100;
+    unsigned int m_num_iters = 1000;
+    unsigned int m_num_episodes = 1000;
+    unsigned int m_num_mcts_simulations = 1000;
     unsigned int m_num_evaluated_turns_hist = 10e5;
     std::string m_model_folder = "checkpoints";
     unsigned int m_exploration_rate = 100;

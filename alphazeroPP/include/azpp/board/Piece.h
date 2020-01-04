@@ -72,14 +72,15 @@ public:
 namespace std {
     template<size_t NrIds>
     struct hash<Kin<NrIds>> {
-
+        constexpr static const auto last_prime_iter = primes::primes_list.end() - 1;
         constexpr size_t operator()(const Kin<NrIds> &kin) const {
             // ( x*p1 xor y*p2 xor z*p3) mod n is supposedly a better spatial hash function
-            long int curr = kin[0] * primes::primes_list[0];
+            // https://matthias-research.github.io/pages/publications/tetraederCollision.pdf
+            long int hash_value = kin[0] * (*last_prime_iter);
             for (size_t i = 1; i < NrIds; ++i) {
-                curr ^= kin[i] * primes::primes_list[i];
+                hash_value ^= kin[i] * (*(last_prime_iter - i));
             }
-            return curr % primes::primes_list.back();
+            return hash_value % primes::primes_list[0];
         }
     };
 }

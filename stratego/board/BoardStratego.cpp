@@ -48,10 +48,10 @@ std::string BoardStratego::print_board(bool flip_board, bool hide_unknowns) cons
         if (piece.is_null())
             return std::string(static_cast<unsigned long> (H_SIZE_PER_PIECE), ' ');
         std::string reset = "\x1B[0m";
-        std::string color = "\x1B[44m"; // blue by default (for player 1)
+        std::string color = "\x1B[44m"; // blue by default (for player 0)
         if (piece.get_team() == -1 && !piece.is_null())
             return "\x1B[30;47m" + utils::center("", H_SIZE_PER_PIECE, " ") + "\x1B[0m";
-        else if (piece.get_team(flip_board) == 0) {
+        else if (piece.get_team(flip_board) == 1) {
             color = "\x1B[41m"; // background red, text "white"
         }
         if (line == mid - 1) {
@@ -133,7 +133,7 @@ std::string BoardStratego::print_board(bool flip_board, bool hide_unknowns) cons
                 line_streams[i] << curr_stream.str();
             }
         }
-        for (auto &stream : line_streams) {
+        for (auto & stream : line_streams) {
             board_print << stream.str() << "|\n";
         }
         board_print << init_space << h_border << "\n";
