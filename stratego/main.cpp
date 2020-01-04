@@ -14,7 +14,16 @@
 #include <azpp/nn/training/Coach.h>
 
 
-int main(int argc, char const *argv[]) {
+
+#include <stdio.h>
+#include <wchar.h>
+#include <locale.h>
+
+int main( void ) {
+
+
+    wprintf(L"█");
+//    return 0;
     size_t board_size = 5;
     auto action_rep_sptr = std::make_shared<RepresenterStratego>(5);
     std::vector<int> filters{128, 128, 128, 128};

@@ -78,13 +78,6 @@ std::string BoardStratego::print_board(bool flip_board, bool hide_unknowns) cons
 
     std::stringstream board_print;
     board_print << "\n";
-    // column width for the row index plus vertical dash
-    board_print << std::string(static_cast<unsigned long> (row_ind_space), ' ');
-    // print the column index rows
-    for (int i = m_starts[0]; i < dim_x; ++i) {
-        board_print << utils::center(std::to_string(i), H_SIZE_PER_PIECE + 1, " ");
-    }
-    board_print << "\n";
 
     std::string init_space = std::string(static_cast<unsigned long> (row_ind_space), ' ');
     std::string h_border = std::string(static_cast<unsigned long> (dim_x * (H_SIZE_PER_PIECE + 1)), '-');
@@ -94,7 +87,7 @@ std::string BoardStratego::print_board(bool flip_board, bool hide_unknowns) cons
     std::shared_ptr<piece_type> curr_piece;
 
     // row means row of the board. not actual rows of console output.
-    for (int row = m_starts[1]; row < dim_y; ++row) {
+    for (int row = dim_y -1; row > m_starts[1] - 1; --row) {  // iterate backwards through the rows for correct display
         // per piece we have V_SIZE_PER_PIECE many lines to fill consecutively.
         // Iterate over every column and append the new segment to the right line.
         std::vector<std::stringstream> line_streams(static_cast<unsigned int> (V_SIZE_PER_PIECE));
@@ -138,6 +131,13 @@ std::string BoardStratego::print_board(bool flip_board, bool hide_unknowns) cons
         }
         board_print << init_space << h_border << "\n";
     }
+    // column width for the row index plus vertical dash
+    board_print << std::string(static_cast<unsigned long> (row_ind_space), ' ');
+    // print the column index rows
+    for (int i = m_starts[0]; i < dim_x; ++i) {
+        board_print << utils::center(std::to_string(i), H_SIZE_PER_PIECE + 1, " ");
+    }
+    board_print << "\n";
     return board_print.str();
 }
 
