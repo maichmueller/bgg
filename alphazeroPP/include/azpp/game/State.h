@@ -4,8 +4,6 @@
 
 #pragma once
 
-#include <unordered_set>
-
 #include "azpp/board/Board.h"
 #include "azpp/board/Piece.h"
 #include "azpp/board/Move.h"
@@ -25,13 +23,10 @@ public:
 protected:
     board_type m_board;
 
-    using dead_pieces_type = std::array<std::unordered_set<kin_type>, 2>;
-    dead_pieces_type m_dead_pieces;
-
     int m_terminal;
     bool m_terminal_checked;
 
-    int m_move_count;
+    int m_turn_count;
 
     std::vector<move_type> m_move_history;
     std::vector<std::array<std::shared_ptr<piece_type>, 2>> m_piece_history;
@@ -39,7 +34,6 @@ protected:
     unsigned int m_rounds_without_fight;
 
     virtual int _do_move(const move_type &move);
-    void _update_dead_pieces(const std::shared_ptr<piece_type> & piece);
     virtual ~State() = default;
 
 public:
@@ -73,11 +67,13 @@ public:
 
     void undo_last_rounds(int n = 1);
 
-    int get_move_count() const { return m_move_count; }
+    int get_turn_count() const { return m_turn_count; }
 
     void set_board(board_type brd) { this->m_board = std::move(brd); }
 
     const board_type *get_board() const { return &m_board; }
+
+    virtual std::string string_representation(int player, bool hide_unknowns);
 };
 
 template<class BoardType>
@@ -91,10 +87,9 @@ template<class BoardType>
 State<BoardType>::State(board_type &&board,
                         int move_count)
         : m_board(std::move(board)),
-          m_dead_pieces(),
           m_terminal(404),
           m_terminal_checked(false),
-          m_move_count(move_count),
+          m_turn_count(move_count),
           m_move_history(),
           m_move_equals_prev_move(0),
           m_rounds_without_fight(0) {}
@@ -135,18 +130,15 @@ void State<BoardType>::undo_last_rounds(int n) {
         m_piece_history.pop_back();
         m_move_equals_prev_move.pop_back();
 
-        for(const auto & piece : move_pieces) {
-            m_dead_pieces[piece->get_team()].erase(piece->get_kin());
-        }
         m_board.update_board(move[1], move_pieces[1]);
         m_board.update_board(move[0], move_pieces[0]);
     }
-    m_move_count -= n;
+    m_turn_count -= n;
 }
 
 template<class BoardType>
 void State<BoardType>::restore_to_round(int round) {
-    undo_last_rounds(m_move_count - round);
+    undo_last_rounds(m_turn_count - round);
 }
 
 template<class BoardType>
@@ -166,15 +158,19 @@ int State<BoardType>::do_move(const State::move_type &move) {
     m_piece_history.push_back({std::make_shared<piece_type>(*piece_from), std::make_shared<piece_type>(*piece_to)});
 
     m_terminal_checked = false;
-    m_move_count += 1;
+    m_turn_count += 1;
 
     return _do_move(move);
 }
 
+
 template<class BoardType>
-void State<BoardType>::_update_dead_pieces(const std::shared_ptr<piece_type> &piece) {
-    if(!piece->is_null())
-        m_dead_pieces[piece->get_team()].emplace(piece->get_kin());
+std::string State<BoardType>::string_representation(int player, bool hide_unknowns) {
+    std::stringstream sstream;
+    sstream << get_board()->print_board(player, hide_unknowns) << "\n";
+    sstream << "turn count" << m_turn_count << "\n";
+//    sstream << "rounds without fight" << m_rounds_without_fight << "\n";
+    return sstream.str();
 }
 
 

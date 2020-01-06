@@ -1,8 +1,8 @@
-//
-// Created by Michael on 21/02/2019.
-//
 
 #pragma once
+
+
+#include <unordered_set>
 
 #include "azpp/game.h"
 #include "board/BoardStratego.h"
@@ -12,12 +12,29 @@
 class StateStratego : public State<BoardStratego> {
 public:
     using base_type = State<BoardStratego>;
-    using base_type::base_type;
+
+private:
+
+    using dead_pieces_type = std::array<std::unordered_set<kin_type>, 2>;
+    dead_pieces_type m_dead_pieces;
+
+    void _update_dead_pieces(const std::shared_ptr<piece_type> &piece) {
+        if(!piece->is_null())
+            m_dead_pieces[piece->get_team()].emplace(piece->get_kin());
+    }
 
 protected:
     static int fight(piece_type &attacker, piece_type &defender);
 
 public:
+
+    // just decorate all base constructors with initializing also the dead pieces variable.
+    template <typename ... Params>
+    StateStratego(Params ...params)
+            : base_type (params...),
+              m_dead_pieces() {}
+
+    // also declare some explicit constructors
     explicit StateStratego(size_t shape_x, size_t shape_y);
 
     explicit StateStratego(size_t shape=5);

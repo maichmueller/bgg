@@ -3,7 +3,8 @@
 
 StateStratego::StateStratego(size_t shape_x, size_t shape_y)
         :
-        base_type(std::array<size_t, 2>{shape_x, shape_y}, {0, 0}) {}
+        base_type(std::array<size_t, 2>{shape_x, shape_y}, {0, 0}),
+        m_dead_pieces() {}
 
 StateStratego::StateStratego(size_t shape)
         :
@@ -19,7 +20,8 @@ StateStratego::StateStratego(
                 shape,
                 {0, 0},
                 setup_0,
-                setup_1) {}
+                setup_1),
+        m_dead_pieces() {}
 
 StateStratego::StateStratego(
         size_t shape,
@@ -41,7 +43,8 @@ StateStratego::StateStratego(
                         shape,
                         setup_0,
                         setup_1)
-        ) {}
+        ),
+        m_dead_pieces() {}
 
 StateStratego::StateStratego(
         size_t shape,
@@ -125,9 +128,9 @@ int StateStratego::_do_move(const move_type &move) {
         fight_outcome = fight(*piece_from, *piece_to);
         if (fight_outcome == 1) {
             // 1 means attacker won, defender died
-            m_board.update_board(to, piece_from);
             auto null_piece = std::make_shared<piece_type>(from);
             m_board.update_board(from, null_piece);
+            m_board.update_board(to, piece_from);
 
             _update_dead_pieces(piece_to);
         } else if (fight_outcome == 0) {

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "azpp/agent/AgentReinforce.h"
-#include "azpp/nn/model/representation/Representer.h"
+#include "azpp/nn/representation/Representer.h"
 #include "azpp/utils.h"
 #include "torch/torch.h"
 

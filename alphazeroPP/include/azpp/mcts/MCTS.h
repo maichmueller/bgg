@@ -8,7 +8,7 @@
 #include "azpp/game/State.h"
 #include "azpp/nn/model/NeuralNet.h"
 #include "azpp/utils/utils.h"
-#include "azpp/nn/model/representation/Representer.h"
+#include "azpp/nn/representation/Representer.h"
 
 
 class MCTS {
@@ -120,9 +120,6 @@ std::vector<double> MCTS::get_action_probabilities(
         double expl_rate) {
 
     for (int i = 0; i < m_num_mcts_sims; ++i) {
-        LOGD2("MCTS sim", std::to_string(i));
-        LOGD2("NTPVs size", std::to_string(m_NTPVs.size()));
-        LOGD2("NQsa size", std::to_string(m_NQsa.size()));
         search_depth = -1;
         _search(state, player, action_repper, /*root=*/true);
     }
@@ -219,13 +216,13 @@ double MCTS::_search(
         > &action_repper,
         bool root) {
     search_depth += 1;
-    LOGD2("Search depth", search_depth);
-    LOGD(state.get_board()->print_board(false, false));
+//    LOGD2("Search depth", search_depth);
+//    LOGD(state.get_board()->print_board(false, false));
     // for the state rep we flip the board if player == 1 and we dont if player == 0!
     // all the enemy hidden pieces wont be printed out -> unknown pieces are also hidden
     // for the neural net
-    std::string s = state.get_board()->print_board(
-            static_cast<bool>(player),
+    std::string s = state.string_representation(
+            player,
             true
     );
     auto state_data_iter = m_NTPVs.find(s);
@@ -233,9 +230,13 @@ double MCTS::_search(
         auto[Ps_filtered, action_mask, v] = std::move(_evaluate_new_state(state, player, action_repper));
         m_NTPVs.emplace(s, StateInfo{0, state.is_terminal(), Ps_filtered, action_mask});
         return -v;
-    } else if (int terminal_value = state_data_iter->second.terminal_value; terminal_value != 404) {
+    } else if(int terminal_value = state_data_iter->second.terminal_value; terminal_value != 404){
+        // note that we cant reuse the originally computed terminality value for this state as the game may have
+        // reached this position again by repeating the same steps over and over again, which should culminate in
+        // a draw.
         return -terminal_value;
     }
+
     StateInfo &ntpv = state_data_iter->second;
     // the mask never changes -> const ref
     const std::vector<unsigned int> &validity_mask = ntpv.validity_mask;

@@ -16,7 +16,7 @@
 #include "azpp/board/Position.h"
 #include "azpp/board/Move.h"
 #include "azpp/game/State.h"
-#include "azpp/nn/model/representation/Action.h"
+#include "Action.h"
 
 #include <type_traits>
 
