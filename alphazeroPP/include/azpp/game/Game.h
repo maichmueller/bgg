@@ -268,7 +268,7 @@ void Game<StateType, LogicType, Derived>::reset() {
 
 template<class StateType, class LogicType, class Derived>
 int Game<StateType, LogicType, Derived>::run_step() {
-    size_t turn = (m_game_state.get_move_count() + 1) % 2;
+    size_t turn = (m_game_state.get_turn_count() + 1) % 2;
     auto move = m_agents[turn]->decide_move(
             m_game_state,
             logic_type::get_legal_moves(*m_game_state.get_board(), turn)

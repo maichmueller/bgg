@@ -44,7 +44,7 @@ std::vector<TrainData> Coach::exec_ep(State state) const {
         ep_step += 1;
         int expl_rate = static_cast<int>(ep_step < m_exploration_rate);
 
-        int turn = state.get_move_count() % 2;
+        int turn = state.get_turn_count() % 2;
         std::vector<double> pi = mcts.get_action_probs(state, /*player=*/turn, expl_rate);
 
 //        std::cout << "After action probs: " << state.get_board()->size()<< "\n";

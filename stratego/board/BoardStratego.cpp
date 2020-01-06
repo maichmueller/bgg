@@ -5,6 +5,13 @@
 #include "BoardStratego.h"
 #include "logic/LogicStratego.h"
 
+#define VERT_BAR "\u2588"
+#define RESET "\x1B[0m"
+#define BLUE "\x1B[44m"
+#define RED "\x1B[41m"
+
+
+
 std::vector<std::shared_ptr<typename BoardStratego::piece_type>> BoardStratego::adapt_setup(
         const std::map<position_type, int> &setup) {
 
@@ -31,7 +38,7 @@ std::vector<std::shared_ptr<typename BoardStratego::piece_type>> BoardStratego::
     return vector_out;
 }
 
-std::string BoardStratego::print_board(bool flip_board, bool hide_unknowns) const {
+std::string BoardStratego::print_board(int player, bool hide_unknowns) const {
     int H_SIZE_PER_PIECE = 9;
     int V_SIZE_PER_PIECE = 3;
     // the space needed to assign row indices to the rows and to add a splitting bar "|"
@@ -44,32 +51,33 @@ std::string BoardStratego::print_board(bool flip_board, bool hide_unknowns) cons
     // "-1 \n
     // 10.1 \n
     //   1"
-    auto create_piece_str = [&H_SIZE_PER_PIECE, &mid, &flip_board, &hide_unknowns](const piece_type &piece, int line) {
+    auto create_piece_str = [&H_SIZE_PER_PIECE, &mid, &player, &hide_unknowns](const piece_type &piece, int line) {
         if (piece.is_null())
             return std::string(static_cast<unsigned long> (H_SIZE_PER_PIECE), ' ');
-        std::string reset = "\x1B[0m";
-        std::string color = "\x1B[44m"; // blue by default (for player 0)
+
+        std::string color = BLUE; // blue by default (for player 0)
         if (piece.get_team() == -1 && !piece.is_null())
-            return "\x1B[30;47m" + utils::center("", H_SIZE_PER_PIECE, " ") + "\x1B[0m";
-        else if (piece.get_team(flip_board) == 1) {
-            color = "\x1B[41m"; // background red, text "white"
+            // piece is an obstacle (return a gray colored field)
+            return "\x1B[30;47m" + utils::center("", H_SIZE_PER_PIECE, " ") + RESET;
+        else if (piece.get_team(player) == 1) {
+            color = RED; // background red, text "white"
         }
         if (line == mid - 1) {
             // hidden info line
             std::string h = piece.get_flag_hidden() ? "?" : " ";
-            return color + utils::center(h, H_SIZE_PER_PIECE, " ") + reset;
+            return color + utils::center(h, H_SIZE_PER_PIECE, " ") + RESET;
         } else if (line == mid) {
             // type and version info line
-            if (hide_unknowns && piece.get_flag_hidden() && piece.get_team(flip_board)) {
-                return color + std::string(static_cast<unsigned long> (H_SIZE_PER_PIECE), ' ') + reset;
+            if (hide_unknowns && piece.get_flag_hidden() && piece.get_team(player)) {
+                return color + std::string(static_cast<unsigned long> (H_SIZE_PER_PIECE), ' ') + RESET;
             }
             const auto &kin = piece.get_kin();
             return color + utils::center(std::to_string(kin[0]) + '.' + std::to_string(kin[1]),
-                                         H_SIZE_PER_PIECE, " ") + reset;
+                                         H_SIZE_PER_PIECE, " ") + RESET;
         } else if (line == mid + 1)
             // team info line
             // return color + center(std::to_string(piece.get_team(flip_board)), H_SIZE_PER_PIECE, " ") + reset;
-            return color + utils::center("", H_SIZE_PER_PIECE, " ") + reset;
+            return color + utils::center("", H_SIZE_PER_PIECE, " ") + RESET;
         else
             // empty line
             return std::string(static_cast<unsigned long> (H_SIZE_PER_PIECE), ' ');
@@ -80,9 +88,9 @@ std::string BoardStratego::print_board(bool flip_board, bool hide_unknowns) cons
     board_print << "\n";
 
     std::string init_space = std::string(static_cast<unsigned long> (row_ind_space), ' ');
-    std::string h_border = std::string(static_cast<unsigned long> (dim_x * (H_SIZE_PER_PIECE + 1)), '-');
+    std::string h_border = utils::repeat(VERT_BAR, static_cast<unsigned long> (dim_x * (H_SIZE_PER_PIECE + 1) -1));
 
-    board_print << init_space << h_border << "\n";
+    board_print << init_space << VERT_BAR << h_border << VERT_BAR << "\n";
     std::string init = board_print.str();
     std::shared_ptr<piece_type> curr_piece;
 
@@ -94,7 +102,7 @@ std::string BoardStratego::print_board(bool flip_board, bool hide_unknowns) cons
 
         for (int col = m_starts[0]; col < dim_x; ++col) {
 
-            if (flip_board) {
+            if (player) {
                 curr_piece = (*this)[{dim_x - 1 - row, dim_y - 1 - col}];
             } else
                 curr_piece = (*this)[{row, col}];
@@ -107,7 +115,7 @@ std::string BoardStratego::print_board(bool flip_board, bool hide_unknowns) cons
                     if (col == 0) {
                         curr_stream << std::string(static_cast<unsigned long> (row_ind_space), ' ');
                     }
-                    curr_stream << "|" << create_piece_str(*curr_piece, i);
+                    curr_stream << VERT_BAR << create_piece_str(*curr_piece, i);
                 } else if (i == mid) {
 
                     if (col == 0) {
@@ -116,20 +124,20 @@ std::string BoardStratego::print_board(bool flip_board, bool hide_unknowns) cons
                         else
                             curr_stream << row;
 
-                        curr_stream << std::string(static_cast<unsigned long> (row_ind_space - 2), ' ') << "|";
+                        curr_stream << std::string(static_cast<unsigned long> (row_ind_space - 2), ' ') << VERT_BAR;
                     }
                     curr_stream << create_piece_str(*curr_piece, i);
                     if (col != dim_x - 1)
-                        curr_stream << "|";
+                        curr_stream << VERT_BAR;
                 }
                 // extend the current line i by the new information
                 line_streams[i] << curr_stream.str();
             }
         }
         for (auto & stream : line_streams) {
-            board_print << stream.str() << "|\n";
+            board_print << stream.str() << VERT_BAR << "\n";
         }
-        board_print << init_space << h_border << "\n";
+        board_print << init_space << VERT_BAR << h_border << VERT_BAR << "\n";
     }
     // column width for the row index plus vertical dash
     board_print << std::string(static_cast<unsigned long> (row_ind_space), ' ');

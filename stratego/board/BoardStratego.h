@@ -38,7 +38,7 @@ public:
         _add_obstacles();
     }
 
-    [[nodiscard]] std::string print_board(bool flip_board, bool hide_unknowns) const override;
+    [[nodiscard]] std::string print_board(int player, bool hide_unknowns) const override;
 
 private:
     void _add_obstacles();

@@ -100,13 +100,13 @@ std::tuple<StatTrack, StatTrack> Arena::pit(GameType &game, int num_sims, bool s
 
         int game_outcome = game.run_game(show_game);
         if (game_outcome == 1)
-            stats0.add_win("flag", game.get_gamestate()->get_move_count());
+            stats0.add_win("flag", game.get_gamestate()->get_turn_count());
         else if (game_outcome == 2)
-            stats0.add_win("moves", game.get_gamestate()->get_move_count());
+            stats0.add_win("moves", game.get_gamestate()->get_turn_count());
         else if (game_outcome == -1)
-            stats1.add_win("flag", game.get_gamestate()->get_move_count());
+            stats1.add_win("flag", game.get_gamestate()->get_turn_count());
         else if (game_outcome == -2)
-            stats1.add_win("moves", game.get_gamestate()->get_move_count());
+            stats1.add_win("moves", game.get_gamestate()->get_turn_count());
         else {
             stats0.add_draw();
             stats1.add_draw();

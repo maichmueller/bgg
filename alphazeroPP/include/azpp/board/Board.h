@@ -100,7 +100,7 @@ public:
 
     map_type const *get_map() const { return m_map; }
 
-    inverse_map_type const *get_inverse_map() const { return m_map_inverse; }
+    std::array<inverse_map_type, 2> const & get_inverse_map() const { return m_map_inverse; }
 
     const_inverse_iterator get_position_of_kin(int team, const kin_type &kin) const {
         return m_map_inverse.at(team).find(kin);
@@ -118,7 +118,7 @@ public:
 
     void update_board(const position_type &pos, const std::shared_ptr<piece_type> &pc);
 
-    [[nodiscard]] virtual std::string print_board(bool flip_board, bool hide_unknowns) const = 0;
+    [[nodiscard]] virtual std::string print_board(int player, bool hide_unknowns) const = 0;
 
 };
 
@@ -154,26 +154,19 @@ std::shared_ptr<PieceType> &Board<PieceType>::operator[](const position_type &po
 
 template<typename PieceType>
 void Board<PieceType>::update_board(const position_type &pos, const std::shared_ptr<piece_type> &pc_ptr) {
+    /* Note for the usage of this method:
+     * If you use a board game with, in which pieces may "defeat" one another, one will need to always update the
+     * piece, that did the attacking, first. Second is always the defending piece. Otherwise a hard-to-trace access bug
+     * in the inverse map of the kins may occur!
+    */
     is_in_bounds(pos);
     auto pc_before = m_map[pos];
 
-    if (!pc_before->is_null()) {
+    if (!pc_before->is_null() && *pc_before != *pc_ptr) {
         if (int team = pc_before->get_team();
                 team != -1) {
-//            LOGD2("Count of team " + std::to_string(team) + " kins at removal time",
-//                  std::to_string(m_map_inverse[team].size()));
-//            unsigned int size_team = get_pieces(team).size();
-//            LOGD2("Count of team " + std::to_string(team) + " pieces at removal time",
-//                  std::to_string(size_team));
-//            LOGD2("Count of team " + std::to_string((team + 1) % 2 ) + " kins at removal time",
-//                  std::to_string(m_map_inverse[(team + 1) % 2  ].size()));
-//            unsigned int size_team_other = get_pieces((team+1)%2).size();
-//            LOGD2("Count of team " + std::to_string((team + 1) % 2  ) + " pieces at removal time",
-//                  std::to_string(size_team_other));
             m_map_inverse[team].erase(pc_before->get_kin());
-
         }
-
     }
 
     pc_ptr->set_position(pos);
@@ -181,20 +174,7 @@ void Board<PieceType>::update_board(const position_type &pos, const std::shared_
 
     if (int team = pc_ptr->get_team();
             !pc_ptr->is_null() && team != -1) {
-//        LOGD2("Count of team " + std::to_string(team) + " kins at addition time",
-//              std::to_string(m_map_inverse[team].size()));
-//        LOGD2("Count of team " + std::to_string(team) + " pieces at addition time",
-//              std::to_string(get_pieces(team).size()));
-//        LOGD2("Count of team " + std::to_string((team+1) % 2) + " kins at addition time",
-//              std::to_string(m_map_inverse[(team+1) % 2].size()));
-//        LOGD2("Count of team " + std::to_string((team+1) % 2) + " pieces at addition time",
-//              std::to_string(get_pieces((team+1) % 2).size()));
         m_map_inverse[team][pc_ptr->get_kin()] = pos;
-
-//        LOGD2("Count of team " + std::to_string(team) + " kins after addition",
-//              std::to_string(m_map_inverse[team].size()));
-//        LOGD2("Count of team " + std::to_string((team+1)%2) + " kins after addition",
-//              std::to_string(m_map_inverse[(team+1)%2].size()) + "\n");
     }
 }
 
@@ -274,6 +254,7 @@ Board<PieceType>::Board(const std::array<size_t, m_dim> &shape,
                         const std::map<position_type, kin_type> &setup_0,
                         const std::map<position_type, kin_type> &setup_1)
         : Board(shape, board_starts) {
+
     auto setup_unwrap = [&](const std::map<position_type, kin_type> &setup, int team) {
         // because of the short length of the vectors they might be faster than using a map (fit in cache)
         std::vector<position_type> seen_pos;
@@ -296,8 +277,7 @@ Board<PieceType>::Board(const std::array<size_t, m_dim> &shape,
             }
             seen_kin.emplace_back(character);
 
-            auto piece = std::make_shared<piece_type>(pos, character, team);
-            m_map[pos] = std::move(piece);
+            m_map[pos] = std::make_shared<piece_type>(pos, character, team);
         }
     };
     setup_unwrap(setup_0, 0);

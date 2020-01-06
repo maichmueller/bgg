@@ -82,30 +82,30 @@ private:
 
     std::deque<evaluated_turn_type> m_turns_queue;
 
-    float m_win_frac = 0.55;
-    unsigned int m_num_iters = 1000;
-    unsigned int m_num_episodes = 1000;
-    unsigned int m_num_mcts_simulations = 1000;
-    unsigned int m_num_evaluated_turns_hist = 10e5;
-    std::string m_model_folder = "checkpoints";
-    unsigned int m_exploration_rate = 100;
+    float m_win_frac;
+    size_t m_epochs;
+    size_t m_num_episodes;
+    size_t m_num_mcts_simulations;
+    size_t m_num_evaluated_turns_hist;
+    size_t m_exploration_rate;
 
+    std::string m_model_folder;
 
 public:
 
     Coach(std::shared_ptr<game_type> game,
           const std::shared_ptr<network_type> &nnet,
-          int num_iters = 100,
-          float win_frac = 0.55,
-          int num_episodes = 100,
-          int num_mcts_sims = 100,
-          int num_iters_train_examples_hist = 10e5,
           std::string model_folder = "checkpoints",
-          int exploration_rate = 100);
+          size_t epochs = 100,
+          size_t num_episodes = 100,
+          size_t num_mcts_sims = 100,
+          size_t num_iters_train_examples_hist = 10e5,
+          size_t exploration_rate = 100,
+          float win_frac = 0.55);
 
     template<typename ActionRepresenterType>
     std::vector<evaluated_turn_type> execute_episode(
-            state_type &state,
+            state_type state,
             RepresenterBase<
                     state_type,
                     ActionRepresenterType
@@ -140,18 +140,18 @@ template<class GameType, class NetworkType>
 Coach<GameType, NetworkType>::Coach(
         std::shared_ptr<game_type> game,
         const std::shared_ptr<network_type> &nnet,
-        int num_iters,
-        float win_frac,
-        int num_episodes,
-        int num_mcts_sims,
-        int num_iters_train_examples_hist,
         std::string model_folder,
-        int exploration_rate)
+        size_t epochs,
+        size_t num_episodes,
+        size_t num_mcts_sims,
+        size_t num_iters_train_examples_hist,
+        size_t exploration_rate,
+        float win_frac)
         : m_game(std::move(game)),
           m_nnet(nnet),
           m_opp_nnet(std::make_shared<network_type>(*nnet)),
           m_win_frac(win_frac),
-          m_num_iters(num_iters),
+          m_epochs(epochs),
           m_num_episodes(num_episodes),
           m_num_mcts_simulations(num_mcts_sims),
           m_num_evaluated_turns_hist(num_iters_train_examples_hist),
@@ -166,7 +166,7 @@ template<class GameType, class NetworkType>
 template<class ActionRepresenterType>
 std::vector<typename Coach<GameType, NetworkType>::evaluated_turn_type>
 Coach<GameType, NetworkType>::execute_episode(
-        state_type &state,
+        state_type state,
         RepresenterBase<
                 state_type,
                 ActionRepresenterType
@@ -184,7 +184,7 @@ Coach<GameType, NetworkType>::execute_episode(
         ep_step += 1;
         auto expl_rate = static_cast<unsigned int>(ep_step < m_exploration_rate);
 
-        int player = state.get_move_count() % 2;
+        int player = state.get_turn_count() % 2;
         std::vector<double> pi = mcts.get_action_probabilities(state, player, action_repper, expl_rate);
 
 //        std::cout << "After action probs: " << state.get_board()->size()<< "\n";
@@ -214,7 +214,6 @@ Coach<GameType, NetworkType>::execute_episode(
                 // in each turn to reflect the changing player.
                 train_turn.m_v = player != train_turn.m_player ? r : -r;
             }
-//            delete mcts;
             return ep_examples;
         }
     }
@@ -265,7 +264,7 @@ void Coach<GameType, NetworkType>::teach(
         }
     }
 
-    for (size_t iter = 0; iter < m_num_iters; ++iter) {
+    for (size_t iter = 0; iter < m_epochs; ++iter) {
 
         std::vector<evaluated_turn_type> train_data{m_turns_queue.begin(), m_turns_queue.end()};
 
@@ -291,10 +290,12 @@ void Coach<GameType, NetworkType>::teach(
             }
         }
 
+        // save temporary model state and then TRAIN model to improve it
         m_nnet->save_checkpoint(m_model_folder, "temp.pth.tar");
         m_nnet->to(GLOBAL_DEVICE::get_device());
         m_nnet->train(train_data, /*epochs=*/100, /*batch_size=*/4096);
 
+        // evaluate new training against previous model state
         m_opp_nnet->load_checkpoint(m_model_folder, "temp.pth.tar");
         auto[res0, res1] = Arena::pit(*m_game, 1000);
         if (res0.wins + res1.wins > 0 && (res0.wins / (res0.wins + res1.wins) < m_win_frac)) {

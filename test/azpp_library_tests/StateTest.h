@@ -13,7 +13,7 @@ namespace {
     public:
         using base = Board<piece_type >;
         using base::base;
-        [[nodiscard]] std::string print_board(bool flip_board, bool hide_unknowns) const override {return "";}
+        std::string print_board(int player, bool hide_unknowns) const override {return "";}
     };
     using planar_board = BoardImplTest;
 
