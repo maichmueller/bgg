@@ -1,0 +1,3 @@
+[submodule "deps/tqdm.cpp"]
+	path = deps/tqdm.cpp
+	url = https://github.com/tqdm/tqdm.cpp.git
