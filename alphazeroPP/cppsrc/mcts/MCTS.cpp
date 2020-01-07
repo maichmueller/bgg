@@ -2,7 +2,7 @@
 
 #include "azpp/mcts/MCTS.h"
 #include "azpp/agent/AgentReinforce.h"
-#include "azpp/nn/model/representation/Representer.h"
+#include "azpp/nn/representation/Representer.h"
 
 
 MCTS::MCTS(std::shared_ptr<NetworkWrapper> nnet_sptr, int num_mcts_sims, double cpuct)

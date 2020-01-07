@@ -6,6 +6,10 @@
 
 #include <torch/torch.h>
 #include <tqdm/tqdm.h>
+// needs to happen as tqdm redefines built-in keywords
+#undef constexpr
+#undef noexcept
+#undef explicit
 
 #include "azpp/nn/model/modules/AlphazeroInterface.h"
 #include "azpp/utils/torch_utils.h"
@@ -69,9 +73,7 @@ void NetworkWrapper::train(
             static_cast<long long>(train_examples[0].get_policy().size())
     };
 
-    tqdm bar;
-    for (size_t epoch = 0; epoch < epochs; ++epoch) {
-        bar.progress(epoch, epochs);
+    for (size_t epoch : tqdm::range(epochs)) {
         // set the network into train mode (i.e. demands gradient updates for tensors)
         m_network->train();
 
@@ -80,10 +82,12 @@ void NetworkWrapper::train(
             // get a randomly drawn sample index batch
             TrainDataContainer examples_batch;
             examples_batch.reserve(batch_size);
-            std::sample(train_examples.begin(), train_examples.end(),
-                        examples_batch.begin(),
-                        batch_size,
-                        std::mt19937{std::random_device{}()});
+            std::sample(
+                    train_examples.begin(),
+                    train_examples.end(),
+                    examples_batch.begin(),
+                    batch_size,
+                    std::mt19937{std::random_device{}()});
 
             std::vector<torch::Tensor> board_batch(batch_size);
             std::vector<std::vector<double>> pi_batch(batch_size);
@@ -131,5 +135,4 @@ void NetworkWrapper::train(
             optimizer.step();
         }
     }
-    bar.finish();
 }

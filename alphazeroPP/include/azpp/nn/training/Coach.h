@@ -1,15 +1,24 @@
 #pragma once
 
-#include "string"
-#include "memory"
-#include "vector"
-#include "deque"
+#include <tqdm/tqdm.h>
+
+// needs to happen as tqdm redefines built-in keywords
+#undef constexpr
+#undef noexcept
+#undef explicit
+
+#include <string>
+#include <memory>
+#include <vector>
+#include <deque>
 
 #include <azpp/game/Arena.h>
 #include "azpp/nn/model/NeuralNet.h"
 #include "azpp/mcts/MCTS.h"
 #include "azpp/game/Game.h"
 #include "azpp/board/Board.h"
+
+
 
 
 template<typename StateType>
@@ -264,11 +273,11 @@ void Coach<GameType, NetworkType>::teach(
         }
     }
 
-    for (size_t iter = 0; iter < m_epochs; ++iter) {
+    for (size_t epoch : tqdm::range(epochs)) {
 
         std::vector<evaluated_turn_type> train_data{m_turns_queue.begin(), m_turns_queue.end()};
 
-        if (!skip_first_self_play || iter > 0) {
+        if (!skip_first_self_play || epoch > 0) {
             for (size_t episode = 0; episode < m_num_episodes; ++episode) {
                 for (auto &&evaluated_turn : execute_episode(
                         *(m_game->get_gamestate()),
@@ -303,7 +312,7 @@ void Coach<GameType, NetworkType>::teach(
             m_nnet->load_checkpoint(m_model_folder, "temp.pth.tar");
         } else {
             std::cout << "Accepting new model\n";
-            m_nnet->save_checkpoint(m_model_folder, "checkpoint_" + std::to_string(iter) + ".pth.tar");
+            m_nnet->save_checkpoint(m_model_folder, "checkpoint_" + std::to_string(epoch) + ".pth.tar");
             m_nnet->save_checkpoint(m_model_folder, "best.pth.tar");
         }
     }

@@ -35,7 +35,7 @@ struct Action {
 namespace std {
     template<typename VectorType, typename KinType>
     struct hash<Action<VectorType, KinType>> {
-        constexpr size_t operator()(const Action<VectorType, KinType> &action) const {
+        size_t operator()(const Action<VectorType, KinType> &action) const {
             return std::hash<KinType>()(action.get_assoc_kin());
         }
     };

@@ -33,12 +33,6 @@ if(NOT TORCH_FOUND)
     find_package(Torch REQUIRED)
 ENDIF()
 
-set(LIBRARY_SOURCE_DIR "${PROJECT_SOURCE_DIR}/alphazeroPP/cppsrc")
-set(LIBRARY_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/alphazeroPP/include")
-
-set(AZPP_LIBRARY ${CMAKE_SOURCE_DIR}/build/debug/alphazeroPP/libalphazeroPP.a)
-add_subdirectory (alphazeroPP)
-
 enable_testing ()
 
 # Download and unpack googletest at configure time
@@ -66,7 +60,18 @@ add_subdirectory(${CMAKE_CURRENT_BINARY_DIR}/googletest-src
         ${CMAKE_CURRENT_BINARY_DIR}/googletest-build
         EXCLUDE_FROM_ALL)
 
-add_subdirectory(stratego)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/deps/tqdm.cpp)
+set(TQDM_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/deps/tqdm.cpp/include")
+set(TQDM_SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/deps/tqdm.cpp/src")
+message(STATUS ${TQDM_INCLUDE_DIR})
+
+set(LIBRARY_SOURCE_DIR "${PROJECT_SOURCE_DIR}/alphazeroPP/cppsrc")
+set(LIBRARY_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/alphazeroPP/include")
+
+set(AZPP_LIBRARY ${CMAKE_SOURCE_DIR}/build/debug/alphazeroPP/libalphazeroPP.a)
+add_subdirectory (alphazeroPP)
+
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/stratego)
 
 add_subdirectory (test)
 

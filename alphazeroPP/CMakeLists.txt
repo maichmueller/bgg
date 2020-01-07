@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.15)
 
-message(STATUS "TORCH STATUS: ${TORCH_FOUND}")
+message(STATUS "TORCH FOUND: ${TORCH_FOUND}")
 if(NOT TORCH_FOUND)
 
 	if(UNIX)
@@ -19,8 +19,6 @@ if(NOT TORCH_FOUND)
 	ENDIF(WIN32)
 
 	find_package(Torch REQUIRED)
-	# PARENT_SCOPE is necessary to set the torch_found variable of the main cmakelists and not a local only version of it
-#	set(Torch_FOUND TRUE PARENT_SCOPE)
 ENDIF()
 
 
@@ -42,8 +40,8 @@ set(LIBRARY_SOURCES
 
 		${LIBRARY_INCLUDE_DIR}/azpp/mcts/MCTS.h
 
-		${LIBRARY_INCLUDE_DIR}/azpp/nn/model/representation/Representer.h
-		${LIBRARY_INCLUDE_DIR}/azpp/nn/model/representation/Action.h
+		${LIBRARY_INCLUDE_DIR}/azpp/nn/representation/Representer.h
+		${LIBRARY_INCLUDE_DIR}/azpp/nn/representation/Action.h
 
 		${LIBRARY_INCLUDE_DIR}/azpp/nn/model/NeuralNet.h
 		${LIBRARY_INCLUDE_DIR}/azpp/nn/model/modules/AlphazeroInterface.h
@@ -80,6 +78,8 @@ target_include_directories(alphazeroPP
 		$<INSTALL_INTERFACE:${CMAKE_INSTALL_PREFIX}/include>
 		PRIVATE
 		${LIBRARY_SOURCE_DIR}
+		${TQDM_INCLUDE_DIR}
+		${TQDM_SRC_DIR}
 		${PROJECT_SOURCE_DIR}/deps
 		)
 
@@ -98,3 +98,4 @@ add_link_options(${SANITIZE_OPTIONS})
 #target_link_libraries(alphazeroPP stdc++fs)
 target_link_libraries(alphazeroPP "${TORCH_LIBRARIES}")
 target_link_libraries(alphazeroPP "${CUDNN_LIBRARY}")
+#target_link_libraries(alphazeroPP "${TQDM_SRC_DIR}")
