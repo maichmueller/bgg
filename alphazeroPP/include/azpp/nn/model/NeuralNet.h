@@ -6,10 +6,6 @@
 
 #include <torch/torch.h>
 #include <tqdm/tqdm.h>
-// needs to happen as tqdm redefines built-in keywords
-#undef constexpr
-#undef noexcept
-#undef explicit
 
 #include "azpp/nn/model/modules/AlphazeroInterface.h"
 #include "azpp/utils/torch_utils.h"

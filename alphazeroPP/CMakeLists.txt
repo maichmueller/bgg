@@ -14,7 +14,7 @@ if(NOT TORCH_FOUND)
 		IF(CMAKE_BUILD_TYPE STREQUAL "Debug")
 			set(CMAKE_PREFIX_PATH deps/libtorch_debug)
 		ELSE()
-			set(CMAKE_PREFIX_PATH deps/Torch_build/libtorch)
+			set(CMAKE_PREFIX_PATH deps/libtorch)
 		ENDIF()
 	ENDIF(WIN32)
 
@@ -23,64 +23,59 @@ ENDIF()
 
 
 set(LIBRARY_SOURCES
-		${LIBRARY_INCLUDE_DIR}/azpp/agent/Agent.h
-		${LIBRARY_INCLUDE_DIR}/azpp/agent/AgentReinforce.h
-		${LIBRARY_INCLUDE_DIR}/azpp/agent/AgentAlphazero.h
+		${AZPP_INCLUDE_DIR}/azpp/agent/Agent.h
+		${AZPP_INCLUDE_DIR}/azpp/agent/AgentReinforce.h
+		${AZPP_INCLUDE_DIR}/azpp/agent/AgentAlphazero.h
 
-		${LIBRARY_INCLUDE_DIR}/azpp/board/Position.h
-		${LIBRARY_INCLUDE_DIR}/azpp/board/Move.h
-		${LIBRARY_INCLUDE_DIR}/azpp/board/Piece.h
-		${LIBRARY_INCLUDE_DIR}/azpp/board/Board.h
+		${AZPP_INCLUDE_DIR}/azpp/board/Position.h
+		${AZPP_INCLUDE_DIR}/azpp/board/Move.h
+		${AZPP_INCLUDE_DIR}/azpp/board/Piece.h
+		${AZPP_INCLUDE_DIR}/azpp/board/Board.h
 
-		${LIBRARY_INCLUDE_DIR}/azpp/game/Arena.h
-		${LIBRARY_INCLUDE_DIR}/azpp/game/Game.h
-		${LIBRARY_INCLUDE_DIR}/azpp/game/State.h
+		${AZPP_INCLUDE_DIR}/azpp/game/Arena.h
+		${AZPP_INCLUDE_DIR}/azpp/game/Game.h
+		${AZPP_INCLUDE_DIR}/azpp/game/State.h
 
-		${LIBRARY_INCLUDE_DIR}/azpp/logic/Logic.h
+		${AZPP_INCLUDE_DIR}/azpp/logic/Logic.h
 
-		${LIBRARY_INCLUDE_DIR}/azpp/mcts/MCTS.h
+		${AZPP_INCLUDE_DIR}/azpp/mcts/MCTS.h
 
-		${LIBRARY_INCLUDE_DIR}/azpp/nn/representation/Representer.h
-		${LIBRARY_INCLUDE_DIR}/azpp/nn/representation/Action.h
+		${AZPP_INCLUDE_DIR}/azpp/nn/representation/Representer.h
+		${AZPP_INCLUDE_DIR}/azpp/nn/representation/Action.h
 
-		${LIBRARY_INCLUDE_DIR}/azpp/nn/model/NeuralNet.h
-		${LIBRARY_INCLUDE_DIR}/azpp/nn/model/modules/AlphazeroInterface.h
-		${LIBRARY_INCLUDE_DIR}/azpp/nn/training/Coach.h
+		${AZPP_INCLUDE_DIR}/azpp/nn/model/NeuralNet.h
+		${AZPP_INCLUDE_DIR}/azpp/nn/model/modules/AlphazeroInterface.h
+		${AZPP_INCLUDE_DIR}/azpp/nn/training/Coach.h
 
-		${LIBRARY_INCLUDE_DIR}/azpp/utils/utils.h
-		${LIBRARY_INCLUDE_DIR}/azpp/utils/torch_utils.h
-		${LIBRARY_INCLUDE_DIR}/azpp/utils/prime_list.h
+		${AZPP_INCLUDE_DIR}/azpp/utils/utils.h
+		${AZPP_INCLUDE_DIR}/azpp/utils/torch_utils.h
+		${AZPP_INCLUDE_DIR}/azpp/utils/prime_list.h
 
-		${LIBRARY_SOURCE_DIR}/mcts/MCTS.cpp
-		${LIBRARY_SOURCE_DIR}/nn/model/NeuralNet.cpp
-		${LIBRARY_SOURCE_DIR}/nn/model/modules/Convolutional.cpp
-		${LIBRARY_SOURCE_DIR}/nn/model/modules/FullyConnected.cpp
+		${AZPP_SRC_DIR}/mcts/MCTS.cpp
+		${AZPP_SRC_DIR}/nn/model/NeuralNet.cpp
+		${AZPP_SRC_DIR}/nn/model/modules/Convolutional.cpp
+		${AZPP_SRC_DIR}/nn/model/modules/FullyConnected.cpp
 
 
-		${LIBRARY_INCLUDE_DIR}/azpp/all.h
-		${LIBRARY_INCLUDE_DIR}/azpp/azpp.h
-		${LIBRARY_INCLUDE_DIR}/azpp/agent.h
-		${LIBRARY_INCLUDE_DIR}/azpp/board.h
-		${LIBRARY_INCLUDE_DIR}/azpp/game.h
-		${LIBRARY_INCLUDE_DIR}/azpp/logic.h
-		${LIBRARY_INCLUDE_DIR}/azpp/mcts.h
-		${LIBRARY_INCLUDE_DIR}/azpp/nn.h
-		${LIBRARY_INCLUDE_DIR}/azpp/utils.h
+		${AZPP_INCLUDE_DIR}/azpp/all.h
+		${AZPP_INCLUDE_DIR}/azpp/azpp.h
+		${AZPP_INCLUDE_DIR}/azpp/agent.h
+		${AZPP_INCLUDE_DIR}/azpp/board.h
+		${AZPP_INCLUDE_DIR}/azpp/game.h
+		${AZPP_INCLUDE_DIR}/azpp/logic.h
+		${AZPP_INCLUDE_DIR}/azpp/mcts.h
+		${AZPP_INCLUDE_DIR}/azpp/nn.h
+		${AZPP_INCLUDE_DIR}/azpp/utils.h
 		)
 
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall")
 
 add_library(alphazeroPP STATIC ${LIBRARY_SOURCES})
-
 target_include_directories(alphazeroPP
 		PUBLIC
-		$<BUILD_INTERFACE:${LIBRARY_INCLUDE_DIR}>
-		$<INSTALL_INTERFACE:${CMAKE_INSTALL_PREFIX}/include>
-		PRIVATE
-		${LIBRARY_SOURCE_DIR}
+		${AZPP_INCLUDE_DIR}
 		${TQDM_INCLUDE_DIR}
-		${TQDM_SRC_DIR}
-		${PROJECT_SOURCE_DIR}/deps
+		${TORCH_INCLUDE_DIRS}
 		)
 
 set_target_properties(alphazeroPP PROPERTIES
@@ -98,4 +93,3 @@ add_link_options(${SANITIZE_OPTIONS})
 #target_link_libraries(alphazeroPP stdc++fs)
 target_link_libraries(alphazeroPP "${TORCH_LIBRARIES}")
 target_link_libraries(alphazeroPP "${CUDNN_LIBRARY}")
-#target_link_libraries(alphazeroPP "${TQDM_SRC_DIR}")

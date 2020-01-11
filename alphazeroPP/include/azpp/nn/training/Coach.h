@@ -2,11 +2,6 @@
 
 #include <tqdm/tqdm.h>
 
-// needs to happen as tqdm redefines built-in keywords
-#undef constexpr
-#undef noexcept
-#undef explicit
-
 #include <string>
 #include <memory>
 #include <vector>
@@ -164,8 +159,8 @@ Coach<GameType, NetworkType>::Coach(
           m_num_episodes(num_episodes),
           m_num_mcts_simulations(num_mcts_sims),
           m_num_evaluated_turns_hist(num_iters_train_examples_hist),
-          m_model_folder(std::move(model_folder)),
-          m_exploration_rate(exploration_rate) {
+          m_exploration_rate(exploration_rate),
+          m_model_folder(std::move(model_folder)) {
     m_nnet->to(GLOBAL_DEVICE::get_device());
     m_opp_nnet->to(GLOBAL_DEVICE::get_device());
 }
@@ -273,7 +268,7 @@ void Coach<GameType, NetworkType>::teach(
         }
     }
 
-    for (size_t epoch : tqdm::range(epochs)) {
+    for (size_t epoch : tqdm::range(m_epochs)) {
 
         std::vector<evaluated_turn_type> train_data{m_turns_queue.begin(), m_turns_queue.end()};
 

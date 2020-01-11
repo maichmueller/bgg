@@ -20,22 +20,20 @@ if(NOT TORCH_FOUND)
     find_package(Torch REQUIRED)
 ENDIF()
 
-set(STRATEGO_SOURCE_DIR "${PROJECT_SOURCE_DIR}/stratego")
-
 set(TEST_SOURCES
-        ${LIBRARY_INCLUDE_DIR}/azpp/all.h
+        ${AZPP_INCLUDE_DIR}/azpp/all.h
 
-        ${STRATEGO_SOURCE_DIR}/board/PieceStratego.h
-        ${STRATEGO_SOURCE_DIR}/board/BoardStratego.cpp
+        ${STRATEGO_SRC_DIR}/board/PieceStratego.h
+        ${STRATEGO_SRC_DIR}/board/BoardStratego.cpp
 
-        ${STRATEGO_SOURCE_DIR}/game/GameStratego.cpp
-        ${STRATEGO_SOURCE_DIR}/game/StateStratego.cpp
+        ${STRATEGO_SRC_DIR}/game/GameStratego.cpp
+        ${STRATEGO_SRC_DIR}/game/StateStratego.cpp
 
-        ${STRATEGO_SOURCE_DIR}/nn/model/representation/RepresenterStratego.cpp
+        ${STRATEGO_SRC_DIR}/nn/representation/RepresenterStratego.cpp
 
-        ${STRATEGO_SOURCE_DIR}/logic/LogicStratego.cpp
+        ${STRATEGO_SRC_DIR}/logic/LogicStratego.cpp
 
-        ${STRATEGO_SOURCE_DIR}/nn/model/modules/AlphazeroStratego.h
+        ${STRATEGO_SRC_DIR}/nn/model/modules/AlphazeroStratego.h
 
         )
 
@@ -56,9 +54,9 @@ add_executable(tests ${TEST_SOURCES} ${TARGET_TEST_SOURCES})
 
 target_include_directories(tests
         PRIVATE
-        ${LIBRARY_INCLUDE_DIR}
-        ${STRATEGO_SOURCE_DIR}
-        ${PROJECT_SOURCE_DIR}/deps
+        ${AZPP_INCLUDE_DIR}
+        ${STRATEGO_SRC_DIR}
+        ${AZPP_SRC_DIR}/deps
         ${EXEC_SOURCE_DIR}
         )
 

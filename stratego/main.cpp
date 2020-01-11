@@ -5,7 +5,7 @@
 #include "torch/torch.h"
 #include "board/PieceStratego.h"
 #include "game/GameStratego.h"
-#include "nn/model/representation/RepresenterStratego.h"
+#include "nn/representation/RepresenterStratego.h"
 #include <nn/model/modules/AlphazeroStratego.h>
 
 #include<iostream>
