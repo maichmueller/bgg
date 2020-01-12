@@ -1,62 +1,63 @@
 
 #pragma once
 
-
 #include <unordered_set>
 
 #include "azpp/game.h"
 #include "board/BoardStratego.h"
 #include "logic/LogicStratego.h"
 
+class StateStratego: public State< BoardStratego > {
+  public:
+   using base_type = State< BoardStratego >;
 
-class StateStratego : public State<BoardStratego> {
-public:
-    using base_type = State<BoardStratego>;
+  private:
+   using dead_pieces_type = std::array< std::unordered_set< kin_type >, 2 >;
+   dead_pieces_type m_dead_pieces;
 
-private:
+   void _update_dead_pieces(const std::shared_ptr< piece_type > &piece)
+   {
+      if(! piece->is_null())
+         m_dead_pieces[piece->get_team()].emplace(piece->get_kin());
+   }
 
-    using dead_pieces_type = std::array<std::unordered_set<kin_type>, 2>;
-    dead_pieces_type m_dead_pieces;
+  protected:
+   static int fight(piece_type &attacker, piece_type &defender);
 
-    void _update_dead_pieces(const std::shared_ptr<piece_type> &piece) {
-        if(!piece->is_null())
-            m_dead_pieces[piece->get_team()].emplace(piece->get_kin());
-    }
+  public:
+   // just decorate all base constructors with initializing also the dead pieces
+   // variable.
+   template < typename... Params >
+   StateStratego(Params... params) : base_type(params...), m_dead_pieces()
+   {
+   }
 
-protected:
-    static int fight(piece_type &attacker, piece_type &defender);
+   // also declare some explicit constructors
+   explicit StateStratego(size_t shape_x, size_t shape_y);
 
-public:
+   explicit StateStratego(size_t shape = 5);
 
-    // just decorate all base constructors with initializing also the dead pieces variable.
-    template <typename ... Params>
-    StateStratego(Params ...params)
-            : base_type (params...),
-              m_dead_pieces() {}
+   StateStratego(
+      size_t shape,
+      const std::map< position_type, kin_type > &setup_0,
+      const std::map< position_type, kin_type > &setup_1);
 
-    // also declare some explicit constructors
-    explicit StateStratego(size_t shape_x, size_t shape_y);
+   StateStratego(
+      std::array< size_t, 2 > shape,
+      const std::map< position_type, kin_type > &setup_0,
+      const std::map< position_type, kin_type > &setup_1);
 
-    explicit StateStratego(size_t shape=5);
+   StateStratego(
+      size_t shape,
+      const std::map< position_type, int > &setup_0,
+      const std::map< position_type, int > &setup_1);
 
-    StateStratego(size_t shape,
-                  const std::map<position_type, kin_type> &setup_0,
-                  const std::map<position_type, kin_type> &setup_1);
+   StateStratego(
+      std::array< size_t, 2 > shape,
+      const std::map< position_type, int > &setup_0,
+      const std::map< position_type, int > &setup_1);
 
-    StateStratego(std::array<size_t, 2> shape,
-                  const std::map<position_type, kin_type> &setup_0,
-                  const std::map<position_type, kin_type> &setup_1);
+   void check_terminal() override;
 
-    StateStratego(size_t shape,
-                  const std::map<position_type, int> &setup_0,
-                  const std::map<position_type, int> &setup_1);
-
-    StateStratego(std::array<size_t, 2> shape,
-                  const std::map<position_type, int> &setup_0,
-                  const std::map<position_type, int> &setup_1);
-
-    void check_terminal() override;
-
-    int _do_move(const move_type &move) override;
-
+   int _do_move(const move_type &move) override;
 };

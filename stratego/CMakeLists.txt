@@ -12,7 +12,7 @@ if(NOT TORCH_FOUND)
 		IF(CMAKE_BUILD_TYPE STREQUAL "Debug")
 			set(CMAKE_PREFIX_PATH deps/libtorch_debug)
 		ELSE()
-			set(CMAKE_PREFIX_PATH deps/Torch_build/libtorch)
+			set(CMAKE_PREFIX_PATH deps/libtorch)
 		ENDIF()
 	ENDIF(WIN32)
 

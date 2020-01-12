@@ -7,9 +7,8 @@
 #include "azpp/board/Move.h"
 
 namespace {
-    template <size_t N>
-    using int_move = Move<Position<int, N>>;
-    template <size_t N>
-    using double_move = Move<Position<double, N>>;
-};
-
+template < size_t N >
+using int_move = Move< Position< int, N > >;
+template < size_t N >
+using double_move = Move< Position< double, N > >;
+};  // namespace
