@@ -71,16 +71,11 @@ set(LIBRARY_SOURCES
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall")
 
 add_library(alphazeroPP STATIC ${LIBRARY_SOURCES})
-
 target_include_directories(alphazeroPP
 		PUBLIC
-		$<BUILD_INTERFACE:${AZPP_INCLUDE_DIR}>
-		$<INSTALL_INTERFACE:${CMAKE_INSTALL_PREFIX}/include>
+		${AZPP_INCLUDE_DIR}
 		${TQDM_INCLUDE_DIR}
-		PRIVATE
-		${AZPP_SRC_DIR}
-#		${TQDM_SRC_DIR}
-		${PROJECT_SOURCE_DIR}/deps
+		${TORCH_INCLUDE_DIRS}
 		)
 
 set_target_properties(alphazeroPP PROPERTIES
@@ -98,4 +93,3 @@ add_link_options(${SANITIZE_OPTIONS})
 #target_link_libraries(alphazeroPP stdc++fs)
 target_link_libraries(alphazeroPP "${TORCH_LIBRARIES}")
 target_link_libraries(alphazeroPP "${CUDNN_LIBRARY}")
-#target_link_libraries(alphazeroPP "${TQDM_SRC_DIR}")

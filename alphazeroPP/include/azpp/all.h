@@ -1,6 +1,5 @@
 #pragma once
 
-
 #include "agent.h"
 #include "board.h"
 #include "game.h"

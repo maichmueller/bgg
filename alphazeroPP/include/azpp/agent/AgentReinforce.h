@@ -1,33 +1,30 @@
 #pragma once
 
-#include <algorithm>    // std::find
+#include <algorithm>  // std::find
 #include <utility>
-
-#include "torch/torch.h"
 
 #include "azpp/agent/Agent.h"
 #include "azpp/board/Piece.h"
 #include "azpp/nn/model/NeuralNet.h"
-#include "azpp/utils/torch_utils.h"
 #include "azpp/nn/representation/Representer.h"
+#include "azpp/utils/torch_utils.h"
+#include "torch/torch.h"
 
+template < class StateType >
+class AgentReinforceBase: public Agent< StateType > {
+  public:
+   using base_type = Agent< StateType >;
+   using base_type::base_type;
+   using piece_type = typename StateType::piece_type;
 
-template <class StateType>
-class AgentReinforceBase: public Agent<StateType> {
+  protected:
+   std::shared_ptr< NetworkWrapper > m_model;
 
-public:
-    using base_type = Agent<StateType>;
-    using base_type::base_type;
-    using piece_type = typename StateType::piece_type;
+  public:
+   AgentReinforceBase(int team, std::shared_ptr< NetworkWrapper > model_sptr)
+       : base_type(team, true), m_model(std::move(model_sptr))
+   {
+   }
 
-protected:
-    std::shared_ptr<NetworkWrapper> m_model;
-
-public:
-    AgentReinforceBase(int team, std::shared_ptr<NetworkWrapper>  model_sptr)
-    : base_type(team, true),
-      m_model(std::move(model_sptr))
-    {}
-
-    std::shared_ptr<NetworkWrapper> get_model_sptr() {return m_model;}
+   std::shared_ptr< NetworkWrapper > get_model_sptr() { return m_model; }
 };

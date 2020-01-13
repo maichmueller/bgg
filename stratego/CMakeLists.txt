@@ -12,7 +12,7 @@ if(NOT TORCH_FOUND)
 		IF(CMAKE_BUILD_TYPE STREQUAL "Debug")
 			set(CMAKE_PREFIX_PATH deps/libtorch_debug)
 		ELSE()
-			set(CMAKE_PREFIX_PATH deps/Torch_build/libtorch)
+			set(CMAKE_PREFIX_PATH deps/libtorch)
 		ENDIF()
 	ENDIF(WIN32)
 
@@ -23,19 +23,18 @@ if(NOT TORCH_FOUND)
 ENDIF()
 
 
-set(STRATEGO_SOURCE_DIR "${PROJECT_SOURCE_DIR}/stratego")
 set(STRATEGO_SOURCES
-		${STRATEGO_SOURCE_DIR}/board/PieceStratego.h
-		${STRATEGO_SOURCE_DIR}/board/BoardStratego.cpp
+		${STRATEGO_SRC_DIR}/board/PieceStratego.h
+		${STRATEGO_SRC_DIR}/board/BoardStratego.cpp
 
-		${STRATEGO_SOURCE_DIR}/game/GameStratego.cpp
-		${STRATEGO_SOURCE_DIR}/game/StateStratego.cpp
+		${STRATEGO_SRC_DIR}/game/GameStratego.cpp
+		${STRATEGO_SRC_DIR}/game/StateStratego.cpp
 
-		${STRATEGO_SOURCE_DIR}/nn/model/representation/RepresenterStratego.cpp
+		${STRATEGO_SRC_DIR}/nn/representation/RepresenterStratego.cpp
 
-		${STRATEGO_SOURCE_DIR}/logic/LogicStratego.cpp
+		${STRATEGO_SRC_DIR}/logic/LogicStratego.cpp
 
-		${STRATEGO_SOURCE_DIR}/nn/model/modules/AlphazeroStratego.h
+		${STRATEGO_SRC_DIR}/nn/model/modules/AlphazeroStratego.h
 		)
 
 
@@ -46,8 +45,10 @@ add_executable(alphazero_stratego ${STRATEGO_SOURCES} ${TARGET_SOURCES})
 target_include_directories(alphazero_stratego
 		PRIVATE
 		${AZPP_INCLUDE_DIR}
-		${PROJECT_SOURCE_DIR}/deps
-		${STRATEGO_SOURCE_DIR}
+		${TORCH_INCLUDE_DIRS}
+		${STRATEGO_SRC_DIR}
+
+		${TQDM_INCLUDE_DIR}
 		)
 
 set_target_properties(alphazero_stratego PROPERTIES
