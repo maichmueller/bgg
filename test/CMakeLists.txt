@@ -23,7 +23,7 @@ ENDIF()
 set(STRATEGO_SOURCE_DIR "${PROJECT_SOURCE_DIR}/stratego")
 
 set(TEST_SOURCES
-        ${LIBRARY_INCLUDE_DIR}/azpp/all.h
+        ${AZPP_INCLUDE_DIR}/azpp/all.h
 
         ${STRATEGO_SOURCE_DIR}/board/PieceStratego.h
         ${STRATEGO_SOURCE_DIR}/board/BoardStratego.cpp
@@ -56,7 +56,7 @@ add_executable(tests ${TEST_SOURCES} ${TARGET_TEST_SOURCES})
 
 target_include_directories(tests
         PRIVATE
-        ${LIBRARY_INCLUDE_DIR}
+        ${AZPP_INCLUDE_DIR}
         ${STRATEGO_SOURCE_DIR}
         ${PROJECT_SOURCE_DIR}/deps
         ${EXEC_SOURCE_DIR}

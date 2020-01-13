@@ -45,7 +45,7 @@ add_executable(alphazero_stratego ${STRATEGO_SOURCES} ${TARGET_SOURCES})
 
 target_include_directories(alphazero_stratego
 		PRIVATE
-		${LIBRARY_INCLUDE_DIR}
+		${AZPP_INCLUDE_DIR}
 		${PROJECT_SOURCE_DIR}/deps
 		${STRATEGO_SOURCE_DIR}
 		)
