@@ -94,7 +94,7 @@ class Coach {
       const std::shared_ptr< network_type > &nnet,
       std::string model_folder = "checkpoints",
       size_t epochs = 100,
-      size_t num_episodes = 100,
+      size_t num_episodes = 1,
       size_t num_mcts_sims = 100,
       size_t num_iters_train_examples_hist = 10e5,
       size_t exploration_rate = 100,
@@ -174,28 +174,10 @@ Coach< GameType, NetworkType >::execute_episode(
       std::vector< double > pi = mcts.get_action_probabilities(
          state, player, action_repper, expl_rate);
 
-      //        std::cout << "After action probs: " <<
-      //        state.get_board()->size()<< "\n";
       std::default_random_engine generator{std::random_device()()};
       std::discrete_distribution< int > qs_sampler{pi.begin(), pi.end()};
 
-      //        unsigned int action_index = qs_sampler(generator);
-      //        move_type move = action_repper.action_to_move(state,
-      //        action_index, player);
-
-      //        std::cout << "After action to move: " <<
-      //        state.get_board()->size()<< "\n";
       ep_examples.emplace_back(evaluated_turn_type(state, pi, null_v, player));
-      //
-      //        std::cout << "Move: (" << move[0][0] << ", " << move[0][1] << ")
-      //        -> ("
-      //                  << move[1][0] << ", " << move[1][1] << ")" << "\n";
-      //        std::cout << "Board before move done: \n"
-      //                  << state.get_board->print_board(false, false) << "\n";
-      //        state.do_move(move);
-      //        std::cout << "Board after move done: \n" <<
-      //        state.get_board->print_board(false, false)
-      //                  << "\n";
 
       int r = state.is_terminal(true);
 
@@ -251,6 +233,7 @@ void Coach< GameType, NetworkType >::teach(
       }
    }
    tqdm bar;
+   bar.set_label(" Executing " + std::to_string(m_epochs) + " epochs of training");
    for(size_t epoch = 0; epoch < m_epochs; ++epoch) {
       bar.progress(epoch, m_epochs);
 
@@ -258,13 +241,19 @@ void Coach< GameType, NetworkType >::teach(
          m_turns_queue.begin(), m_turns_queue.end()};
 
       if(! skip_first_self_play || epoch > 0) {
+//         tqdm ep_bar;
+//         ep_bar.set_label("selfplay");
          for(size_t episode = 0; episode < m_num_episodes; ++episode) {
+//            ep_bar.progress(episode, m_num_episodes);
+            LOGD("NEW EPISOOOOOOOOOOODEEE")
             for(auto &&evaluated_turn :
                 execute_episode(*(m_game->get_gamestate()), action_repper)) {
                evaluated_turn.convert_board(action_repper);
                train_data.emplace_back(evaluated_turn);
             }
+            LOGD2("NUMBER OF EVALUATED TURNS", train_data.size())
          }
+//         ep_bar.finish();
       }
 
       // TODO: Activate this part once serialization has been solved.

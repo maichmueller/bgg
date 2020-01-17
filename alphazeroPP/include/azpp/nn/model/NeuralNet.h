@@ -13,7 +13,7 @@
 class NetworkWrapper {
    std::shared_ptr< AlphaZeroInterface > m_network;
 
-   [[nodiscard]] std::vector< long long > prepend_to_shape(
+   [[nodiscard]] std::vector< long > prepend_to_shape(
       const torch::Tensor &tensor, size_t value) const;
 
    static inline torch::Tensor loss_pi(
@@ -64,9 +64,9 @@ void NetworkWrapper::train(
 
    auto board_tensor_sizes = prepend_to_shape(
       train_examples[0].get_tensor(), batch_size);
-   auto pi_tensor_sizes = std::vector< long long >{
-      static_cast< long long >(batch_size),
-      static_cast< long long >(train_examples[0].get_policy().size())};
+   auto pi_tensor_sizes = std::vector< long >{
+      static_cast< long >(batch_size),
+      static_cast< long >(train_examples[0].get_policy().size())};
    tqdm bar;
    bar.set_label("Training for " + std::to_string(epochs) + "epochs.");
    for(size_t epoch = 0; epoch < epochs; ++epoch) {
