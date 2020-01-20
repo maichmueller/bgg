@@ -92,7 +92,7 @@ std::vector< double > MCTS::get_action_probabilities(
    RepresenterBase< StateType, ActionRepresenterType > &action_repper,
    double expl_rate)
 {
-   //    tqdm bar;
+//   tqdm bar;
    for(int i = 0; i < m_num_mcts_sims; ++i) {
       //        bar.progress(i, m_num_mcts_sims);
       LOGD2("Elements NTPV", m_NTPVs.size())
@@ -100,7 +100,7 @@ std::vector< double > MCTS::get_action_probabilities(
       search_depth = -1;
       _search(state, player, action_repper, /*root=*/true);
    }
-   //    bar.finish();
+//       bar.finish();
 
    std::string state_rep = state.get_board()->print_board(
       static_cast< bool >(player), true);
