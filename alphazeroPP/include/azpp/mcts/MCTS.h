@@ -5,6 +5,7 @@
 #include <memory>
 #include <string>
 #include <unordered_map>
+#include <random>
 
 #include "azpp/game/State.h"
 #include "azpp/nn/model/NeuralNet.h"
@@ -19,18 +20,6 @@ class MCTS {
       int terminal_value;
       std::vector< double > policy;
       std::vector< unsigned int > validity_mask;
-
-      StateInfo(
-         size_t count,
-         int terminal_value,
-         const std::vector< double > &policy,
-         const std::vector< unsigned int > &validity_mask)
-          : count(count),
-            terminal_value(terminal_value),
-            policy(policy),
-            validity_mask(validity_mask)
-      {
-      }
 
       bool operator==(const StateInfo &other)
       {
@@ -47,11 +36,6 @@ class MCTS {
    struct StateActionInfo {
       size_t count = 0;
       double qvalue;
-
-      StateActionInfo(size_t count, double qvalue)
-          : count(count), qvalue(qvalue)
-      {
-      }
 
       bool operator==(const StateActionInfo &other)
       {
@@ -111,6 +95,8 @@ std::vector< double > MCTS::get_action_probabilities(
    //    tqdm bar;
    for(int i = 0; i < m_num_mcts_sims; ++i) {
       //        bar.progress(i, m_num_mcts_sims);
+      LOGD2("Elements NTPV", m_NTPVs.size())
+      LOGD2("Elements NQsa", m_NQsa.size())
       search_depth = -1;
       _search(state, player, action_repper, /*root=*/true);
    }
@@ -259,7 +245,7 @@ double MCTS::_search(
 
    std::vector< decltype(m_NQsa)::iterator > sa_iterators;
    size_t nr_actions = Ps.size();
-   sa_iterators.reserve(nr_actions);
+   sa_iterators.resize(nr_actions);
    const auto sa_end_iter = m_NQsa.end();
    for(size_t a = 0; a < nr_actions; ++a) {
       if(validity_mask[a]) {
@@ -294,8 +280,8 @@ double MCTS::_search(
       /*root=*/false);
    state.undo_last_rounds();
 
-   if(auto &container = sa_iterators[a]->second;
-      sa_iterators[a] != sa_end_iter) {
+   if(sa_iterators[a] != sa_end_iter) {
+      auto &container = sa_iterators[a]->second;
       size_t &n_sa = container.count;
       double &q_sa = container.qvalue;
 

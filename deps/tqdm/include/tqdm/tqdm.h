@@ -14,10 +14,12 @@
 #include <string>
 #include <vector>
 
+#include "tqdm_register.h"
+
 /**
  * Colors
  */
-
+#define UPONELINE "\033[A"
 #define RESET "\033[0m"
 #define BLACK "\033[30m" /* Black */
 #define RED "\033[31m" /* Red */
@@ -120,6 +122,7 @@ class tqdm {
          color_transition = false;
       }
    }
+//   ~tqdm() { tqdm_register::pop_pbar(); }
 
    void reset()
    {
@@ -233,7 +236,8 @@ class tqdm {
                hsv_to_rgb(0.0 + 0.01 * pct / 3, 0.65, 1.0, r, g, b);
                printf("\033[38;2;%d;%d;%dm ", r, g, b);
             } else {
-               printf("GREEN ");
+               printf(GREEN);
+               printf(" ");
             }
          }
          for(int i = 0; i < ifills; i++)

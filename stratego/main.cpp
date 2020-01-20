@@ -17,7 +17,7 @@ int main()
 {
    size_t board_size = 5;
    auto action_rep_sptr = std::make_shared< RepresenterStratego >(5);
-   std::vector< int > filters{128, 128, 128, 128};
+   std::vector< unsigned int > filters{128, 128, 128, 128};
    auto alphazero_net_ptr = std::make_shared< StrategoAlphaZero >(
       board_size * board_size * filters.front(),
       action_rep_sptr->get_actions().size(),
@@ -25,7 +25,7 @@ int main()
       10,
       action_rep_sptr->get_conditions().size(),
       filters,
-      std::vector< int >{3, 3, 3, 3},
+      std::vector< unsigned int >{3, 3, 3, 3},
       std::vector< bool >{false, false, false, false},
       std::vector< float >{0.0, 0.0, 0.0, 0.0});
 

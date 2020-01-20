@@ -18,10 +18,10 @@ class StrategoAlphaZero: public AlphaZeroInterface {
       int nr_lin_layers,
       int start_exponent,
       int channels,
-      std::vector< int > filter_sizes,
-      std::vector< int > kernel_sizes_vec,
-      std::vector< bool > maxpool_used_vec,
-      std::vector< float > dropout_probs,
+      const std::vector< unsigned int > & filter_sizes,
+      const std::vector< unsigned int > & kernel_sizes_vec,
+      const std::vector< bool > & maxpool_used_vec,
+      const std::vector< float > & dropout_probs,
       const torch::nn::Functional &activation_function =
          torch::nn::Functional(torch::relu));
 
@@ -37,18 +37,18 @@ StrategoAlphaZero::StrategoAlphaZero(
    int nr_lin_layers,
    int start_exponent,
    int channels,
-   std::vector< int > filter_sizes,
-   std::vector< int > kernel_sizes_vec,
-   std::vector< bool > maxpool_used_vec,
-   std::vector< float > dropout_probs,
+   const std::vector< unsigned int > & filter_sizes,
+   const std::vector< unsigned int > & kernel_sizes_vec,
+   const std::vector< bool > & maxpool_used_vec,
+   const std::vector< float > & dropout_probs,
    const torch::nn::Functional &activation_function)
     : D_in(D_in),
       convo_layers(std::make_unique< Convolutional >(
          channels,
-         std::move(filter_sizes),
-         std::move(kernel_sizes_vec),
-         std::move(maxpool_used_vec),
-         std::move(dropout_probs),
+         filter_sizes,
+         kernel_sizes_vec,
+         maxpool_used_vec,
+         dropout_probs,
          activation_function)),
       pi_act_layer(nullptr),
       v_act_layer(nullptr)

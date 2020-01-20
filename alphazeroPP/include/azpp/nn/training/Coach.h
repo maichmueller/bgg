@@ -174,32 +174,9 @@ Coach< GameType, NetworkType >::execute_episode(
       std::vector< double > pi = mcts.get_action_probabilities(
          state, player, action_repper, expl_rate);
 
-      //        std::cout << "After action probs: " <<
-      //        state.get_board()->size()<< "\n";
-      std::default_random_engine generator{std::random_device()()};
-      std::discrete_distribution< int > qs_sampler{pi.begin(), pi.end()};
-
-      //        unsigned int action_index = qs_sampler(generator);
-      //        move_type move = action_repper.action_to_move(state,
-      //        action_index, player);
-
-      //        std::cout << "After action to move: " <<
-      //        state.get_board()->size()<< "\n";
       ep_examples.emplace_back(evaluated_turn_type(state, pi, null_v, player));
-      //
-      //        std::cout << "Move: (" << move[0][0] << ", " << move[0][1] << ")
-      //        -> ("
-      //                  << move[1][0] << ", " << move[1][1] << ")" << "\n";
-      //        std::cout << "Board before move done: \n"
-      //                  << state.get_board->print_board(false, false) << "\n";
-      //        state.do_move(move);
-      //        std::cout << "Board after move done: \n" <<
-      //        state.get_board->print_board(false, false)
-      //                  << "\n";
 
-      int r = state.is_terminal(true);
-
-      if(r != 404) {
+      if(int r = state.is_terminal(true); r != 404) {
          for(auto &train_turn : ep_examples) {
             // since v is always returned as -v from the MCTS _search (the
             // end-value as seen from the opponent's side), we will have to

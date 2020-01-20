@@ -84,9 +84,10 @@ set_target_properties(alphazeroPP PROPERTIES
 
 target_compile_features(alphazeroPP PRIVATE cxx_std_17)
 # set(SANITIZE_OPTIONS -fsanitize=address -fsanitize=undefined)
-set(SANITIZE_OPTIONS )
-add_compile_options(${SANITIZE_OPTIONS})
-add_link_options(${SANITIZE_OPTIONS})
+#set(SANITIZE_OPTIONS )
+#add_compile_options(${SANITIZE_OPTIONS})
+#add_link_options(${SANITIZE_OPTIONS})
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
 # add_link_options(--verbose)
 
 # stdc++fs is needed for static linking against the std::filesystem library (not needed for GCC >=9)
