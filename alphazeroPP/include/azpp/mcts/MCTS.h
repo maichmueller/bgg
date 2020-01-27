@@ -1,20 +1,33 @@
 #pragma once
 
-#include <azpp/logic/Logic.h>
-
 #include <memory>
+#include <random>
 #include <string>
 #include <unordered_map>
-#include <random>
 
 #include "azpp/game/State.h"
+#include "azpp/logic/Logic.h"
 #include "azpp/nn/model/NeuralNet.h"
 #include "azpp/nn/representation/Representer.h"
 #include "azpp/utils/utils.h"
 
+/**
+ * The Monte-Carlo Tree Search class provides a tree search mechanism to
+ * iteratively evaluate states using the evaluation function of a neural
+ * network.
+ *
+ * By iteratively training the neural network with these evaluated turns, the
+ * overall evaluation function of the game can be fully trained. This class
+ * doesn't put a restriction on the types of games that can be evaluated. Any
+ * state type can thus be provided.
+ */
 class MCTS {
-   // Container for visit count, terminal value, policy
-   // vector, valid actions per state s
+   /// Data container for:
+   /// - visit count
+   /// - terminal value
+   /// - policy vector
+   /// - valid actions
+   /// per: (state s)
    struct StateInfo {
       size_t count = 0;
       int terminal_value;
@@ -31,8 +44,12 @@ class MCTS {
       void operator+=(size_t c) { count += c; }
    };
 
-   // Container for Q-values and visit count per state s and
-   // action a
+   /// Data container for:
+   /// - visit count
+   /// - Q-values
+   /// - policy vector
+   /// - valid actions
+   /// per: (state s, action a)
    struct StateActionInfo {
       size_t count = 0;
       double qvalue;
@@ -45,18 +62,49 @@ class MCTS {
       void operator+=(size_t c) { count += c; }
    };
 
+   /// The neural network is provided via a shared_ptr on construction.
+   /// It is assumed the network is allocated and deallocated outside.
    std::shared_ptr< NetworkWrapper > m_nnet_sptr;
+   /// a parameter determining the amount of exploration (needs to be checked in
+   /// paper)
    double m_cpuct;
+   /// the number of monte carlo tree searches to do for state evaluation
    int m_num_mcts_sims;
-
+   /// the current depth of the tree search. Meant as a temporary counter of the
+   /// search
    size_t search_depth = 0;
+   /// numeric stabilizer (minimum value to add to a function undef at 0)
    constexpr static const double m_EPS = 1e-10;
-
+   /// the map holding the state-action-specific information.
    std::unordered_map< std::string, StateInfo > m_NTPVs;
+   /// the map holding the state-action-specific information.
    std::unordered_map< std::tuple< std::string, int >, StateActionInfo > m_NQsa;
 
+   /**
+    * Samples dirichlet noise of a provided distribution dimension.
+    * @param size the dimension of the dirichlet noise.
+    * @return vector of `size` many dirichlet samples.
+    */
    static std::vector< double > _sample_dirichlet(size_t size);
 
+   /**
+    * Method that performs one step of the tree search.
+    *
+    * In every step the evaluated turn will be stored and the chosen best action
+    * applied to the state. If the state is not terminal, then the search will
+    * call itself anew for the next player's state to evaluate.
+    *
+    * @tparam StateType type that holds and updates the game state.
+    * @tparam ActionRepresenterType this type needs to be compatible the
+    * provided state type in order to translate the state into a torch tensor.
+    * @param state the current game state.
+    * @param player the player whose turn is being evaluated.
+    * @param action_repper the reference to the action representer translating
+    * the state to tensor.
+    * @param root a flag to decide whether this search step is the initial one.
+    * @return the value of the initially passed state and active player at root
+    * level.
+    */
    template < typename StateType, typename ActionRepresenterType >
    double _search(
       StateType &state,
@@ -64,6 +112,19 @@ class MCTS {
       RepresenterBase< StateType, ActionRepresenterType > &action_repper,
       bool root = false);
 
+   /**
+    * Private method that evaluates a current state tensor through the neural
+    * network for active player.
+    *
+    * @tparam StateType type that holds and updates the game state.
+    * @tparam ActionRepresenterType this type needs to be compatible the
+    * provided state type in order to translate the state into a torch tensor.
+    * @param state the current game state.
+    * @param player the player whose turn is being evaluated.
+    * @param action_repper the reference to the action representer translating
+    * the state to tensor.
+    * @return
+    */
    template < typename StateType, typename ActionRepresenterType >
    std::tuple< std::vector< double >, std::vector< unsigned int >, double >
    _evaluate_new_state(
@@ -72,9 +133,17 @@ class MCTS {
       RepresenterBase< StateType, ActionRepresenterType > &action_repper);
 
   public:
+   /**
+    * Standard constructor for this class. At least the neural network pointer
+    * needs to be provided.
+    *
+    * @param nnet_sptr the neural network for evaluation of the states.
+    * @param num_mcts_sims the number of search runs that should be made for the tree search.
+    * @param cpuct a parameter influencing the strength of exploration.
+    */
    MCTS(
       std::shared_ptr< NetworkWrapper > nnet_sptr,
-      int num_mcts_sims,
+      int num_mcts_sims = 100,
       double cpuct = 4);
 
    template < typename StateType, typename ActionRepresenterType >
@@ -92,7 +161,7 @@ std::vector< double > MCTS::get_action_probabilities(
    RepresenterBase< StateType, ActionRepresenterType > &action_repper,
    double expl_rate)
 {
-//   tqdm bar;
+   //   tqdm bar;
    for(int i = 0; i < m_num_mcts_sims; ++i) {
       //        bar.progress(i, m_num_mcts_sims);
       LOGD2("Elements NTPV", m_NTPVs.size())
@@ -100,7 +169,7 @@ std::vector< double > MCTS::get_action_probabilities(
       search_depth = -1;
       _search(state, player, action_repper, /*root=*/true);
    }
-//       bar.finish();
+   //       bar.finish();
 
    std::string state_rep = state.get_board()->print_board(
       static_cast< bool >(player), true);
@@ -160,23 +229,21 @@ MCTS::_evaluate_new_state(
    const torch::Tensor state_tensor = action_repper.state_representation(
       state, player);
 
-   auto [Ps, v] = m_nnet_sptr->predict(state_tensor);
+   auto [Ps, v] = m_nnet_sptr->evaluate(state_tensor);
+   // flatten the tensor (first dim is batch size dim = 1 here)
+   Ps = Ps.view(-1);
 
-   Ps = Ps.view(-1);  // flatten the tensor as the first dim
-                      // is the batch size dim
-
-   // mask for invalid actions
    const auto action_mask = action_repper.get_action_mask(*board, player);
-
-   torch::TensorAccessor Ps_acc = Ps.template accessor< float, 1 >();
    std::vector< double > Ps_filtered(action_mask.size());
    float Ps_sum = 0;
-
    // mask invalid actions
-   for(size_t i = 0; i < action_mask.size(); ++i) {
-      auto temp = Ps_acc[i] * action_mask[i];
-      Ps_sum += temp;
-      Ps_filtered[i] = temp;
+   for(auto [i, Ps_acc] =
+          std::make_pair(size_t(0), Ps.template accessor< float, 1 >());
+       i < action_mask.size();
+       ++i) {
+      float masked_action = Ps_acc[i] * action_mask[i];
+      Ps_sum += masked_action;
+      Ps_filtered[i] = masked_action;
    }
    // normalize the likelihoods
    for(auto &p_val : Ps_filtered) {
@@ -193,11 +260,8 @@ double MCTS::_search(
    bool root)
 {
    search_depth += 1;
-   //    LOGD2("Search depth", search_depth);
-   //    LOGD(state.get_board()->print_board(false, false));
-   // for the state rep we flip the board if player == 1 and
-   // we dont if player
-   // == 0! all the enemy hidden pieces wont be printed out
+   // for the state rep we flip the board if player == 1 and we dont if
+   // player == 0! all the hidden enemy pieces wont be printed out
    // -> unknown pieces are also hidden for the neural net
    std::string s = state.string_representation(player, true);
    auto state_data_iter = m_NTPVs.find(s);

@@ -42,7 +42,7 @@ class AlphaZeroAgent: public AgentReinforceBase< StateType > {
       torch::Tensor state_rep = m_action_rep_ptr->state_representation(
          state, base_type::m_team);
 
-      auto [pi, v] = base_type::m_model->predict(state_rep);
+      auto [pi, v] = base_type::m_model->evaluate(state_rep);
       auto validity_mask = m_action_rep_ptr->get_action_mask(
          *state.get_board(), base_type::m_team);
       pi.squeeze_(0);

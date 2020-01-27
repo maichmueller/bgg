@@ -20,7 +20,7 @@ class FullyConnected: public torch::nn::Module {
 
    torch::Tensor forward(const torch::Tensor &input);
 
-   int get_intput_dim() { return m_D_in; }
+   int get_input_dim() { return m_D_in; }
 
    int get_output_dim() { return m_D_out; }
 

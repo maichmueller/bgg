@@ -15,8 +15,18 @@
 
 int main()
 {
+   torch::autograd::AutoGradMode guard(false); // fixes memory problem
+
    size_t board_size = 5;
+
+   //
+   // create the action representer
+   //
    auto action_rep_sptr = std::make_shared< RepresenterStratego >(5);
+
+   //
+   // build the neural network
+   //
    std::vector< unsigned int > filters{128, 128, 128, 128};
    auto alphazero_net_ptr = std::make_shared< StrategoAlphaZero >(
       board_size * board_size * filters.front(),
@@ -31,6 +41,10 @@ int main()
 
    auto network_0 = std::make_shared< NetworkWrapper >(alphazero_net_ptr);
    auto network_1 = std::make_shared< NetworkWrapper >(*network_0);
+
+   //
+   // build the agents to train.
+   //
    auto agent_0 = std::make_shared<
       AlphaZeroAgent< StateStratego, RepresenterStratego > >(
       0, network_0, action_rep_sptr);
@@ -43,6 +57,10 @@ int main()
    //    auto agent_1 = std::make_shared<RandomAgent<StateStratego>>(
    //            1
    //    );
+
+   //
+   // setup the game
+   //
    std::map< BoardStratego::position_type, BoardStratego::kin_type > setup0;
    std::map< BoardStratego::position_type, BoardStratego::kin_type > setup1;
 
@@ -72,8 +90,12 @@ int main()
    auto game = std::make_shared< GameStratego >(
       std::array< size_t, 2 >{5, 5}, setup0, setup1, agent_0, agent_1, true);
 
-   //    game->run_game(false);
 
+   //
+   // run/train on the game
+   //
+
+   //    game->run_game(false);
    Coach coach(game, network_0);
    coach.teach(*action_rep_sptr, false, false, false, false);
 

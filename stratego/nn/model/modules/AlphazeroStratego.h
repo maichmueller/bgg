@@ -80,8 +80,6 @@ StrategoAlphaZero::StrategoAlphaZero(
 std::tuple< torch::Tensor, torch::Tensor > StrategoAlphaZero::forward(
    const torch::Tensor &input)
 {
-   input.to(GLOBAL_DEVICE::get_device());
-
    torch::Tensor features = convo_layers->forward(input);
    features = linear_layers->forward(features.view({-1, D_in}));
 

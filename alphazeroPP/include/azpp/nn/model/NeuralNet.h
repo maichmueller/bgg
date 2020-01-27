@@ -10,19 +10,28 @@
 #include "azpp/nn/model/modules/AlphazeroInterface.h"
 #include "azpp/utils/torch_utils.h"
 
+// for some reason torch decided to change the standard ArrayRef value type between linux and mac.
+// Might have to do with different size_t standards on linux and mac.
+#ifdef __APPLE__
+#define TORCH_ARRAYREF_TYPE long long
+#else
+#define TORCH_ARRAYREF_TYPE long
+#endif
+
+
 class NetworkWrapper {
    std::shared_ptr< AlphaZeroInterface > m_network;
 
-   [[nodiscard]] std::vector< long > prepend_to_shape(
+   [[nodiscard]] std::vector< TORCH_ARRAYREF_TYPE > _prepend_to_shape(
       const torch::Tensor &tensor, size_t value) const;
 
-   static inline torch::Tensor loss_pi(
+   static inline torch::Tensor _loss_pi(
       const torch::Tensor &targets, const torch::Tensor &outputs)
    {
       return -(targets * outputs).sum() / targets.size(1);
    }
 
-   static inline torch::Tensor loss_v(
+   static inline torch::Tensor _loss_v(
       const torch::Tensor &targets, const torch::Tensor &outputs)
    {
       return (targets - outputs).pow(2).sum() / targets.size(1);
@@ -40,7 +49,7 @@ class NetworkWrapper {
       size_t epochs,
       size_t batch_size = 128);
 
-   std::tuple< torch::Tensor, double > predict(
+   std::tuple< torch::Tensor, double > evaluate(
       const torch::Tensor &board_tensor);
 
    void save_checkpoint(std::string const &folder, std::string const &filename);
@@ -62,11 +71,11 @@ void NetworkWrapper::train(
       m_network->parameters(),
       torch::optim::AdamOptions(/*learning_rate=*/0.01));
 
-   auto board_tensor_sizes = prepend_to_shape(
+   auto board_tensor_sizes = _prepend_to_shape(
       train_examples[0].get_tensor(), batch_size);
-   auto pi_tensor_sizes = std::vector< long >{
-      static_cast< long >(batch_size),
-      static_cast< long >(train_examples[0].get_policy().size())};
+   auto pi_tensor_sizes = std::vector< TORCH_ARRAYREF_TYPE >{
+      static_cast< TORCH_ARRAYREF_TYPE >(batch_size),
+      static_cast< TORCH_ARRAYREF_TYPE >(train_examples[0].get_policy().size())};
    tqdm bar;
    bar.set_label("Training for " + std::to_string(epochs) + "epochs.");
    for(size_t epoch = 0; epoch < epochs; ++epoch) {
@@ -126,8 +135,8 @@ void NetworkWrapper::train(
          }
 
          auto [policy_output, value_output] = m_network->forward(board_tensor);
-         auto l_pi = loss_pi(policy_tensor, policy_output);
-         auto l_v = loss_v(value_tensor, value_output);
+         auto l_pi = _loss_pi(policy_tensor, policy_output);
+         auto l_v = _loss_v(value_tensor, value_output);
          auto total_loss = l_pi + l_v;
          total_loss.requires_grad();
 

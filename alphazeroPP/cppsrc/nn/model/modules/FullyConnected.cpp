@@ -46,7 +46,5 @@ FullyConnected::FullyConnected(
 
 torch::Tensor FullyConnected::forward(const torch::Tensor &input)
 {
-   input.to(GLOBAL_DEVICE::get_device());
-
    return m_layers->forward(input);
 }

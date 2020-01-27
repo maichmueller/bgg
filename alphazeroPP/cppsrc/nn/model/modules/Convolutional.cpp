@@ -70,7 +70,7 @@ void Convolutional::_build_layers_after_construction(
          m_kernel_sizes[k])
          .stride(1)
          .padding(zero_padding[k])
-         .with_bias(false);
+         .bias(false);
 
       m_layers->push_back(torch::nn::Conv2d(options));
 
@@ -99,6 +99,5 @@ void Convolutional::_build_layers_after_construction(
 
 torch::Tensor Convolutional::forward(const torch::Tensor &input)
 {
-   input.to(GLOBAL_DEVICE::get_device());
    return m_layers->forward(input);
 }
