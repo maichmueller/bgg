@@ -38,6 +38,18 @@ class RepresenterStratego:
       return state_representation_(state, player, m_conditions);
    }
 
+   /**
+    * Method to convert a given state to a torch tensor representation.
+    *
+    * This method will not accumulate gradients in its representation as this
+    * will otherwise blow up memory usage in the MCTS class.
+    *
+    * @tparam condition_type the conditions type we want to handle. At the current moment this only handles the default type. Others would lead to a compile time error.
+    * @param state the state to convert.
+    * @param player the current active player.
+    * @param conditions the vector of conditions. For each condition the first size of the torch tensor is incremented.
+    * @return torch tensor representing the state.
+    */
    template < typename condition_type = std::tuple< kin_type, int, bool > >
    torch::Tensor state_representation_(
       const state_type &state,
@@ -131,7 +143,7 @@ torch::Tensor RepresenterStratego::state_representation_(
                      .dtype(torch::kFloat32)
                      .layout(torch::kStrided)
                      .device(GLOBAL_DEVICE::get_device())
-                     .requires_grad(true);
+                     .requires_grad(false);
    // the dimensions here are as follows:
    // state_dim = dimension of the state rep, i.e. how many layers of the
    // conditions shape[0] = first board dimension shape[1] = second board
