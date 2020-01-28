@@ -15,8 +15,6 @@
 
 int main()
 {
-   torch::autograd::AutoGradMode guard(false); // fixes memory problem
-
    size_t board_size = 5;
 
    //
