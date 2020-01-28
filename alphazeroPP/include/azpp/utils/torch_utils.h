@@ -9,11 +9,13 @@ struct GLOBAL_DEVICE {
    // static inline torch::Device global_dev = torch::cuda::is_available() ?
    // torch::kCUDA : torch::kCPU;
 
-   static inline torch::Device global_dev = torch::kCPU;
+   static inline torch::Device global_dev = torch::cuda::is_available()
+                                               ? torch::kCUDA
+                                               : torch::kCPU;
 
    static auto& get_device() { return global_dev; }
-   static void set_device_cuda() { global_dev = torch::Device(torch::kCUDA); }
-   static void set_device_cpu() { global_dev = torch::Device(torch::kCPU); }
+   static void cuda() { global_dev = torch::Device(torch::kCUDA); }
+   static void cpu() { global_dev = torch::Device(torch::kCPU); }
 };
 
 namespace torch_utils {
