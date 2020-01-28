@@ -70,7 +70,7 @@ void Convolutional::_build_layers_after_construction(
          m_kernel_sizes[k])
          .stride(1)
          .padding(zero_padding[k])
-         .bias(false);
+         .with_bias(false);
 
       m_layers->push_back(torch::nn::Conv2d(options));
 
@@ -95,6 +95,7 @@ void Convolutional::_build_layers_after_construction(
       // finish this layer-segment with a layer activation
       m_layers->push_back(activation_function);
    }
+   m_layers = register_module("Sequential", m_layers);
 }
 
 torch::Tensor Convolutional::forward(const torch::Tensor &input)

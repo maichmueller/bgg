@@ -55,7 +55,7 @@ set_target_properties(alphazero_stratego PROPERTIES
 		CXX_STANDARD 17
 		)
 
-set(SANITIZE_OPTIONS -fsanitize=address -fsanitize=undefined)
+#set(SANITIZE_OPTIONS -fsanitize=address -fsanitize=undefined)
 target_compile_options(alphazero_stratego PRIVATE -Wall ${SANITIZE_OPTIONS})
 target_link_options(alphazero_stratego PRIVATE ${SANITIZE_OPTIONS} --verbose)
 

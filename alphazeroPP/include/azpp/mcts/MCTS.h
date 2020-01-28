@@ -138,7 +138,8 @@ class MCTS {
     * needs to be provided.
     *
     * @param nnet_sptr the neural network for evaluation of the states.
-    * @param num_mcts_sims the number of search runs that should be made for the tree search.
+    * @param num_mcts_sims the number of search runs that should be made for the
+    * tree search.
     * @param cpuct a parameter influencing the strength of exploration.
     */
    MCTS(
@@ -230,17 +231,16 @@ MCTS::_evaluate_new_state(
       state, player);
 
    auto [Ps, v] = m_nnet_sptr->evaluate(state_tensor);
-   // flatten the tensor (first dim is batch size dim = 1 here)
-   Ps = Ps.view(-1);
+   // move to cpu (as we need to work with it) and flatten the tensor (first dim
+   // is batch size dim = 1 here)
+   Ps = Ps.cpu().view(-1);
 
    const auto action_mask = action_repper.get_action_mask(*board, player);
    std::vector< double > Ps_filtered(action_mask.size());
    float Ps_sum = 0;
    // mask invalid actions
-   for(auto [i, Ps_acc] =
-          std::make_pair(size_t(0), Ps.template accessor< float, 1 >());
-       i < action_mask.size();
-       ++i) {
+   auto Ps_acc = Ps.template accessor< float, 1 >();
+   for(size_t i = 0; i < action_mask.size(); ++i) {
       float masked_action = Ps_acc[i] * action_mask[i];
       Ps_sum += masked_action;
       Ps_filtered[i] = masked_action;

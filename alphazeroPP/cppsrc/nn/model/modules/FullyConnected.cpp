@@ -42,6 +42,7 @@ FullyConnected::FullyConnected(
       m_layers->push_back(torch::nn::Linear(torch::nn::LinearOptions(
          hidden_nodes / (2 << (nr_lin_layers - 3)), D_out)));
    }
+   m_layers = register_module("Sequential", m_layers);
 }
 
 torch::Tensor FullyConnected::forward(const torch::Tensor &input)

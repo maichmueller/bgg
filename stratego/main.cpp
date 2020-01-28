@@ -36,8 +36,9 @@ int main()
       std::vector< unsigned int >{3, 3, 3, 3},
       std::vector< bool >{false, false, false, false},
       std::vector< float >{0.0, 0.0, 0.0, 0.0});
-
+//   alphazero_net_ptr->to(GLOBAL_DEVICE::get_device());
    auto network_0 = std::make_shared< NetworkWrapper >(alphazero_net_ptr);
+   network_0->to(GLOBAL_DEVICE::get_device());
    auto network_1 = std::make_shared< NetworkWrapper >(*network_0);
 
    //

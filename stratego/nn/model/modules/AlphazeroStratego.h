@@ -6,8 +6,8 @@
 
 class StrategoAlphaZero: public AlphaZeroInterface {
    int D_in;
-   std::unique_ptr< Convolutional > convo_layers;
-   std::unique_ptr< FullyConnected > linear_layers;
+   std::shared_ptr< Convolutional > convo_layers;
+   std::shared_ptr< FullyConnected > linear_layers;
    torch::nn::Linear pi_act_layer;
    torch::nn::Linear v_act_layer;
 
@@ -18,17 +18,15 @@ class StrategoAlphaZero: public AlphaZeroInterface {
       int nr_lin_layers,
       int start_exponent,
       int channels,
-      const std::vector< unsigned int > & filter_sizes,
-      const std::vector< unsigned int > & kernel_sizes_vec,
-      const std::vector< bool > & maxpool_used_vec,
-      const std::vector< float > & dropout_probs,
+      const std::vector< unsigned int > &filter_sizes,
+      const std::vector< unsigned int > &kernel_sizes_vec,
+      const std::vector< bool > &maxpool_used_vec,
+      const std::vector< float > &dropout_probs,
       const torch::nn::Functional &activation_function =
          torch::nn::Functional(torch::relu));
 
    std::tuple< torch::Tensor, torch::Tensor > forward(
       const torch::Tensor &input) override;
-
-   void to_device(torch::Device device);
 };
 
 StrategoAlphaZero::StrategoAlphaZero(
@@ -37,13 +35,13 @@ StrategoAlphaZero::StrategoAlphaZero(
    int nr_lin_layers,
    int start_exponent,
    int channels,
-   const std::vector< unsigned int > & filter_sizes,
-   const std::vector< unsigned int > & kernel_sizes_vec,
-   const std::vector< bool > & maxpool_used_vec,
-   const std::vector< float > & dropout_probs,
+   const std::vector< unsigned int > &filter_sizes,
+   const std::vector< unsigned int > &kernel_sizes_vec,
+   const std::vector< bool > &maxpool_used_vec,
+   const std::vector< float > &dropout_probs,
    const torch::nn::Functional &activation_function)
     : D_in(D_in),
-      convo_layers(std::make_unique< Convolutional >(
+      convo_layers(std::make_shared< Convolutional >(
          channels,
          filter_sizes,
          kernel_sizes_vec,
@@ -64,7 +62,7 @@ StrategoAlphaZero::StrategoAlphaZero(
                                    / (2u << static_cast< unsigned int >(
                                          nr_lin_layers - 4));
 
-   linear_layers = std::make_unique< FullyConnected >(
+   linear_layers = std::make_shared< FullyConnected >(
       D_in,
       substitute_d_out,
       nr_lin_layers - 1,
@@ -75,6 +73,11 @@ StrategoAlphaZero::StrategoAlphaZero(
       torch::nn::LinearOptions(substitute_d_out, D_out));
    v_act_layer = torch::nn::Linear(
       torch::nn::LinearOptions(substitute_d_out, 1));
+
+   convo_layers = register_module("Convolutional Block", convo_layers);
+   linear_layers = register_module("FullyConnected Block", linear_layers);
+   pi_act_layer = register_module("Policy Generating Layer", pi_act_layer);
+   v_act_layer = register_module("Value Generating Layer", v_act_layer);
 }
 
 std::tuple< torch::Tensor, torch::Tensor > StrategoAlphaZero::forward(
@@ -87,13 +90,4 @@ std::tuple< torch::Tensor, torch::Tensor > StrategoAlphaZero::forward(
    torch::Tensor v = torch::tanh(v_act_layer->forward(features));
 
    return std::make_tuple(pi, v);
-}
-
-void StrategoAlphaZero::to_device(torch::Device device)
-{
-   this->to(device);
-   convo_layers->to(device);
-   linear_layers->to(device);
-   pi_act_layer->to(device);
-   v_act_layer->to(device);
 }

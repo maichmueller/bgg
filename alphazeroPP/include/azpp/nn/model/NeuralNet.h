@@ -10,14 +10,14 @@
 #include "azpp/nn/model/modules/AlphazeroInterface.h"
 #include "azpp/utils/torch_utils.h"
 
-// for some reason torch decided to change the standard ArrayRef value type between linux and mac.
-// Might have to do with different size_t standards on linux and mac.
+// for some reason torch decided to change the standard ArrayRef value type
+// between linux and mac. Might have to do with different size_t standards on
+// linux and mac.
 #ifdef __APPLE__
-#define TORCH_ARRAYREF_TYPE long long
+   #define TORCH_ARRAYREF_TYPE long long
 #else
-#define TORCH_ARRAYREF_TYPE long
+   #define TORCH_ARRAYREF_TYPE long
 #endif
-
 
 class NetworkWrapper {
    std::shared_ptr< AlphaZeroInterface > m_network;
@@ -38,8 +38,8 @@ class NetworkWrapper {
    }
 
   public:
-   explicit NetworkWrapper(std::shared_ptr< AlphaZeroInterface > network)
-       : m_network(std::move(network))
+   explicit NetworkWrapper(std::shared_ptr< AlphaZeroInterface > network_ptr)
+       : m_network(std::move(network_ptr))
    {
    }
 
@@ -75,7 +75,8 @@ void NetworkWrapper::train(
       train_examples[0].get_tensor(), batch_size);
    auto pi_tensor_sizes = std::vector< TORCH_ARRAYREF_TYPE >{
       static_cast< TORCH_ARRAYREF_TYPE >(batch_size),
-      static_cast< TORCH_ARRAYREF_TYPE >(train_examples[0].get_policy().size())};
+      static_cast< TORCH_ARRAYREF_TYPE >(
+         train_examples[0].get_policy().size())};
    tqdm bar;
    bar.set_label("Training for " + std::to_string(epochs) + "epochs.");
    for(size_t epoch = 0; epoch < epochs; ++epoch) {
@@ -90,7 +91,7 @@ void NetworkWrapper::train(
          std::sample(
             train_examples.begin(),
             train_examples.end(),
-            examples_batch.begin(),
+            std::back_inserter(examples_batch),
             batch_size,
             std::mt19937{std::random_device{}()});
 
