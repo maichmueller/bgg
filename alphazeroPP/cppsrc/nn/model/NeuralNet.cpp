@@ -1,7 +1,7 @@
 
 #include "azpp/nn/model/NeuralNet.h"
-#include "azpp/utils/logging_macros.h"
 
+#include "azpp/utils/logging_macros.h"
 
 std::tuple< torch::Tensor, double > NetworkWrapper::evaluate(
    const torch::Tensor &board_tensor)
@@ -10,9 +10,11 @@ std::tuple< torch::Tensor, double > NetworkWrapper::evaluate(
    torch::NoGradGuard no_grad;
    m_network->eval();
 
-   auto [pi_tensor, v_tensor] = m_network->forward(board_tensor.to(GLOBAL_DEVICE::get_device()));
+   auto [pi_tensor, v_tensor] = m_network->forward(
+      board_tensor.to(GLOBAL_DEVICE::get_device()));
 
-   return std::make_tuple(pi_tensor.detach(), v_tensor.template item< double >());
+   return std::make_tuple(
+      pi_tensor.detach(), v_tensor.template item< double >());
 }
 
 void NetworkWrapper::save_checkpoint(
@@ -51,13 +53,20 @@ void NetworkWrapper::load_checkpoint(
 std::vector< TORCH_ARRAYREF_TYPE > NetworkWrapper::_prepend_to_shape(
    const torch::Tensor &tensor, size_t value) const
 {
-   // get current shape and initialize +1
-   auto sizes = tensor.sizes();
-   std::vector< TORCH_ARRAYREF_TYPE > sizes_out(
-      static_cast< TORCH_ARRAYREF_TYPE >(sizes.size()) + 1);
-   // size 0 is batch size, rest of the shape needs to be kept from input
-   sizes_out[0] = value;
-   std::copy(sizes.begin(), sizes.end(), sizes_out.begin() + 1);
+   // get current shape and initialize another dimension +1
+   std::vector< TORCH_ARRAYREF_TYPE > sizes_out;
+   auto sizes_tensor = tensor.sizes();
+   auto begin_it = sizes_tensor.begin();
+   if(sizes_tensor[0] == 1) {
+      // size 0 is batch size if it is == 0, rest of the shape needs to be kept
+      // from input
+      sizes_out.reserve(sizes_tensor.size());
+      begin_it += 1;
+   } else {
+      sizes_out.reserve(sizes_tensor.size() + 1);
+   }
+   sizes_out.push_back(value);
+   std::copy(begin_it, sizes_tensor.end(), std::back_inserter(sizes_out));
 
    return sizes_out;
 }
