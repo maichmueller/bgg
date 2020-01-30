@@ -81,29 +81,21 @@ void NetworkWrapper::train(
    bar.set_label("Training for " + std::to_string(epochs) + "epochs.");
    for(size_t epoch = 0; epoch < epochs; ++epoch) {
       bar.progress(epoch, epochs);
-      // set the network into train mode (i.e. demands gradient
-      // updates for tensors)
+      // set the network into train mode
       m_network->train();
-      for(size_t b = 0; b < train_examples.size(); b += batch_size) {
-         // get a randomly drawn sample index batch
-         TrainDataContainer examples_batch;
-         examples_batch.reserve(batch_size);
-         std::sample(
-            train_examples.begin(),
-            train_examples.end(),
-            std::back_inserter(examples_batch),
-            batch_size,
-            std::mt19937{std::random_device{}()});
+      std::shuffle(
+         train_examples.begin(),
+         train_examples.end(),
+         std::mt19937{std::random_device{}()});
 
+      const size_t n_data = train_examples.size();
+      for(size_t b = 0; b < n_data; b += batch_size) {
+         // clear existing gradient residue.
+         optimizer.zero_grad();
+         // declare the tensors we will need for training.
          std::vector< torch::Tensor > board_batch(batch_size);
          std::vector< std::vector< double > > pi_batch(batch_size);
          std::vector< int > v_batch(batch_size);
-
-         torch::TensorOptions
-            options_nograd = torch::TensorOptions()
-                                .device(GLOBAL_DEVICE::get_device())
-                                .dtype(torch::kFloat)
-                                .requires_grad(false);
 
          torch::TensorOptions options_grad = torch::TensorOptions()
                                                 .device(
@@ -111,37 +103,26 @@ void NetworkWrapper::train(
                                                 .dtype(torch::kFloat)
                                                 .requires_grad(true);
 
-         // i suppose the board_tensor doesnt need a gradient (as
-         // implied in options_int) as it is only used to compute the
-         // network output
-         torch::Tensor board_tensor = torch::empty(
-            board_tensor_sizes, options_nograd);
-         torch::Tensor policy_tensor = torch::empty(
-            pi_tensor_sizes, options_grad);
-         torch::Tensor value_tensor = torch::empty(batch_size, options_grad);
+         torch::Tensor board = torch::empty(board_tensor_sizes, options_grad);
+         torch::Tensor policy = torch::empty(pi_tensor_sizes, options_grad);
+         torch::Tensor value = torch::empty(batch_size, options_grad);
 
-         // fill the batch tensors with the respective part of the
-         // sample-tuple
-         int i = 0;
-         for(const auto &sample : examples_batch) {
-            board_tensor[i] = sample.get_tensor();
-            value_tensor[i] = sample.get_evaluation();
-            policy_tensor[i] = torch::from_blob(
-               sample.get_policy().data(),
-               {pi_tensor_sizes[1]},
-               torch::TensorOptions()
-                  .device(GLOBAL_DEVICE::get_device())
-                  .dtype(torch::kFloat));
-            ++i;
+         // fill the batch tensors with the batch data
+         size_t begin = b * batch_size;
+         for(size_t i = begin; b < std::min(n_data, begin + batch_size); ++i) {
+            auto &sample = train_examples[i];
+
+            board[i] = sample.get_tensor();
+            value[i] = sample.get_evaluation();
+            policy[i] = torch::from_blob(
+               sample.get_policy().data(), {pi_tensor_sizes[1]}, options_grad);
          }
 
-         auto [policy_output, value_output] = m_network->forward(board_tensor);
-         auto l_pi = _loss_pi(policy_tensor, policy_output);
-         auto l_v = _loss_v(value_tensor, value_output);
+         auto [policy_output, value_output] = m_network->forward(board);
+         auto l_pi = _loss_pi(policy, policy_output);
+         auto l_v = _loss_v(value, value_output);
          auto total_loss = l_pi + l_v;
-         total_loss.requires_grad();
 
-         optimizer.zero_grad();
          total_loss.backward();
          optimizer.step();
       }
