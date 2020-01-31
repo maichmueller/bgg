@@ -1,5 +1,6 @@
 #pragma once
 
+#include <azpp/utils.h>
 #include <torch/torch.h>
 #include <tqdm/tqdm.h>
 
@@ -26,15 +27,15 @@ class NetworkWrapper {
       const torch::Tensor &tensor, size_t value) const;
 
    static inline torch::Tensor _loss_pi(
-      const torch::Tensor &targets, const torch::Tensor &outputs)
+      const torch::Tensor &target_probs, const torch::Tensor &estimated_probs)
    {
-      return -(targets * outputs).sum() / targets.size(0);
+      return (target_probs * torch::log(estimated_probs)).sum(0);
    }
 
    static inline torch::Tensor _loss_v(
-      const torch::Tensor &targets, const torch::Tensor &outputs)
+      const torch::Tensor &target, const torch::Tensor &output)
    {
-      return (targets - outputs).pow(2).sum() / targets.size(1);
+      return (target - output).pow(2).sum();
    }
 
   public:
@@ -117,6 +118,8 @@ void NetworkWrapper::train(
          }
 
          auto [policy_output, value_output] = m_network->forward(board);
+         LOGD2("Pol out sizes", policy_output.sizes())
+         LOGD2("Pol sizes", policy.sizes())
          auto l_pi = _loss_pi(policy, policy_output);
          auto l_v = _loss_v(value, value_output);
          auto total_loss = l_pi + l_v;

@@ -165,8 +165,8 @@ std::vector< double > MCTS::get_action_probabilities(
    //   tqdm bar;
    for(int i = 0; i < m_num_mcts_sims; ++i) {
       //        bar.progress(i, m_num_mcts_sims);
-      LOGD2("Elements NTPV", m_NTPVs.size())
-      LOGD2("Elements NQsa", m_NQsa.size())
+//      LOGD2("Elements NTPV", m_NTPVs.size())
+//      LOGD2("Elements NQsa", m_NQsa.size())
       search_depth = -1;
       _search(state, player, action_repper, /*root=*/true);
    }
@@ -268,6 +268,7 @@ double MCTS::_search(
    if(state_data_iter == m_NTPVs.end()) {
       auto [Ps_filtered, action_mask, v] = std::move(
          _evaluate_new_state(state, player, action_repper));
+      LOGD2("Policy", Ps_filtered)
       m_NTPVs.emplace(
          s, StateInfo{0, state.is_terminal(), Ps_filtered, action_mask});
       return -v;

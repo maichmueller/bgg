@@ -57,7 +57,7 @@ target_include_directories(tests
         ${AZPP_INCLUDE_DIR}
         ${TORCH_INCLUDE_DIRS}
         ${STRATEGO_SRC_DIR}
-        ${EXEC_SOURCE_DIR}
+        ${TQDM_INCLUDE_DIR}
         )
 
 set_target_properties(tests PROPERTIES

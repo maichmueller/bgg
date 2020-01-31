@@ -32,6 +32,7 @@ class State {
    std::vector< bool > m_move_equals_prev_move;
    unsigned int m_rounds_without_fight;
 
+   void _recompute_rounds_without_fight();
    virtual int _do_move(const move_type &move);
    virtual ~State() = default;
 
@@ -135,9 +136,17 @@ int State< BoardType >::is_terminal(bool force_check)
 template < class BoardType >
 void State< BoardType >::undo_last_rounds(int n)
 {
+   // rwf = rounds without fight
+   bool recompute_rwf = false;
+
    for(int i = 0; i < n; ++i) {
       move_type move = m_move_history.back();
       auto move_pieces = m_piece_history.back();
+
+      if(m_rounds_without_fight > 0)
+         m_rounds_without_fight -= 1;
+      else
+         recompute_rwf = true;
 
       m_move_history.pop_back();
       m_piece_history.pop_back();
@@ -146,7 +155,11 @@ void State< BoardType >::undo_last_rounds(int n)
       m_board.update_board(move[1], move_pieces[1]);
       m_board.update_board(move[0], move_pieces[0]);
    }
+
    m_turn_count -= n;
+   if(recompute_rwf) {
+      _recompute_rounds_without_fight();
+   }
 }
 
 template < class BoardType >
@@ -189,4 +202,18 @@ std::string State< BoardType >::string_representation(
    sstream << "turn count" << m_turn_count << "\n";
    //    sstream << "rounds without fight" << m_rounds_without_fight << "\n";
    return sstream.str();
+}
+template < class BoardType >
+void State< BoardType >::_recompute_rounds_without_fight()
+{
+   m_rounds_without_fight = 0;
+   for(auto piece_rev_iter = m_piece_history.rbegin();
+       piece_rev_iter != m_piece_history.rend();
+       ++piece_rev_iter) {
+      if(! (*piece_rev_iter)[1]->is_null())
+         // if the defending piece was not a null piece, then there was a fight
+         break;
+      else
+         m_rounds_without_fight += 1;
+   }
 }

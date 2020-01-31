@@ -1,7 +1,7 @@
 #pragma once
 
 #include "gtest/gtest.h"
-#include "nn/model/representation/RepresenterStratego.h"
+#include "nn/representation/RepresenterStratego.h"
 
 namespace {
 using piece_type = PieceStratego;

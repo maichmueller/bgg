@@ -52,6 +52,9 @@ TEST_F(StateTest, StateTest_DO_and_UNDO_Move_Ints_2D)
    // round 2
    state.do_move({position_type(1, 2), position_type(3, 2)});
    // round 3
+   state.do_move({position_type(3, 2), position_type(1, 2)});
+   // round 4
+   state.do_move({position_type(1, 2), position_type(3, 2)});
    // ...
    state.restore_to_round(2);
    EXPECT_EQ(*(state[{1, 2}]), piece_12);
