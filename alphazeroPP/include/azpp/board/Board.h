@@ -140,7 +140,10 @@ class Board {
    [[nodiscard]] virtual std::string print_board(
       int player, bool hide_unknowns) const = 0;
 
-   virtual std::shared_ptr< Board< piece_type > > clone() = 0;
+   std::shared_ptr< Board< piece_type > > clone()
+   {
+      return std::shared_ptr< Board< piece_type > >(clone_impl());
+   }
 
   protected:
    std::array< size_t, m_dim > m_shape;
@@ -158,15 +161,24 @@ class Board {
 
    void _fill_inverse_board();
 
-   virtual Board< piece_type > *clone_impl() const = 0;
+   template <typename BoardType>
+   BoardType *clone_impl() const {
+      auto* board_copy_ptr = new BoardType(*this);
+      for(auto & sptr : *board_copy_ptr) {
+         sptr.second = std::make_shared<piece_type >(*sptr.second);
+      }
+      return board_copy_ptr;
+   }
+
+//   virtual Board< piece_type > *clone_impl() const = 0;
 };
 
 template < typename PieceType >
 template < class T, size_t N >
 std::array< T, N > Board< PieceType >::make_array(const T &value)
 {
-   // only works for default constructible value types T! (intended for int in
-   // this class)
+   // only works for default constructible value types T!
+   // (intended for int in this class)
    std::array< T, N > ret;
    ret.fill(value);
    return ret;

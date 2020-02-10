@@ -17,6 +17,13 @@ class BoardImplTest: public Board< piece_type > {
    {
       return "";
    }
+//   BoardImplTest* clone_impl() const {
+//      auto* board_copy_ptr = new BoardImplTest(*this);
+//      for(auto & sptr : *board_copy_ptr) {
+//         sptr.second = std::make_shared<piece_type >(*sptr.second);
+//      }
+//      return board_copy_ptr;
+//   }
 };
 using planar_board = BoardImplTest;
 

@@ -34,6 +34,7 @@ class State {
 
    void _recompute_rounds_without_fight();
    virtual int _do_move(const move_type &move);
+   virtual State< board_type > *clone_impl() = 0;
 
   public:
    template < size_t dim >
@@ -61,7 +62,10 @@ class State {
       return m_board[position];
    }
 
-   State< board_type > clone();
+   std::shared_ptr< State< board_type > > clone()
+   {
+      return std::shared_ptr(clone_impl());
+   }
 
    int is_terminal(bool force_check = false);
 
