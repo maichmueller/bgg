@@ -95,7 +95,7 @@ int main()
    //
 
    //    game->run_game(false);
-   Coach coach(game, network_0);
+   Coach coach(game, network_0, "checkpoints", 100, 1, 10);
    coach.teach(*action_rep_sptr, false, false, false, false);
 
    return 0;

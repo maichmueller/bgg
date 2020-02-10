@@ -56,7 +56,7 @@ struct EvaluatedGameTurn {
 
    const torch::Tensor &get_tensor() const { return m_board_tensor; }
 
-   std::vector< double > get_policy() const { return m_pi; }
+   const std::vector< double > &get_policy() const { return m_pi; }
 
    double get_evaluation() const { return m_v; }
 
@@ -102,7 +102,7 @@ class Coach {
 
    template < typename ActionRepresenterType >
    std::vector< evaluated_turn_type > execute_episode(
-      state_type state,
+      state_type &&state,
       RepresenterBase< state_type, ActionRepresenterType > &action_repper);
 
    template < typename ActionRepresenterType >
@@ -154,7 +154,7 @@ template < class GameType, class NetworkType >
 template < class ActionRepresenterType >
 std::vector< typename Coach< GameType, NetworkType >::evaluated_turn_type >
 Coach< GameType, NetworkType >::execute_episode(
-   state_type state,
+   state_type &&state,
    RepresenterBase< state_type, ActionRepresenterType > &action_repper)
 {
    unsigned int ep_step = 0;
@@ -171,10 +171,26 @@ Coach< GameType, NetworkType >::execute_episode(
          ep_step < m_exploration_rate);
 
       int player = state.get_turn_count() % 2;
-      std::vector< double > pi = mcts.get_action_probabilities(
+      std::vector< double > pi = mcts.get_policy_vec(
          state, player, action_repper, expl_rate);
 
-      ep_examples.emplace_back(evaluated_turn_type(state, pi, null_v, player));
+      // append the evaluated state to the episode examples we have gathered so
+      // far.
+      ep_examples.emplace_back(
+         evaluated_turn_type(state.clone(), pi, null_v, player));
+
+      size_t best_action = 0;
+      double best_prob = -std::numeric_limits< double >::infinity();
+      for(size_t a = 0; a < pi.size(); ++a) {
+         double p = pi[a];
+         if(p > best_prob) {
+            best_prob = p;
+            best_action = a;
+         }
+      }
+      move_type best_move = action_repper.action_to_move(
+         state, best_action, player);
+      state.do_move(best_move);
 
       if(int r = state.is_terminal(true); r != 404) {
          for(auto &train_turn : ep_examples) {
@@ -183,6 +199,7 @@ Coach< GameType, NetworkType >::execute_episode(
             // adapt the value in each turn to reflect the changing player.
             train_turn.m_v = player != train_turn.m_player ? r : -r;
          }
+
          return ep_examples;
       }
    }
@@ -237,18 +254,18 @@ void Coach< GameType, NetworkType >::teach(
          m_turns_queue.begin(), m_turns_queue.end()};
 
       if(! skip_first_self_play || epoch > 0) {
-         //         tqdm ep_bar;
-         //         ep_bar.set_label("selfplay");
+         tqdm ep_bar;
+         ep_bar.set_label("selfplay");
          for(size_t episode = 0; episode < m_num_episodes; ++episode) {
-            //            ep_bar.progress(episode, m_num_episodes);
-            for(auto &&evaluated_turn :
-                execute_episode(*(m_game->get_gamestate()), action_repper)) {
+            ep_bar.progress(episode, m_num_episodes);
+            for(auto &&evaluated_turn : execute_episode(
+                   m_game->get_gamestate()->clone(), action_repper)) {
                evaluated_turn.convert_board(action_repper);
                train_data.emplace_back(evaluated_turn);
             }
             LOGD2("NUMBER OF EVALUATED TURNS", train_data.size())
          }
-         //         ep_bar.finish();
+         ep_bar.finish();
       }
 
       // TODO: Activate this part once serialization has been solved.
@@ -264,17 +281,17 @@ void Coach< GameType, NetworkType >::teach(
       }
 
       // save temporary model state and then TRAIN model to improve it
-      m_nnet->save_checkpoint(m_model_folder, "temp.pth.tar");
+      m_nnet->save_checkpoint(m_model_folder, "temp_model.tar");
       m_nnet->to(GLOBAL_DEVICE::get_device());
       m_nnet->train(train_data, /*epochs=*/100, /*batch_size=*/4096);
 
       // evaluate new training against previous model state
-      m_opp_nnet->load_checkpoint(m_model_folder, "temp.pth.tar");
+      m_opp_nnet->load_checkpoint(m_model_folder, "temp_model.tar");
       auto [res0, res1] = Arena::pit(*m_game, 1000);
       if(res0.wins + res1.wins > 0
          && (res0.wins / (res0.wins + res1.wins) < m_win_frac)) {
          std::cout << "Rejecting new model\n";
-         m_nnet->load_checkpoint(m_model_folder, "temp.pth.tar");
+         m_nnet->load_checkpoint(m_model_folder, "temp_model.tar");
       } else {
          std::cout << "Accepting new model\n";
          m_nnet->save_checkpoint(

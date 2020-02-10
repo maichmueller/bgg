@@ -32,6 +32,8 @@ class BoardStratego: public Board< PieceStratego > {
       _add_obstacles();
    }
 
+   BoardStratego* clone_impl();
+
    [[nodiscard]] std::string print_board(
       int player, bool hide_unknowns) const override;
 

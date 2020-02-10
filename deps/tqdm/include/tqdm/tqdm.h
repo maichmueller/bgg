@@ -122,7 +122,7 @@ class tqdm {
          color_transition = false;
       }
    }
-//   ~tqdm() { tqdm_register::pop_pbar(); }
+   //   ~tqdm() { tqdm_register::pop_pbar(); }
 
    void reset()
    {
@@ -227,8 +227,8 @@ class tqdm {
          double fills = ((double) curr / tot * width);
          int ifills = (int) fills;
 
-         printf("%s:", label.c_str());
          printf("\015 ");
+         printf("%s:", label.c_str());
          if(use_colors) {
             if(color_transition) {
                // red (hue=0) to green (hue=1/3)

@@ -34,7 +34,6 @@ class State {
 
    void _recompute_rounds_without_fight();
    virtual int _do_move(const move_type &move);
-   virtual ~State() = default;
 
   public:
    template < size_t dim >
@@ -53,12 +52,16 @@ class State {
       const std::map< position_type, typename piece_type::kin_type > &setup_0,
       const std::map< position_type, typename piece_type::kin_type > &setup_1);
 
+   virtual ~State() = default;
+
    auto &operator[](const position_type &position) { return m_board[position]; }
 
    const auto &operator[](const position_type &position) const
    {
       return m_board[position];
    }
+
+   State< board_type > clone();
 
    int is_terminal(bool force_check = false);
 
@@ -216,4 +219,26 @@ void State< BoardType >::_recompute_rounds_without_fight()
       else
          m_rounds_without_fight += 1;
    }
+}
+template < class BoardType >
+State< BoardType > State< BoardType >::clone()
+{
+   // copy the shared pointers as of now
+   auto piece_history = m_piece_history;
+   for(auto &pieces_arr : piece_history) {
+      for(auto &piece_sptr : pieces_arr) {
+         piece_sptr = std::make_shared< piece_type >(*piece_sptr);
+      }
+   }
+   decltype(*this) state_copy(
+      m_board.clone(),
+      m_terminal,
+      m_terminal_checked,
+      m_turn_count,
+      m_move_history,
+      m_piece_history,
+      m_move_equals_prev_move,
+      m_rounds_without_fight);
+
+   return state_copy;
 }

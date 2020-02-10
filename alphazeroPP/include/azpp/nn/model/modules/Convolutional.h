@@ -36,15 +36,7 @@ class Convolutional: public torch::nn::Module {
       const torch::nn::Functional& activation_function =
          torch::nn::Functional(torch::relu));
 
-   //   template < typename prim_type >
-   //   Convolutional(
-   //      int channels_in,
-   //      const std::vector< int >& filter_sizes,
-   //      const std::vector< int >& kernel_sizes_vec,
-   //      const std::vector< bool >& maxpool_used_vec,
-   //      prim_type dropout_prob_for_all = 0,
-   //      const torch::nn::Functional& activation_function =
-   //         torch::nn::Functional(torch::relu));
+   unsigned int get_channels_in() {return m_channels_in;}
 
    torch::Tensor forward(const torch::Tensor& input);
 };

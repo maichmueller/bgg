@@ -32,45 +32,27 @@ class Board {
 
    static constexpr size_t m_dim = position_type::dim;
 
-  protected:
-   std::array< size_t, m_dim > m_shape;
-   std::array< int, m_dim > m_starts;
-   map_type m_map;
-   std::array< inverse_map_type, 2 > m_map_inverse;
+   ///
+   /// Constructors
+   ///
 
-  private:
-   template < class T, size_t N >
-   static std::array< T, N > make_array(const T &value);
-
-   void _fill_board_null_pieces(
-      size_t dim,
-      std::array< int, m_dim > &&position_pres = make_array< int, m_dim >(0));
-
-   void _fill_inverse_board();
-
-  public:
    explicit Board(const std::array< int, m_dim > &shape);
-
    Board(
       const std::array< size_t, m_dim > &shape,
       const std::array< int, m_dim > &board_starts);
-
    Board(
       const std::array< size_t, m_dim > &shape,
       const std::vector< std::shared_ptr< piece_type > > &setup_0,
       const std::vector< std::shared_ptr< piece_type > > &setup_1);
-
    Board(
       const std::array< size_t, m_dim > &shape,
       const std::array< int, m_dim > &board_starts,
       const std::vector< std::shared_ptr< piece_type > > &setup_0,
       const std::vector< std::shared_ptr< piece_type > > &setup_1);
-
    Board(
       const std::array< size_t, m_dim > &shape,
       const std::map< position_type, kin_type > &setup_0,
       const std::map< position_type, kin_type > &setup_1);
-
    Board(
       const std::array< size_t, m_dim > &shape,
       const std::array< int, m_dim > &board_starts,
@@ -81,6 +63,10 @@ class Board {
 
    const std::shared_ptr< piece_type > &operator[](
       const position_type &position) const;
+
+   ///
+   /// Iterators
+   ///
 
    [[nodiscard]] iterator begin() { return m_map.begin(); }
 
@@ -110,6 +96,10 @@ class Board {
       return m_map_inverse.at(team).end();
    }
 
+   ///
+   /// Getters
+   ///
+
    [[nodiscard]] auto get_shape() const { return m_shape; }
 
    [[nodiscard]] auto get_starts() const { return m_starts; }
@@ -136,15 +126,39 @@ class Board {
 
    std::vector< std::shared_ptr< piece_type > > get_pieces(int player) const;
 
+   ///
+   /// API
+   ///
+
    std::tuple< bool, size_t > check_bounds(const position_type &pos) const;
 
-   inline void is_in_bounds(const position_type &pos);
+   inline void is_within_bounds(const position_type &pos);
 
    void update_board(
       const position_type &pos, const std::shared_ptr< piece_type > &pc);
 
    [[nodiscard]] virtual std::string print_board(
       int player, bool hide_unknowns) const = 0;
+
+   virtual std::shared_ptr< Board< piece_type > > clone() = 0;
+
+  protected:
+   std::array< size_t, m_dim > m_shape;
+   std::array< int, m_dim > m_starts;
+   map_type m_map;
+   std::array< inverse_map_type, 2 > m_map_inverse;
+
+  private:
+   template < class T, size_t N >
+   static std::array< T, N > make_array(const T &value);
+
+   void _fill_board_null_pieces(
+      size_t dim,
+      std::array< int, m_dim > &&position_pres = make_array< int, m_dim >(0));
+
+   void _fill_inverse_board();
+
+   virtual Board< piece_type > *clone_impl() const = 0;
 };
 
 template < typename PieceType >
@@ -195,7 +209,7 @@ void Board< PieceType >::update_board(
     * Second is always the defending piece. Otherwise a hard-to-trace access bug
     * in the inverse map of the kins may occur!
     */
-   is_in_bounds(pos);
+   is_within_bounds(pos);
    auto pc_before = m_map[pos];
 
    if(! pc_before->is_null() && *pc_before != *pc_ptr) {
@@ -370,7 +384,7 @@ void Board< PieceType >::_fill_inverse_board()
 }
 
 template < typename PieceType >
-inline void Board< PieceType >::is_in_bounds(const position_type &pos)
+inline void Board< PieceType >::is_within_bounds(const position_type &pos)
 {
    if(auto [in_bounds, idx] = check_bounds(pos); ! in_bounds) {
       std::ostringstream ss;
