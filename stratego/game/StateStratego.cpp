@@ -1,8 +1,8 @@
 #include "StateStratego.h"
 
 StateStratego::StateStratego(size_t shape_x, size_t shape_y)
-    : base_type(std::array< size_t, 2 >{shape_x, shape_y}, {0, 0}),
-      m_dead_pieces()
+    : StateStratego(
+       std::array< size_t, 2 >{shape_x, shape_y}, std::array< int, 2 >{0, 0})
 {
 }
 
@@ -12,7 +12,7 @@ StateStratego::StateStratego(
    std::array< size_t, 2 > shape,
    const std::map< position_type, kin_type > &setup_0,
    const std::map< position_type, kin_type > &setup_1)
-    : base_type(shape, {0, 0}, setup_0, setup_1), m_dead_pieces()
+    : StateStratego(shape, std::array< int, 2 >{0, 0}, setup_0, setup_1)
 {
 }
 
@@ -28,7 +28,7 @@ StateStratego::StateStratego(
    std::array< size_t, 2 > shape,
    const std::map< position_type, int > &setup_0,
    const std::map< position_type, int > &setup_1)
-    : base_type(board_type(shape, setup_0, setup_1)), m_dead_pieces()
+    : StateStratego(std::make_shared< board_type >(shape, setup_0, setup_1))
 {
 }
 
@@ -56,10 +56,10 @@ void StateStratego::check_terminal()
       return;
    }
 
-   if(! LogicStratego< board_type >::has_legal_moves_(m_board, 0)) {
+   if(! LogicStratego< board_type >::has_legal_moves_(*m_board, 0)) {
       m_terminal = -2;
       return;
-   } else if(! LogicStratego< board_type >::has_legal_moves_(m_board, 1)) {
+   } else if(! LogicStratego< board_type >::has_legal_moves_(*m_board, 1)) {
       m_terminal = 2;
       return;
    }
@@ -96,8 +96,8 @@ int StateStratego::_do_move(const move_type &move)
 
    // save the access to the pieces in question
    // (removes redundant searching in board later)
-   std::shared_ptr< piece_type > piece_from = m_board[from];
-   std::shared_ptr< piece_type > piece_to = m_board[to];
+   std::shared_ptr< piece_type > piece_from = (*m_board)[from];
+   std::shared_ptr< piece_type > piece_to = (*m_board)[to];
    piece_from->set_flag_has_moved();
 
    // enact the move
@@ -113,33 +113,54 @@ int StateStratego::_do_move(const move_type &move)
       if(fight_outcome == 1) {
          // 1 means attacker won, defender died
          auto null_piece = std::make_shared< piece_type >(from);
-         m_board.update_board(from, null_piece);
-         m_board.update_board(to, piece_from);
+         m_board->update_board(from, null_piece);
+         m_board->update_board(to, piece_from);
 
          _update_dead_pieces(piece_to);
       } else if(fight_outcome == 0) {
          // 0 means stalemate, both die
          auto null_piece_from = std::make_shared< piece_type >(from);
-         m_board.update_board(from, null_piece_from);
+         m_board->update_board(from, null_piece_from);
          auto null_piece_to = std::make_shared< piece_type >(to);
-         m_board.update_board(to, null_piece_to);
+         m_board->update_board(to, null_piece_to);
 
          _update_dead_pieces(piece_from);
          _update_dead_pieces(piece_to);
       } else {
          // -1 means defender won, attacker died
          auto null_piece = std::make_shared< piece_type >(from);
-         m_board.update_board(from, null_piece);
+         m_board->update_board(from, null_piece);
 
          _update_dead_pieces(piece_from);
       }
    } else {
       // no fight happened, simply move piece_from onto new position
       auto null_piece = std::make_shared< piece_type >(from);
-      m_board.update_board(from, null_piece);
-      m_board.update_board(to, piece_from);
+      m_board->update_board(from, null_piece);
+      m_board->update_board(to, piece_from);
 
       m_rounds_without_fight += 1;
    }
    return fight_outcome;
+}
+StateStratego *StateStratego::clone_impl() const
+{
+   // copy the shared pointers as of now
+   auto piece_history = m_piece_history;
+   for(auto &pieces_arr : piece_history) {
+      for(auto &piece_sptr : pieces_arr) {
+         piece_sptr = std::make_shared< piece_type >(*piece_sptr);
+      }
+   }
+   auto state_clone_ptr = new StateStratego(
+      std::static_pointer_cast< board_type >(m_board->clone()),
+      m_terminal,
+      m_terminal_checked,
+      m_turn_count,
+      m_move_history,
+      m_piece_history,
+      m_move_equals_prev_move,
+      m_rounds_without_fight);
+
+   return state_clone_ptr;
 }

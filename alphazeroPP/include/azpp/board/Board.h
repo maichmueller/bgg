@@ -59,6 +59,8 @@ class Board {
       const std::map< position_type, kin_type > &setup_0,
       const std::map< position_type, kin_type > &setup_1);
 
+   virtual ~Board() = default;
+
    std::shared_ptr< piece_type > &operator[](const position_type &position);
 
    const std::shared_ptr< piece_type > &operator[](
@@ -140,7 +142,7 @@ class Board {
    [[nodiscard]] virtual std::string print_board(
       int player, bool hide_unknowns) const = 0;
 
-   std::shared_ptr< Board< piece_type > > clone()
+   std::shared_ptr< Board< piece_type > > clone() const
    {
       return std::shared_ptr< Board< piece_type > >(clone_impl());
    }
@@ -161,16 +163,9 @@ class Board {
 
    void _fill_inverse_board();
 
-   template <typename BoardType>
-   BoardType *clone_impl() const {
-      auto* board_copy_ptr = new BoardType(*this);
-      for(auto & sptr : *board_copy_ptr) {
-         sptr.second = std::make_shared<piece_type >(*sptr.second);
-      }
-      return board_copy_ptr;
-   }
+   virtual Board< piece_type > *clone_impl() const = 0;
 
-//   virtual Board< piece_type > *clone_impl() const = 0;
+   //   virtual Board< piece_type > *clone_impl() const = 0;
 };
 
 template < typename PieceType >

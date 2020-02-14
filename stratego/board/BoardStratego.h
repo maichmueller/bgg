@@ -32,8 +32,6 @@ class BoardStratego: public Board< PieceStratego > {
       _add_obstacles();
    }
 
-//   BoardStratego* clone_impl() const override;
-
    [[nodiscard]] std::string print_board(
       int player, bool hide_unknowns) const override;
 
@@ -41,4 +39,6 @@ class BoardStratego: public Board< PieceStratego > {
    void _add_obstacles();
    static std::vector< std::shared_ptr< piece_type > > adapt_setup(
       const std::map< position_type, int > &setup);
+
+   [[nodiscard]] BoardStratego * clone_impl() const override;
 };

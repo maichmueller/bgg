@@ -181,11 +181,12 @@ void BoardStratego::_add_obstacles()
          obstacle_pos, kin_type{99, 99}, -1);
    }
 }
-//BoardStratego *BoardStratego::clone_impl() const
-//{
-//   auto* board_copy_ptr = new BoardStratego(*this);
-//   for(auto & sptr : *board_copy_ptr) {
-//      sptr.second = std::make_shared<piece_type >(*sptr.second);
-//   }
-//   return board_copy_ptr;
-//}
+
+BoardStratego *BoardStratego::clone_impl() const
+{
+   auto *board_copy_ptr = new BoardStratego(*this);
+   for(auto &sptr : *board_copy_ptr) {
+      sptr.second = std::make_shared< piece_type >(*sptr.second);
+   }
+   return board_copy_ptr;
+}

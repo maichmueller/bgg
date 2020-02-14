@@ -17,7 +17,7 @@ template < typename StateType >
 struct EvaluatedGameTurn {
    using state_type = StateType;
 
-   state_type m_state;
+   std::shared_ptr< state_type > m_state;
    torch::Tensor m_board_tensor;
    std::vector< double > m_pi;
    double m_v;
@@ -26,8 +26,11 @@ struct EvaluatedGameTurn {
    bool converted = false;
 
    EvaluatedGameTurn(
-      const state_type &state, std::vector< double > pi, double v, int player)
-       : m_state(state),
+      std::shared_ptr< state_type > state,
+      std::vector< double > pi,
+      double v,
+      int player)
+       : m_state(std::move(state)),
          m_board_tensor(),
          m_pi(std::move(pi)),
          m_v(v),
@@ -48,7 +51,7 @@ struct EvaluatedGameTurn {
        */
       if(converted)
          return;
-      m_board_tensor = action_repper.state_representation(m_state, 0);
+      m_board_tensor = action_repper.state_representation(*m_state, 0);
       converted = true;
    }
 
@@ -102,7 +105,7 @@ class Coach {
 
    template < typename ActionRepresenterType >
    std::vector< evaluated_turn_type > execute_episode(
-      state_type &&state,
+      std::shared_ptr< state_type > state,
       RepresenterBase< state_type, ActionRepresenterType > &action_repper);
 
    template < typename ActionRepresenterType >
@@ -154,7 +157,7 @@ template < class GameType, class NetworkType >
 template < class ActionRepresenterType >
 std::vector< typename Coach< GameType, NetworkType >::evaluated_turn_type >
 Coach< GameType, NetworkType >::execute_episode(
-   state_type &&state,
+   std::shared_ptr< state_type > state,
    RepresenterBase< state_type, ActionRepresenterType > &action_repper)
 {
    unsigned int ep_step = 0;
@@ -170,14 +173,17 @@ Coach< GameType, NetworkType >::execute_episode(
       auto expl_rate = static_cast< unsigned int >(
          ep_step < m_exploration_rate);
 
-      int player = state.get_turn_count() % 2;
+      int player = state->get_turn_count() % 2;
       std::vector< double > pi = mcts.get_policy_vec(
          state, player, action_repper, expl_rate);
 
       // append the evaluated state to the episode examples we have gathered so
       // far.
-      ep_examples.emplace_back(
-         evaluated_turn_type(state.clone(), pi, null_v, player));
+      ep_examples.emplace_back(evaluated_turn_type(
+         std::static_pointer_cast< state_type >(state->clone()),
+         pi,
+         null_v,
+         player));
 
       size_t best_action = 0;
       double best_prob = -std::numeric_limits< double >::infinity();
@@ -189,10 +195,10 @@ Coach< GameType, NetworkType >::execute_episode(
          }
       }
       move_type best_move = action_repper.action_to_move(
-         state, best_action, player);
-      state.do_move(best_move);
+         *state, best_action, player);
+      state->do_move(best_move);
 
-      if(int r = state.is_terminal(true); r != 404) {
+      if(int r = state->is_terminal(true); r != 404) {
          for(auto &train_turn : ep_examples) {
             // since v is always returned as -v from the MCTS _search (the
             // end-value as seen from the opponent's side), we will have to
@@ -259,7 +265,9 @@ void Coach< GameType, NetworkType >::teach(
          for(size_t episode = 0; episode < m_num_episodes; ++episode) {
             ep_bar.progress(episode, m_num_episodes);
             for(auto &&evaluated_turn : execute_episode(
-                   m_game->get_gamestate()->clone(), action_repper)) {
+                   std::static_pointer_cast< state_type >(
+                      m_game->get_gamestate()->clone()),
+                   action_repper)) {
                evaluated_turn.convert_board(action_repper);
                train_data.emplace_back(evaluated_turn);
             }

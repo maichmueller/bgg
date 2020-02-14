@@ -150,7 +150,7 @@ class MCTS {
 
    template < typename StateType, typename ActionRepresenterType >
    std::vector< double > get_policy_vec(
-      StateType &state,
+      std::shared_ptr< StateType > &state,
       int player,
       RepresenterBase< StateType, ActionRepresenterType > &action_repper,
       double expl_rate = 1.);
@@ -158,7 +158,7 @@ class MCTS {
 
 template < typename StateType, typename ActionRepresenterType >
 std::vector< double > MCTS::get_policy_vec(
-   StateType &state,
+   std::shared_ptr< StateType > &state,
    int player,
    RepresenterBase< StateType, ActionRepresenterType > &action_repper,
    double expl_rate)
@@ -167,11 +167,11 @@ std::vector< double > MCTS::get_policy_vec(
    for(int i = 0; i < m_num_mcts_sims; ++i) {
       //      bar.progress(i, m_num_mcts_sims);
       search_depth = -1;
-      _search(state, player, action_repper, /*root=*/true);
+      _search(*state, player, action_repper, /*root=*/true);
    }
    //   bar.finish();
 
-   std::string state_rep = state.string_representation(player, true);
+   std::string state_rep = state->string_representation(player, true);
 
    std::vector< int > counts(action_repper.get_actions().size());
 

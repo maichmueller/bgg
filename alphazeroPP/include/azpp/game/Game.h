@@ -259,7 +259,7 @@ void Game< StateType, LogicType, Derived >::reset()
       m_setups[0] = extract_pieces_from_setup(draw_setup(0), 0);
       m_setups[1] = extract_pieces_from_setup(draw_setup(1), 1);
    }
-   m_game_state = state_type(board_type(
+   m_game_state = state_type(std::make_shared<board_type>(
       curr_board_ptr->get_shape(),
       curr_board_ptr->get_starts(),
       m_setups[0],

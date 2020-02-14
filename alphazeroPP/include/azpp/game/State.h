@@ -19,7 +19,7 @@ class State {
    using move_type = Move< position_type >;
 
   protected:
-   board_type m_board;
+   std::shared_ptr< board_type > m_board;
 
    int m_terminal;
    bool m_terminal_checked;
@@ -34,7 +34,8 @@ class State {
 
    void _recompute_rounds_without_fight();
    virtual int _do_move(const move_type &move);
-   virtual State< board_type > *clone_impl() = 0;
+
+   virtual State< board_type > *clone_impl() const = 0;
 
   public:
    template < size_t dim >
@@ -42,9 +43,7 @@ class State {
       const std::array< size_t, dim > &shape,
       const std::array< int, dim > &board_starts);
 
-   explicit State(board_type &&board, int move_count = 0);
-
-   explicit State(const board_type &board, int move_count = 0);
+   explicit State(std::shared_ptr< board_type > board_ptr, int move_count = 0);
 
    template < size_t dim >
    State(
@@ -52,6 +51,17 @@ class State {
       const std::array< int, dim > &board_starts,
       const std::map< position_type, typename piece_type::kin_type > &setup_0,
       const std::map< position_type, typename piece_type::kin_type > &setup_1);
+
+   State(
+      std::shared_ptr< board_type > board,
+      int m_terminal,
+      bool m_terminal_checked,
+      int m_turn_count,
+      const std::vector< move_type > &m_move_history,
+      const std::vector< std::array< std::shared_ptr< piece_type >, 2 > >
+         &m_piece_history,
+      const std::vector< bool > &m_move_equals_prev_move,
+      unsigned int m_rounds_without_fight);
 
    virtual ~State() = default;
 
@@ -62,9 +72,9 @@ class State {
       return m_board[position];
    }
 
-   std::shared_ptr< State< board_type > > clone()
+   std::shared_ptr< State< board_type > > clone() const
    {
-      return std::shared_ptr(clone_impl());
+      return std::shared_ptr< State< board_type > >(clone_impl());
    }
 
    int is_terminal(bool force_check = false);
@@ -79,9 +89,12 @@ class State {
 
    int get_turn_count() const { return m_turn_count; }
 
-   void set_board(board_type brd) { this->m_board = std::move(brd); }
+   void set_board(std::shared_ptr< board_type > brd)
+   {
+      m_board = std::move(brd);
+   }
 
-   const board_type *get_board() const { return &m_board; }
+   std::shared_ptr< board_type > get_board() const { return m_board; }
 
    virtual std::string string_representation(int player, bool hide_unknowns);
 };
@@ -89,14 +102,15 @@ class State {
 template < class BoardType >
 int State< BoardType >::_do_move(const State::move_type &move)
 {
-   m_board.update_board(move[1], m_board[move[0]]);
-   m_board.update_board(move[0], std::make_shared< piece_type >(move[0]));
+   m_board->update_board(move[1], (*m_board)[move[0]]);
+   m_board->update_board(move[0], std::make_shared< piece_type >(move[0]));
    return 0;
 }
 
 template < class BoardType >
-State< BoardType >::State(board_type &&board, int move_count)
-    : m_board(std::move(board)),
+State< BoardType >::State(
+   std::shared_ptr< board_type > board_ptr, int move_count)
+    : m_board(std::move(board_ptr)),
       m_terminal(404),
       m_terminal_checked(false),
       m_turn_count(move_count),
@@ -107,17 +121,11 @@ State< BoardType >::State(board_type &&board, int move_count)
 }
 
 template < class BoardType >
-State< BoardType >::State(const board_type &board, int move_count)
-    : State(board_type(board), move_count)
-{
-}
-
-template < class BoardType >
 template < size_t dim >
 State< BoardType >::State(
    const std::array< size_t, dim > &shape,
    const std::array< int, dim > &board_starts)
-    : State(board_type(shape, board_starts))
+    : State(std::make_shared< board_type >(shape, board_starts))
 {
 }
 
@@ -128,7 +136,8 @@ State< BoardType >::State(
    const std::array< int, dim > &board_starts,
    const std::map< position_type, typename piece_type::kin_type > &setup_0,
    const std::map< position_type, typename piece_type::kin_type > &setup_1)
-    : State(board_type(shape, board_starts, setup_0, setup_1))
+    : State(
+       std::make_shared< board_type >(shape, board_starts, setup_0, setup_1))
 {
 }
 
@@ -159,8 +168,8 @@ void State< BoardType >::undo_last_rounds(int n)
       m_piece_history.pop_back();
       m_move_equals_prev_move.pop_back();
 
-      m_board.update_board(move[1], move_pieces[1]);
-      m_board.update_board(move[0], move_pieces[0]);
+      m_board->update_board(move[1], move_pieces[1]);
+      m_board->update_board(move[0], move_pieces[0]);
    }
 
    m_turn_count -= n;
@@ -179,8 +188,8 @@ template < class BoardType >
 int State< BoardType >::do_move(const State::move_type &move)
 {
    // save all info to the history
-   std::shared_ptr< piece_type > piece_from = m_board[move[0]];
-   std::shared_ptr< piece_type > piece_to = m_board[move[1]];
+   std::shared_ptr< piece_type > piece_from = (*m_board)[move[0]];
+   std::shared_ptr< piece_type > piece_to = (*m_board)[move[1]];
    if(m_move_equals_prev_move.empty())
       m_move_equals_prev_move.push_back(false);
    else {
@@ -224,25 +233,25 @@ void State< BoardType >::_recompute_rounds_without_fight()
          m_rounds_without_fight += 1;
    }
 }
-template < class BoardType >
-State< BoardType > State< BoardType >::clone()
-{
-   // copy the shared pointers as of now
-   auto piece_history = m_piece_history;
-   for(auto &pieces_arr : piece_history) {
-      for(auto &piece_sptr : pieces_arr) {
-         piece_sptr = std::make_shared< piece_type >(*piece_sptr);
-      }
-   }
-   decltype(*this) state_copy(
-      m_board.clone(),
-      m_terminal,
-      m_terminal_checked,
-      m_turn_count,
-      m_move_history,
-      m_piece_history,
-      m_move_equals_prev_move,
-      m_rounds_without_fight);
 
-   return state_copy;
+template < class BoardType >
+State< BoardType >::State(
+   std::shared_ptr< board_type > board,
+   int m_terminal,
+   bool m_terminal_checked,
+   int m_turn_count,
+   const std::vector< move_type > &m_move_history,
+   const std::vector< std::array< std::shared_ptr< piece_type >, 2 > >
+      &m_piece_history,
+   const std::vector< bool > &m_move_equals_prev_move,
+   unsigned int m_rounds_without_fight)
+    : m_board(std::move(board)),
+      m_terminal(m_terminal),
+      m_terminal_checked(m_terminal_checked),
+      m_turn_count(m_turn_count),
+      m_move_history(m_move_history),
+      m_piece_history(m_piece_history),
+      m_move_equals_prev_move(m_move_equals_prev_move),
+      m_rounds_without_fight(m_rounds_without_fight)
+{
 }

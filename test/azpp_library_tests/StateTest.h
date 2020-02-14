@@ -13,17 +13,17 @@ class BoardImplTest: public Board< piece_type > {
   public:
    using base = Board< piece_type >;
    using base::base;
-   std::string print_board(int player, bool hide_unknowns) const override
+   [[nodiscard]] std::string print_board(int player, bool hide_unknowns) const override
    {
       return "";
    }
-//   BoardImplTest* clone_impl() const {
-//      auto* board_copy_ptr = new BoardImplTest(*this);
-//      for(auto & sptr : *board_copy_ptr) {
-//         sptr.second = std::make_shared<piece_type >(*sptr.second);
-//      }
-//      return board_copy_ptr;
-//   }
+   [[nodiscard]] BoardImplTest* clone_impl() const override {
+      auto* board_copy_ptr = new BoardImplTest(*this);
+      for(auto & sptr : *board_copy_ptr) {
+         sptr.second = std::make_shared<piece_type >(*sptr.second);
+      }
+      return board_copy_ptr;
+   }
 };
 using planar_board = BoardImplTest;
 
@@ -38,6 +38,28 @@ class StateImplTest: public State< planar_board > {
       if(m_board.size())
          has_pieces = true;
       m_terminal = has_pieces;
+   }
+
+   StateImplTest * clone_impl() const override {
+
+      // copy the shared pointers as of now
+      auto piece_history = m_piece_history;
+      for(auto &pieces_arr : piece_history) {
+         for(auto &piece_sptr : pieces_arr) {
+            piece_sptr = std::make_shared< piece_type >(*piece_sptr);
+         }
+      }
+      auto state_clone_ptr = new StateImplTest(
+         m_board.clone(),
+         m_terminal,
+         m_terminal_checked,
+         m_turn_count,
+         m_move_history,
+         m_piece_history,
+         m_move_equals_prev_move,
+         m_rounds_without_fight);
+
+      return state_clone_ptr;
    }
 };
 using state_type = StateImplTest;
