@@ -66,12 +66,17 @@ void Arena::print_round_results(
    ss << "Agent 1 (" << red << get_typename(agent_1) << reset << ")";
    std::string ag_1_display = ss.str();
    ss.clear();
-   ss << std::right << blue << stats0.wins << reset
-      << utils::repeat(" ", std::to_string(stats0.wins).size() - 4);
+   std::string wins_0 = std::to_string(stats0.wins);
+   std::string wins_1 = std::to_string(stats1.wins);
+   ss << std::right << blue << wins_0 << reset;
+   if(wins_0.size() > 3)
+      ss << utils::repeat(" ", std::to_string(stats0.wins).size() - 4);
    std::string ag_0_wins = ss.str();
    ss.clear();
-   ss << std::left << utils::repeat(" ", std::to_string(stats1.wins).size() - 4)
-      << red << stats1.wins << reset;
+   ss << std::left;
+   if(wins_0.size() > 3)
+      ss << utils::repeat(" ", std::to_string(stats1.wins).size() - 4);
+   ss << red << wins_1 << reset;
    std::string ag_1_wins = ss.str();
    ss.clear();
    ss << "\r" << utils::center(round_display, 10, " ") << " "

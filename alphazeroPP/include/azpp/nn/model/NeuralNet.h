@@ -29,6 +29,9 @@ class NetworkWrapper {
    static inline torch::Tensor _loss_pi(
       const torch::Tensor &target_probs, const torch::Tensor &estimated_probs)
    {
+//      LOGD2("INPUT TARG", target_probs)
+//      LOGD2("INPUT EST", estimated_probs)
+      LOGD2("PI LOSS MUL", target_probs * estimated_probs)
       return (target_probs * estimated_probs).sum();
    }
 
@@ -65,6 +68,8 @@ template < typename TrainDataContainer >
 void NetworkWrapper::train(
    const TrainDataContainer & train_examples, size_t epochs, size_t batch_size)
 {
+   // set the network into train mode
+   m_network->train();
    // send model to the right device
    to(GLOBAL_DEVICE::get_device());
    const size_t n_data = train_examples.size();
@@ -89,8 +94,8 @@ void NetworkWrapper::train(
    bar.set_label("Training for " + std::to_string(epochs) + "epochs.");
    for(size_t epoch = 0; epoch < epochs; ++epoch) {
       bar.progress(epoch, epochs);
-      // set the network into train mode
-      m_network->train();
+
+      optimizer.zero_grad();
       std::shuffle(
          indices.begin(),
          indices.end(),
@@ -107,8 +112,8 @@ void NetworkWrapper::train(
                                                 .requires_grad(false);
 
          torch::Tensor board = torch::empty(board_tensor_sizes, options_grad);
-         torch::Tensor policy = torch::empty(pi_tensor_sizes, options_grad);
-         torch::Tensor value = torch::ones(batch_size, options_grad);
+         torch::Tensor target_policy = torch::empty(pi_tensor_sizes, options_grad);
+         torch::Tensor target_value = torch::empty(batch_max_size, options_grad);
 
          // fill the batch tensors with the batch data
          size_t begin = batch_nr * batch_size;
@@ -117,13 +122,14 @@ void NetworkWrapper::train(
             auto &sample = train_examples[indices[i]];
 
             board[i] = sample.get_tensor().squeeze(0);
-            LOGD2("Sample " + std::to_string(i) + " value", sample.get_evaluation())
-            value[i] *= sample.get_evaluation();
-            LOGD2("Sample " + std::to_string(i) + " tensor value", value[i])
+//            LOGD2("Sample " + std::to_string(i) + " value", sample.get_evaluation())
+            target_value[i] = std::move(sample.get_evaluation());
+//            LOGD2("Sample " + std::to_string(i) + " tensor value", target_value[i])
             for(auto [j, p] = std::make_tuple(0, sample.get_policy().begin()); j < pi_tensor_sizes[1]; ++j, ++p) {
-               policy[i][j] = *p;
+               target_policy[i][j] = *p;
             }
-            LOGD2("Sample " + std::to_string(i) + " poss actions" , torch::where(policy[i] > 0))
+//            LOGD2("Sample " + std::to_string(i) + " Policy\n" , policy[i])
+//            LOGD2("Sample " + std::to_string(i) + " poss actions\n" , torch::where(policy[i] > 0))
          }
 
          auto [policy_output, value_output] = m_network->forward(board);
@@ -131,9 +137,10 @@ void NetworkWrapper::train(
 //         LOGD2("Pol_out", policy_output)
 //         LOGD2("Pol sizes", policy.sizes())
 //         LOGD2("Pol", policy)
-         auto l_pi = _loss_pi(policy, policy_output);
-//         LOGD2(value, value_output)
-         auto l_v = _loss_v(value, value_output);
+         auto l_pi = _loss_pi(target_policy, policy_output);
+         LOGD2("Value DIff: ", (target_value - value_output).sum())
+
+         auto l_v = _loss_v(target_value.view({-1, 1}), value_output);
          auto total_loss = l_pi + l_v;
          LOGD2("L_PI", l_pi)
          LOGD2("L_V", l_v)

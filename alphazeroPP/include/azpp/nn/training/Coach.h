@@ -57,13 +57,13 @@ struct EvaluatedGameTurn {
 
    const state_type &get_state() const { return m_state; }
 
-   const torch::Tensor &get_tensor() const { return m_board_tensor; }
+   [[nodiscard]] const torch::Tensor &get_tensor() const { return m_board_tensor; }
 
-   const std::vector< double > &get_policy() const { return m_pi; }
+   [[nodiscard]] const std::vector< double > &get_policy() const { return m_pi; }
 
-   double get_evaluation() const { return m_v; }
+   [[nodiscard]] double get_evaluation() const { return m_v; }
 
-   int get_player() const { return m_player; }
+   [[nodiscard]] int get_player() const { return m_player; }
 };
 
 template < class GameType, class NetworkType >
@@ -167,7 +167,6 @@ Coach< GameType, NetworkType >::execute_episode(
    MCTS mcts = MCTS(m_nnet, m_num_mcts_simulations);
 
    const int null_v = -100;
-
    while(true) {
       ep_step += 1;
       auto expl_rate = static_cast< unsigned int >(
@@ -196,6 +195,7 @@ Coach< GameType, NetworkType >::execute_episode(
       }
       move_type best_move = action_repper.action_to_move(
          *state, best_action, player);
+
       state->do_move(best_move);
 
       if(int r = state->is_terminal(true); r != 404) {
@@ -269,7 +269,8 @@ void Coach< GameType, NetworkType >::teach(
                       m_game->get_gamestate()->clone()),
                    action_repper)) {
                evaluated_turn.convert_board(action_repper);
-               train_data.emplace_back(evaluated_turn);
+               // move is need or else evaluated turn will be seen as lvalue (and copied).
+               train_data.emplace_back(std::move(evaluated_turn));
             }
             LOGD2("NUMBER OF EVALUATED TURNS", train_data.size())
          }

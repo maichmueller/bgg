@@ -202,9 +202,9 @@ std::vector< double > MCTS::get_policy_vec(
       // in the tree search!
       throw std::logic_error(
          "All action probability values after search are 0. This means "
-         "either the game is already over (and calling this method with a "
+         "either the game is already over (calling this method from a "
          "terminal state is a logic error) or something has gone wrong "
-         "in the tree search.");
+         "in the tree search/model output (e.g. NaNs output).");
    }
 
    std::vector< double > probabilities(counts.size(), 0.0);
@@ -355,7 +355,6 @@ MCTS::_evaluate_new_state(
    auto [log_Ps, v] = m_nnet_sptr->evaluate(state_tensor);
    // move to cpu (as we need to work with it) and flatten the tensor.
    // First dim is batch size (== 1 here)
-
    log_Ps = log_Ps.cpu().view(-1);
 
    const auto action_mask = action_repper.get_action_mask(*board, player);
