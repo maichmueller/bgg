@@ -2,7 +2,7 @@
 #pragma once
 
 #include "StateStratego.h"
-#include "azpp/game.h"
+#include "aze/game.h"
 
 class GameStratego:
     public Game< StateStratego, LogicStratego< BoardStratego >, GameStratego > {

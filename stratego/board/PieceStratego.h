@@ -1,7 +1,7 @@
 #pragma once
 
 #include "array"
-#include "azpp/board.h"
+#include "aze/board.h"
 
 class PieceStratego: public Piece< Position< int, 2 >, 2 > {
   public:

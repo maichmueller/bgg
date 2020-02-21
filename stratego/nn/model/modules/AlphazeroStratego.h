@@ -1,7 +1,7 @@
 #pragma once
 
-#include <azpp/nn.h>
-#include <azpp/utils.h>
+#include <aze/nn.h>
+#include <aze/utils.h>
 #include <torch/torch.h>
 
 class StrategoAlphaZero: public AlphaZeroInterface {

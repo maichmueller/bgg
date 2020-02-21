@@ -23,10 +23,10 @@ RUN apt-get install -y build-essential git wget cmake
 WORKDIR .
 RUN pwd
 #################################################
-# AZPP
+# AlphaZeroEnvironment
 #################################################
-COPY . /azpp
-WORKDIR azpp
+COPY . /aze
+WORKDIR aze
 RUN ls -a deps
 RUN git submodule init \
     && git submodule update

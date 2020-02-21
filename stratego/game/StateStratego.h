@@ -3,7 +3,7 @@
 
 #include <unordered_set>
 
-#include "azpp/game.h"
+#include "aze/game.h"
 #include "board/BoardStratego.h"
 #include "logic/LogicStratego.h"
 

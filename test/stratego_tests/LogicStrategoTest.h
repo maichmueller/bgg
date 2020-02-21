@@ -1,6 +1,6 @@
 #pragma once
 
-#include <azpp/azpp.h>
+#include <aze/aze.h>
 
 #include "../../stratego/board/PieceStratego.h"
 #include "board/BoardStratego.h"

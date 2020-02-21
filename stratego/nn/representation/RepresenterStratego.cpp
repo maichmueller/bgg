@@ -4,7 +4,7 @@
 
 #include "RepresenterStratego.h"
 
-#include "azpp/utils/torch_utils.h"
+#include "aze/utils/torch_utils.h"
 
 /**
 * We are trying to build a state representation of a Stratego board.

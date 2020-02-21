@@ -44,7 +44,7 @@ add_executable(alphazero_stratego ${STRATEGO_SOURCES} ${TARGET_SOURCES})
 
 target_include_directories(alphazero_stratego
 		PRIVATE
-		${AZPP_INCLUDE_DIR}
+		${AZE_INCLUDE_DIR}
 		${TORCH_INCLUDE_DIRS}
 		${STRATEGO_SRC_DIR}
 
@@ -59,7 +59,7 @@ set_target_properties(alphazero_stratego PROPERTIES
 target_compile_options(alphazero_stratego PRIVATE -Wall ${SANITIZE_OPTIONS})
 target_link_options(alphazero_stratego PRIVATE ${SANITIZE_OPTIONS} --verbose)
 
-target_link_libraries(alphazero_stratego "${AZPP_LIBRARY}")
+target_link_libraries(alphazero_stratego "${AZE_LIBRARY}")
 target_link_libraries(alphazero_stratego "${TORCH_LIBRARIES}")
 target_link_libraries(alphazero_stratego "${CUDNN_LIBRARY}")
 # stdc++fs is needed for static linking against the std::filesystem library (not needed for GCC >=9)

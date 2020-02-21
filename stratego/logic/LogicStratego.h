@@ -6,8 +6,8 @@
 
 #include <functional>
 
-#include "azpp/board.h"
-#include "azpp/logic.h"
+#include "aze/board.h"
+#include "aze/logic.h"
 #include "board/BoardStratego.h"
 
 struct BattleMatrix {

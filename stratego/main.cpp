@@ -1,5 +1,5 @@
-#include <azpp/azpp.h>
-#include <azpp/nn/training/Coach.h>
+#include <aze/aze.h>
+#include <aze/nn/training/Coach.h>
 #include <nn/model/modules/AlphazeroStratego.h>
 
 #include <array>

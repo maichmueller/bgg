@@ -6,7 +6,7 @@
 
 #include "PieceStratego.h"
 #include "array"
-#include "azpp/board.h"
+#include "aze/board.h"
 #include "map"
 #include "memory"
 #include "vector"

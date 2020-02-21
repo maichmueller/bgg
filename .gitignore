@@ -33,14 +33,14 @@
 
 build/*
 cmake-build-debug/*
-azpp/bin/*
+AlphaZeroEnvironment/bin/*
 deps/libtorch/*
 deps/libtorch_debug/*
-azpp/cmake-build-debug/*
-azpp/cmake-build-debug-clang/*
-azpp/cmake-build-minsizerel/*
-azpp/cmake-build-release/*
-azpp/cmake-build-relwithdebinfo/*
+AlphaZeroEnvironment/cmake-build-debug/*
+AlphaZeroEnvironment/cmake-build-debug-clang/*
+AlphaZeroEnvironment/cmake-build-minsizerel/*
+AlphaZeroEnvironment/cmake-build-release/*
+AlphaZeroEnvironment/cmake-build-relwithdebinfo/*
 bin/*
 cmake-build-debug/*
 cmake-build-debug-clang/*
@@ -48,7 +48,7 @@ cmake-build-minsizerel/*
 cmake-build-release/*
 cmake-build-relwithdebinfo/*
 .DS_Store
-azpp/.DS_Store
+AlphaZeroEnvironment/.DS_Store
 out/*
 .vs
 .idea/*
