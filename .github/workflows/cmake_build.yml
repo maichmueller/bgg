@@ -9,8 +9,11 @@ jobs:
     
     steps:
     - uses: actions/checkout@v2
-    - name: configure
-      run: ./configure
+    - name: build cmake
+      run: |
+        mkdir build
+        cd build
+        cmake .
     - name: make
       run: make
     - name: make check
