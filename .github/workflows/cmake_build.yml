@@ -1,11 +1,25 @@
 name: C++ CI
 
-on: [push]
+on: push
 
 jobs:
   build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macos-latest, ubuntu-latest, ubuntu-latest, ubuntu-latest]
+        include: 
+        - os: macos-latest
+          COMPILER: clang
+          LINKER: clang       
 
-    runs-on: [ubuntu-latest, macos-latest]
+        - os: ubuntu-latest
+          COMPILER: gcc-9
+          LINKER: gcc-9       
+
+        - os: ubuntu-latest
+          COMPILER: gcc-8
+          LINKER: gcc-8
     
     steps:
     - uses: actions/checkout@v2
