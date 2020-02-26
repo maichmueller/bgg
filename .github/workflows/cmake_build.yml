@@ -7,7 +7,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [macos-latest, ubuntu-latest, ubuntu-latest, ubuntu-latest]
+        os: [ubuntu-latest, ubuntu-latest, ubuntu-latest, macos-latest]
         include: 
         - os: macos-latest
           COMPILER: clang
