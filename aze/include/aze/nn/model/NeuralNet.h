@@ -139,14 +139,18 @@ void NetworkWrapper::train(
          //         LOGD2("Pol sizes", policy.sizes())
          //         LOGD2("Pol", policy)
          auto l_pi = _loss_pi(target_policy, policy_output);
-         LOGD2("Value DIff: ", (target_value - value_output).sum())
+//         LOGD2("Value DIff: ", (target_value - value_output).sum())
 
          auto l_v = _loss_v(target_value.view({-1, 1}), value_output);
          auto total_loss = l_pi + l_v;
-         LOGD2("L_PI", l_pi)
-         LOGD2("L_V", l_v)
-         LOGD2("LOSS", total_loss)
+//         LOGD2("L_PI", l_pi)
+//         LOGD2("L_V", l_v)
+//         LOGD2("LOSS", total_loss)
          total_loss.backward();
+//         for(auto params : m_network->parameters()){
+//            LOGD2("GRADIENT MODEL", params)
+//         }
+
          optimizer.step();
       }
    }

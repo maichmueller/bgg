@@ -67,11 +67,11 @@ set(TQDM_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/deps/tqdm/include")
 message(STATUS "TQDM found: ${TQDM_INCLUDE_DIR}")
 
 
-set(AZE_SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/AlphaZeroEnvironment/cppsrc")
+set(AZE_SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/aze/cppsrc")
 set(AZE_INCLUDE_DIR
-        ${CMAKE_CURRENT_SOURCE_DIR}/AlphaZeroEnvironment/include)
-add_subdirectory(AlphaZeroEnvironment)
-set(AZE_LIBRARY ${CMAKE_SOURCE_DIR}/build/debug/alphazeroPP/libalphazeroPP.a)
+        ${CMAKE_CURRENT_SOURCE_DIR}/aze/include)
+add_subdirectory(aze)
+set(AZE_LIBRARY ${CMAKE_SOURCE_DIR}/build/debug/AlphaZeroEnvironment/libaze.a)
 
 set(STRATEGO_SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/stratego")
 add_subdirectory(stratego)

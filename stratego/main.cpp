@@ -15,6 +15,12 @@
 
 int main()
 {
+   std::cout << "Cuda status: ";
+   if(torch::cuda::is_available()) {
+      std::cout << "Available! Using CUDA...\n";
+   } else {
+      std::cout << "Unvailable! Using CPU...\n";
+   }
    size_t board_size = 5;
 
    //
@@ -95,7 +101,7 @@ int main()
    //
 
    //    game->run_game(false);
-   Coach coach(game, network_0, "checkpoints", 100, 1, 10);
+   Coach coach(game, network_0, "checkpoints", 100, 100, 100);
    coach.teach(*action_rep_sptr, false, false, false, false);
 
    return 0;

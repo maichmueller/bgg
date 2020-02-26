@@ -1,6 +1,6 @@
 ﻿---
 BasedOnStyle: Chromium
-# ClangFormatConfigureSource: 'clang-format-file:///Users/b260-admin/Documents/GitHub/AlphaZeroEnvironment/.clang-format'
+# ClangFormatConfigureSource: 'clang-format-file:...GitHub/aze/.clang-format'
 ---
 Language:        Cpp
 AccessModifierOffset: -1
