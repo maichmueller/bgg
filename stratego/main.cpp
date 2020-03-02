@@ -91,9 +91,9 @@ int main()
    setup1[{4, 4}] = {0, 0};
 
    auto g = GameStratego(
-      std::array< size_t, 2 >{5, 5}, setup0, setup1, agent_0, agent_1, true);
+      std::array< size_t, 2 >{5, 5}, setup0, setup1, agent_0, agent_1);
    auto game = std::make_shared< GameStratego >(
-      std::array< size_t, 2 >{5, 5}, setup0, setup1, agent_0, agent_1, true);
+      std::array< size_t, 2 >{5, 5}, setup0, setup1, agent_0, agent_1);
 
 
    //
@@ -101,7 +101,7 @@ int main()
    //
 
    //    game->run_game(false);
-   Coach coach(game, network_0, "checkpoints", 100, 100, 100);
+   Coach coach(game, network_0, "./checkpoints", 100, 1, 100);
    coach.teach(*action_rep_sptr, false, false, false, false);
 
    return 0;

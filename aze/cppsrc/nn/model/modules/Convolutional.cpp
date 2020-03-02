@@ -70,7 +70,7 @@ void Convolutional::_build_layers_after_construction(
          m_kernel_sizes[k])
          .stride(1)
          .padding(zero_padding[k])
-         .with_bias(false);
+         .bias(false);
 
       m_layers->push_back(torch::nn::Conv2d(options));
 

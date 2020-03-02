@@ -88,7 +88,7 @@ void NetworkWrapper::train(
       static_cast< TORCH_ARRAYREF_TYPE >(
          train_examples[0].get_policy().size())};
    tqdm bar;
-   bar.set_label("Training for " + std::to_string(epochs) + "epochs.");
+   bar.set_label("Training Neural Network");
    for(size_t epoch = 0; epoch < epochs; ++epoch) {
       bar.progress(epoch, epochs);
 

@@ -71,7 +71,7 @@ set(AZE_SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/aze/cppsrc")
 set(AZE_INCLUDE_DIR
         ${CMAKE_CURRENT_SOURCE_DIR}/aze/include)
 add_subdirectory(aze)
-set(AZE_LIBRARY ${CMAKE_SOURCE_DIR}/build/debug/AlphaZeroEnvironment/libaze.a)
+set(AZE_LIBRARY ${CMAKE_SOURCE_DIR}/build/debug/aze/libaze.a)
 
 set(STRATEGO_SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/stratego")
 add_subdirectory(stratego)

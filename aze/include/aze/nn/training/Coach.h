@@ -95,7 +95,7 @@ class Coach {
    Coach(
       std::shared_ptr< game_type > game,
       const std::shared_ptr< network_type > &nnet,
-      std::string model_folder = "checkpoints",
+      std::string model_folder = "./checkpoints",
       size_t epochs = 100,
       size_t num_episodes = 1,
       size_t num_mcts_sims = 100,
@@ -229,7 +229,7 @@ void Coach< GameType, NetworkType >::teach(
 
       while(true) {
          fs::path dir(m_model_folder);
-         fs::path file("checkpoint_" + std::to_string(i) + ".pth.tar");
+         fs::path file("checkpoint_" + std::to_string(i) + ".tar");
          fs::path full_path = dir / file;
          // if file exists, load it
          if(fs::exists(full_path)) {
@@ -246,14 +246,15 @@ void Coach< GameType, NetworkType >::teach(
       // for(auto & example : m_train_examples)
       //    example.convert_board();
 
-      if(fs::exists(fs::path(m_model_folder + "best.pth.tar"))) {
-         m_nnet->load_checkpoint(m_model_folder, "best.pth.tar");
+      if(fs::exists(fs::path(m_model_folder + "best.tar"))) {
+         m_nnet->load_checkpoint(m_model_folder, "best.tar");
       }
    }
    tqdm bar;
-   bar.set_label(
-      " Executing " + std::to_string(m_epochs) + " epochs of training");
+   std::string epochs_str = std::to_string(m_epochs);
    for(size_t epoch = 0; epoch < m_epochs; ++epoch) {
+      bar.set_label(
+         " Executing training epoch " + std::to_string(epoch+1) + "/" + epochs_str);
       bar.progress(epoch, m_epochs);
 
       std::vector< evaluated_turn_type > train_data{
@@ -261,7 +262,7 @@ void Coach< GameType, NetworkType >::teach(
 
       if(! skip_first_self_play || epoch > 0) {
          tqdm ep_bar;
-         ep_bar.set_label("selfplay");
+         ep_bar.set_label("Selfplay evaluated " + std::to_string(0) + " turns");
          for(size_t episode = 0; episode < m_num_episodes; ++episode) {
             ep_bar.progress(episode, m_num_episodes);
             for(auto &&evaluated_turn : execute_episode(
@@ -269,10 +270,11 @@ void Coach< GameType, NetworkType >::teach(
                       m_game->get_gamestate()->clone()),
                    action_repper)) {
                evaluated_turn.convert_board(action_repper);
-               // move is need or else evaluated turn will be seen as lvalue (and copied).
+               // move is needed or else evaluated turn will be seen as lvalue (and copied).
                train_data.emplace_back(std::move(evaluated_turn));
             }
-            LOGD2("NUMBER OF EVALUATED TURNS", train_data.size())
+            ep_bar.set_label("Selfplay evaluated " + std::to_string(train_data.size()) + " turns");
+//            LOGD2("NUMBER OF EVALUATED TURNS", train_data.size())
          }
          ep_bar.finish();
       }
@@ -296,7 +298,7 @@ void Coach< GameType, NetworkType >::teach(
 
       // evaluate new training against previous model state
       m_opp_nnet->load_checkpoint(m_model_folder, "temp_model.tar");
-      auto [res0, res1] = Arena::pit(*m_game, 1);
+      auto [res0, res1] = Arena::pit(*m_game, 100);
       if(res0.wins + res1.wins > 0
          && (res0.wins / (res0.wins + res1.wins) < m_win_frac)) {
          std::cout << "Rejecting new model\n";

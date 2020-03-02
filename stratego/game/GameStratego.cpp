@@ -5,9 +5,8 @@ GameStratego::GameStratego(
    const std::map< position_type, int > &setup_0,
    const std::map< position_type, int > &setup_1,
    const std::shared_ptr< Agent< state_type > > &ag0,
-   const std::shared_ptr< Agent< state_type > > &ag1,
-   bool fixed_setups)
-    : base_type(state_type(shape, setup_0, setup_1), ag0, ag1, fixed_setups)
+   const std::shared_ptr< Agent< state_type > > &ag1)
+    : base_type(state_type(shape, setup_0, setup_1), ag0, ag1)
 {
 }
 
@@ -16,9 +15,8 @@ GameStratego::GameStratego(
    const std::map< position_type, kin_type > &setup_0,
    const std::map< position_type, kin_type > &setup_1,
    const std::shared_ptr< Agent< state_type > > &ag0,
-   const std::shared_ptr< Agent< state_type > > &ag1,
-   bool fixed_setups)
-    : base_type(state_type(shape, setup_0, setup_1), ag0, ag1, fixed_setups)
+   const std::shared_ptr< Agent< state_type > > &ag1)
+    : base_type(state_type(shape, setup_0, setup_1), ag0, ag1)
 {
 }
 
@@ -27,10 +25,9 @@ GameStratego::GameStratego(
    const std::map< position_type, int > &setup_0,
    const std::map< position_type, int > &setup_1,
    const std::shared_ptr< Agent< state_type > > &ag0,
-   const std::shared_ptr< Agent< state_type > > &ag1,
-   bool fixed_setups)
+   const std::shared_ptr< Agent< state_type > > &ag1)
     : base_type(
-       state_type({shape, shape}, setup_0, setup_1), ag0, ag1, fixed_setups)
+       state_type({shape, shape}, setup_0, setup_1), ag0, ag1)
 {
 }
 
@@ -39,10 +36,9 @@ GameStratego::GameStratego(
    const std::map< position_type, kin_type > &setup_0,
    const std::map< position_type, kin_type > &setup_1,
    const std::shared_ptr< Agent< state_type > > &ag0,
-   const std::shared_ptr< Agent< state_type > > &ag1,
-   bool fixed_setups)
+   const std::shared_ptr< Agent< state_type > > &ag1)
     : base_type(
-       state_type({shape, shape}, setup_0, setup_1), ag0, ag1, fixed_setups)
+       state_type({shape, shape}, setup_0, setup_1), ag0, ag1)
 {
 }
 
