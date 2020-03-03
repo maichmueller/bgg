@@ -197,7 +197,7 @@ Game< StateType, LogicType, Derived >::extract_pieces_from_setup(
    std::transform(
       setup.begin(),
       setup.end(),
-      pc_vec.begin(),
+      std::back_inserter(pc_vec),
       [&](const val_type &pos_kin) -> piece_type {
          return std::make_shared< piece_type >(
             pos_kin.first, pos_kin.second, team);
@@ -217,7 +217,7 @@ Game< StateType, LogicType, Derived >::extract_pieces_from_setup(
    std::transform(
       setup.begin(),
       setup.end(),
-      pc_vec.begin(),
+      std::back_inserter(pc_vec),
       [&](const val_type &pos_piecesptr) -> sptr_piece_type {
          auto piece_sptr = pos_piecesptr.second;
          if(piece_sptr->get_team() != team)
