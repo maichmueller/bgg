@@ -12,15 +12,15 @@
 #include "aze/utils/utils.h"
 
 template < size_t NrIds >
-struct Kin {
+struct Role {
    using container_type = std::array< int, NrIds >;
 
    std::array< int, NrIds > specifiers;
    constexpr static const size_t nr_identifiers = NrIds;
 
-   explicit Kin(std::array< int, NrIds > sp) : specifiers(std::move(sp)) {}
+   explicit Role(std::array< int, NrIds > sp) : specifiers(std::move(sp)) {}
 
-   explicit Kin() : specifiers()
+   explicit Role() : specifiers()
    {
       std::fill(specifiers.begin(), specifiers.end(), 404);
    };
@@ -28,15 +28,15 @@ struct Kin {
    template <
       typename... Types,
       typename std::enable_if< sizeof...(Types) == NrIds, int >::type = 0 >
-   Kin(Types &&... vals)
-       : Kin(
+   Role(Types &&... vals)
+       : Role(
           std::index_sequence_for< Types... >{}, std::forward< Types >(vals)...)
    {
    }
 
   private:
    template < std::size_t... Indices, typename... Types >
-   Kin(std::index_sequence< Indices... >, Types &&... vals)
+   Role(std::index_sequence< Indices... >, Types &&... vals)
    {
       (static_cast< void >(specifiers[Indices] = vals), ...);
    }
@@ -56,7 +56,7 @@ struct Kin {
 
    auto end() const { return specifiers.end(); }
 
-   bool operator==(const Kin &other) const
+   bool operator==(const Role &other) const
    {
       for(size_t i = 0; i < NrIds; ++i) {
          if(specifiers[i] != other[i])
@@ -65,7 +65,7 @@ struct Kin {
       return true;
    }
 
-   bool operator!=(const Kin &other) const { return ! (this == other); }
+   bool operator!=(const Role &other) const { return ! (this == other); }
 
    std::string to_string()
    {
@@ -82,16 +82,16 @@ struct Kin {
 
 namespace std {
 template < size_t NrIds >
-struct hash< Kin< NrIds > > {
+struct hash< Role< NrIds > > {
    constexpr static const auto last_prime_iter = primes::primes_list.end() - 1;
-   constexpr size_t operator()(const Kin< NrIds > &kin) const
+   constexpr size_t operator()(const Role< NrIds > &role) const
    {
       // ( x*p1 xor y*p2 xor z*p3) mod n is supposedly a better spatial hash
       // function
       // https://matthias-research.github.io/pages/publications/tetraederCollision.pdf
-      long int hash_value = kin[0] * (*last_prime_iter);
+      long int hash_value = role[0] * (*last_prime_iter);
       for(size_t i = 1; i < NrIds; ++i) {
-         hash_value ^= kin[i] * (*(last_prime_iter - i));
+         hash_value ^= role[i] * (*(last_prime_iter - i));
       }
       return hash_value % primes::primes_list[0];
    }
@@ -114,11 +114,11 @@ class Piece {
 
   public:
    using position_type = Position;
-   using kin_type = Kin< NrIdentifiers >;
+   using role_type = Role< NrIdentifiers >;
 
   protected:
    position_type m_position;
-   kin_type m_kin;
+   role_type m_role;
    //    unsigned int m_uuid = UUID::get_unique_id();
    int m_team;
    bool m_null_piece = false;
@@ -127,16 +127,16 @@ class Piece {
 
   public:
    Piece(
-      position_type pos, kin_type type, int team, bool hidden, bool has_moved)
+      position_type pos, role_type type, int team, bool hidden, bool has_moved)
        : m_position(pos),
-         m_kin(type),
+         m_role(type),
          m_team(team),
          m_hidden(hidden),
          m_has_moved(has_moved)
    {
    }
 
-   Piece(position_type position, kin_type type, int team)
+   Piece(position_type position, role_type type, int team)
        : Piece(position, type, team, true, false)
    {
    }
@@ -144,7 +144,7 @@ class Piece {
    // a Null Piece Constructor
    explicit Piece(const position_type &position)
        : m_position(position),
-         m_kin(),
+         m_role(),
          m_team(-1),
          m_null_piece(true),
          m_hidden(false),
@@ -172,7 +172,7 @@ class Piece {
       return (flip_team) ? 1 - m_team : m_team;
    }
 
-   [[nodiscard]] kin_type get_kin() const { return m_kin; }
+   [[nodiscard]] role_type get_role() const { return m_role; }
 
    [[nodiscard]] bool get_flag_hidden() const { return m_hidden; }
 
@@ -180,7 +180,7 @@ class Piece {
 
    bool operator==(const Piece &other) const
    {
-      return other.get_position() == m_position && m_kin == other.get_kin()
+      return other.get_position() == m_position && m_role == other.get_role()
              && m_team == other.get_team()
              && m_hidden == other.get_flag_hidden()
              && m_has_moved == other.get_flag_has_moved();

@@ -14,7 +14,7 @@ class State {
   public:
    using board_type = BoardType;
    using piece_type = typename BoardType::piece_type;
-   using kin_type = typename BoardType::kin_type;
+   using role_type = typename BoardType::role_type;
    using position_type = typename BoardType::position_type;
    using move_type = Move< position_type >;
 
@@ -49,8 +49,8 @@ class State {
    State(
       const std::array< size_t, dim > &shape,
       const std::array< int, dim > &board_starts,
-      const std::map< position_type, typename piece_type::kin_type > &setup_0,
-      const std::map< position_type, typename piece_type::kin_type > &setup_1);
+      const std::map< position_type, typename piece_type::role_type > &setup_0,
+      const std::map< position_type, typename piece_type::role_type > &setup_1);
 
    State(
       std::shared_ptr< board_type > board,
@@ -134,8 +134,8 @@ template < size_t dim >
 State< BoardType >::State(
    const std::array< size_t, dim > &shape,
    const std::array< int, dim > &board_starts,
-   const std::map< position_type, typename piece_type::kin_type > &setup_0,
-   const std::map< position_type, typename piece_type::kin_type > &setup_1)
+   const std::map< position_type, typename piece_type::role_type > &setup_0,
+   const std::map< position_type, typename piece_type::role_type > &setup_1)
     : State(
        std::make_shared< board_type >(shape, board_starts, setup_0, setup_1))
 {

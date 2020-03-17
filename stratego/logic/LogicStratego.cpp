@@ -134,7 +134,7 @@ const std::map< std::array< int, 2 >, int >
 //        if(!piece->is_null() && piece->get_team() == player &&
 //        piece->get_flag_can_move()) {
 //
-//            std::array<int, 2> type_ver = {piece->get_kin(),
+//            std::array<int, 2> type_ver = {piece->get_role(),
 //            piece->get_version()}; const auto& [start_idx, act_range] =
 //            piece_act_map.at(type_ver);
 //
@@ -142,7 +142,7 @@ const std::map< std::array< int, 2 >, int >
 //            Position pos = piece->get_position();
 //
 //            std::vector<Position> all_pos_targets(4);
-//            if(piece->get_kin() == 2) {
+//            if(piece->get_role() == 2) {
 //                all_pos_targets.resize(board_len - pos[0] - 1 + board_len -
 //                pos[1] - 1 + pos[0] + pos[1]); auto all_pos_targets_it =
 //                all_pos_targets.begin();

@@ -20,7 +20,7 @@ class Game {
    using state_type = StateType;
    using logic_type = LogicType;
    using piece_type = typename state_type::piece_type;
-   using kin_type = typename state_type::kin_type;
+   using role_type = typename state_type::role_type;
    using position_type = typename state_type::position_type;
    using move_type = typename state_type::move_type;
    using board_type = typename state_type::board_type;
@@ -38,7 +38,7 @@ class Game {
    std::array< std::vector< sptr_piece_type >, 2 > m_setups;
 
    std::vector< sptr_piece_type > extract_pieces_from_setup(
-      const std::map< position_type, kin_type > &setup, int team);
+      const std::map< position_type, role_type > &setup, int team);
 
    std::vector< sptr_piece_type > extract_pieces_from_setup(
       const std::map< position_type, sptr_piece_type > &setup, int team);
@@ -60,8 +60,8 @@ class Game {
    Game(
       const std::array< size_t, dim > &shape,
       const std::array< int, dim > &board_starts,
-      const std::map< position_type, kin_type > &setup_0,
-      const std::map< position_type, kin_type > &setup_1,
+      const std::map< position_type, role_type > &setup_0,
+      const std::map< position_type, role_type > &setup_1,
       std::shared_ptr< Agent< state_type > > ag0,
       std::shared_ptr< Agent< state_type > > ag1);
 
@@ -160,8 +160,8 @@ template < size_t dim >
 Game< StateType, LogicType, Derived >::Game(
    const std::array< size_t, dim > &shape,
    const std::array< int, dim > &board_starts,
-   const std::map< position_type, kin_type > &setup_0,
-   const std::map< position_type, kin_type > &setup_1,
+   const std::map< position_type, role_type > &setup_0,
+   const std::map< position_type, role_type > &setup_1,
    std::shared_ptr< Agent< state_type > > ag0,
    std::shared_ptr< Agent< state_type > > ag1)
     : Game(board_type(shape, board_starts, setup_0, setup_1), ag0, ag1)
@@ -189,18 +189,18 @@ Game< StateType, LogicType, Derived >::Game(
 template < class StateType, class LogicType, class Derived >
 std::vector< typename Game< StateType, LogicType, Derived >::sptr_piece_type >
 Game< StateType, LogicType, Derived >::extract_pieces_from_setup(
-   const std::map< position_type, kin_type > &setup, int team)
+   const std::map< position_type, role_type > &setup, int team)
 {
-   using val_type = typename std::map< position_type, kin_type >::value_type;
+   using val_type = typename std::map< position_type, role_type >::value_type;
    std::vector< sptr_piece_type > pc_vec;
    pc_vec.reserve(setup.size());
    std::transform(
       setup.begin(),
       setup.end(),
       std::back_inserter(pc_vec),
-      [&](const val_type &pos_kin) -> piece_type {
+      [&](const val_type &pos_role) -> piece_type {
          return std::make_shared< piece_type >(
-            pos_kin.first, pos_kin.second, team);
+            pos_role.first, pos_role.second, team);
       });
    return pc_vec;
 }

@@ -10,16 +10,16 @@ StateStratego::StateStratego(size_t shape) : StateStratego(shape, shape) {}
 
 StateStratego::StateStratego(
    std::array< size_t, 2 > shape,
-   const std::map< position_type, kin_type > &setup_0,
-   const std::map< position_type, kin_type > &setup_1)
+   const std::map< position_type, role_type > &setup_0,
+   const std::map< position_type, role_type > &setup_1)
     : StateStratego(shape, std::array< int, 2 >{0, 0}, setup_0, setup_1)
 {
 }
 
 StateStratego::StateStratego(
    size_t shape,
-   const std::map< position_type, kin_type > &setup_0,
-   const std::map< position_type, kin_type > &setup_1)
+   const std::map< position_type, role_type > &setup_0,
+   const std::map< position_type, role_type > &setup_1)
     : StateStratego(std::array< size_t, 2 >{shape, shape}, setup_0, setup_1)
 {
 }
@@ -43,13 +43,13 @@ StateStratego::StateStratego(
 void StateStratego::check_terminal()
 {
    if(auto dead_pieces = m_dead_pieces[0];
-      std::find(dead_pieces.begin(), dead_pieces.end(), kin_type{0, 0})
+      std::find(dead_pieces.begin(), dead_pieces.end(), role_type{0, 0})
       != dead_pieces.end()) {
       // flag of player 0 has been captured (killed), therefore player 0 lost
       m_terminal = -1;
       return;
    } else if(dead_pieces = m_dead_pieces[1];
-             std::find(dead_pieces.begin(), dead_pieces.end(), kin_type{0, 0})
+             std::find(dead_pieces.begin(), dead_pieces.end(), role_type{0, 0})
              != dead_pieces.end()) {
       // flag of player 1 has been captured (killed), therefore player 1 lost
       m_terminal = 1;

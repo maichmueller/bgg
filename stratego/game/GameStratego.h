@@ -29,15 +29,15 @@ class GameStratego:
 
    GameStratego(
       const std::array< size_t, 2 > &shape,
-      const std::map< position_type, kin_type > &setup_0,
-      const std::map< position_type, kin_type > &setup_1,
+      const std::map< position_type, role_type > &setup_0,
+      const std::map< position_type, role_type > &setup_1,
       const std::shared_ptr< Agent< state_type > > &ag0,
       const std::shared_ptr< Agent< state_type > > &ag1);
 
    GameStratego(
       size_t shape,
-      const std::map< position_type, kin_type > &setup_0,
-      const std::map< position_type, kin_type > &setup_1,
+      const std::map< position_type, role_type > &setup_0,
+      const std::map< position_type, role_type > &setup_1,
       const std::shared_ptr< Agent< state_type > > &ag0,
       const std::shared_ptr< Agent< state_type > > &ag1);
 

@@ -34,7 +34,7 @@ class RepresenterBase {
    using board_type = typename state_type::board_type;
    using position_type = typename board_type::position_type;
    using move_type = typename board_type::move_type;
-   using kin_type = typename state_type::kin_type;
+   using role_type = typename state_type::role_type;
 
    const auto &get_actions() const { return derived()->get_actions_(); }
 
@@ -61,10 +61,10 @@ class RepresenterBase {
       return DerivedType::get_action_mask_(actions, board, player);
    }
 
-   template < typename ValueType, size_t Dim, typename KinType >
+   template < typename ValueType, size_t Dim, typename RoleType >
    inline Move< Position< ValueType, Dim > > action_to_move(
       const Position< ValueType, Dim > &pos,
-      const Action< Position< ValueType, Dim >, KinType > &action,
+      const Action< Position< ValueType, Dim >, RoleType > &action,
       int player) const
    {
       return Move< Position< ValueType, Dim > >{pos, pos + action.get_effect()};
@@ -75,14 +75,14 @@ class RepresenterBase {
       const Board< PieceType > &board,
       const Action<
          typename PieceType::position_type,
-         typename PieceType::kin_type > &action,
+         typename PieceType::role_type > &action,
       int player) const
    {
-      typename PieceType::position_type pos = board
-                                                 .get_position_of_kin(
-                                                    player,
-                                                    action.get_assoc_kin())
-                                                 ->second;
+      using position_type = typename PieceType::position_type;
+      position_type pos = board
+                             .get_position_of_role(
+                                player, action.get_assoc_role())
+                             ->second;
       return {pos, pos + action.get_effect()};
    }
 
@@ -91,7 +91,7 @@ class RepresenterBase {
       const State< BoardType > &state,
       const Action<
          typename BoardType::position_type,
-         typename BoardType::kin_type > &action,
+         typename BoardType::role_type > &action,
       int player) const
    {
       return action_to_move(*state.get_board(), action, player);

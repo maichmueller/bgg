@@ -11,13 +11,13 @@ class RepresenterStratego:
   public:
    using state_type = StateStratego;
    using position_type = state_type::position_type;
-   using kin_type = state_type::piece_type::kin_type;
+   using role_type = state_type::piece_type::role_type;
    using move_type = state_type::move_type;
    using piece_type = state_type::piece_type;
    using board_type = state_type::board_type;
-   using action_type = Action< position_type, kin_type >;
+   using action_type = Action< position_type, role_type >;
    using condition_container = std::vector<
-      std::tuple< typename BoardStratego::piece_type::kin_type, int, bool > >;
+      std::tuple< typename BoardStratego::piece_type::role_type, int, bool > >;
    static_assert(std::is_same_v<
                  typename move_type::position_type,
                  typename board_type::position_type >);
@@ -50,7 +50,7 @@ class RepresenterStratego:
     * @param conditions the vector of conditions. For each condition the first size of the torch tensor is incremented.
     * @return torch tensor representing the state.
     */
-   template < typename condition_type = std::tuple< kin_type, int, bool > >
+   template < typename condition_type = std::tuple< role_type, int, bool > >
    torch::Tensor state_representation_(
       const state_type &state,
       int player,
@@ -58,17 +58,17 @@ class RepresenterStratego:
 
    [[nodiscard]] const auto &get_actions_() const { return m_actions; }
 
-   [[nodiscard]] const auto &get_kin_to_actions_map() const
+   [[nodiscard]] const auto &get_role_to_actions_map() const
    {
-      return m_kin_to_actions_map;
+      return m_role_to_actions_map;
    }
 
    [[nodiscard]] const auto &get_conditions() const { return m_conditions; }
 
-   [[nodiscard]] const std::vector< action_type > &get_actions_by_kin(
-      const kin_type &kin) const
+   [[nodiscard]] const std::vector< action_type > &get_actions_by_role(
+      const role_type &role) const
    {
-      return m_kin_to_actions_map.at(kin);
+      return m_role_to_actions_map.at(role);
    }
 
    template < typename Board >
@@ -82,22 +82,22 @@ class RepresenterStratego:
 
   private:
    // Delegator constructor to initialize both const fields actions and
-   // kin_to_actions_map.
+   // role_to_actions_map.
    RepresenterStratego(
       std::tuple<
          std::vector< action_type >,
-         std::unordered_map< kin_type, std::vector< action_type > > >
+         std::unordered_map< role_type, std::vector< action_type > > >
          &&actions_map,
       const condition_container &conditions)
        : m_actions(std::move(std::get< 0 >(actions_map))),
-         m_kin_to_actions_map(std::move(std::get< 1 >(actions_map))),
+         m_role_to_actions_map(std::move(std::get< 1 >(actions_map))),
          m_conditions(conditions)
    {
    }
 
    static std::tuple<
       std::vector< action_type >,
-      std::unordered_map< kin_type, std::vector< action_type > > >
+      std::unordered_map< role_type, std::vector< action_type > > >
    _build_actions(size_t shape);
 
    static condition_container _build_conditions(size_t shape);
@@ -105,14 +105,14 @@ class RepresenterStratego:
    template < typename Piece >
    inline bool _check_condition(
       const std::shared_ptr< Piece > &piece,
-      const kin_type &kin,
+      const role_type &role,
       int team,
       bool hidden,
       bool flip_teams = false) const;
 
    const std::vector< action_type > m_actions;
-   const std::unordered_map< kin_type, std::vector< action_type > >
-      m_kin_to_actions_map;
+   const std::unordered_map< role_type, std::vector< action_type > >
+      m_role_to_actions_map;
    const condition_container m_conditions;
 };
 
@@ -166,10 +166,10 @@ torch::Tensor RepresenterStratego::state_representation_(
              cond_it != conditions.end();
              ++i, ++cond_it) {
             // unpack the condition
-            auto [kin, team, hidden] = *cond_it;
+            auto [role, team, hidden] = *cond_it;
             // write the result of the condition check to the tensor
             board_state_rep[0][i][pos[0]][pos[1]] = _check_condition(
-               piece, kin, team, hidden, flip_teams);
+               piece, role, team, hidden, flip_teams);
          }
       }
    }
@@ -186,7 +186,7 @@ std::vector< unsigned int > RepresenterStratego::get_action_mask_(
 template < typename Piece >
 bool RepresenterStratego::_check_condition(
    const std::shared_ptr< Piece > &piece,
-   const kin_type &kin,
+   const role_type &role,
    int team,
    bool hidden,
    bool flip_teams) const
@@ -201,8 +201,8 @@ bool RepresenterStratego::_check_condition(
          // (since the alpha zero agent always plays from the perspective
          // of player 0, therefore it can see all its own pieces)
          bool eq_team = team_piece == team;
-         bool eq_kin = piece->get_kin() == kin;
-         return eq_team && eq_kin;
+         bool eq_role = piece->get_role() == role;
+         return eq_team && eq_role;
       } else {
          // 'hidden' is only important for the single condition that
          // specifically checks for this property (information about own pieces
@@ -219,8 +219,8 @@ bool RepresenterStratego::_check_condition(
             return false;
          else {
             bool eq_team = team_piece == team;
-            bool eq_kin = piece->get_kin() == kin;
-            return eq_team && eq_kin;
+            bool eq_role = piece->get_role() == role;
+            return eq_team && eq_role;
          }
       } else {
          bool eq_team = team_piece == team;
@@ -240,8 +240,8 @@ std::vector< unsigned int > RepresenterStratego::get_action_mask_(
    std::vector< unsigned int > action_mask(actions.size(), 0);
    for(const auto &action : actions) {
       position_type old_pos{0, 0};
-      if(auto pos_pointer = board.get_position_of_kin(
-            player, action.get_assoc_kin());
+      if(auto pos_pointer = board.get_position_of_role(
+            player, action.get_assoc_role());
          pos_pointer == board.end_inverse(player)) {
          continue;
       } else

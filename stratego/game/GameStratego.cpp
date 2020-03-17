@@ -12,8 +12,8 @@ GameStratego::GameStratego(
 
 GameStratego::GameStratego(
    const std::array< size_t, 2 > &shape,
-   const std::map< position_type, kin_type > &setup_0,
-   const std::map< position_type, kin_type > &setup_1,
+   const std::map< position_type, role_type > &setup_0,
+   const std::map< position_type, role_type > &setup_1,
    const std::shared_ptr< Agent< state_type > > &ag0,
    const std::shared_ptr< Agent< state_type > > &ag1)
     : base_type(state_type(shape, setup_0, setup_1), ag0, ag1)
@@ -33,8 +33,8 @@ GameStratego::GameStratego(
 
 GameStratego::GameStratego(
    size_t shape,
-   const std::map< position_type, kin_type > &setup_0,
-   const std::map< position_type, kin_type > &setup_1,
+   const std::map< position_type, role_type > &setup_0,
+   const std::map< position_type, role_type > &setup_1,
    const std::shared_ptr< Agent< state_type > > &ag0,
    const std::shared_ptr< Agent< state_type > > &ag1)
     : base_type(
@@ -65,7 +65,7 @@ GameStratego::draw_setup_(int team)
       auto &type = avail_types.back();
 
       setup_out[pos] = std::make_shared< piece_type >(
-         pos, typename piece_type::kin_type(type, counter[type] - 1), team);
+         pos, typename piece_type::role_type(type, counter[type] - 1), team);
 
       poss_pos.pop_back();
       avail_types.pop_back();

@@ -66,8 +66,8 @@ int main()
    //
    // setup the game
    //
-   std::map< BoardStratego::position_type, BoardStratego::kin_type > setup0;
-   std::map< BoardStratego::position_type, BoardStratego::kin_type > setup1;
+   std::map< BoardStratego::position_type, BoardStratego::role_type > setup0;
+   std::map< BoardStratego::position_type, BoardStratego::role_type > setup1;
 
    setup0[{0, 0}] = {0, 0};
    setup0[{0, 1}] = {1, 0};

@@ -26,13 +26,13 @@ class StateStratego: public State< BoardStratego > {
 
    StateStratego(
       size_t shape,
-      const std::map< position_type, kin_type > &setup_0,
-      const std::map< position_type, kin_type > &setup_1);
+      const std::map< position_type, role_type > &setup_0,
+      const std::map< position_type, role_type > &setup_1);
 
    StateStratego(
       std::array< size_t, 2 > shape,
-      const std::map< position_type, kin_type > &setup_0,
-      const std::map< position_type, kin_type > &setup_1);
+      const std::map< position_type, role_type > &setup_0,
+      const std::map< position_type, role_type > &setup_1);
 
    StateStratego(
       size_t shape,
@@ -52,13 +52,13 @@ class StateStratego: public State< BoardStratego > {
    static int fight(piece_type &attacker, piece_type &defender);
 
   private:
-   using dead_pieces_type = std::array< std::unordered_set< kin_type >, 2 >;
+   using dead_pieces_type = std::array< std::unordered_set< role_type >, 2 >;
    dead_pieces_type m_dead_pieces;
 
    void _update_dead_pieces(const std::shared_ptr< piece_type > &piece)
    {
       if(! piece->is_null())
-         m_dead_pieces[piece->get_team()].emplace(piece->get_kin());
+         m_dead_pieces[piece->get_team()].emplace(piece->get_role());
    }
 
    StateStratego *clone_impl() const override;

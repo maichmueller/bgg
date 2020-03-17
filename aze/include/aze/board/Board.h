@@ -20,11 +20,11 @@ template < typename PieceType >
 class Board {
   public:
    using piece_type = PieceType;
-   using kin_type = typename piece_type::kin_type;
+   using role_type = typename piece_type::role_type;
    using position_type = typename piece_type::position_type;
    using move_type = Move< position_type >;
    using map_type = std::map< position_type, std::shared_ptr< PieceType > >;
-   using inverse_map_type = std::unordered_map< kin_type, position_type >;
+   using inverse_map_type = std::unordered_map< role_type, position_type >;
    using iterator = typename map_type::iterator;
    using const_iterator = typename map_type::const_iterator;
    using inverse_iterator = typename inverse_map_type::iterator;
@@ -51,13 +51,13 @@ class Board {
       const std::vector< std::shared_ptr< piece_type > > &setup_1);
    Board(
       const std::array< size_t, m_dim > &shape,
-      const std::map< position_type, kin_type > &setup_0,
-      const std::map< position_type, kin_type > &setup_1);
+      const std::map< position_type, role_type > &setup_0,
+      const std::map< position_type, role_type > &setup_1);
    Board(
       const std::array< size_t, m_dim > &shape,
       const std::array< int, m_dim > &board_starts,
-      const std::map< position_type, kin_type > &setup_0,
-      const std::map< position_type, kin_type > &setup_1);
+      const std::map< position_type, role_type > &setup_0,
+      const std::map< position_type, role_type > &setup_1);
 
    virtual ~Board() = default;
 
@@ -115,15 +115,15 @@ class Board {
       return m_map_inverse;
    }
 
-   const_inverse_iterator get_position_of_kin(
-      int team, const kin_type &kin) const
+   const_inverse_iterator get_position_of_role(
+      int team, const role_type &role) const
    {
-      return m_map_inverse.at(team).find(kin);
+      return m_map_inverse.at(team).find(role);
    }
 
-   size_t get_count_of_kin(int team, const kin_type &kin) const
+   size_t get_count_of_role(int team, const role_type &role) const
    {
-      return m_map_inverse.at(team).count(kin);
+      return m_map_inverse.at(team).count(role);
    }
 
    std::vector< std::shared_ptr< piece_type > > get_pieces(int player) const;
@@ -221,7 +221,7 @@ void Board< PieceType >::update_board(
 
    if(! pc_before->is_null() && *pc_before != *pc_ptr) {
       if(int team = pc_before->get_team(); team != -1) {
-         m_map_inverse[team].erase(pc_before->get_kin());
+         m_map_inverse[team].erase(pc_before->get_role());
       }
    }
 
@@ -229,7 +229,7 @@ void Board< PieceType >::update_board(
    (*this)[pos] = pc_ptr;
 
    if(int team = pc_ptr->get_team(); ! pc_ptr->is_null() && team != -1) {
-      m_map_inverse[team][pc_ptr->get_kin()] = pos;
+      m_map_inverse[team][pc_ptr->get_role()] = pos;
    }
 }
 
@@ -313,17 +313,17 @@ template < typename PieceType >
 Board< PieceType >::Board(
    const std::array< size_t, m_dim > &shape,
    const std::array< int, m_dim > &board_starts,
-   const std::map< position_type, kin_type > &setup_0,
-   const std::map< position_type, kin_type > &setup_1)
+   const std::map< position_type, role_type > &setup_0,
+   const std::map< position_type, role_type > &setup_1)
     : Board(shape, board_starts)
 {
    auto setup_unwrap = [&](
-                          const std::map< position_type, kin_type > &setup,
+                          const std::map< position_type, role_type > &setup,
                           int team) {
       // because of the short length of the vectors they might be faster than
       // using a map (fit in cache)
       std::vector< position_type > seen_pos;
-      std::vector< kin_type > seen_kin;
+      std::vector< role_type > seen_role;
       for(auto &elem : setup) {
          position_type pos = elem.first;
          auto character = elem.second;
@@ -337,14 +337,14 @@ Board< PieceType >::Board(
                + std::string("')."));
          }
          seen_pos.emplace_back(pos);
-         if(std::find(seen_kin.begin(), seen_kin.end(), character)
-            != seen_kin.end()) {
+         if(std::find(seen_role.begin(), seen_role.end(), character)
+            != seen_role.end()) {
             throw std::invalid_argument(
                std::string("Parameter setup has more than one piece for the ")
                + std::string("same character (character: '")
                + character.to_string() + std::string("')."));
          }
-         seen_kin.emplace_back(character);
+         seen_role.emplace_back(character);
 
          m_map[pos] = std::make_shared< piece_type >(pos, character, team);
       }
@@ -358,8 +358,8 @@ Board< PieceType >::Board(
 template < typename PieceType >
 Board< PieceType >::Board(
    const std::array< size_t, m_dim > &shape,
-   const std::map< position_type, typename piece_type::kin_type > &setup_0,
-   const std::map< position_type, typename piece_type::kin_type > &setup_1)
+   const std::map< position_type, typename piece_type::role_type > &setup_0,
+   const std::map< position_type, typename piece_type::role_type > &setup_1)
     : Board(shape, make_array< int, m_dim >(0), setup_0, setup_1)
 {
 }
@@ -385,7 +385,7 @@ void Board< PieceType >::_fill_inverse_board()
       auto &piece = piece_ptr.second;
       if(! piece->is_null()) {
          m_map_inverse[piece->get_team()]
-                      [piece->get_kin()] = piece->get_position();
+                      [piece->get_role()] = piece->get_position();
       }
    }
 }

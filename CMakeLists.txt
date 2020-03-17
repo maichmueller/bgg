@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.15)
 
-project(AlphaZero++ CXX)
+project(AZE++ CXX)
 #set(CMAKE_CXX_STANDARD 17)
 
 set(APPLICATION_NAME "AlphaZero++")

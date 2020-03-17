@@ -28,7 +28,7 @@ struct LogicStratego: public Logic< BoardType, LogicStratego< BoardType > > {
    using move_type = typename base_type::move_type;
    using position_type = typename base_type::position_type;
    using piece_type = typename board_type::piece_type;
-   using kin_type = typename board_type::kin_type;
+   using role_type = typename board_type::role_type;
 
    static bool is_legal_move_(const board_type &board, const move_type &move);
 
@@ -42,7 +42,7 @@ struct LogicStratego: public Logic< BoardType, LogicStratego< BoardType > > {
    static int fight_outcome(piece_type attacker, piece_type defender)
    {
       return fight_outcome(
-         std::array{attacker.get_kin()[0], defender.get_kin()[0]});
+         std::array{attacker.get_role()[0], defender.get_role()[0]});
    }
 
    static int fight_outcome(std::array< int, 2 > att_def)
@@ -154,13 +154,13 @@ bool LogicStratego< BoardType >::is_legal_move_(
 
    if(p_b->is_null())
       return false;
-   if(int type = p_b->get_kin()[0]; type == 0 || type == 11) {
+   if(int type = p_b->get_role()[0]; type == 0 || type == 11) {
       return false;
    }
    if(! p_a->is_null()) {
       if(p_a->get_team() == p_b->get_team())
          return false;  // cant fight pieces of own team
-      if(p_a->get_kin()[0] == 99) {
+      if(p_a->get_role()[0] == 99) {
          return false;  // cant fight obstacle
       }
    }
@@ -168,7 +168,7 @@ bool LogicStratego< BoardType >::is_legal_move_(
    int move_dist = abs(pos_after[1] - pos_before[1])
                    + abs(pos_after[0] - pos_before[0]);
    if(move_dist > 1) {
-      if(p_b->get_kin()[0] != 2)
+      if(p_b->get_role()[0] != 2)
          return false;  // not of type 2 , but is supposed to go far
 
       if(pos_after[0] == pos_before[0]) {
@@ -209,7 +209,7 @@ LogicStratego< BoardType >::get_legal_moves_(
          // the position we are dealing with
          Position pos = piece->get_position();
 
-         if(piece->get_kin()[0] == 2) {
+         if(piece->get_role()[0] == 2) {
             // all possible moves to the right until board ends
             for(int i = 1; i < starts_x + shape_x - pos[0]; ++i) {
                position_type pos_to{pos[0] + i, pos[1]};
@@ -277,13 +277,13 @@ bool LogicStratego< BoardType >::has_legal_moves_(
    int starts_y = board.get_starts()[1];
    for(auto elem = board.begin(); elem != board.end(); ++elem) {
       std::shared_ptr< piece_type > piece = elem->second;
-      if(int essential_kin = piece->get_kin()[0];
-         ! piece->is_null() && piece->get_team() == player && essential_kin != 0
-         && essential_kin != 11) {
+      if(int essential_role = piece->get_role()[0];
+         ! piece->is_null() && piece->get_team() == player && essential_role != 0
+         && essential_role != 11) {
          // the position we are dealing with
          Position pos = piece->get_position();
 
-         if(piece->get_kin()[0] == 2) {
+         if(piece->get_role()[0] == 2) {
             // all possible moves to the right until board ends
             for(int i = 1; i < starts_x + shape_x - pos[0]; ++i) {
                position_type pos_to{pos[0] + i, pos[1]};

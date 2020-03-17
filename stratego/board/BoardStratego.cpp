@@ -36,7 +36,7 @@ BoardStratego::adapt_setup(const std::map< position_type, int > &setup)
       // correctly for us.
       int version = version_count[type]++;
       vector_out.push_back(
-         std::make_shared< piece_type >(pos, kin_type(type, version), 0));
+         std::make_shared< piece_type >(pos, role_type(type, version), 0));
    }
    return vector_out;
 }
@@ -52,7 +52,7 @@ std::string BoardStratego::print_board(int player, bool hide_unknowns) const
    int dim_y = m_shape[1];
    int mid = V_SIZE_PER_PIECE / 2;
 
-   // piece string lambda function that returns a str of the kin
+   // piece string lambda function that returns a str of the role
    // "-1 \n
    // 10.1 \n
    //   1"
@@ -83,10 +83,10 @@ std::string BoardStratego::print_board(int player, bool hide_unknowns) const
                       static_cast< unsigned long >(H_SIZE_PER_PIECE), ' ')
                    + RESET;
          }
-         const auto &kin = piece.get_kin();
+         const auto &role = piece.get_role();
          return color
                 + utils::center(
-                   std::to_string(kin[0]) + '.' + std::to_string(kin[1]),
+                   std::to_string(role[0]) + '.' + std::to_string(role[1]),
                    H_SIZE_PER_PIECE,
                    " ")
                 + RESET;
@@ -178,7 +178,7 @@ void BoardStratego::_add_obstacles()
       BoardStratego >::get_obstacle_positions(m_shape[0]);
    for(const auto &obstacle_pos : obstacle_positions) {
       m_map[obstacle_pos] = std::make_shared< piece_type >(
-         obstacle_pos, kin_type{99, 99}, -1);
+         obstacle_pos, role_type{99, 99}, -1);
    }
 }
 

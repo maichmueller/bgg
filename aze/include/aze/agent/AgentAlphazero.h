@@ -45,20 +45,19 @@ class AlphaZeroAgent: public AgentReinforceBase< StateType > {
       auto [pi, v] = base_type::m_model->evaluate(state_rep);
       auto validity_mask = m_action_rep_ptr->get_action_mask(
          *state.get_board(), base_type::m_team);
-      pi.squeeze_(0);
-      auto pi_acc = pi.template accessor< float, 1 >();
-      double max = torch::log(
-                      torch::from_blob(std::vector< float >{0}.data(), {1}))
-                      .template item< double >();
+      pi = pi.squeeze(0);
+      float max = -std::numeric_limits<float>::infinity();
       size_t argmax = 0;
       for(size_t i = 0; i < validity_mask.size(); ++i) {
          if(validity_mask[i]) {
-            if(pi_acc[i] > max) {
-               max = pi_acc[i];
+            float mask_prob = pi[i].template item<float>();
+            if(mask_prob > max) {
+               max = mask_prob;
                argmax = i;
             }
          }
       }
+
       move_type move = m_action_rep_ptr->action_to_move(
          state, argmax, base_type::m_team);
 

@@ -4,26 +4,26 @@
 #include "aze/board/Move.h"
 #include "aze/board/Position.h"
 
-template < typename Vector, typename KinType >
+template < typename Vector, typename RoleType >
 struct Action {
    using vector_type = Vector;  // not associated with the std::vector
-   using kin_type = KinType;
+   using role_type = RoleType;
 
    vector_type m_effect_vec;
-   kin_type m_assoc_kin;
+   role_type m_assoc_role;
    size_t m_index;
 
    Action(
-      vector_type displacement_vector, kin_type piece_identifier, size_t index)
+      vector_type displacement_vector, role_type piece_identifier, size_t index)
        : m_effect_vec(displacement_vector),
-         m_assoc_kin(piece_identifier),
+         m_assoc_role(piece_identifier),
          m_index(index)
    {
    }
 
    [[nodiscard]] vector_type get_effect() const { return m_effect_vec; }
 
-   [[nodiscard]] kin_type get_assoc_kin() const { return m_assoc_kin; }
+   [[nodiscard]] role_type get_assoc_role() const { return m_assoc_role; }
 
    [[nodiscard]] size_t get_index() const { return m_index; }
 
@@ -36,11 +36,11 @@ struct Action {
 };
 
 namespace std {
-template < typename VectorType, typename KinType >
-struct hash< Action< VectorType, KinType > > {
-   size_t operator()(const Action< VectorType, KinType > &action) const
+template < typename VectorType, typename RoleType >
+struct hash< Action< VectorType, RoleType > > {
+   size_t operator()(const Action< VectorType, RoleType > &action) const
    {
-      return std::hash< KinType >()(action.get_assoc_kin());
+      return std::hash< RoleType >()(action.get_assoc_role());
    }
 };
 }  // namespace std
