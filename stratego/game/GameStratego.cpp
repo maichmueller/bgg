@@ -65,7 +65,7 @@ GameStratego::draw_setup_(int team)
       auto &type = avail_types.back();
 
       setup_out[pos] = std::make_shared< piece_type >(
-         pos, typename piece_type::role_type(type, counter[type] - 1), team);
+         pos, typename piece_type::role_type(type, --counter[type]), team);
 
       poss_pos.pop_back();
       avail_types.pop_back();
