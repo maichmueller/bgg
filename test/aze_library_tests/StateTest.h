@@ -7,7 +7,7 @@
 namespace {
 using position_type = Position< int, 2 >;
 using piece_type = Piece< position_type, 2 >;
-using kin_type = typename piece_type::kin_type;
+using role_type = typename piece_type::role_type;
 
 class BoardImplTest: public Board< piece_type > {
   public:
@@ -35,7 +35,7 @@ class StateImplTest: public State< planar_board > {
    void check_terminal() override
    {
       bool has_pieces = false;
-      if(m_board.size())
+      if(m_board->size())
          has_pieces = true;
       m_terminal = has_pieces;
    }
@@ -50,7 +50,7 @@ class StateImplTest: public State< planar_board > {
          }
       }
       auto state_clone_ptr = new StateImplTest(
-         m_board.clone(),
+         m_board->clone(),
          m_terminal,
          m_terminal_checked,
          m_turn_count,
@@ -67,8 +67,8 @@ using state_type = StateImplTest;
 
 class StateTest: public ::testing::Test {
   protected:
-   std::map< position_type, kin_type > setup0;
-   std::map< position_type, kin_type > setup1;
+   std::map< position_type, role_type > setup0;
+   std::map< position_type, role_type > setup1;
 
    void SetUp() override
    {
