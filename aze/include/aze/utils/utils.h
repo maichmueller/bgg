@@ -38,8 +38,7 @@ inline std::string repeat(std::string str, const std::size_t n)
    return str;
 }
 
-inline std::string center(
-   const std::string& str, int width, const char* fillchar)
+inline std::string center(const std::string& str, int width, const char* fillchar)
 {
    int len = str.length();
    if(width < len) {
@@ -78,13 +77,10 @@ std::string board_str_rep(
    // "-1 \n
    // 10.1 \n
    //   1"
-   auto create_piece_str = [&H_SIZE_PER_PIECE,
-                            &mid,
-                            &flip_board,
-                            &hide_unknowns](const PieceType& piece, int line) {
+   auto create_piece_str = [&H_SIZE_PER_PIECE, &mid, &flip_board, &hide_unknowns](
+                              const PieceType& piece, int line) {
       if(piece.is_null())
-         return std::string(
-            static_cast< unsigned long >(H_SIZE_PER_PIECE), ' ');
+         return std::string(static_cast< unsigned long >(H_SIZE_PER_PIECE), ' ');
       std::string reset = "\x1B[0m";
       std::string color = "\x1B[44m";  // blue by default (for player 1)
       if(piece.get_team() == 99)
@@ -99,20 +95,15 @@ std::string board_str_rep(
          return color + center(h, H_SIZE_PER_PIECE, " ") + reset;
       } else if(line == mid) {
          // type and version info line
-         if(hide_unknowns && piece.get_flag_hidden()
-            && piece.get_team(flip_board)) {
-            return color
-                   + std::string(
-                      static_cast< unsigned long >(H_SIZE_PER_PIECE), ' ')
-                   + reset;
+         if(hide_unknowns && piece.get_flag_hidden() && piece.get_team(flip_board)) {
+            return color + std::string(static_cast< unsigned long >(H_SIZE_PER_PIECE), ' ') + reset;
          }
-         //                std::cout << "PieceType: type " << piece.get_kin() <<
+         //                std::cout << "PieceType: type " << piece.get_role() <<
          //                "." << piece.get_version() << " at (" <<
          //                                                                                                          piece.get_position()[0] << ", " << piece.get_position()[1] <<") \n";
          return color
                 + center(
-                   std::to_string(piece.get_type()) + '.'
-                      + std::to_string(piece.get_version()),
+                   std::to_string(piece.get_type()) + '.' + std::to_string(piece.get_version()),
                    H_SIZE_PER_PIECE,
                    " ")
                 + reset;
@@ -123,8 +114,7 @@ std::string board_str_rep(
          return color + center("", H_SIZE_PER_PIECE, " ") + reset;
       else
          // empty line
-         return std::string(
-            static_cast< unsigned long >(H_SIZE_PER_PIECE), ' ');
+         return std::string(static_cast< unsigned long >(H_SIZE_PER_PIECE), ' ');
    };
 
    std::stringstream board_print;
@@ -137,8 +127,7 @@ std::string board_str_rep(
    }
    board_print << "\n";
 
-   std::string init_space = std::string(
-      static_cast< unsigned long >(row_ind_space), ' ');
+   std::string init_space = std::string(static_cast< unsigned long >(row_ind_space), ' ');
    std::string h_border = std::string(
       static_cast< unsigned long >(dim * (H_SIZE_PER_PIECE + 1)), '-');
 
@@ -150,8 +139,7 @@ std::string board_str_rep(
    for(int row = 0; row < dim; ++row) {
       // per piece we have V_SIZE_PER_PIECE many lines to fill consecutively.
       // Iterate over every column and append the new segment to the right line.
-      std::vector< std::stringstream > line_streams(
-         static_cast< unsigned int >(V_SIZE_PER_PIECE));
+      std::vector< std::stringstream > line_streams(static_cast< unsigned int >(V_SIZE_PER_PIECE));
 
       for(int col = 0; col < dim; ++col) {
          if(flip_board) {
@@ -164,8 +152,7 @@ std::string board_str_rep(
 
             if(i == mid - 1 || i == mid + 1) {
                if(col == 0) {
-                  curr_stream << std::string(
-                     static_cast< unsigned long >(row_ind_space), ' ');
+                  curr_stream << std::string(static_cast< unsigned long >(row_ind_space), ' ');
                }
                curr_stream << "|" << create_piece_str(*curr_piece, i);
             } else if(i == mid) {
@@ -175,8 +162,7 @@ std::string board_str_rep(
                   else
                      curr_stream << row;
 
-                  curr_stream << std::string(
-                     static_cast< unsigned long >(row_ind_space - 2), ' ')
+                  curr_stream << std::string(static_cast< unsigned long >(row_ind_space - 2), ' ')
                               << "|";
                }
                curr_stream << create_piece_str(*curr_piece, i);
@@ -197,11 +183,9 @@ std::string board_str_rep(
 }
 
 template < typename BoardType, typename PieceType >
-inline void print_board(
-   const BoardType& board, bool flip_board = false, bool hide_unknowns = false)
+inline void print_board(const BoardType& board, bool flip_board = false, bool hide_unknowns = false)
 {
-   std::string output = board_str_rep< BoardType, PieceType >(
-      board, flip_board, hide_unknowns);
+   std::string output = board_str_rep< BoardType, PieceType >(board, flip_board, hide_unknowns);
    std::cout << output << std::endl;
 }
 
@@ -218,10 +202,7 @@ inline std::map< int, unsigned int > counter(const std::vector< int >& vals)
 
 template < int N >
 struct faculty {
-   static constexpr int n_faculty()
-   {
-      return N * faculty< N - 1 >::n_faculty();
-   }
+   static constexpr int n_faculty() { return N * faculty< N - 1 >::n_faculty(); }
 };
 
 template <>
@@ -279,10 +260,7 @@ struct HashValueImpl {
 
 template < class Tuple >
 struct HashValueImpl< Tuple, 0 > {
-   static void apply(size_t& seed, Tuple const& tuple)
-   {
-      hash_combine(seed, std::get< 0 >(tuple));
-   }
+   static void apply(size_t& seed, Tuple const& tuple) { hash_combine(seed, std::get< 0 >(tuple)); }
 };
 }  // namespace
 
@@ -305,8 +283,7 @@ auto head(std::tuple< T, Ts... > const& t)
 }
 
 template < std::size_t... Ns, typename... Ts >
-auto tail_impl(
-   std::index_sequence< Ns... > const&, std::tuple< Ts... > const& t)
+auto tail_impl(std::index_sequence< Ns... > const&, std::tuple< Ts... > const& t)
 {
    return std::make_tuple(std::get< Ns + 1u >(t)...);
 }
@@ -319,10 +296,7 @@ auto tail(std::tuple< Ts... > const& t)
 
 template < typename TT >
 struct eqcomp {
-   bool operator()(TT const& tt1, TT const& tt2) const
-   {
-      return ! ((tt1 < tt2) || (tt2 < tt1));
-   }
+   bool operator()(TT const& tt1, TT const& tt2) const { return ! ((tt1 < tt2) || (tt2 < tt1)); }
 };
 }  // namespace
 
@@ -330,8 +304,7 @@ namespace std {
 template < typename T1, typename... TT >
 struct equal_to< std::tuple< T1, TT... > > {
    bool operator()(
-      std::tuple< T1, TT... > const& tuple1,
-      std::tuple< T1, TT... > const& tuple2) const
+      std::tuple< T1, TT... > const& tuple1, std::tuple< T1, TT... > const& tuple2) const
    {
       return eqcomp< T1 >()(std::get< 0 >(tuple1), std::get< 0 >(tuple2))
              && eqcomp< std::tuple< TT... > >()(tail(tuple1), tail(tuple2));

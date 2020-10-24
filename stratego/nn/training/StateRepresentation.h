@@ -138,8 +138,7 @@ inline torch::Tensor b2s_cond_check(
    // state_dim = dimension of the state rep, i.e. how many m_layers of the
    // conditions m_shape = first board dimension m_shape = second board
    // dimension
-   torch::Tensor board_state_rep = torch::zeros(
-      {1, state_dim, board_len, board_len}, options);
+   torch::Tensor board_state_rep = torch::zeros({1, state_dim, board_len, board_len}, options);
 
    //        auto board_state_access = board_state_rep.accessor<float, 4> ();
    for(const auto& pos_piece : board) {
@@ -177,8 +176,7 @@ inline std::vector< cond_type > create_conditions(
    for(const auto& entry : type_counter) {
       int type = entry.first;
       for(int version = 0; version < entry.second; ++version) {
-         conditions.emplace_back(
-            std::make_tuple(own_team, type, version, false));
+         conditions.emplace_back(std::make_tuple(own_team, type, version, false));
       }
    }
    // [all own pieces] HIDDEN
@@ -191,8 +189,7 @@ inline std::vector< cond_type > create_conditions(
    for(const auto& entry : type_counter) {
       int type = entry.first;
       for(int version = 0; version < entry.second; ++version) {
-         conditions.emplace_back(
-            std::make_tuple(1 - own_team, type, version, false));
+         conditions.emplace_back(std::make_tuple(1 - own_team, type, version, false));
       }
    }
    // [all enemy pieces] HIDDEN
@@ -213,8 +210,7 @@ inline void set_state_rep_conditions(int game_len)
    if(conditions_set)
       return;
 
-   auto t_count = utils::counter(
-      GameDeclarations::get_available_types(game_len));
+   auto t_count = utils::counter(GameDeclarations::get_available_types(game_len));
 
    if(game_len == 5) {
       state_torch_conv_conditions_0 = create_conditions(t_count, 0);

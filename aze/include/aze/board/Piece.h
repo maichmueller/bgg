@@ -1,6 +1,3 @@
-//
-// Created by Michael on 20/02/2019.
-//
 
 #pragma once
 
@@ -20,17 +17,13 @@ struct Role {
 
    explicit Role(std::array< int, NrIds > sp) : specifiers(std::move(sp)) {}
 
-   explicit Role() : specifiers()
-   {
-      std::fill(specifiers.begin(), specifiers.end(), 404);
-   };
+   explicit Role() : specifiers() { std::fill(specifiers.begin(), specifiers.end(), 404); };
 
    template <
       typename... Types,
       typename std::enable_if< sizeof...(Types) == NrIds, int >::type = 0 >
    Role(Types &&... vals)
-       : Role(
-          std::index_sequence_for< Types... >{}, std::forward< Types >(vals)...)
+       : Role(std::index_sequence_for< Types... >{}, std::forward< Types >(vals)...)
    {
    }
 
@@ -71,8 +64,7 @@ struct Role {
    {
       std::ostringstream ss;
       ss << "{";
-      for(auto spec_it = specifiers.begin(); spec_it != specifiers.end() - 1;
-          ++spec_it) {
+      for(auto spec_it = specifiers.begin(); spec_it != specifiers.end() - 1; ++spec_it) {
          ss << *spec_it << ", ";
       }
       ss << specifiers.back() << "}";
@@ -126,13 +118,8 @@ class Piece {
    bool m_has_moved;
 
   public:
-   Piece(
-      position_type pos, role_type type, int team, bool hidden, bool has_moved)
-       : m_position(pos),
-         m_role(type),
-         m_team(team),
-         m_hidden(hidden),
-         m_has_moved(has_moved)
+   Piece(position_type pos, role_type type, int team, bool hidden, bool has_moved)
+       : m_position(pos), m_role(type), m_team(team), m_hidden(hidden), m_has_moved(has_moved)
    {
    }
 
@@ -154,10 +141,7 @@ class Piece {
 
    // getter and setter methods here only
 
-   void set_flag_has_moved(bool has_moved = true)
-   {
-      this->m_has_moved = has_moved;
-   }
+   void set_flag_has_moved(bool has_moved = true) { this->m_has_moved = has_moved; }
 
    void set_flag_unhidden(bool h = false) { m_hidden = h; }
 
@@ -181,8 +165,7 @@ class Piece {
    bool operator==(const Piece &other) const
    {
       return other.get_position() == m_position && m_role == other.get_role()
-             && m_team == other.get_team()
-             && m_hidden == other.get_flag_hidden()
+             && m_team == other.get_team() && m_hidden == other.get_flag_hidden()
              && m_has_moved == other.get_flag_has_moved();
    }
 

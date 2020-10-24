@@ -38,8 +38,7 @@ class MCTS {
       bool operator==(const StateData &other)
       {
          return count == other.count && terminal_value == other.terminal_value
-                && policy == other.policy
-                && validity_mask == other.validity_mask;
+                && policy == other.policy && validity_mask == other.validity_mask;
       }
 
       void operator+=(size_t c) { count += c; }
@@ -127,8 +126,7 @@ class MCTS {
     * @return
     */
    template < typename StateType, typename ActionRepresenterType >
-   std::tuple< std::vector< double >, std::vector< unsigned int >, double >
-   _evaluate_new_state(
+   std::tuple< std::vector< double >, std::vector< unsigned int >, double > _evaluate_new_state(
       StateType &state,
       int player,
       RepresenterBase< StateType, ActionRepresenterType > &action_repper);
@@ -143,10 +141,7 @@ class MCTS {
     * tree search.
     * @param cpuct a parameter influencing the strength of exploration.
     */
-   MCTS(
-      std::shared_ptr< NetworkWrapper > nnet_sptr,
-      int num_mcts_sims = 100,
-      double cpuct = 4);
+   MCTS(std::shared_ptr< NetworkWrapper > nnet_sptr, int num_mcts_sims = 100, double cpuct = 4);
 
    template < typename StateType, typename ActionRepresenterType >
    std::vector< double > get_policy_vec(
@@ -247,11 +242,9 @@ double MCTS::_search(
    if(state_data_iter == m_NTPVs.end()) {
       auto [Ps_filtered, action_mask, v] = std::move(
          _evaluate_new_state(state, player, action_repper));
-      m_NTPVs.emplace(
-         s, StateData{0, state.is_terminal(), Ps_filtered, action_mask});
+      m_NTPVs.emplace(s, StateData{0, state.is_terminal(), Ps_filtered, action_mask});
       return -v;
-   } else if(int terminal_value = state_data_iter->second.terminal_value;
-             terminal_value != 404) {
+   } else if(int terminal_value = state_data_iter->second.terminal_value; terminal_value != 404) {
       // note that we cant reuse the originally computed
       // terminality value for this state as the game may
       // have reached this position again by repeating the
@@ -341,16 +334,12 @@ double MCTS::_search(
 }
 
 template < typename StateType, typename ActionRepresenterType >
-std::tuple< std::vector< double >, std::vector< unsigned int >, double >
-MCTS::_evaluate_new_state(
-   StateType &state,
-   int player,
-   RepresenterBase< StateType, ActionRepresenterType > &action_repper)
+std::tuple< std::vector< double >, std::vector< unsigned int >, double > MCTS::_evaluate_new_state(
+   StateType &state, int player, RepresenterBase< StateType, ActionRepresenterType > &action_repper)
 {
    auto board = state.get_board();
    // convert State to torch tensor representation
-   const torch::Tensor state_tensor = action_repper.state_representation(
-      state, player);
+   const torch::Tensor state_tensor = action_repper.state_representation(state, player);
 
    auto [log_Ps, v] = m_nnet_sptr->evaluate(state_tensor);
    // move to cpu (as we need to work with it) and flatten the tensor.

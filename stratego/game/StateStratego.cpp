@@ -1,8 +1,7 @@
 #include "StateStratego.h"
 
 StateStratego::StateStratego(size_t shape_x, size_t shape_y)
-    : StateStratego(
-       std::array< size_t, 2 >{shape_x, shape_y}, std::array< int, 2 >{0, 0})
+    : StateStratego(std::array< size_t, 2 >{shape_x, shape_y}, std::array< int, 2 >{0, 0})
 {
 }
 
@@ -43,8 +42,7 @@ StateStratego::StateStratego(
 void StateStratego::check_terminal()
 {
    if(auto dead_pieces = m_dead_pieces[0];
-      std::find(dead_pieces.begin(), dead_pieces.end(), role_type{0, 0})
-      != dead_pieces.end()) {
+      std::find(dead_pieces.begin(), dead_pieces.end(), role_type{0, 0}) != dead_pieces.end()) {
       // flag of player 0 has been captured (killed), therefore player 0 lost
       m_terminal = -1;
       return;

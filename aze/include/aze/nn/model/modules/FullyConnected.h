@@ -15,8 +15,7 @@ class FullyConnected: public torch::nn::Module {
       int D_out,
       int nr_lin_layers = 2,
       int start_expo = 8,
-      const torch::nn::Functional &activation_function =
-         torch::nn::Functional(torch::relu));
+      const torch::nn::Functional &activation_function = torch::nn::Functional(torch::relu));
 
    torch::Tensor forward(const torch::Tensor &input);
 

@@ -9,11 +9,7 @@ class AlphaZeroAgent: public AgentReinforceBase< BoardType > {
    using action_rep_type = ActionRep;
    using move_type = typename BoardType::move_type;
    static inline bool check_condition(
-      const std::shared_ptr< PieceType >& piece,
-      int team,
-      int type,
-      int version,
-      bool hidden);
+      const std::shared_ptr< PieceType >& piece, int team, int type, int version, bool hidden);
    inline std::vector< std::tuple< int, int, int, bool > > create_conditions();
 
   protected:
@@ -21,12 +17,8 @@ class AlphaZeroAgent: public AgentReinforceBase< BoardType > {
 
   public:
    template < typename... Params >
-   AlphaZeroAgent(
-      int team,
-      bool learner,
-      const std::shared_ptr< NetworkWrapper >& model_sptr)
-       : AgentReinforceBase(team, true, model_sptr),
-         m_action_repper(Params... & params)
+   AlphaZeroAgent(int team, bool learner, const std::shared_ptr< NetworkWrapper >& model_sptr)
+       : AgentReinforceBase(team, true, model_sptr), m_action_repper(Params... & params)
    {
    }
 

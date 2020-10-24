@@ -26,8 +26,7 @@ GameStratego::GameStratego(
    const std::map< position_type, int > &setup_1,
    const std::shared_ptr< Agent< state_type > > &ag0,
    const std::shared_ptr< Agent< state_type > > &ag1)
-    : base_type(
-       state_type({shape, shape}, setup_0, setup_1), ag0, ag1)
+    : base_type(state_type({shape, shape}, setup_0, setup_1), ag0, ag1)
 {
 }
 
@@ -37,19 +36,18 @@ GameStratego::GameStratego(
    const std::map< position_type, role_type > &setup_1,
    const std::shared_ptr< Agent< state_type > > &ag0,
    const std::shared_ptr< Agent< state_type > > &ag1)
-    : base_type(
-       state_type({shape, shape}, setup_0, setup_1), ag0, ag1)
+    : base_type(state_type({shape, shape}, setup_0, setup_1), ag0, ag1)
 {
 }
 
-std::map< GameStratego::position_type, GameStratego::sptr_piece_type >
-GameStratego::draw_setup_(int team)
+std::map< GameStratego::position_type, GameStratego::sptr_piece_type > GameStratego::draw_setup_(
+   int team)
 {
    int shape = m_game_state.get_board()->get_shape()[0];
    auto avail_types = LogicStratego< board_type >::get_available_types(shape);
 
-   std::vector< position_type >
-      poss_pos = LogicStratego< board_type >::get_start_positions(shape, team);
+   std::vector< position_type > poss_pos = LogicStratego< board_type >::get_start_positions(
+      shape, team);
 
    std::map< position_type, sptr_piece_type > setup_out;
 

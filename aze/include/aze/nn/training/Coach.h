@@ -26,21 +26,13 @@ struct EvaluatedGameTurn {
    bool converted = false;
 
    EvaluatedGameTurn(
-      std::shared_ptr< state_type > state,
-      std::vector< double > pi,
-      double v,
-      int player)
-       : m_state(std::move(state)),
-         m_board_tensor(),
-         m_pi(std::move(pi)),
-         m_v(v),
-         m_player(player)
+      std::shared_ptr< state_type > state, std::vector< double > pi, double v, int player)
+       : m_state(std::move(state)), m_board_tensor(), m_pi(std::move(pi)), m_v(v), m_player(player)
    {
    }
 
    template < class ActionRepresenterType >
-   void convert_board(
-      RepresenterBase< StateType, ActionRepresenterType > &action_repper)
+   void convert_board(RepresenterBase< StateType, ActionRepresenterType > &action_repper)
    {
       /*
        * Conversion function for turning a Board object into a torch tensor.
@@ -169,20 +161,15 @@ Coach< GameType, NetworkType >::execute_episode(
    const int null_v = -100;
    while(true) {
       ep_step += 1;
-      auto expl_rate = static_cast< unsigned int >(
-         ep_step < m_exploration_rate);
+      auto expl_rate = static_cast< unsigned int >(ep_step < m_exploration_rate);
 
       int player = state->get_turn_count() % 2;
-      std::vector< double > pi = mcts.get_policy_vec(
-         state, player, action_repper, expl_rate);
+      std::vector< double > pi = mcts.get_policy_vec(state, player, action_repper, expl_rate);
 
       // append the evaluated state to the episode examples we have gathered so
       // far.
       ep_examples.emplace_back(evaluated_turn_type(
-         std::static_pointer_cast< state_type >(state->clone()),
-         pi,
-         null_v,
-         player));
+         std::static_pointer_cast< state_type >(state->clone()), pi, null_v, player));
 
       size_t best_action = 0;
       double best_prob = -std::numeric_limits< double >::infinity();
@@ -193,8 +180,7 @@ Coach< GameType, NetworkType >::execute_episode(
             best_action = a;
          }
       }
-      move_type best_move = action_repper.action_to_move(
-         *state, best_action, player);
+      move_type best_move = action_repper.action_to_move(*state, best_action, player);
 
       state->do_move(best_move);
 
@@ -253,12 +239,10 @@ void Coach< GameType, NetworkType >::teach(
    tqdm bar;
    std::string epochs_str = std::to_string(m_epochs);
    for(size_t epoch = 0; epoch < m_epochs; ++epoch) {
-      bar.set_label(
-         " Executing training epoch " + std::to_string(epoch+1) + "/" + epochs_str);
+      bar.set_label(" Executing training epoch " + std::to_string(epoch + 1) + "/" + epochs_str);
       bar.progress(epoch, m_epochs);
 
-      std::vector< evaluated_turn_type > train_data{
-         m_turns_queue.begin(), m_turns_queue.end()};
+      std::vector< evaluated_turn_type > train_data{m_turns_queue.begin(), m_turns_queue.end()};
 
       if(! skip_first_self_play || epoch > 0) {
          tqdm ep_bar;
@@ -266,15 +250,14 @@ void Coach< GameType, NetworkType >::teach(
          for(size_t episode = 0; episode < m_num_episodes; ++episode) {
             ep_bar.progress(episode, m_num_episodes);
             for(auto &&evaluated_turn : execute_episode(
-                   std::static_pointer_cast< state_type >(
-                      m_game->get_gamestate()->clone()),
+                   std::static_pointer_cast< state_type >(m_game->get_gamestate()->clone()),
                    action_repper)) {
                evaluated_turn.convert_board(action_repper);
                // move is needed or else evaluated turn will be seen as lvalue (and copied).
                train_data.emplace_back(std::move(evaluated_turn));
             }
             ep_bar.set_label("Selfplay evaluated " + std::to_string(train_data.size()) + " turns");
-//            LOGD2("NUMBER OF EVALUATED TURNS", train_data.size())
+            //            LOGD2("NUMBER OF EVALUATED TURNS", train_data.size())
          }
          ep_bar.finish();
       }
@@ -284,8 +267,7 @@ void Coach< GameType, NetworkType >::teach(
       //    save_train_examples(iter);
       //}
 
-      if(int nr_exs_to_pop = m_turns_queue.size() - m_num_evaluated_turns_hist;
-         nr_exs_to_pop > 0) {
+      if(int nr_exs_to_pop = m_turns_queue.size() - m_num_evaluated_turns_hist; nr_exs_to_pop > 0) {
          for(int k = 0; k < nr_exs_to_pop; ++k) {
             m_turns_queue.pop_front();
          }
@@ -299,8 +281,7 @@ void Coach< GameType, NetworkType >::teach(
       // evaluate new training against previous model state
       m_opp_nnet->load_checkpoint(m_model_folder, "temp_model.tar");
       auto [res0, res1] = Arena::pit(*m_game, 100);
-      if(res0.wins + res1.wins > 0
-         && (res0.wins / (res0.wins + res1.wins) < m_win_frac)) {
+      if(res0.wins + res1.wins > 0 && (res0.wins / (res0.wins + res1.wins) < m_win_frac)) {
          std::cout << "Rejecting new model\n";
          m_nnet->load_checkpoint(m_model_folder, "temp_model.tar");
       } else {
@@ -321,8 +302,7 @@ void Coach< GameType, NetworkType >::save_train_examples(int iteration)
 }
 
 template < class GameType, class NetworkType >
-void Coach< GameType, NetworkType >::load_train_examples(
-   std::string examples_fname)
+void Coach< GameType, NetworkType >::load_train_examples(std::string examples_fname)
 {
    return;
 }

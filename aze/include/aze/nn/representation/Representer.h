@@ -23,10 +23,7 @@ class RepresenterBase {
   private:
    // Convenience method for CRTP
    //
-   const DerivedType *derived() const
-   {
-      return static_cast< const DerivedType * >(this);
-   }
+   const DerivedType *derived() const { return static_cast< const DerivedType * >(this); }
    DerivedType *derived() { return static_cast< DerivedType * >(this); }
 
   public:
@@ -42,8 +39,7 @@ class RepresenterBase {
    // positional variable amount of parameters can be passed to allow differing
    // implementations without knowing each use case beforehand.
    template < typename... Params >
-   torch::Tensor state_representation(
-      const state_type &state, const Params &... params)
+   torch::Tensor state_representation(const state_type &state, const Params &... params)
    {
       return derived()->state_representation_(state, params...);
    }
@@ -73,25 +69,18 @@ class RepresenterBase {
    template < typename PieceType >
    inline typename Board< PieceType >::move_type action_to_move(
       const Board< PieceType > &board,
-      const Action<
-         typename PieceType::position_type,
-         typename PieceType::role_type > &action,
+      const Action< typename PieceType::position_type, typename PieceType::role_type > &action,
       int player) const
    {
       using position_type = typename PieceType::position_type;
-      position_type pos = board
-                             .get_position_of_role(
-                                player, action.get_assoc_role())
-                             ->second;
+      position_type pos = board.get_position_of_role(player, action.get_assoc_role())->second;
       return {pos, pos + action.get_effect()};
    }
 
    template < typename BoardType >
    inline typename BoardType::move_type action_to_move(
       const State< BoardType > &state,
-      const Action<
-         typename BoardType::position_type,
-         typename BoardType::role_type > &action,
+      const Action< typename BoardType::position_type, typename BoardType::role_type > &action,
       int player) const
    {
       return action_to_move(*state.get_board(), action, player);

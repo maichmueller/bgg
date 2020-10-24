@@ -6,8 +6,8 @@ using namespace BoardTest;
 
 TEST(BoardTest, BoardTest_Constructor_Ints_2D)
 {
-   std::map< position_type, kin_type > setup0;
-   std::map< position_type, kin_type > setup1;
+   std::map< position_type, role_type > setup0;
+   std::map< position_type, role_type > setup1;
 
    setup0[{0, 0}] = {11, 11};
    setup0[{0, 1}] = {22, 22};
@@ -16,7 +16,7 @@ TEST(BoardTest, BoardTest_Constructor_Ints_2D)
    setup0[{1, 1}] = {55, 55};
    setup0[{1, 2}] = {66, 66};
 
-   kin_type test_kin{20, 1};
+   role_type test_kin{20, 1};
    position_type test_pos{3, 2};
    std::shared_ptr< piece_type > test_piece = std::make_shared< piece_type >(
       test_pos, test_kin, 1);
@@ -39,7 +39,7 @@ TEST(BoardTest, BoardTest_Constructor_Ints_2D)
    std::vector< std::shared_ptr< piece_type > > pieces_0 = b.get_pieces(0);
 
    // check update board method
-   kin_type new_test_kin{5, 1};
+   role_type new_test_kin{5, 1};
    std::shared_ptr< piece_type >
       new_test_piece = std::make_shared< piece_type >(
          test_pos, new_test_kin, 1);

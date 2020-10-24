@@ -4,7 +4,7 @@
 #include <aze/utils.h>
 #include <torch/torch.h>
 
-class StrategoAlphaZero: public AlphaZeroInterface {
+class StrategoAlphaZero: public AlphaZeroBase {
    int D_in;
    std::shared_ptr< Convolutional > convo_layers;
    std::shared_ptr< FullyConnected > linear_layers;
@@ -22,11 +22,9 @@ class StrategoAlphaZero: public AlphaZeroInterface {
       const std::vector< unsigned int > &kernel_sizes_vec,
       const std::vector< bool > &maxpool_used_vec,
       const std::vector< float > &dropout_probs,
-      const torch::nn::Functional &activation_function =
-         torch::nn::Functional(torch::relu));
+      const torch::nn::Functional &activation_function = torch::nn::Functional(torch::relu));
 
-   std::tuple< torch::Tensor, torch::Tensor > forward(
-      const torch::Tensor &input) override;
+   std::tuple< torch::Tensor, torch::Tensor > forward(const torch::Tensor &input) override;
 };
 
 StrategoAlphaZero::StrategoAlphaZero(
@@ -52,27 +50,18 @@ StrategoAlphaZero::StrategoAlphaZero(
       v_act_layer(nullptr)
 {
    if(nr_lin_layers < 2) {
-      throw std::invalid_argument(
-         "Less than 2 linear layers requested. Aborting.");
+      throw std::invalid_argument("Less than 2 linear layers requested. Aborting.");
    }
 
-   unsigned int hidden_nodes = 2u << static_cast< unsigned int >(
-                                  start_exponent - 1);
+   unsigned int hidden_nodes = 2u << static_cast< unsigned int >(start_exponent - 1);
    unsigned int substitute_d_out = hidden_nodes
-                                   / (2u << static_cast< unsigned int >(
-                                         nr_lin_layers - 4));
+                                   / (2u << static_cast< unsigned int >(nr_lin_layers - 4));
 
    linear_layers = std::make_shared< FullyConnected >(
-      D_in,
-      substitute_d_out,
-      nr_lin_layers - 1,
-      start_exponent,
-      activation_function);
+      D_in, substitute_d_out, nr_lin_layers - 1, start_exponent, activation_function);
 
-   pi_act_layer = torch::nn::Linear(
-      torch::nn::LinearOptions(substitute_d_out, D_out));
-   v_act_layer = torch::nn::Linear(
-      torch::nn::LinearOptions(substitute_d_out, 1));
+   pi_act_layer = torch::nn::Linear(torch::nn::LinearOptions(substitute_d_out, D_out));
+   v_act_layer = torch::nn::Linear(torch::nn::LinearOptions(substitute_d_out, 1));
 
    convo_layers = register_module("Convolutional Block", convo_layers);
    linear_layers = register_module("FullyConnected Block", linear_layers);
@@ -80,8 +69,7 @@ StrategoAlphaZero::StrategoAlphaZero(
    v_act_layer = register_module("Value Generating Layer", v_act_layer);
 }
 
-std::tuple< torch::Tensor, torch::Tensor > StrategoAlphaZero::forward(
-   const torch::Tensor &input)
+std::tuple< torch::Tensor, torch::Tensor > StrategoAlphaZero::forward(const torch::Tensor &input)
 {
    torch::Tensor features = convo_layers->forward(input);
    features = linear_layers->forward(features.view({-1, D_in}));

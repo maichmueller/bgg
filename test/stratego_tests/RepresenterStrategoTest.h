@@ -6,7 +6,7 @@
 namespace {
 using piece_type = PieceStratego;
 using position_type = typename piece_type::position_type;
-using kin_type = typename piece_type::kin_type;
+using role_type = typename piece_type::role_type;
 
 using state_type = StateStratego;
 using move_type = typename state_type::move_type;
@@ -15,10 +15,10 @@ using logic_type = LogicStratego< BoardStratego >;
 
 class RepresenterStrategoTest: public ::testing::Test {
   protected:
-   std::map< position_type, kin_type > setup_start_0;
-   std::map< position_type, kin_type > setup_start_1;
-   std::map< position_type, kin_type > setup_mid_0;
-   std::map< position_type, kin_type > setup_mid_1;
+   std::map< position_type, role_type > setup_start_0;
+   std::map< position_type, role_type > setup_start_1;
+   std::map< position_type, role_type > setup_mid_0;
+   std::map< position_type, role_type > setup_mid_1;
 
    void SetUp() override
    {

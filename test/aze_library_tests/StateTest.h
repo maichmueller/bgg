@@ -40,7 +40,7 @@ class StateImplTest: public State< planar_board > {
       m_terminal = has_pieces;
    }
 
-   StateImplTest * clone_impl() const override {
+   [[nodiscard]] StateImplTest * clone_impl() const override {
 
       // copy the shared pointers as of now
       auto piece_history = m_piece_history;
@@ -50,7 +50,7 @@ class StateImplTest: public State< planar_board > {
          }
       }
       auto state_clone_ptr = new StateImplTest(
-         m_board->clone(),
+         std::dynamic_pointer_cast< board_type >(m_board->clone()),
          m_terminal,
          m_terminal_checked,
          m_turn_count,

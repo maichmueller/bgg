@@ -28,29 +28,24 @@ class AlphaZeroAgent: public AgentReinforceBase< StateType > {
 
    template < typename... Params >
    AlphaZeroAgent(
-      int team,
-      const std::shared_ptr< NetworkWrapper > &model_sptr,
-      const Params &... params)
+      int team, const std::shared_ptr< NetworkWrapper > &model_sptr, const Params &... params)
        : base_type(team, model_sptr), m_action_rep_ptr(params...)
    {
    }
 
    move_type decide_move(
-      const state_type &state,
-      const std::vector< move_type > &poss_moves) override
+      const state_type &state, const std::vector< move_type > &poss_moves) override
    {
-      torch::Tensor state_rep = m_action_rep_ptr->state_representation(
-         state, base_type::m_team);
+      torch::Tensor state_rep = m_action_rep_ptr->state_representation(state, base_type::m_team);
 
       auto [pi, v] = base_type::m_model->evaluate(state_rep);
-      auto validity_mask = m_action_rep_ptr->get_action_mask(
-         *state.get_board(), base_type::m_team);
+      auto validity_mask = m_action_rep_ptr->get_action_mask(*state.get_board(), base_type::m_team);
       pi = pi.squeeze(0);
-      float max = -std::numeric_limits<float>::infinity();
+      float max = -std::numeric_limits< float >::infinity();
       size_t argmax = 0;
       for(size_t i = 0; i < validity_mask.size(); ++i) {
          if(validity_mask[i]) {
-            float mask_prob = pi[i].template item<float>();
+            float mask_prob = pi[i].template item< float >();
             if(mask_prob > max) {
                max = mask_prob;
                argmax = i;
@@ -58,8 +53,7 @@ class AlphaZeroAgent: public AgentReinforceBase< StateType > {
          }
       }
 
-      move_type move = m_action_rep_ptr->action_to_move(
-         state, argmax, base_type::m_team);
+      move_type move = m_action_rep_ptr->action_to_move(state, argmax, base_type::m_team);
 
       return move;
    };

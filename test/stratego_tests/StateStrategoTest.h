@@ -46,7 +46,7 @@ class StateStrategoTest: public ::testing::Test {
       setup1[{4, 3}] = {3, 1};
       setup1[{4, 4}] = {10, 0};
 
-      auto board = typename state_type::board_type(
+      auto board = std::make_shared<typename state_type::board_type>(
          std::array< size_t, 2 >{5, 5}, setup0, setup1);
       state = state_type(board, 17);
    }

@@ -3,22 +3,18 @@
 
 #include "aze/utils/logging_macros.h"
 
-std::tuple< torch::Tensor, double > NetworkWrapper::evaluate(
-   const torch::Tensor &board_tensor)
+std::tuple< torch::Tensor, double > NetworkWrapper::evaluate(const torch::Tensor &board_tensor)
 {
    // We dont want gradient updates here, so we need the NoGradGuard
    torch::NoGradGuard no_grad;
    m_network->eval();
 
-   auto [pi_tensor, v_tensor] = m_network->forward(
-      board_tensor.to(GLOBAL_DEVICE::get_device()));
+   auto [pi_tensor, v_tensor] = m_network->forward(board_tensor.to(GLOBAL_DEVICE::get_device()));
 
-   return std::make_tuple(
-      pi_tensor.detach(), v_tensor.template item< double >());
+   return std::make_tuple(pi_tensor.detach(), v_tensor.template item< double >());
 }
 
-void NetworkWrapper::save_checkpoint(
-   std::string const &folder, std::string const &filename)
+void NetworkWrapper::save_checkpoint(std::string const &folder, std::string const &filename)
 {
    namespace fs = std::filesystem;
    fs::path dir(folder);
@@ -26,15 +22,13 @@ void NetworkWrapper::save_checkpoint(
    fs::path full_path = dir / file;
    // if directory doesn't exist, create it
    if(! fs::exists(dir)) {
-      std::cout << "Checkpoint directory doesn't exist yet. Creating it."
-                << std::endl;
+      std::cout << "Checkpoint directory doesn't exist yet. Creating it." << std::endl;
       fs::create_directory(dir);
    }
    torch::save(m_network, full_path.string());
 }
 
-void NetworkWrapper::load_checkpoint(
-   std::string const &folder, std::string const &filename)
+void NetworkWrapper::load_checkpoint(std::string const &folder, std::string const &filename)
 {
    namespace fs = std::filesystem;
    fs::path dir(folder);
@@ -42,10 +36,8 @@ void NetworkWrapper::load_checkpoint(
    fs::path full_path = dir / file;
    // if file doesnt exist, raise an error
    if(! fs::exists(full_path)) {
-      std::cout << "Checkpoint directory doesn't exists yet. Creating it."
-                << std::endl;
-      throw std::invalid_argument(
-         "No file found for filename " + filename + ".");
+      std::cout << "Checkpoint directory doesn't exists yet. Creating it." << std::endl;
+      throw std::invalid_argument("No file found for filename " + filename + ".");
    }
    torch::load(m_network, full_path.string());
 }

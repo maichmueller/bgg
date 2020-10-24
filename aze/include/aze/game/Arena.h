@@ -38,10 +38,7 @@ struct Arena {
 
    template < typename GameType >
    static std::tuple< StatTrack, StatTrack > pit(
-      GameType &game,
-      int num_sims,
-      bool show_game = false,
-      bool save_results = false);
+      GameType &game, int num_sims, bool show_game = false, bool save_results = false);
 };
 
 template < typename StateType >
@@ -80,9 +77,8 @@ void Arena::print_round_results(
    std::string ag_1_wins = ss.str();
    ss.clear();
    ss << "\r" << utils::center(round_display, 10, " ") << " "
-      << utils::center(ag_0_display, 30, " ") << "-->" << ag_0_wins << " : "
-      << ag_1_wins << "<--" << utils::center(ag_1_display, 30, " ")
-      << "\t Draws: " << round - stats0.wins - stats1.wins;
+      << utils::center(ag_0_display, 30, " ") << "-->" << ag_0_wins << " : " << ag_1_wins << "<--"
+      << utils::center(ag_1_display, 30, " ") << "\t Draws: " << round - stats0.wins - stats1.wins;
 }
 
 template < typename T >
@@ -100,7 +96,7 @@ std::tuple< StatTrack, StatTrack > Arena::pit(
 
    for(int sim = 1; sim < num_sims; ++sim) {
       game.reset();
-      LOGD2("After Reset", game.get_gamestate()->string_representation(false,false))
+      LOGD2("After Reset", game.get_gamestate()->string_representation(false, false))
       int game_outcome = game.run_game(show_game);
       if(game_outcome == 1)
          stats0.add_win("flag", game.get_gamestate()->get_turn_count());
@@ -114,15 +110,10 @@ std::tuple< StatTrack, StatTrack > Arena::pit(
          stats0.add_draw();
          stats1.add_draw();
       }
-      LOGD2("After game played", game.get_gamestate()->string_representation(false,false))
+      LOGD2("After game played", game.get_gamestate()->string_representation(false, false))
       if(sim % 10 == 0)
          Arena::print_round_results(
-            sim,
-            num_sims,
-            *game.get_agent_0(),
-            *game.get_agent_1(),
-            stats0,
-            stats1);
+            sim, num_sims, *game.get_agent_0(), *game.get_agent_1(), stats0, stats1);
    }
    std::cout << std::endl;
    return std::make_tuple(stats0, stats1);

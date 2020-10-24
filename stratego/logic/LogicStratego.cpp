@@ -1,6 +1,3 @@
-//
-// Created by Michael on 28/02/2019.
-//
 
 #include "LogicStratego.h"
 

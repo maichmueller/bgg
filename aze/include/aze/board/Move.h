@@ -1,6 +1,3 @@
-//
-// Created by michael on 13.08.19.
-//
 
 #pragma once
 
@@ -28,19 +25,10 @@ class Move {
    move_container from_to;
 
   public:
-   Move(const position_type& pos_from, const position_type& pos_to)
-       : from_to{pos_from, pos_to}
-   {
-   }
-   Move(position_type&& pos_from, position_type&& pos_to)
-       : from_to{pos_from, pos_to}
-   {
-   }
+   Move(const position_type& pos_from, const position_type& pos_to) : from_to{pos_from, pos_to} {}
+   Move(position_type&& pos_from, position_type&& pos_to) : from_to{pos_from, pos_to} {}
 
-   const position_type& operator[](unsigned int index) const
-   {
-      return from_to[index];
-   }
+   const position_type& operator[](unsigned int index) const { return from_to[index]; }
    position_type& operator[](unsigned int index) { return from_to[index]; }
 
    iterator begin() { return from_to.begin(); }
@@ -72,8 +60,7 @@ class Move {
    bool operator!=(const Move& other) const { return ! (*this == other); }
 
    template < typename start_container, typename end_container >
-   Move< position_type > invert(
-      const start_container& starts, const end_container& ends)
+   Move< position_type > invert(const start_container& starts, const end_container& ends)
    {
       Move< position_type > copy(*this);
       for(position_type& pos : copy) {
@@ -84,12 +71,10 @@ class Move {
 
    std::string to_string()
    {
-      return from_to[0].to_string() + std::string(" -> ")
-             + from_to[1].to_string();
+      return from_to[0].to_string() + std::string(" -> ") + from_to[1].to_string();
    }
 
-   friend std::ostream& operator<<(
-      std::ostream& os, const Move< position_type > move)
+   friend std::ostream& operator<<(std::ostream& os, const Move< position_type > move)
    {
       os << move[0].to_string() << "->" << move[1].to_string();
       return os;

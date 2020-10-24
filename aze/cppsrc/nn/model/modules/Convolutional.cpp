@@ -13,12 +13,12 @@ Convolutional::Convolutional(
    std::vector< bool > maxpool_used_vec,
    std::vector< float > dropout_probs,
    const torch::nn::Functional& activation_function)
-   : m_channels_in(channels_in),
-     m_filter_sizes(filter_sizes),
-     m_kernel_sizes(kernel_sizes_vec),
-     m_maxpool_used_vec(maxpool_used_vec),
-     m_droput_prop_per_layer(dropout_probs),
-     m_layers()
+    : m_channels_in(channels_in),
+      m_filter_sizes(filter_sizes),
+      m_kernel_sizes(kernel_sizes_vec),
+      m_maxpool_used_vec(maxpool_used_vec),
+      m_droput_prop_per_layer(dropout_probs),
+      m_layers()
 {
    /**
     * Constructor for a pre-defined Convolutional Neural Network.
@@ -27,7 +27,8 @@ Convolutional::Convolutional(
     * "maxpool_used_vec[index] = true" and "dropout_prob[index] > 0"
     * respectively
     */
-   _build_layers_after_construction(channels_in, filter_sizes, maxpool_used_vec, activation_function);
+   _build_layers_after_construction(
+      channels_in, filter_sizes, maxpool_used_vec, activation_function);
 }
 
 Convolutional::Convolutional(
@@ -37,14 +38,15 @@ Convolutional::Convolutional(
    std::vector< bool >&& maxpool_used_vec,
    std::vector< float >&& dropout_probs,
    const torch::nn::Functional& activation_function)
-   : m_channels_in(channels_in),
+    : m_channels_in(channels_in),
       m_filter_sizes(std::move(filter_sizes)),
       m_kernel_sizes(std::move(kernel_sizes_vec)),
       m_maxpool_used_vec(std::move(maxpool_used_vec)),
       m_droput_prop_per_layer(std::move(dropout_probs)),
       m_layers()
 {
-   _build_layers_after_construction(channels_in, filter_sizes, maxpool_used_vec, activation_function);
+   _build_layers_after_construction(
+      channels_in, filter_sizes, maxpool_used_vec, activation_function);
 }
 
 void Convolutional::_build_layers_after_construction(
@@ -65,12 +67,10 @@ void Convolutional::_build_layers_after_construction(
    for(int k = 0; k < nr_conv_layers; ++k) {
       // extend the layer sequential by a convolutional
       auto options = torch::nn::Conv2dOptions(
-         filter_sizes[k],
-         filter_sizes[k + 1],
-         m_kernel_sizes[k])
-         .stride(1)
-         .padding(zero_padding[k])
-         .bias(false);
+                        filter_sizes[k], filter_sizes[k + 1], m_kernel_sizes[k])
+                        .stride(1)
+                        .padding(zero_padding[k])
+                        .bias(false);
 
       m_layers->push_back(torch::nn::Conv2d(options));
 
@@ -98,7 +98,7 @@ void Convolutional::_build_layers_after_construction(
    m_layers = register_module("Sequential", m_layers);
 }
 
-torch::Tensor Convolutional::forward(const torch::Tensor &input)
+torch::Tensor Convolutional::forward(const torch::Tensor& input)
 {
    return m_layers->forward(input);
 }

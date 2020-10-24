@@ -13,7 +13,7 @@ class Convolutional: public torch::nn::Module {
 
    void _build_layers_after_construction(
       unsigned int channels_in,
-      std::vector< unsigned int > & filter_sizes,
+      std::vector< unsigned int >& filter_sizes,
       const std::vector< bool >& maxpool_used_vec,
       const torch::nn::Functional& activation_function);
 
@@ -24,8 +24,7 @@ class Convolutional: public torch::nn::Module {
       std::vector< unsigned int > kernel_sizes_vec,
       std::vector< bool > maxpool_used_vec,
       std::vector< float > dropout_probs,
-      const torch::nn::Functional& activation_function =
-         torch::nn::Functional(torch::relu));
+      const torch::nn::Functional& activation_function = torch::nn::Functional(torch::relu));
 
    Convolutional(
       unsigned int channels_in,
@@ -33,12 +32,9 @@ class Convolutional: public torch::nn::Module {
       std::vector< unsigned int >&& kernel_sizes_vec,
       std::vector< bool >&& maxpool_used_vec,
       std::vector< float >&& dropout_probs,
-      const torch::nn::Functional& activation_function =
-         torch::nn::Functional(torch::relu));
+      const torch::nn::Functional& activation_function = torch::nn::Functional(torch::relu));
 
-   unsigned int get_channels_in() {return m_channels_in;}
+   unsigned int get_channels_in() { return m_channels_in; }
 
    torch::Tensor forward(const torch::Tensor& input);
 };
-
-

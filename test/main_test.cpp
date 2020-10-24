@@ -1,13 +1,14 @@
 
 #include <iostream>
 
-#include "MoveTest.h"
-#include "PositionTest.h"
+#include "aze_library_tests/MoveTest.h"
+#include "aze_library_tests/PositionTest.h"
 #include "gtest/gtest.h"
 
 GTEST_API_ int main(int argc, char **argv)
 {
    printf("Running main() from %s\n", __FILE__);
    testing::InitGoogleTest(&argc, argv);
+   testing::FLAGS_gtest_death_test_style="threadsafe";
    return RUN_ALL_TESTS();
 }

@@ -11,17 +11,17 @@ TEST_F(StateTest, StateTest_Constructor_Ints_2D)
       setup0,
       setup1);
 
-   EXPECT_EQ(*(state[{4, 0}]), (piece_type({4, 0}, kin_type{3, 0}, 1)));
-   EXPECT_EQ(*(state[{1, 1}]), (piece_type({1, 1}, kin_type{10, 0}, 0)));
-   EXPECT_EQ(*(state[{0, 0}]), (piece_type({0, 0}, kin_type{0, 0}, 0)));
-   EXPECT_EQ(*(state[{3, 2}]), (piece_type({3, 2}, kin_type{11, 0}, 1)));
+   EXPECT_EQ(*(state[{4, 0}]), (piece_type({4, 0}, role_type{3, 0}, 1)));
+   EXPECT_EQ(*(state[{1, 1}]), (piece_type({1, 1}, role_type{10, 0}, 0)));
+   EXPECT_EQ(*(state[{0, 0}]), (piece_type({0, 0}, role_type{0, 0}, 0)));
+   EXPECT_EQ(*(state[{3, 2}]), (piece_type({3, 2}, role_type{11, 0}, 1)));
 
    // copy state via board test
-   auto state_copy = state_type(*state.get_board(), 0);
-   EXPECT_EQ(*(state_copy[{4, 0}]), (piece_type({4, 0}, kin_type{3, 0}, 1)));
-   EXPECT_EQ(*(state_copy[{1, 1}]), (piece_type({1, 1}, kin_type{10, 0}, 0)));
-   EXPECT_EQ(*(state_copy[{0, 0}]), (piece_type({0, 0}, kin_type{0, 0}, 0)));
-   EXPECT_EQ(*(state_copy[{3, 2}]), (piece_type({3, 2}, kin_type{11, 0}, 1)));
+   auto state_copy = state_type(state.get_board(), 0);
+   EXPECT_EQ(*(state_copy[{4, 0}]), (piece_type({4, 0}, role_type{3, 0}, 1)));
+   EXPECT_EQ(*(state_copy[{1, 1}]), (piece_type({1, 1}, role_type{10, 0}, 0)));
+   EXPECT_EQ(*(state_copy[{0, 0}]), (piece_type({0, 0}, role_type{0, 0}, 0)));
+   EXPECT_EQ(*(state_copy[{3, 2}]), (piece_type({3, 2}, role_type{11, 0}, 1)));
 
    EXPECT_EQ(state_copy.is_terminal(), state.is_terminal());
 }
@@ -37,7 +37,7 @@ TEST_F(StateTest, StateTest_DO_and_UNDO_Move_Ints_2D)
       setup0,
       setup1);
 
-   EXPECT_EQ(*(state[{4, 0}]), (piece_type({4, 0}, kin_type{3, 0}, 1)));
+   EXPECT_EQ(*(state[{4, 0}]), (piece_type({4, 0}, role_type{3, 0}, 1)));
 
    state.do_move({position_type(3, 0), position_type(3, 2)});
    state.undo_last_rounds(1);

@@ -4,13 +4,9 @@
 #include "StateStratego.h"
 #include "aze/game.h"
 
-class GameStratego:
-    public Game< StateStratego, LogicStratego< BoardStratego >, GameStratego > {
+class GameStratego: public Game< StateStratego, LogicStratego< BoardStratego >, GameStratego > {
   public:
-   using base_type = Game<
-      StateStratego,
-      LogicStratego< BoardStratego >,
-      GameStratego >;
+   using base_type = Game< StateStratego, LogicStratego< BoardStratego >, GameStratego >;
    using base_type::base_type;
 
    GameStratego(

@@ -33,12 +33,10 @@ set(TEST_SOURCES
 
         ${STRATEGO_SRC_DIR}/logic/LogicStratego.cpp
 
-        ${STRATEGO_SRC_DIR}/nn/model/modules/AlphazeroStratego.h
-
         )
 
 set(TARGET_TEST_SOURCES
-        aze_library_tests/main_test.cpp
+        main_test.cpp
         aze_library_tests/PositionTest.cpp
         aze_library_tests/MoveTest.cpp
         aze_library_tests/PieceTest.cpp
@@ -56,7 +54,7 @@ target_include_directories(tests
         PRIVATE
         ${AZE_INCLUDE_DIR}
         ${TORCH_INCLUDE_DIRS}
-        ${STRATEGO_SRC_DIR}
+        ${STRATEGO_INCLUDE_DIR}
         ${TQDM_INCLUDE_DIR}
         )
 
@@ -65,7 +63,8 @@ set_target_properties(tests PROPERTIES
         )
 
 target_link_libraries(tests gtest_main)
-target_link_libraries(tests "${AZE_LIBRARY}")
+target_link_libraries(tests aze)
+#target_link_libraries(tests stratego)
 target_link_libraries(tests "${TORCH_LIBRARIES}")
 target_link_libraries(tests "${CUDNN_LIBRARY}")
 

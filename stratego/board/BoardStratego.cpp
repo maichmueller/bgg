@@ -11,8 +11,8 @@
 #define BLUE "\x1B[44m"
 #define RED "\x1B[41m"
 
-std::vector< std::shared_ptr< typename BoardStratego::piece_type > >
-BoardStratego::adapt_setup(const std::map< position_type, int > &setup)
+std::vector< std::shared_ptr< typename BoardStratego::piece_type > > BoardStratego::adapt_setup(
+   const std::map< position_type, int > &setup)
 {
    std::vector< std::shared_ptr< BoardStratego::piece_type > > vector_out;
 
@@ -35,8 +35,7 @@ BoardStratego::adapt_setup(const std::map< position_type, int > &setup)
       // the first piece of its kind. Afterwards it will keep the count
       // correctly for us.
       int version = version_count[type]++;
-      vector_out.push_back(
-         std::make_shared< piece_type >(pos, role_type(type, version), 0));
+      vector_out.push_back(std::make_shared< piece_type >(pos, role_type(type, version), 0));
    }
    return vector_out;
 }
@@ -52,21 +51,19 @@ std::string BoardStratego::print_board(int player, bool hide_unknowns) const
    int dim_y = m_shape[1];
    int mid = V_SIZE_PER_PIECE / 2;
 
-   // piece string lambda function that returns a str of the role
+   // piece string lambda function that returns a str of the kin
    // "-1 \n
    // 10.1 \n
    //   1"
    auto create_piece_str = [&H_SIZE_PER_PIECE, &mid, &player, &hide_unknowns](
                               const piece_type &piece, int line) {
       if(piece.is_null())
-         return std::string(
-            static_cast< unsigned long >(H_SIZE_PER_PIECE), ' ');
+         return std::string(static_cast< unsigned long >(H_SIZE_PER_PIECE), ' ');
 
       std::string color = BLUE;  // blue by default (for player 0)
       if(piece.get_team() == -1 && ! piece.is_null())
          // piece is an obstacle (return a gray colored field)
-         return "\x1B[30;47m" + utils::center("", H_SIZE_PER_PIECE, " ")
-                + RESET;
+         return "\x1B[30;47m" + utils::center("", H_SIZE_PER_PIECE, " ") + RESET;
       else if(piece.get_team(player) == 1) {
          color = RED;  // background red, text "white"
       }
@@ -76,19 +73,13 @@ std::string BoardStratego::print_board(int player, bool hide_unknowns) const
          return color + utils::center(h, H_SIZE_PER_PIECE, " ") + RESET;
       } else if(line == mid) {
          // type and version info line
-         if(hide_unknowns && piece.get_flag_hidden()
-            && piece.get_team(player)) {
-            return color
-                   + std::string(
-                      static_cast< unsigned long >(H_SIZE_PER_PIECE), ' ')
-                   + RESET;
+         if(hide_unknowns && piece.get_flag_hidden() && piece.get_team(player)) {
+            return color + std::string(static_cast< unsigned long >(H_SIZE_PER_PIECE), ' ') + RESET;
          }
          const auto &role = piece.get_role();
          return color
                 + utils::center(
-                   std::to_string(role[0]) + '.' + std::to_string(role[1]),
-                   H_SIZE_PER_PIECE,
-                   " ")
+                   std::to_string(role[0]) + '.' + std::to_string(role[1]), H_SIZE_PER_PIECE, " ")
                 + RESET;
       } else if(line == mid + 1)
          // team info line
@@ -97,18 +88,15 @@ std::string BoardStratego::print_board(int player, bool hide_unknowns) const
          return color + utils::center("", H_SIZE_PER_PIECE, " ") + RESET;
       else
          // empty line
-         return std::string(
-            static_cast< unsigned long >(H_SIZE_PER_PIECE), ' ');
+         return std::string(static_cast< unsigned long >(H_SIZE_PER_PIECE), ' ');
    };
 
    std::stringstream board_print;
    board_print << "\n";
 
-   std::string init_space = std::string(
-      static_cast< unsigned long >(row_ind_space), ' ');
+   std::string init_space = std::string(static_cast< unsigned long >(row_ind_space), ' ');
    std::string h_border = utils::repeat(
-      VERT_BAR,
-      static_cast< unsigned long >(dim_x * (H_SIZE_PER_PIECE + 1) - 1));
+      VERT_BAR, static_cast< unsigned long >(dim_x * (H_SIZE_PER_PIECE + 1) - 1));
 
    board_print << init_space << VERT_BAR << h_border << VERT_BAR << "\n";
    std::string init = board_print.str();
@@ -119,8 +107,7 @@ std::string BoardStratego::print_board(int player, bool hide_unknowns) const
        --row) {  // iterate backwards through the rows for correct display
       // per piece we have V_SIZE_PER_PIECE many lines to fill consecutively.
       // Iterate over every column and append the new segment to the right line.
-      std::vector< std::stringstream > line_streams(
-         static_cast< unsigned int >(V_SIZE_PER_PIECE));
+      std::vector< std::stringstream > line_streams(static_cast< unsigned int >(V_SIZE_PER_PIECE));
 
       for(int col = m_starts[0]; col < dim_x; ++col) {
          if(player) {
@@ -133,8 +120,7 @@ std::string BoardStratego::print_board(int player, bool hide_unknowns) const
 
             if(i == mid - 1 || i == mid + 1) {
                if(col == 0) {
-                  curr_stream << std::string(
-                     static_cast< unsigned long >(row_ind_space), ' ');
+                  curr_stream << std::string(static_cast< unsigned long >(row_ind_space), ' ');
                }
                curr_stream << VERT_BAR << create_piece_str(*curr_piece, i);
             } else if(i == mid) {
@@ -144,8 +130,7 @@ std::string BoardStratego::print_board(int player, bool hide_unknowns) const
                   else
                      curr_stream << row;
 
-                  curr_stream << std::string(
-                     static_cast< unsigned long >(row_ind_space - 2), ' ')
+                  curr_stream << std::string(static_cast< unsigned long >(row_ind_space - 2), ' ')
                               << VERT_BAR;
                }
                curr_stream << create_piece_str(*curr_piece, i);
@@ -165,8 +150,7 @@ std::string BoardStratego::print_board(int player, bool hide_unknowns) const
    board_print << std::string(static_cast< unsigned long >(row_ind_space), ' ');
    // print the column index rows
    for(int i = m_starts[0]; i < dim_x; ++i) {
-      board_print << utils::center(
-         std::to_string(i), H_SIZE_PER_PIECE + 1, " ");
+      board_print << utils::center(std::to_string(i), H_SIZE_PER_PIECE + 1, " ");
    }
    board_print << "\n";
    return board_print.str();
@@ -174,11 +158,9 @@ std::string BoardStratego::print_board(int player, bool hide_unknowns) const
 
 void BoardStratego::_add_obstacles()
 {
-   auto obstacle_positions = LogicStratego<
-      BoardStratego >::get_obstacle_positions(m_shape[0]);
+   auto obstacle_positions = LogicStratego< BoardStratego >::get_obstacle_positions(m_shape[0]);
    for(const auto &obstacle_pos : obstacle_positions) {
-      m_map[obstacle_pos] = std::make_shared< piece_type >(
-         obstacle_pos, role_type{99, 99}, -1);
+      m_map[obstacle_pos] = std::make_shared< piece_type >(obstacle_pos, role_type{99, 99}, -1);
    }
 }
 

@@ -9,10 +9,8 @@
 template < class SuperClass, class... Containers >
 class IteratorCollection {
   public:
-   using iterator_tuple = typename std::tuple<
-      typename Containers::iterator... >;
-   using value_tuple = typename std::tuple<
-      typename Containers::value_type... >;
+   using iterator_tuple = typename std::tuple< typename Containers::iterator... >;
+   using value_tuple = typename std::tuple< typename Containers::value_type... >;
 
   private:
    iterator_tuple iterators;
@@ -20,9 +18,7 @@ class IteratorCollection {
 
    template < typename FirstIter, typename... TailIters, size_t... I >
    auto _indirection_elemwise(
-      std::index_sequence< I... >,
-      FirstIter &iter,
-      TailIters &... tail_iters) const
+      std::index_sequence< I... >, FirstIter &iter, TailIters &... tail_iters) const
    {
       return std::make_tuple(
          *iter,
@@ -38,12 +34,10 @@ class IteratorCollection {
    }
 
    template < typename Tuple, size_t... I >
-   value_tuple _extract_iterator_values(
-      Tuple &tuple_of_iters, std::index_sequence< I... >) const
+   value_tuple _extract_iterator_values(Tuple &tuple_of_iters, std::index_sequence< I... >) const
    {
       return _indirection_elemwise(
-         std::make_index_sequence< sizeof...(I) - 1 >{},
-         std::get< I >(tuple_of_iters)...);
+         std::make_index_sequence< sizeof...(I) - 1 >{}, std::get< I >(tuple_of_iters)...);
    }
 
   public:
@@ -54,8 +48,7 @@ class IteratorCollection {
 
    value_tuple operator*() const
    {
-      return _extract_iterator_values(
-         iterators, std::index_sequence_for< Containers... >());
+      return _extract_iterator_values(iterators, std::index_sequence_for< Containers... >());
    }
 
    void set_parent_ptr(SuperClass &parent) { super_ptr = &parent; }
@@ -77,16 +70,12 @@ class IteratorCollection {
    {
       auto idx_seq = std::index_sequence_for< Containers... >();
       iterator_tuple other_iterators = other_it.get_iterators();
-      value_tuple other_values = _extract_iterator_values(
-         other_iterators, idx_seq);
+      value_tuple other_values = _extract_iterator_values(other_iterators, idx_seq);
       value_tuple own_values = _extract_iterator_values(iterators, idx_seq);
       return own_values == other_values;
    }
 
-   bool operator!=(const IteratorCollection &other_it) const
-   {
-      return ! (*this == other_it);
-   }
+   bool operator!=(const IteratorCollection &other_it) const { return ! (*this == other_it); }
 
    template < size_t N >
    [[nodiscard]] auto &at()
@@ -104,8 +93,7 @@ class IteratorCollection {
 template < class... Containers >
 class Permutations {
   public:
-   using value_types_tuple = typename std::tuple<
-      typename Containers::value_type... >;
+   using value_types_tuple = typename std::tuple< typename Containers::value_type... >;
    //    using reference_tuple = typename std::tuple<typename
    //    Containers::value_type &...>; using pointer_tuple =  typename
    //    std::tuple<typename Containers::value_type *...>; using iterator_tuple
@@ -141,10 +129,7 @@ class Permutations {
       return end;
    }
 
-   void update_dep_iter(iterator_tuple &iter)
-   {
-      iter.set_iterators(m_current.get_iterators());
-   }
+   void update_dep_iter(iterator_tuple &iter) { iter.set_iterators(m_current.get_iterators()); }
 
    iterator_tuple get_current() { return m_current; }
 
@@ -152,8 +137,7 @@ class Permutations {
    //    typedef typename extract_iterator<Containers...>::type
    //    extract_iterator_tuple;
    template < size_t N >
-   typename std::enable_if_t< (N < sizeof...(Containers)) && (N > 0) >
-   increment()
+   typename std::enable_if_t< (N < sizeof...(Containers)) && (N > 0) > increment()
    {
       assert(m_current.template at< N >() != m_end.template at< N >());
       ++m_current.template at< N >();

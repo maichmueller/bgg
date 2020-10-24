@@ -8,7 +8,7 @@
 
 TEST_F(LogicStrategoTest, LogicStrategoTest_poss_moves_Test)
 {
-   auto board_start = typename state_type::board_type(
+   auto board_start = std::make_shared<typename state_type::board_type>(
       std::array< size_t, 2 >{5, 5}, setup_start_0, setup_start_1);
    auto state_start = state_type(board_start, 17);
    auto poss_moves_0 = logic_type::get_legal_moves_(
@@ -44,7 +44,7 @@ TEST_F(LogicStrategoTest, LogicStrategoTest_poss_moves_Test)
    EXPECT_EQ(poss_moves_set_0, real_poss_moves_0);
    EXPECT_EQ(poss_moves_set_1, real_poss_moves_1);
 
-   auto board_mid = typename state_type::board_type(
+   auto board_mid = std::make_shared<typename state_type::board_type>(
       std::array< size_t, 2 >{5, 5}, setup_mid_0, setup_mid_1);
    auto state_mid = state_type(board_mid, 17);
    auto poss_moves_mid_0 = logic_type::get_legal_moves_(

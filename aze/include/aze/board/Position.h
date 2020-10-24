@@ -1,6 +1,4 @@
-//
-// Created by michael on 13.08.19.
-//
+
 
 #pragma once
 
@@ -16,12 +14,10 @@ template < typename ValueType, size_t N >
 class Position;
 
 template < typename Number, typename ValueType, size_t N >
-Position< ValueType, N > operator*(
-   const Number &n, const Position< ValueType, N > &pos);
+Position< ValueType, N > operator*(const Number &n, const Position< ValueType, N > &pos);
 
 template < typename Number, typename ValueType, size_t N >
-Position< ValueType, N > operator/(
-   const Number &n, const Position< ValueType, N > &pos);
+Position< ValueType, N > operator/(const Number &n, const Position< ValueType, N > &pos);
 
 // actual class definition
 template < typename ValueType, size_t N >
@@ -49,30 +45,19 @@ class Position {
     * coordinates. For details on how this implementation works read up on
     * 'SFINAE'.
     */
-   template <
-      typename... Types,
-      typename std::enable_if< sizeof...(Types) == N, int >::type = 0 >
+   template < typename... Types, typename std::enable_if< sizeof...(Types) == N, int >::type = 0 >
    Position(Types &&... args)
-       : Position(
-          std::index_sequence_for< Types... >{}, std::forward< Types >(args)...)
+       : Position(std::index_sequence_for< Types... >{}, std::forward< Types >(args)...)
    {
    }
 
    Position() : m_coordinates() {}
 
-   Position(const Position &position)
-       : m_coordinates(position.get_coordinates())
-   {
-   }
+   Position(const Position &position) : m_coordinates(position.get_coordinates()) {}
 
-   explicit Position(container_type coords) : m_coordinates(std::move(coords))
-   {
-   }
+   explicit Position(container_type coords) : m_coordinates(std::move(coords)) {}
 
-   const value_type &operator[](unsigned int index) const
-   {
-      return m_coordinates[index];
-   }
+   const value_type &operator[](unsigned int index) const { return m_coordinates[index]; }
 
    value_type &operator[](unsigned int index) { return m_coordinates[index]; }
 
@@ -84,17 +69,13 @@ class Position {
 
    ConstIterator end() const { return m_coordinates.end(); }
 
-   Position< value_type, N > operator+(
-      const Position< value_type, N > &pos) const;
+   Position< value_type, N > operator+(const Position< value_type, N > &pos) const;
 
-   Position< value_type, N > operator-(
-      const Position< value_type, N > &pos) const;
+   Position< value_type, N > operator-(const Position< value_type, N > &pos) const;
 
-   Position< value_type, N > operator*(
-      const Position< value_type, N > &pos) const;
+   Position< value_type, N > operator*(const Position< value_type, N > &pos) const;
 
-   Position< value_type, N > operator/(
-      const Position< value_type, N > &pos) const;
+   Position< value_type, N > operator/(const Position< value_type, N > &pos) const;
 
    template < typename Number >
    Position< value_type, N > operator+(const Number &n) const;
@@ -131,15 +112,13 @@ class Position {
 // free operators for switched call positions
 
 template < typename Number, typename ValueType, size_t N >
-Position< ValueType, N > operator*(
-   const Number &n, const Position< ValueType, N > &pos)
+Position< ValueType, N > operator*(const Number &n, const Position< ValueType, N > &pos)
 {
    return pos * n;
 }
 
 template < typename Number, typename ValueType, size_t N >
-Position< ValueType, N > operator/(
-   const Number &n, const Position< ValueType, N > &pos)
+Position< ValueType, N > operator/(const Number &n, const Position< ValueType, N > &pos)
 {
    Position< ValueType, N > p(pos);
    for(size_t i = 0; i < N; ++i) {
@@ -192,8 +171,7 @@ Position< ValueType, N > Position< ValueType, N >::operator/(
 
 template < typename ValueType, size_t N >
 template < typename Number >
-Position< ValueType, N > Position< ValueType, N >::operator+(
-   const Number &n) const
+Position< ValueType, N > Position< ValueType, N >::operator+(const Number &n) const
 {
    Position< ValueType, N > p(*this);
    for(size_t i = 0; i < N; ++i) {
@@ -204,16 +182,14 @@ Position< ValueType, N > Position< ValueType, N >::operator+(
 
 template < typename ValueType, size_t N >
 template < typename Number >
-Position< ValueType, N > Position< ValueType, N >::operator-(
-   const Number &n) const
+Position< ValueType, N > Position< ValueType, N >::operator-(const Number &n) const
 {
    return *this + (-n);
 }
 
 template < typename ValueType, size_t N >
 template < typename Number >
-Position< ValueType, N > Position< ValueType, N >::operator*(
-   const Number &n) const
+Position< ValueType, N > Position< ValueType, N >::operator*(const Number &n) const
 {
    Position< ValueType, N > p(*this);
    for(size_t i = 0; i < N; ++i) {
@@ -224,8 +200,7 @@ Position< ValueType, N > Position< ValueType, N >::operator*(
 
 template < typename ValueType, size_t N >
 template < typename Number >
-Position< ValueType, N > Position< ValueType, N >::operator/(
-   const Number &n) const
+Position< ValueType, N > Position< ValueType, N >::operator/(const Number &n) const
 {
    return (*this) * (1 / n);
 }
@@ -316,20 +291,16 @@ Position< ValueType, N > Position< ValueType, N >::invert(
    const container_start &starts, const container_end &ends)
 {
    if constexpr(std::is_floating_point_v< ValueType >) {
-      if constexpr(! std::is_floating_point_v<
-                      typename container_start::value_type >) {
+      if constexpr(! std::is_floating_point_v< typename container_start::value_type >) {
          throw std::invalid_argument(
-            std::string(
-               "Container value_type of 'starts' is not of floating point (")
+            std::string("Container value_type of 'starts' is not of floating point (")
             + std::string(typeid(typename container_start::value_type).name())
             + std::string("), while 'Position' value type is (")
             + std::string(typeid(ValueType).name()) + std::string(")."));
       }
-      if constexpr(! std::is_floating_point_v<
-                      typename container_end::value_type >) {
+      if constexpr(! std::is_floating_point_v< typename container_end::value_type >) {
          throw std::invalid_argument(
-            std::string(
-               "Container value_type of 'ends' is not of floating point (")
+            std::string("Container value_type of 'ends' is not of floating point (")
             + std::string(typeid(typename container_end::value_type).name())
             + std::string("), while 'Position' value type is (")
             + std::string(typeid(ValueType).name()) + std::string(")."));

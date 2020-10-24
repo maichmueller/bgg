@@ -21,7 +21,7 @@
 #endif
 
 class NetworkWrapper {
-   std::shared_ptr< AlphaZeroInterface > m_network;
+   std::shared_ptr< AlphaZeroBase > m_network;
 
    [[nodiscard]] std::vector< TORCH_ARRAYREF_TYPE > _prepend_to_shape(
       const torch::Tensor &tensor, size_t value) const;
@@ -32,26 +32,21 @@ class NetworkWrapper {
       return -(target_probs * estimated_probs).sum() / target_probs.size(0);
    }
 
-   static inline torch::Tensor _loss_v(
-      const torch::Tensor &target, const torch::Tensor &output)
+   static inline torch::Tensor _loss_v(const torch::Tensor &target, const torch::Tensor &output)
    {
       return (target - output).pow(2).sum() / target.size(0);
    }
 
   public:
-   explicit NetworkWrapper(std::shared_ptr< AlphaZeroInterface > network_ptr)
+   explicit NetworkWrapper(std::shared_ptr< AlphaZeroBase > network_ptr)
        : m_network(std::move(network_ptr))
    {
    }
 
    template < typename TrainExampleContainer >
-   void train(
-      const TrainExampleContainer &train_examples,
-      size_t epochs,
-      size_t batch_size = 128);
+   void train(const TrainExampleContainer &train_examples, size_t epochs, size_t batch_size = 128);
 
-   std::tuple< torch::Tensor, double > evaluate(
-      const torch::Tensor &board_tensor);
+   std::tuple< torch::Tensor, double > evaluate(const torch::Tensor &board_tensor);
 
    void save_checkpoint(std::string const &folder, std::string const &filename);
 
@@ -78,39 +73,32 @@ void NetworkWrapper::train(
    }
 
    auto optimizer = torch::optim::Adam(
-      m_network->parameters(),
-      torch::optim::AdamOptions(/*learning_rate=*/0.01));
+      m_network->parameters(), torch::optim::AdamOptions(/*learning_rate=*/0.01));
 
-   auto board_tensor_sizes = _prepend_to_shape(
-      train_examples[0].get_tensor(), batch_max_size);
+   auto board_tensor_sizes = _prepend_to_shape(train_examples[0].get_tensor(), batch_max_size);
    auto pi_tensor_sizes = std::vector< TORCH_ARRAYREF_TYPE >{
       static_cast< TORCH_ARRAYREF_TYPE >(batch_max_size),
-      static_cast< TORCH_ARRAYREF_TYPE >(
-         train_examples[0].get_policy().size())};
+      static_cast< TORCH_ARRAYREF_TYPE >(train_examples[0].get_policy().size())};
    tqdm bar;
    bar.set_label("Training Neural Network");
    for(size_t epoch = 0; epoch < epochs; ++epoch) {
       bar.progress(epoch, epochs);
 
       optimizer.zero_grad();
-      std::shuffle(
-         indices.begin(), indices.end(), std::mt19937{std::random_device{}()});
+      std::shuffle(indices.begin(), indices.end(), std::mt19937{std::random_device{}()});
 
       for(size_t batch_nr = 0; batch_nr < n_data; batch_nr += batch_size) {
          // clear existing gradient residue.
          optimizer.zero_grad();
          // declare the tensors we will need for training.
          torch::TensorOptions options_grad = torch::TensorOptions()
-                                                .device(
-                                                   GLOBAL_DEVICE::get_device())
+                                                .device(GLOBAL_DEVICE::get_device())
                                                 .dtype(torch::kFloat)
                                                 .requires_grad(false);
 
          torch::Tensor board = torch::empty(board_tensor_sizes, options_grad);
-         torch::Tensor target_policy = torch::empty(
-            pi_tensor_sizes, options_grad);
-         torch::Tensor target_value = torch::empty(
-            batch_max_size, options_grad);
+         torch::Tensor target_policy = torch::empty(pi_tensor_sizes, options_grad);
+         torch::Tensor target_value = torch::empty(batch_max_size, options_grad);
 
          // fill the batch tensors with the batch data
          size_t begin = batch_nr * batch_size;
@@ -139,17 +127,17 @@ void NetworkWrapper::train(
          //         LOGD2("Pol sizes", policy.sizes())
          //         LOGD2("Pol", policy)
          auto l_pi = _loss_pi(target_policy, policy_output);
-//         LOGD2("Value DIff: ", (target_value - value_output).sum())
+         //         LOGD2("Value DIff: ", (target_value - value_output).sum())
 
          auto l_v = _loss_v(target_value.view({-1, 1}), value_output);
          auto total_loss = l_pi + l_v;
-//         LOGD2("L_PI", l_pi)
-//         LOGD2("L_V", l_v)
-//         LOGD2("LOSS", total_loss)
+         //         LOGD2("L_PI", l_pi)
+         //         LOGD2("L_V", l_v)
+         //         LOGD2("LOSS", total_loss)
          total_loss.backward();
-//         for(auto params : m_network->parameters()){
-//            LOGD2("GRADIENT MODEL", params)
-//         }
+         //         for(auto params : m_network->parameters()){
+         //            LOGD2("GRADIENT MODEL", params)
+         //         }
 
          optimizer.step();
       }

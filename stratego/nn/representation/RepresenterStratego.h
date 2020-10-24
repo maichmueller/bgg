@@ -6,8 +6,7 @@
 
 #include "game/StateStratego.h"
 
-class RepresenterStratego:
-    public RepresenterBase< StateStratego, RepresenterStratego > {
+class RepresenterStratego: public RepresenterBase< StateStratego, RepresenterStratego > {
   public:
    using state_type = StateStratego;
    using position_type = state_type::position_type;
@@ -18,9 +17,8 @@ class RepresenterStratego:
    using action_type = Action< position_type, role_type >;
    using condition_container = std::vector<
       std::tuple< typename BoardStratego::piece_type::role_type, int, bool > >;
-   static_assert(std::is_same_v<
-                 typename move_type::position_type,
-                 typename board_type::position_type >);
+   static_assert(
+      std::is_same_v< typename move_type::position_type, typename board_type::position_type >);
 
    explicit RepresenterStratego(size_t shape)
        : RepresenterStratego(_build_actions(shape), _build_conditions(shape))
@@ -32,8 +30,7 @@ class RepresenterStratego:
    {
    }
 
-   torch::Tensor state_representation_(
-      const state_type &state, int player) const
+   torch::Tensor state_representation_(const state_type &state, int player) const
    {
       return state_representation_(state, player, m_conditions);
    }
@@ -44,29 +41,25 @@ class RepresenterStratego:
     * This method will not accumulate gradients in its representation as this
     * will otherwise blow up memory usage in the MCTS class.
     *
-    * @tparam condition_type the conditions type we want to handle. At the current moment this only handles the default type. Others would lead to a compile time error.
+    * @tparam condition_type the conditions type we want to handle. At the current moment this only
+    * handles the default type. Others would lead to a compile time error.
     * @param state the state to convert.
     * @param player the current active player.
-    * @param conditions the vector of conditions. For each condition the first size of the torch tensor is incremented.
+    * @param conditions the vector of conditions. For each condition the first size of the torch
+    * tensor is incremented.
     * @return torch tensor representing the state.
     */
    template < typename condition_type = std::tuple< role_type, int, bool > >
    torch::Tensor state_representation_(
-      const state_type &state,
-      int player,
-      std::vector< condition_type > conditions) const;
+      const state_type &state, int player, std::vector< condition_type > conditions) const;
 
    [[nodiscard]] const auto &get_actions_() const { return m_actions; }
 
-   [[nodiscard]] const auto &get_role_to_actions_map() const
-   {
-      return m_role_to_actions_map;
-   }
+   [[nodiscard]] const auto &get_role_to_actions_map() const { return m_role_to_actions_map; }
 
    [[nodiscard]] const auto &get_conditions() const { return m_conditions; }
 
-   [[nodiscard]] const std::vector< action_type > &get_actions_by_role(
-      const role_type &role) const
+   [[nodiscard]] const std::vector< action_type > &get_actions_by_role(const role_type &role) const
    {
       return m_role_to_actions_map.at(role);
    }
@@ -76,9 +69,7 @@ class RepresenterStratego:
 
    template < typename Board >
    static std::vector< unsigned int > get_action_mask_(
-      const std::vector< action_type > &actions,
-      const Board &board,
-      int player);
+      const std::vector< action_type > &actions, const Board &board, int player);
 
   private:
    // Delegator constructor to initialize both const fields actions and
@@ -86,8 +77,7 @@ class RepresenterStratego:
    RepresenterStratego(
       std::tuple<
          std::vector< action_type >,
-         std::unordered_map< role_type, std::vector< action_type > > >
-         &&actions_map,
+         std::unordered_map< role_type, std::vector< action_type > > > &&actions_map,
       const condition_container &conditions)
        : m_actions(std::move(std::get< 0 >(actions_map))),
          m_role_to_actions_map(std::move(std::get< 1 >(actions_map))),
@@ -111,16 +101,13 @@ class RepresenterStratego:
       bool flip_teams = false) const;
 
    const std::vector< action_type > m_actions;
-   const std::unordered_map< role_type, std::vector< action_type > >
-      m_role_to_actions_map;
+   const std::unordered_map< role_type, std::vector< action_type > > m_role_to_actions_map;
    const condition_container m_conditions;
 };
 
 template < typename condition_type >
 torch::Tensor RepresenterStratego::state_representation_(
-   const state_type &state,
-   int player,
-   std::vector< condition_type > conditions) const
+   const state_type &state, int player, std::vector< condition_type > conditions) const
 {
    auto board = state.get_board();
    auto shape = board->get_shape();
@@ -128,14 +115,13 @@ torch::Tensor RepresenterStratego::state_representation_(
    int state_dim = conditions.size();
    bool flip_teams = static_cast< bool >(player);
 
-   std::function< position_type(position_type &) > canonize_pos =
-      [&](position_type &pos) { return pos; };
+   std::function< position_type(position_type &) > canonize_pos = [&](position_type &pos) {
+      return pos;
+   };
    std::function< int(int) > canonize_team = [](int team) { return team; };
 
    if(flip_teams) {
-      canonize_pos = [&](position_type &pos) {
-         return pos.invert(starts, shape);
-      };
+      canonize_pos = [&](position_type &pos) { return pos.invert(starts, shape); };
       canonize_team = [](int team) { return 1 - team; };
    }
 
@@ -177,8 +163,7 @@ torch::Tensor RepresenterStratego::state_representation_(
 }
 
 template < typename Board >
-std::vector< unsigned int > RepresenterStratego::get_action_mask_(
-   const Board &board, int player)
+std::vector< unsigned int > RepresenterStratego::get_action_mask_(const Board &board, int player)
 {
    return get_action_mask_(m_actions, board, player);
 }
@@ -240,15 +225,13 @@ std::vector< unsigned int > RepresenterStratego::get_action_mask_(
    std::vector< unsigned int > action_mask(actions.size(), 0);
    for(const auto &action : actions) {
       position_type old_pos{0, 0};
-      if(auto pos_pointer = board.get_position_of_role(
-            player, action.get_assoc_role());
+      if(auto pos_pointer = board.get_position_of_role(player, action.get_assoc_role());
          pos_pointer == board.end_inverse(player)) {
          continue;
       } else
          old_pos = pos_pointer->second;
       position_type new_pos = old_pos + action.get_effect();
-      if(LogicStratego< board_type >::is_legal_move_(
-            board, {old_pos, new_pos})) {
+      if(LogicStratego< board_type >::is_legal_move_(board, {old_pos, new_pos})) {
          action_mask[action.get_index()] = 1;
       }
    }

@@ -1,6 +1,3 @@
-//
-// Created by Michael on 06/03/2019.
-//
 
 #pragma once
 
@@ -97,15 +94,9 @@ class Game {
 
    int run_step();
 
-   void set_setup(const std::vector< sptr_piece_type > &setup, int team)
-   {
-      m_setups[team] = setup;
-   }
+   void set_setup(const std::vector< sptr_piece_type > &setup, int team) { m_setups[team] = setup; }
 
-   std::array< std::shared_ptr< Agent< state_type > >, 2 > get_agents()
-   {
-      return m_agents;
-   }
+   std::array< std::shared_ptr< Agent< state_type > >, 2 > get_agents() { return m_agents; }
 
    std::shared_ptr< Agent< state_type > > get_agent_0() { return m_agents[0]; }
 
@@ -140,8 +131,7 @@ Game< StateType, LogicType, Derived >::Game(
    const std::array< int, dim > &board_starts,
    std::shared_ptr< Agent< state_type > > ag0,
    std::shared_ptr< Agent< state_type > > ag1)
-    : Game(
-       board_type(shape, board_starts, draw_setup(0), draw_setup(1)), ag0, ag1)
+    : Game(board_type(shape, board_starts, draw_setup(0), draw_setup(1)), ag0, ag1)
 {
 }
 
@@ -199,8 +189,7 @@ Game< StateType, LogicType, Derived >::extract_pieces_from_setup(
       setup.end(),
       std::back_inserter(pc_vec),
       [&](const val_type &pos_role) -> piece_type {
-         return std::make_shared< piece_type >(
-            pos_role.first, pos_role.second, team);
+         return std::make_shared< piece_type >(pos_role.first, pos_role.second, team);
       });
    return pc_vec;
 }
@@ -210,8 +199,7 @@ std::vector< typename Game< StateType, LogicType, Derived >::sptr_piece_type >
 Game< StateType, LogicType, Derived >::extract_pieces_from_setup(
    const std::map< position_type, sptr_piece_type > &setup, int team)
 {
-   using val_type = typename std::map< position_type, sptr_piece_type >::
-      value_type;
+   using val_type = typename std::map< position_type, sptr_piece_type >::value_type;
    std::vector< sptr_piece_type > pc_vec;
    pc_vec.reserve(setup.size());
    std::transform(
@@ -239,10 +227,7 @@ void Game< StateType, LogicType, Derived >::reset(bool fixed_setups)
       m_setups[1] = extract_pieces_from_setup(draw_setup(1), 1);
    }
    m_game_state = state_type(std::make_shared< board_type >(
-      curr_board_ptr->get_shape(),
-      curr_board_ptr->get_starts(),
-      m_setups[0],
-      m_setups[1]));
+      curr_board_ptr->get_shape(), curr_board_ptr->get_starts(), m_setups[0], m_setups[1]));
 }
 
 template < class StateType, class LogicType, class Derived >
@@ -250,11 +235,8 @@ int Game< StateType, LogicType, Derived >::run_step()
 {
    size_t turn = (m_game_state.get_turn_count() + 1) % 2;
    auto move = m_agents[turn]->decide_move(
-      m_game_state,
-      logic_type::get_legal_moves(*m_game_state.get_board(), turn));
-   LOGD2(
-      "Possible Moves",
-      logic_type::get_legal_moves(*m_game_state.get_board(), turn));
+      m_game_state, logic_type::get_legal_moves(*m_game_state.get_board(), turn));
+   LOGD2("Possible Moves", logic_type::get_legal_moves(*m_game_state.get_board(), turn));
    LOGD2("Selected Move by player " + std::to_string(turn), move);
 
    int outcome = m_game_state.do_move(move);
@@ -272,9 +254,7 @@ int Game< StateType, LogicType, Derived >::run_game(bool show)
       // test for game end status
       int outcome = m_game_state.is_terminal();
 
-      LOGD(
-         std::string("\n")
-         + m_game_state.get_board()->print_board(false, false));
+      LOGD(std::string("\n") + m_game_state.get_board()->print_board(false, false));
       LOGD2("Status", outcome);
 
       if(outcome != 404)

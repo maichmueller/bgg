@@ -16,10 +16,7 @@ class Agent {
    bool m_is_learner;
 
   public:
-   explicit Agent(int team, bool learner = false)
-       : m_team(team), m_is_learner(learner)
-   {
-   }
+   explicit Agent(int team, bool learner = false) : m_team(team), m_is_learner(learner) {}
 
    virtual ~Agent() = default;
 
@@ -42,12 +39,10 @@ class RandomAgent: public Agent< StateType > {
    }
 
    move_type decide_move(
-      const state_type &state,
-      const std::vector< move_type > &poss_moves) override
+      const state_type &state, const std::vector< move_type > &poss_moves) override
    {
       std::array< move_type, 1 > selected_move{move_type{{0, 0}, {0, 0}}};
-      std::sample(
-         poss_moves.begin(), poss_moves.end(), selected_move.begin(), 1, mt);
+      std::sample(poss_moves.begin(), poss_moves.end(), selected_move.begin(), 1, mt);
 
       return selected_move[0];
    }
