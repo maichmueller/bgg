@@ -7,16 +7,21 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-#        os: [ubuntu-20.04, ubuntu-18.04, ubuntu-16.04, macos-latest, windows-latest]
-        os: [ubuntu-20.04, macos-latest]
+        os: [ubuntu-20.04, ubuntu-18.04, ubuntu-16.04]
+        os: [ubuntu-20.04]
         include:
-        - os: macos-latest
-          COMPILER: clang
-          LINKER: clang
-
         - os: ubuntu-20.04
           COMPILER: gcc-9
           LINKER: gcc-9
+        - os: ubuntu-18.04
+          COMPILER: gcc-9
+          LINKER: gcc-9
+        - os: ubuntu-16.04
+          COMPILER: gcc-8
+          LINKER: gcc-8
+        - os: ubuntu-16.04
+          COMPILER: gcc-7
+          LINKER: gcc-7
     
     steps:
     - uses: actions/checkout@v2
