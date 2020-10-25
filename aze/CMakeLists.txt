@@ -59,7 +59,7 @@ target_compile_features(aze PRIVATE cxx_std_17)
 # add_link_options(--verbose)
 
 # stdc++fs is needed for static linking against the std::filesystem library (not needed for GCC >=9)
-if(CMAKE_CXX_COMPILER_ID MATCHES "GNU" AND ${CMAKE_CXX_COMPILER_VERSION} LESS 9)
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS "9")
 	target_link_libraries(aze stdc++fs)
 endif()
 target_link_libraries(aze "${TORCH_LIBRARIES}")
