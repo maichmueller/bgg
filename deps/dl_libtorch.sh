@@ -65,10 +65,13 @@ elif [ "$os" == "win" ] || [ "$os" == "windows" ] || [ "$os" == "windows10" ] ||
   fi
 
 else
-  echo "Operating system $os not supported  . Stopping."
+  echo "Operating system $os not supported. Stopping."
 fi
-
 url=$base_url/$filename
+bad_chars="\%2B"
+replacement="+"
+filename="${filename/$bad_chars/$replacement}"   # decode the potential hexadecimal %2B as the '+' char
+
 target_dir=$(dirname $(readlink -f $0))  # target dir is the dir of this script
 
 printf "%s\n" "Will attempt to download:" "OS: $os" "CUDA: $cuda" "BUILD: $build" "URL: $url" "TARGET DIR: $target_dir"
