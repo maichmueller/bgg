@@ -13,14 +13,8 @@ jobs:
           COMPILER: gcc-9
           LINKER: gcc-9
         - os: ubuntu-18.04
-          COMPILER: gcc-9
-          LINKER: gcc-9
-        - os: ubuntu-16.04
           COMPILER: gcc-8
           LINKER: gcc-8
-        - os: ubuntu-16.04
-          COMPILER: gcc-7
-          LINKER: gcc-7
     
     steps:
     - uses: actions/checkout@v2
