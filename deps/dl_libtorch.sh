@@ -77,7 +77,7 @@ target_dir=$(dirname $(readlink -f $0))  # target dir is the dir of this script
 printf "%s\n" "Will attempt to download:" "OS: $os" "CUDA: $cuda" "BUILD: $build" "URL: $url" "TARGET DIR: $target_dir"
 
 if [ ! -d "$target_dir"/libtorch ]; then \
-  wget --directory-prefix="$target_dir" $url; \
+  wget --directory-prefix="$target_dir" $url --no-verbose; \
   unzip "$target_dir"/$filename -d "$target_dir"; \
   rm "$target_dir"/$filename; \
 else
