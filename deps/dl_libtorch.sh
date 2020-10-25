@@ -34,7 +34,11 @@ fi
 version=1.6.0
 os="${os,,}"
 if [ "$os" == "lin" ] || [ "$os" == "linux" ] || [ "$os" == "ubuntu" ]; then \
-  filename=libtorch-cxx11-abi-shared-with-deps-$version.zip; \
+  if [ "$cuda" = true ]; then \
+    filename=libtorch-cxx11-abi-shared-with-deps-$version.zip; \
+  else
+    filename=libtorch-cxx11-abi-shared-with-deps-$version%2Bcpu.zip; \
+  fi
 
 elif [ "$os" == "mac" ] || [ "$os" == "apple" ] || [ "$os" == "macos" ]; then \
   if [ "$cuda" = true ]; then \
@@ -45,15 +49,23 @@ elif [ "$os" == "mac" ] || [ "$os" == "apple" ] || [ "$os" == "macos" ]; then \
 
 elif [ "$os" == "win" ] || [ "$os" == "windows" ] || [ "$os" == "windows10" ] || [ "$os" == "win10" ]; then \
   if [ "$build" == "debug" ]; then \
-    filename=libtorch-win-shared-with-deps-debug-$version%2Bcpu.zip; \
+      if [ "$cuda" = true ]; then \
+        filename=libtorch-win-shared-with-deps-debug-$version.zip; \
+      else
+        filename=libtorch-win-shared-with-deps-debug-$version%2Bcpu.zip; \
+      fi
   elif [ "$build" == "release" ]; then \
-    filename=libtorch-win-shared-with-deps-$version%2Bcpu.zip; \
+      if [ "$cuda" = true ]; then \
+        filename=libtorch-win-shared-with-deps-$version.zip; \
+      else
+        filename=libtorch-win-shared-with-deps-$version%2Bcpu.zip; \
+      fi
   else
-    echo "Build type $build not found. Stopping."
+    echo "Build type $build not supported. Stopping."
   fi
 
 else
-  echo "Operating system $os not found. Stopping."
+  echo "Operating system $os not supported  . Stopping."
 fi
 
 url=$base_url/$filename
