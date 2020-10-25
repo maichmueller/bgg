@@ -32,7 +32,7 @@ if [ "$cuda" = true ]; then \
 fi
 
 version=1.6.0
-os="${os,,}"
+os=$(echo "$os" | tr '[:upper:]' '[:lower:]')
 if [ "$os" == "lin" ] || [ "$os" == "linux" ] || [ "$os" == "ubuntu" ]; then \
   if [ "$cuda" = true ]; then \
     filename=libtorch-cxx11-abi-shared-with-deps-$version.zip; \
