@@ -32,18 +32,18 @@ if [ "$cuda" = true ]; then \
 fi
 
 version=1.6.0
-
+os="${os,,}"
 if [ "$os" == "lin" ] || [ "$os" == "linux" ] || [ "$os" == "ubuntu" ]; then \
   filename=libtorch-cxx11-abi-shared-with-deps-$version.zip; \
 
-elif [ "$os" == "mac" ] || [ "$os" == "apple" ] || [ "$os" == "osx" ]; then \
+elif [ "$os" == "mac" ] || [ "$os" == "apple" ] || [ "$os" == "macos" ]; then \
   if [ "$cuda" = true ]; then \
     echo "CUDA setting '$cuda' and operating system '$os' are incompatible. Stopping.";
   fi
 
   filename=libtorch-macos-$version.zip; \
 
-elif [ "$os" == "win" ] || [ "$os" == "windows" ] || [ "$os" == "windows10" ]; then \
+elif [ "$os" == "win" ] || [ "$os" == "windows" ] || [ "$os" == "windows10" ] || [ "$os" == "win10" ]; then \
   if [ "$build" == "debug" ]; then \
     filename=libtorch-win-shared-with-deps-debug-$version%2Bcpu.zip; \
   elif [ "$build" == "release" ]; then \
