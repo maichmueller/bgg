@@ -49,7 +49,7 @@ jobs:
       if: steps.cache-libtorch.outputs.cache-hit != 'true'
     - name: build cmake
       run: |
-        cmake . -G -DUSE_CUDA=ON
+        cmake . -G -DUSE_CUDA=OFF
     - name: make
       run: |
         make
