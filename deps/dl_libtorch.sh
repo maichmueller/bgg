@@ -73,6 +73,8 @@ replacement="+"
 filename="${filename/$bad_chars/$replacement}"   # decode the potential hexadecimal %2B as the '+' char
 
 target_dir=$(dirname $(readlink -f $0))  # target dir is the dir of this script
+echo $0
+echo $target_dir
 
 printf "%s\n" "Will attempt to download:" "OS: $os" "CUDA: $cuda" "BUILD: $build" "URL: $url" "TARGET DIR: $target_dir"
 
