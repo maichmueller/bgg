@@ -29,9 +29,11 @@ jobs:
         if: steps.cache-libtorch.outputs.cache-hit != 'true'
       - name: build cmake
         run: |
-          cmake . -DUSE_CUDA=OFF
+          mkdir build
+          cmake ./build -DUSE_CUDA=OFF
       - name: make
         run: |
+          cd build
           make
 
   test:
@@ -61,7 +63,12 @@ jobs:
         if: steps.cache-libtorch.outputs.cache-hit != 'true'
       - name: build cmake
         run: |
-          cmake . -DUSE_CUDA=OFF
+            mkdir build
+            cmake ./build -DUSE_CUDA=OFF
       - name: make
-        run: |
-          make
+          run: |
+            cd build
+            make
+      - name: test
+          run: |
+            ./test/tests
