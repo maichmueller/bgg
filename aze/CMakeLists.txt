@@ -50,17 +50,12 @@ set_target_properties(aze PROPERTIES
 		CXX_STANDARD 17
 		)
 
-target_compile_features(aze PRIVATE cxx_std_17)
-# set(SANITIZE_OPTIONS -fsanitize=address -fsanitize=undefined)
-#set(SANITIZE_OPTIONS )
-#add_compile_options(${SANITIZE_OPTIONS})
-#add_link_options(${SANITIZE_OPTIONS})
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
-# add_link_options(--verbose)
+#target_compile_features(aze PRIVATE cxx_std_17)
 
 # stdc++fs is needed for static linking against the std::filesystem library (not needed for GCC >=9)
-if(CMAKE_CXX_COMPILER_ID MATCHES "GNU" AND ${CMAKE_CXX_COMPILER_VERSION} LESS 9)
-	target_link_libraries(aze stdc++fs)
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS "9")
+	target_link_libraries(aze PUBLIC stdc++fs)
 endif()
-target_link_libraries(aze "${TORCH_LIBRARIES}")
-target_link_libraries(aze "${CUDNN_LIBRARY}")
+target_link_libraries(aze PUBLIC project_options)
+target_link_libraries(aze PUBLIC "${TORCH_LIBRARIES}")
+target_link_libraries(aze PUBLIC "${CUDNN_LIBRARY}")
