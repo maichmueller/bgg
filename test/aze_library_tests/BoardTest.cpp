@@ -18,7 +18,7 @@ TEST(BoardTest, BoardTest_Constructor_Ints_2D)
 
    role_type test_kin{20, 1};
    position_type test_pos{3, 2};
-   std::shared_ptr< piece_type > test_piece = std::make_shared< piece_type >(
+   sptr< piece_type > test_piece = std::make_shared< piece_type >(
       test_pos, test_kin, 1);
 
    setup1[{3, 0}] = {0, 0};
@@ -36,11 +36,11 @@ TEST(BoardTest, BoardTest_Constructor_Ints_2D)
    EXPECT_EQ(*b[test_pos], *test_piece);
 
    // check get all pieces of one player method
-   std::vector< std::shared_ptr< piece_type > > pieces_0 = b.get_pieces(0);
+   std::vector< sptr< piece_type > > pieces_0 = b.get_pieces(0);
 
    // check update board method
    role_type new_test_kin{5, 1};
-   std::shared_ptr< piece_type >
+   sptr< piece_type >
       new_test_piece = std::make_shared< piece_type >(
          test_pos, new_test_kin, 1);
    b.update_board(test_pos, new_test_piece);

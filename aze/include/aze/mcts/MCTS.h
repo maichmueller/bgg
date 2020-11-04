@@ -10,6 +10,7 @@
 #include "aze/nn/model/NeuralNet.h"
 #include "aze/nn/representation/Representer.h"
 #include "aze/utils/utils.h"
+#include "aze/types.h"
 
 /**
  * The Monte-Carlo Tree Search class provides a tree search mechanism to
@@ -64,7 +65,7 @@ class MCTS {
 
    /// The neural network is provided via a shared_ptr on construction.
    /// It is assumed the network is allocated and deallocated outside.
-   std::shared_ptr< NetworkWrapper > m_nnet_sptr;
+   sptr< NetworkWrapper > m_nnet_sptr;
    /// a parameter determining the amount of exploration (needs to be checked in
    /// paper)
    double m_cpuct;
@@ -141,11 +142,11 @@ class MCTS {
     * tree search.
     * @param cpuct a parameter influencing the strength of exploration.
     */
-   MCTS(std::shared_ptr< NetworkWrapper > nnet_sptr, int num_mcts_sims = 100, double cpuct = 4);
+   MCTS(sptr< NetworkWrapper > nnet_sptr, int num_mcts_sims = 100, double cpuct = 4);
 
    template < typename StateType, typename ActionRepresenterType >
    std::vector< double > get_policy_vec(
-      std::shared_ptr< StateType > &state,
+      sptr< StateType > &state,
       int player,
       RepresenterBase< StateType, ActionRepresenterType > &action_repper,
       double expl_rate = 1.);
@@ -153,7 +154,7 @@ class MCTS {
 
 template < typename StateType, typename ActionRepresenterType >
 std::vector< double > MCTS::get_policy_vec(
-   std::shared_ptr< StateType > &state,
+   sptr< StateType > &state,
    int player,
    RepresenterBase< StateType, ActionRepresenterType > &action_repper,
    double expl_rate)

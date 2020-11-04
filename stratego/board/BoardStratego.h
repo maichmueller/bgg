@@ -36,7 +36,7 @@ class BoardStratego: public Board< PieceStratego > {
 
   private:
    void _add_obstacles();
-   static std::vector< std::shared_ptr< piece_type > > adapt_setup(
+   static std::vector< sptr< piece_type > > adapt_setup(
       const std::map< position_type, int > &setup);
 
    [[nodiscard]] BoardStratego *clone_impl() const override;

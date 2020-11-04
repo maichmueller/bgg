@@ -15,20 +15,20 @@ class AlphaZeroAgent: public AgentReinforceBase< StateType > {
    using move_type = typename state_type::move_type;
 
   protected:
-   std::shared_ptr< action_rep_type > m_action_rep_ptr;
+   sptr< action_rep_type > m_action_rep_ptr;
 
   public:
    AlphaZeroAgent(
       int team,
-      const std::shared_ptr< NetworkWrapper > &model_sptr,
-      const std::shared_ptr< action_rep_type > &action_rep_ptr)
+      const sptr< NetworkWrapper > &model_sptr,
+      const sptr< action_rep_type > &action_rep_ptr)
        : base_type(team, model_sptr), m_action_rep_ptr(action_rep_ptr)
    {
    }
 
    template < typename... Params >
    AlphaZeroAgent(
-      int team, const std::shared_ptr< NetworkWrapper > &model_sptr, const Params &... params)
+      int team, const sptr< NetworkWrapper > &model_sptr, const Params &... params)
        : base_type(team, model_sptr), m_action_rep_ptr(params...)
    {
    }

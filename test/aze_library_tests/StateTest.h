@@ -17,19 +17,22 @@ class BoardImplTest: public Board< piece_type > {
    {
       return "";
    }
-   [[nodiscard]] BoardImplTest* clone_impl() const override {
+   [[nodiscard]] BoardImplTest* clone_impl() const override
+   {
       auto* board_copy_ptr = new BoardImplTest(*this);
-      for(auto & sptr : *board_copy_ptr) {
-         sptr.second = std::make_shared<piece_type >(*sptr.second);
+      for(auto& sptr : *board_copy_ptr) {
+         sptr.second = std::make_shared< piece_type >(*sptr.second);
       }
       return board_copy_ptr;
    }
 };
 using planar_board = BoardImplTest;
 
-class StateImplTest: public State< planar_board > {
+enum Status { tie = 0, win_1, win2 };
+
+class StateImplTest: public State< planar_board, Status > {
   public:
-   using base = State< planar_board >;
+   using base = State< planar_board, Status >;
    using base::base;
 
    void check_terminal() override
@@ -40,12 +43,12 @@ class StateImplTest: public State< planar_board > {
       m_terminal = has_pieces;
    }
 
-   [[nodiscard]] StateImplTest * clone_impl() const override {
-
+   [[nodiscard]] StateImplTest* clone_impl() const override
+   {
       // copy the shared pointers as of now
       auto piece_history = m_piece_history;
-      for(auto &pieces_arr : piece_history) {
-         for(auto &piece_sptr : pieces_arr) {
+      for(auto& pieces_arr : piece_history) {
+         for(auto& piece_sptr : pieces_arr) {
             piece_sptr = std::make_shared< piece_type >(*piece_sptr);
          }
       }
@@ -55,8 +58,6 @@ class StateImplTest: public State< planar_board > {
          m_terminal_checked,
          m_turn_count,
          m_move_history,
-         m_piece_history,
-         m_move_equals_prev_move,
          m_rounds_without_fight);
 
       return state_clone_ptr;

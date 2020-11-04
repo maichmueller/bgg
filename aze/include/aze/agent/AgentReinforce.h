@@ -18,13 +18,13 @@ class AgentReinforceBase: public Agent< StateType > {
    using piece_type = typename StateType::piece_type;
 
   protected:
-   std::shared_ptr< NetworkWrapper > m_model;
+   sptr< NetworkWrapper > m_model;
 
   public:
-   AgentReinforceBase(int team, std::shared_ptr< NetworkWrapper > model_sptr)
+   AgentReinforceBase(int team, sptr< NetworkWrapper > model_sptr)
        : base_type(team, true), m_model(std::move(model_sptr))
    {
    }
 
-   std::shared_ptr< NetworkWrapper > get_model_sptr() { return m_model; }
+   sptr< NetworkWrapper > get_model_sptr() { return m_model; }
 };

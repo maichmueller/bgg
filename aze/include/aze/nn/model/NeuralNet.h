@@ -21,7 +21,7 @@
 #endif
 
 class NetworkWrapper {
-   std::shared_ptr< AlphaZeroBase > m_network;
+   sptr< AlphaZeroBase > m_network;
 
    [[nodiscard]] std::vector< TORCH_ARRAYREF_TYPE > _prepend_to_shape(
       const torch::Tensor &tensor, size_t value) const;
@@ -38,7 +38,7 @@ class NetworkWrapper {
    }
 
   public:
-   explicit NetworkWrapper(std::shared_ptr< AlphaZeroBase > network_ptr)
+   explicit NetworkWrapper(sptr< AlphaZeroBase > network_ptr)
        : m_network(std::move(network_ptr))
    {
    }

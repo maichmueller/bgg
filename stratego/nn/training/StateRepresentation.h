@@ -35,7 +35,7 @@ inline int team_invert(int team)
 
 template < typename Piece >
 inline bool check_condition(
-   const std::shared_ptr< Piece >& piece,
+   const sptr< Piece >& piece,
    int team,
    int type,
    int version,

@@ -8,6 +8,7 @@
 
 #include "aze/board/Board.h"
 #include "aze/board/Move.h"
+#include "aze/types.h"
 
 template < class BoardType, class DerivedType >
 struct Logic {

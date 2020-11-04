@@ -14,6 +14,8 @@
 #include <string>
 #include <utility>
 
+#include "aze/types.h"
+
 namespace utils {
 
 inline std::string repeat(std::string str, const std::size_t n)
@@ -133,7 +135,7 @@ std::string board_str_rep(
 
    board_print << init_space << h_border << "\n";
    std::string init = board_print.str();
-   std::shared_ptr< PieceType > curr_piece;
+   sptr< PieceType > curr_piece;
 
    // row means row of the board. not actual rows of console output.
    for(int row = 0; row < dim; ++row) {

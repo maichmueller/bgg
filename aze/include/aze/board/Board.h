@@ -13,6 +13,7 @@
 #include "aze/board/Piece.h"
 #include "aze/utils/logging_macros.h"
 #include "aze/utils/utils.h"
+#include "aze/types.h"
 
 template < typename PieceType >
 class Board {
@@ -21,7 +22,7 @@ class Board {
    using role_type = typename piece_type::role_type;
    using position_type = typename piece_type::position_type;
    using move_type = Move< position_type >;
-   using map_type = std::map< position_type, std::shared_ptr< PieceType > >;
+   using map_type = std::map< position_type, sptr< PieceType > >;
    using inverse_map_type = std::unordered_map< role_type, position_type >;
    using iterator = typename map_type::iterator;
    using const_iterator = typename map_type::const_iterator;
@@ -38,13 +39,13 @@ class Board {
    Board(const std::array< size_t, m_dim > &shape, const std::array< int, m_dim > &board_starts);
    Board(
       const std::array< size_t, m_dim > &shape,
-      const std::vector< std::shared_ptr< piece_type > > &setup_0,
-      const std::vector< std::shared_ptr< piece_type > > &setup_1);
+      const std::vector< sptr< piece_type > > &setup_0,
+      const std::vector< sptr< piece_type > > &setup_1);
    Board(
       const std::array< size_t, m_dim > &shape,
       const std::array< int, m_dim > &board_starts,
-      const std::vector< std::shared_ptr< piece_type > > &setup_0,
-      const std::vector< std::shared_ptr< piece_type > > &setup_1);
+      const std::vector< sptr< piece_type > > &setup_0,
+      const std::vector< sptr< piece_type > > &setup_1);
    Board(
       const std::array< size_t, m_dim > &shape,
       const std::map< position_type, role_type > &setup_0,
@@ -57,9 +58,9 @@ class Board {
 
    virtual ~Board() = default;
 
-   std::shared_ptr< piece_type > &operator[](const position_type &position);
+   sptr< piece_type > &operator[](const position_type &position);
 
-   const std::shared_ptr< piece_type > &operator[](const position_type &position) const;
+   const sptr< piece_type > &operator[](const position_type &position) const;
 
    ///
    /// Iterators
@@ -111,7 +112,7 @@ class Board {
       return m_map_inverse.at(team).count(role);
    }
 
-   std::vector< std::shared_ptr< piece_type > > get_pieces(int player) const;
+   std::vector< sptr< piece_type > > get_pieces(int player) const;
 
    ///
    /// API
@@ -121,13 +122,13 @@ class Board {
 
    inline void is_within_bounds(const position_type &pos);
 
-   void update_board(const position_type &pos, const std::shared_ptr< piece_type > &pc);
+   void update_board(const position_type &pos, const sptr< piece_type > &pc);
 
    [[nodiscard]] virtual std::string print_board(int player, bool hide_unknowns) const = 0;
 
-   std::shared_ptr< Board< piece_type > > clone() const
+   sptr< Board< piece_type > > clone() const
    {
-      return std::shared_ptr< Board< piece_type > >(clone_impl());
+      return sptr< Board< piece_type > >(clone_impl());
    }
 
   protected:
@@ -173,21 +174,21 @@ std::tuple< bool, size_t > Board< PieceType >::check_bounds(const position_type 
 }
 
 template < typename PieceType >
-const std::shared_ptr< PieceType > &Board< PieceType >::operator[](
+const sptr< PieceType > &Board< PieceType >::operator[](
    const position_type &position) const
 {
    return m_map.at(position);
 }
 
 template < typename PieceType >
-std::shared_ptr< PieceType > &Board< PieceType >::operator[](const position_type &position)
+sptr< PieceType > &Board< PieceType >::operator[](const position_type &position)
 {
    return m_map[position];
 }
 
 template < typename PieceType >
 void Board< PieceType >::update_board(
-   const position_type &pos, const std::shared_ptr< piece_type > &pc_ptr)
+   const position_type &pos, const sptr< piece_type > &pc_ptr)
 {
    /* Note for the usage of this method:
     * If you use a board game with, in which pieces may "defeat" one another,
@@ -247,11 +248,11 @@ template < typename PieceType >
 Board< PieceType >::Board(
    const std::array< size_t, m_dim > &shape,
    const std::array< int, m_dim > &board_starts,
-   const std::vector< std::shared_ptr< piece_type > > &setup_0,
-   const std::vector< std::shared_ptr< piece_type > > &setup_1)
+   const std::vector< sptr< piece_type > > &setup_0,
+   const std::vector< sptr< piece_type > > &setup_1)
     : Board(shape, board_starts)
 {
-   auto setup_unwrap = [&](const std::vector< std::shared_ptr< piece_type > > &setup) {
+   auto setup_unwrap = [&](const std::vector< sptr< piece_type > > &setup) {
       std::map< position_type, int > seen_pos;
       for(const auto &piece : setup) {
          position_type pos = piece->get_position();
@@ -275,8 +276,8 @@ Board< PieceType >::Board(
 template < typename PieceType >
 Board< PieceType >::Board(
    const std::array< size_t, m_dim > &shape,
-   const std::vector< std::shared_ptr< piece_type > > &setup_0,
-   const std::vector< std::shared_ptr< piece_type > > &setup_1)
+   const std::vector< sptr< piece_type > > &setup_0,
+   const std::vector< sptr< piece_type > > &setup_1)
     : Board(shape, decltype(m_starts){0}, setup_0, setup_1)
 {
 }
@@ -332,12 +333,12 @@ Board< PieceType >::Board(
 }
 
 template < typename PieceType >
-std::vector< std::shared_ptr< typename Board< PieceType >::piece_type > >
+std::vector< sptr< typename Board< PieceType >::piece_type > >
 Board< PieceType >::get_pieces(int player) const
 {
-   std::vector< std::shared_ptr< piece_type > > pieces;
+   std::vector< sptr< piece_type > > pieces;
    for(const auto &pos_piece : m_map) {
-      std::shared_ptr< piece_type > piece_ptr = pos_piece.second;
+      sptr< piece_type > piece_ptr = pos_piece.second;
       if(! piece_ptr->is_null() && piece_ptr->get_team() == player) {
          pieces.emplace_back(piece_ptr);
       }

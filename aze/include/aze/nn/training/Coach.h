@@ -17,7 +17,7 @@ template < typename StateType >
 struct EvaluatedGameTurn {
    using state_type = StateType;
 
-   std::shared_ptr< state_type > m_state;
+   sptr< state_type > m_state;
    torch::Tensor m_board_tensor;
    std::vector< double > m_pi;
    double m_v;
@@ -26,7 +26,7 @@ struct EvaluatedGameTurn {
    bool converted = false;
 
    EvaluatedGameTurn(
-      std::shared_ptr< state_type > state, std::vector< double > pi, double v, int player)
+      sptr< state_type > state, std::vector< double > pi, double v, int player)
        : m_state(std::move(state)), m_board_tensor(), m_pi(std::move(pi)), m_v(v), m_player(player)
    {
    }
@@ -68,9 +68,9 @@ class Coach {
    using network_type = NetworkType;
 
   private:
-   std::shared_ptr< game_type > m_game;
-   std::shared_ptr< network_type > m_nnet;
-   std::shared_ptr< network_type > m_opp_nnet;
+   sptr< game_type > m_game;
+   sptr< network_type > m_nnet;
+   sptr< network_type > m_opp_nnet;
 
    std::deque< evaluated_turn_type > m_turns_queue;
 
@@ -85,8 +85,8 @@ class Coach {
 
   public:
    Coach(
-      std::shared_ptr< game_type > game,
-      const std::shared_ptr< network_type > &nnet,
+      sptr< game_type > game,
+      const sptr< network_type > &nnet,
       std::string model_folder = "./checkpoints",
       size_t epochs = 100,
       size_t num_episodes = 1,
@@ -97,7 +97,7 @@ class Coach {
 
    template < typename ActionRepresenterType >
    std::vector< evaluated_turn_type > execute_episode(
-      std::shared_ptr< state_type > state,
+      sptr< state_type > state,
       RepresenterBase< state_type, ActionRepresenterType > &action_repper);
 
    template < typename ActionRepresenterType >
@@ -121,8 +121,8 @@ class Coach {
 
 template < class GameType, class NetworkType >
 Coach< GameType, NetworkType >::Coach(
-   std::shared_ptr< game_type > game,
-   const std::shared_ptr< network_type > &nnet,
+   sptr< game_type > game,
+   const sptr< network_type > &nnet,
    std::string model_folder,
    size_t epochs,
    size_t num_episodes,
@@ -149,7 +149,7 @@ template < class GameType, class NetworkType >
 template < class ActionRepresenterType >
 std::vector< typename Coach< GameType, NetworkType >::evaluated_turn_type >
 Coach< GameType, NetworkType >::execute_episode(
-   std::shared_ptr< state_type > state,
+   sptr< state_type > state,
    RepresenterBase< state_type, ActionRepresenterType > &action_repper)
 {
    unsigned int ep_step = 0;
@@ -250,7 +250,7 @@ void Coach< GameType, NetworkType >::teach(
          for(size_t episode = 0; episode < m_num_episodes; ++episode) {
             ep_bar.progress(episode, m_num_episodes);
             for(auto &&evaluated_turn : execute_episode(
-                   std::static_pointer_cast< state_type >(m_game->get_gamestate()->clone()),
+                   std::static_pointer_cast< state_type >(m_game->get_state()->clone()),
                    action_repper)) {
                evaluated_turn.convert_board(action_repper);
                // move is needed or else evaluated turn will be seen as lvalue (and copied).

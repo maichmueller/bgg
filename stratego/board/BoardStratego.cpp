@@ -11,10 +11,10 @@
 #define BLUE "\x1B[44m"
 #define RED "\x1B[41m"
 
-std::vector< std::shared_ptr< typename BoardStratego::piece_type > > BoardStratego::adapt_setup(
+std::vector< sptr< typename BoardStratego::piece_type > > BoardStratego::adapt_setup(
    const std::map< position_type, int > &setup)
 {
-   std::vector< std::shared_ptr< BoardStratego::piece_type > > vector_out;
+   std::vector< sptr< BoardStratego::piece_type > > vector_out;
 
    std::map< position_type, int > seen_pos;
    std::map< int, int > version_count;
@@ -100,7 +100,7 @@ std::string BoardStratego::print_board(int player, bool hide_unknowns) const
 
    board_print << init_space << VERT_BAR << h_border << VERT_BAR << "\n";
    std::string init = board_print.str();
-   std::shared_ptr< piece_type > curr_piece;
+   sptr< piece_type > curr_piece;
 
    // row means row of the board. not actual rows of console output.
    for(int row = dim_y - 1; row > m_starts[1] - 1;

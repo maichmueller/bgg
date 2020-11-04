@@ -96,21 +96,21 @@ std::tuple< StatTrack, StatTrack > Arena::pit(
 
    for(int sim = 1; sim < num_sims; ++sim) {
       game.reset();
-      LOGD2("After Reset", game.get_gamestate()->string_representation(false, false))
+      LOGD2("After Reset", game.get_state()->string_representation(false, false))
       int game_outcome = game.run_game(show_game);
       if(game_outcome == 1)
-         stats0.add_win("flag", game.get_gamestate()->get_turn_count());
+         stats0.add_win("flag", game.get_state()->get_turn_count());
       else if(game_outcome == 2)
-         stats0.add_win("moves", game.get_gamestate()->get_turn_count());
+         stats0.add_win("moves", game.get_state()->get_turn_count());
       else if(game_outcome == -1)
-         stats1.add_win("flag", game.get_gamestate()->get_turn_count());
+         stats1.add_win("flag", game.get_state()->get_turn_count());
       else if(game_outcome == -2)
-         stats1.add_win("moves", game.get_gamestate()->get_turn_count());
+         stats1.add_win("moves", game.get_state()->get_turn_count());
       else {
          stats0.add_draw();
          stats1.add_draw();
       }
-      LOGD2("After game played", game.get_gamestate()->string_representation(false, false))
+      LOGD2("After game played", game.get_state()->string_representation(false, false))
       if(sim % 10 == 0)
          Arena::print_round_results(
             sim, num_sims, *game.get_agent_0(), *game.get_agent_1(), stats0, stats1);

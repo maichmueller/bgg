@@ -6,8 +6,8 @@
 
 class StrategoAlphaZero: public AlphaZeroBase {
    int D_in;
-   std::shared_ptr< Convolutional > convo_layers;
-   std::shared_ptr< FullyConnected > linear_layers;
+   sptr< Convolutional > convo_layers;
+   sptr< FullyConnected > linear_layers;
    torch::nn::Linear pi_act_layer;
    torch::nn::Linear v_act_layer;
 

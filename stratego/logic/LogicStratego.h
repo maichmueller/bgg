@@ -18,6 +18,8 @@ struct BattleMatrix {
    }
 };
 
+static constexpr const size_t MAX_REPEATED_ROUNDS = 3;
+
 template < class BoardType >
 struct LogicStratego: public Logic< BoardType, LogicStratego< BoardType > > {
    using base_type = Logic< BoardType, LogicStratego< BoardType > >;
@@ -118,8 +120,8 @@ bool LogicStratego< BoardType >::is_legal_move_(const board_type &board, const m
       || ! (std::get< 0 >(board.check_bounds(pos_after))))
       return false;
 
-   std::shared_ptr< piece_type > p_b = board[pos_before];
-   std::shared_ptr< piece_type > p_a = board[pos_after];
+   sptr< piece_type > p_b = board[pos_before];
+   sptr< piece_type > p_a = board[pos_after];
 
    if(p_b->is_null())
       return false;
@@ -171,7 +173,7 @@ LogicStratego< BoardType >::get_legal_moves_(const board_type &board, int player
    int starts_y = board.get_starts()[1];
    std::vector< move_type > moves_possible;
    for(auto elem = board.begin(); elem != board.end(); ++elem) {
-      std::shared_ptr< piece_type > piece = elem->second;
+      sptr< piece_type > piece = elem->second;
       if(! piece->is_null() && piece->get_team() == player) {
          // the position we are dealing with
          Position pos = piece->get_position();
@@ -243,7 +245,7 @@ bool LogicStratego< BoardType >::has_legal_moves_(const board_type &board, int p
    int starts_x = board.get_starts()[0];
    int starts_y = board.get_starts()[1];
    for(auto elem = board.begin(); elem != board.end(); ++elem) {
-      std::shared_ptr< piece_type > piece = elem->second;
+      sptr< piece_type > piece = elem->second;
       if(int essential_role = piece->get_role()[0];
          ! piece->is_null() && piece->get_team() == player && essential_role != 0
          && essential_role != 11) {

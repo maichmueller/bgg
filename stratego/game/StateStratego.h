@@ -44,8 +44,6 @@ class StateStratego: public State< BoardStratego > {
       const std::map< position_type, int > &setup_0,
       const std::map< position_type, int > &setup_1);
 
-   void check_terminal() override;
-
    int _do_move(const move_type &move) override;
 
   protected:
@@ -55,7 +53,7 @@ class StateStratego: public State< BoardStratego > {
    using dead_pieces_type = std::array< std::unordered_set< role_type >, 2 >;
    dead_pieces_type m_dead_pieces;
 
-   void _update_dead_pieces(const std::shared_ptr< piece_type > &piece)
+   void _update_dead_pieces(const sptr< piece_type > &piece)
    {
       if(! piece->is_null())
          m_dead_pieces[piece->get_team()].emplace(piece->get_role());

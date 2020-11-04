@@ -127,7 +127,7 @@ const std::map< std::array< int, 2 >, int >
 //    int board_len = board.get_shape();
 //
 //    for( auto elem = board.begin(); elem != board.end(); ++elem) {
-//        std::shared_ptr<Piece> piece = elem->second;
+//        sptr<Piece> piece = elem->second;
 //        if(!piece->is_null() && piece->get_team() == player &&
 //        piece->get_flag_can_move()) {
 //

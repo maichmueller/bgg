@@ -57,7 +57,7 @@ class Move {
    {
       return (*this)[0] == other[0] && (*this)[1] == other[1];
    }
-   bool operator!=(const Move& other) const { return ! (*this == other); }
+   bool operator!=(const Move& other) const { return *this != other; }
 
    template < typename start_container, typename end_container >
    Move< position_type > invert(const start_container& starts, const end_container& ends)

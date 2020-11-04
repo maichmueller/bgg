@@ -2,12 +2,15 @@
 
 #pragma once
 
+#include <unordered_set>
+
 #include "aze/board/Board.h"
 #include "aze/board/Move.h"
 #include "aze/board/Piece.h"
 #include "aze/board/Position.h"
+#include "aze/types.h"
 
-template < class BoardType >
+template < class BoardType, class HistoryType >
 class State {
   public:
    using board_type = BoardType;
@@ -15,48 +18,40 @@ class State {
    using role_type = typename BoardType::role_type;
    using position_type = typename BoardType::position_type;
    using move_type = Move< position_type >;
+   using history_type = HistoryType;
+   using graveyard_type = std::array< std::unordered_set< role_type >, 2 >;
 
-  protected:
-   std::shared_ptr< board_type > m_board;
+  private:
+   sptr< board_type > m_board;
 
    int m_terminal;
    bool m_terminal_checked;
-
    int m_turn_count;
 
-   std::vector< move_type > m_move_history;
-   std::vector< std::array< std::shared_ptr< piece_type >, 2 > > m_piece_history;
-   std::vector< bool > m_move_equals_prev_move;
+   std::vector< history_type > m_move_history;
    unsigned int m_rounds_without_fight;
 
-   void _recompute_rounds_without_fight();
-   virtual int _do_move(const move_type &move);
+   graveyard_type m_graveyard;
 
-   virtual State< board_type > *clone_impl() const = 0;
+   void _recompute_rounds_without_fight();
+
+  protected:
+   virtual State *clone_impl() const = 0;
+   virtual int _do_move(const move_type &move);
 
   public:
    template < size_t dim >
    explicit State(
       const std::array< size_t, dim > &shape, const std::array< int, dim > &board_starts);
 
-   explicit State(std::shared_ptr< board_type > board_ptr, int move_count = 0);
-
-   template < size_t dim >
    State(
-      const std::array< size_t, dim > &shape,
-      const std::array< int, dim > &board_starts,
-      const std::map< position_type, typename piece_type::role_type > &setup_0,
-      const std::map< position_type, typename piece_type::role_type > &setup_1);
-
-   State(
-      std::shared_ptr< board_type > board,
+      sptr< board_type > board,
       int m_terminal,
-      bool m_terminal_checked,
-      int m_turn_count,
-      const std::vector< move_type > &m_move_history,
-      const std::vector< std::array< std::shared_ptr< piece_type >, 2 > > &m_piece_history,
-      const std::vector< bool > &m_move_equals_prev_move,
-      unsigned int m_rounds_without_fight);
+      bool m_terminal_checked = false,
+      int m_turn_count = 0,
+      const std::vector< history_type > &m_move_history = {},
+      unsigned int m_rounds_without_fight = 0,
+      const graveyard_type &graveyard = {});
 
    virtual ~State() = default;
 
@@ -64,14 +59,7 @@ class State {
 
    const auto &operator[](const position_type &position) const { return (*m_board)[position]; }
 
-   std::shared_ptr< State< board_type > > clone() const
-   {
-      return std::shared_ptr< State< board_type > >(clone_impl());
-   }
-
-   int is_terminal(bool force_check = false);
-
-   virtual void check_terminal() = 0;
+   sptr< State > clone() const { return sptr< State >(clone_impl()); }
 
    int do_move(const move_type &move);
 
@@ -79,12 +67,26 @@ class State {
 
    void undo_last_rounds(int n = 1);
 
-   [[nodiscard]] int get_turn_count() const { return m_turn_count; }
+   void move_to_graveyard(int team, sptr< piece_type > piece)
+   {
+      m_graveyard[team].emplace({piece});
+   }
 
-   void set_board(std::shared_ptr< board_type > brd) { m_board = std::move(brd); }
+   [[nodiscard]] inline int get_turn_count() const { return m_turn_count; }
+   [[nodiscard]] inline int is_terminal() { return m_terminal; }
+   [[nodiscard]] inline auto get_history() const { return m_move_history; }
+   [[nodiscard]] inline auto &get_history() { return m_move_history; }
+   [[nodiscard]] inline auto get_nr_rounds_without_fight() const { return m_rounds_without_fight; }
+   [[nodiscard]] inline auto get_board() const { return m_board; }
+   [[nodiscard]] inline auto get_graveyards() const { return m_graveyard; }
+   [[nodiscard]] inline auto get_graveyard(int team) const { return m_graveyard[team]; }
 
-   std::shared_ptr< board_type > get_board() const { return m_board; }
-
+   inline void set_board(sptr< board_type > brd) { m_board = std::move(brd); }
+   inline void set_terminality(int val)
+   {
+      m_terminal = val;
+      m_terminal_checked = true;
+   }
    virtual std::string string_representation(int player, bool hide_unknowns);
 };
 
@@ -97,42 +99,11 @@ int State< BoardType >::_do_move(const State::move_type &move)
 }
 
 template < class BoardType >
-State< BoardType >::State(std::shared_ptr< board_type > board_ptr, int move_count)
-    : m_board(std::move(board_ptr)),
-      m_terminal(404),
-      m_terminal_checked(false),
-      m_turn_count(move_count),
-      m_move_history(),
-      m_move_equals_prev_move(0),
-      m_rounds_without_fight(0)
-{
-}
-
-template < class BoardType >
 template < size_t dim >
 State< BoardType >::State(
    const std::array< size_t, dim > &shape, const std::array< int, dim > &board_starts)
     : State(std::make_shared< board_type >(shape, board_starts))
 {
-}
-
-template < class BoardType >
-template < size_t dim >
-State< BoardType >::State(
-   const std::array< size_t, dim > &shape,
-   const std::array< int, dim > &board_starts,
-   const std::map< position_type, typename piece_type::role_type > &setup_0,
-   const std::map< position_type, typename piece_type::role_type > &setup_1)
-    : State(std::make_shared< board_type >(shape, board_starts, setup_0, setup_1))
-{
-}
-
-template < class BoardType >
-int State< BoardType >::is_terminal(bool force_check)
-{
-   if(! m_terminal_checked || force_check)
-      check_terminal();
-   return m_terminal;
 }
 
 template < class BoardType >
@@ -142,8 +113,7 @@ void State< BoardType >::undo_last_rounds(int n)
    bool recompute_rwf = false;
 
    for(int i = 0; i < n; ++i) {
-      move_type move = m_move_history.back();
-      auto move_pieces = m_piece_history.back();
+      auto [move, pieces] = m_move_history.back();
 
       if(m_rounds_without_fight > 0)
          m_rounds_without_fight -= 1;
@@ -151,11 +121,9 @@ void State< BoardType >::undo_last_rounds(int n)
          recompute_rwf = true;
 
       m_move_history.pop_back();
-      m_piece_history.pop_back();
-      m_move_equals_prev_move.pop_back();
 
-      m_board->update_board(move[1], move_pieces[1]);
-      m_board->update_board(move[0], move_pieces[0]);
+      m_board->update_board(move[1], pieces[1]);
+      m_board->update_board(move[0], pieces[0]);
    }
 
    m_turn_count -= n;
@@ -174,19 +142,13 @@ template < class BoardType >
 int State< BoardType >::do_move(const State::move_type &move)
 {
    // save all info to the history
-   std::shared_ptr< piece_type > piece_from = (*m_board)[move[0]];
-   std::shared_ptr< piece_type > piece_to = (*m_board)[move[1]];
-   if(m_move_equals_prev_move.empty())
-      m_move_equals_prev_move.push_back(false);
-   else {
-      auto &last_move = m_move_history.back();
-      m_move_equals_prev_move.push_back((move[0] == last_move[0]) && (move[1] == last_move[1]));
-   }
-   m_move_history.push_back(move);
+   sptr< piece_type > piece_from = (*m_board)[move[0]];
+   sptr< piece_type > piece_to = (*m_board)[move[1]];
    // copying the pieces here, bc this way they can be fully restored later on
    // (especially when flags have been altered - needed in undoing last rounds)
-   m_piece_history.push_back(
-      {std::make_shared< piece_type >(*piece_from), std::make_shared< piece_type >(*piece_to)});
+   m_move_history.push_back(
+      {move,
+       {std::make_shared< piece_type >(*piece_from), std::make_shared< piece_type >(*piece_to)}});
 
    m_terminal_checked = false;
    m_turn_count += 1;
@@ -207,9 +169,10 @@ template < class BoardType >
 void State< BoardType >::_recompute_rounds_without_fight()
 {
    m_rounds_without_fight = 0;
-   for(auto piece_rev_iter = m_piece_history.rbegin(); piece_rev_iter != m_piece_history.rend();
-       ++piece_rev_iter) {
-      if(! (*piece_rev_iter)[1]->is_null())
+   for(auto hist_rev_iter = m_move_history.rbegin(); hist_rev_iter != m_move_history.rend();
+       ++hist_rev_iter) {
+      const auto &[_, pieces] = *hist_rev_iter;
+      if(not pieces[1]->is_null())
          // if the defending piece was not a null piece, then there was a fight
          break;
       else
@@ -219,21 +182,19 @@ void State< BoardType >::_recompute_rounds_without_fight()
 
 template < class BoardType >
 State< BoardType >::State(
-   std::shared_ptr< board_type > board,
+   sptr< board_type > board,
    int m_terminal,
    bool m_terminal_checked,
    int m_turn_count,
-   const std::vector< move_type > &m_move_history,
-   const std::vector< std::array< std::shared_ptr< piece_type >, 2 > > &m_piece_history,
-   const std::vector< bool > &m_move_equals_prev_move,
-   unsigned int m_rounds_without_fight)
+   const std::vector< history_type > &m_move_history,
+   unsigned int m_rounds_without_fight,
+   const graveyard_type &graveyard)
     : m_board(std::move(board)),
       m_terminal(m_terminal),
       m_terminal_checked(m_terminal_checked),
       m_turn_count(m_turn_count),
       m_move_history(m_move_history),
-      m_piece_history(m_piece_history),
-      m_move_equals_prev_move(m_move_equals_prev_move),
-      m_rounds_without_fight(m_rounds_without_fight)
+      m_rounds_without_fight(m_rounds_without_fight),
+      m_graveyard(graveyard)
 {
 }

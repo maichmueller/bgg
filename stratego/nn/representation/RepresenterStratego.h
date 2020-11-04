@@ -94,7 +94,7 @@ class RepresenterStratego: public RepresenterBase< StateStratego, RepresenterStr
 
    template < typename Piece >
    inline bool _check_condition(
-      const std::shared_ptr< Piece > &piece,
+      const sptr< Piece > &piece,
       const role_type &role,
       int team,
       bool hidden,
@@ -170,7 +170,7 @@ std::vector< unsigned int > RepresenterStratego::get_action_mask_(const Board &b
 
 template < typename Piece >
 bool RepresenterStratego::_check_condition(
-   const std::shared_ptr< Piece > &piece,
+   const sptr< Piece > &piece,
    const role_type &role,
    int team,
    bool hidden,
