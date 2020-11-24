@@ -1,42 +1,84 @@
-FROM ubuntu:19.04
+# CLion remote docker environment (How to build docker container, run and stop it)
+#
+# Build and run:
+#   docker image build -t ubuntu2004_gcc10 -f Dockerfile .
+#   docker run -d --cap-add sys_ptrace -p127.0.0.1:2000:22 --name clion_remote_env ubuntu2004_gcc10
+#   Windows:
+#   ssh-keygen -f "%HOMEPATH%/.ssh/known_hosts" -R "[localhost]:2000"
+#   Rest:
+#   ssh-keygen -f "$HOME/.ssh/known_hosts" -R "[localhost]:2000"
+#
+# stop:
+#   docker stop clion_remote_env
+#
+# ssh credentials (test user):
+#   user@password
+
+FROM ubuntu:20.04
 
 SHELL ["/bin/bash", "-c"]
 # install sys requirements
-RUN apt-get update
-RUN cat /etc/*release
-RUN apt-get install -y gnupg software-properties-common
+RUN apt-get update && apt-get upgrade -y \
+    && apt-get install -y gnupg software-properties-common
 
-RUN apt-get install -y build-essential \
-    && rm -rf /var/lib/apt/lists/* \
-    && apt-get upgrade
-RUN add-apt-repository ppa:ubuntu-toolchain-r/ppa \
-    && apt-get update \
-    && apt-get -y install gcc-9 g++-9
+RUN apt-get update \
+  && apt-get install -y ssh \
+      build-essential \
+      ccache \
+      clang \
+      cmake \
+      curl \
+      gcc-10 \
+      gcc-9 \
+      gcc-8 \
+      g++-10 \
+      g++-9 \
+      g++-8 \
+      gdb \
+      git \
+      python3.8 \
+      python3-distutils \
+      rsync \
+      tar \
+      wget \
+  && apt-get clean \
+  && rm -rf /var/lib/apt/lists/*
 
-RUN update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 60 --slave /usr/bin/g++ g++ /usr/bin/g++-9 \
+RUN ln -s /usr/bin/python3 /usr/bin/python
+
+RUN update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-10 60 --slave /usr/bin/g++ g++ /usr/bin/g++-10 \
+    && update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 50 --slave /usr/bin/g++ g++ /usr/bin/g++-9 \
+    && update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 40 --slave /usr/bin/g++ g++ /usr/bin/g++-8 \
     && yes '' | update-alternatives --force --all
 
-RUN /usr/bin/gcc -v && /usr/bin/g++ -v
+RUN curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py && python get-pip.py
 
-RUN apt-get install -y build-essential git wget cmake
+RUN git clone https://github.com/maichmueller/libtorchload.git \
+    && cd libtorchload \
+    && pip install -r requirements.txt \
+    && python dl_torch.py --targetdir=/home
 
-WORKDIR .
-RUN pwd
-#################################################
-# aze
-#################################################
-COPY . /aze
-WORKDIR aze
-RUN ls -a deps
-RUN git submodule init \
-    && git submodule update
-RUN chmod u+x ./deps/dl_libtorch.sh
+RUN pip install conan
 
-#RUN ls
-RUN mkdir build
-WORKDIR build
-RUN cmake -G "Unix Makefiles" \
-    -DCMAKE_BUILD_TYPE=Release \
-    -DCMAKE_INSTALL_PREFIX=/root/install
-RUN make -j4
-RUN make install
+RUN apt-get update \
+  && apt-get install -y ssh \
+      doxygen \
+      graphviz \
+      libgraphviz-dev \
+      pkg-config \
+  && apt-get clean \
+  && rm -rf /var/lib/apt/lists/*
+
+
+RUN ( \
+    echo 'LogLevel DEBUG2'; \
+    echo 'PermitRootLogin yes'; \
+    echo 'PasswordAuthentication yes'; \
+    echo 'Subsystem sftp /usr/lib/openssh/sftp-server'; \
+  ) > /etc/ssh/sshd_config_clion \
+  && mkdir /run/sshd
+
+RUN useradd -m user \
+    && yes password | passwd user
+
+CMD ["/usr/sbin/sshd", "-D", "-e", "-f", "/etc/ssh/sshd_config_clion"]
