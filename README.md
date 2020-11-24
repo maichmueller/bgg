@@ -1,4 +1,4 @@
-# AZE [WIP]
-C++ implementation of a general Alpha Zero learning environment for board games
+# BoardGameGym [WIP]
+C++ implementation of a general board game library for efficient board game simulators.
 
-[![Actions Status](https://github.com/maichmueller/aze/workflows/linux/badge.svg)](https://github.com/maichmueller/aze/actions)
+[![Actions Status](https://github.com/maichmueller/bgg/workflows/linux/badge.svg)](https://github.com/maichmueller/bgg/actions)
