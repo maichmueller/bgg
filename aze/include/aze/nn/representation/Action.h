@@ -4,39 +4,39 @@
 #include "aze/board/Move.h"
 #include "aze/board/Position.h"
 
-template < typename Vector, typename RoleType >
+template < typename Effect, typename TokenType >
 struct Action {
-   using vector_type = Vector;  // not associated with the std::vector
-   using role_type = RoleType;
+   using effect_type = Effect;
+   using token_type = TokenType;
 
-   vector_type m_effect_vec;
-   role_type m_assoc_role;
+   effect_type m_effect_vec;
+   token_type m_assoc_token;
    size_t m_index;
 
-   Action(vector_type displacement_vector, role_type piece_identifier, size_t index)
-       : m_effect_vec(displacement_vector), m_assoc_role(piece_identifier), m_index(index)
+   Action(effect_type effect, token_type piece_identifier, size_t index)
+       : m_effect_vec(effect), m_assoc_token(piece_identifier), m_index(index)
    {
    }
 
-   [[nodiscard]] vector_type get_effect() const { return m_effect_vec; }
+   [[nodiscard]] effect_type get_effect() const { return m_effect_vec; }
 
-   [[nodiscard]] role_type get_assoc_role() const { return m_assoc_role; }
+   [[nodiscard]] token_type get_assoc_token() const { return m_assoc_token; }
 
    [[nodiscard]] size_t get_index() const { return m_index; }
 
    template < typename ValueType, size_t dim >
-   Move< Position< ValueType, dim > > to_move(const Position< ValueType, dim > &pos, int player)
+   Move< Position< ValueType, dim > > to_move(const Position< ValueType, dim > &pos, Team team)
    {
       return pos + m_effect_vec;
    }
 };
 
 namespace std {
-template < typename VectorType, typename RoleType >
-struct hash< Action< VectorType, RoleType > > {
-   size_t operator()(const Action< VectorType, RoleType > &action) const
+template < typename VectorType, typename TokenType >
+struct hash< Action< VectorType, TokenType > > {
+   size_t operator()(const Action< VectorType, TokenType > &action) const
    {
-      return std::hash< RoleType >()(action.get_assoc_role());
+      return std::hash< TokenType >()(action.get_assoc_token());
    }
 };
 }  // namespace std

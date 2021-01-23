@@ -34,15 +34,15 @@ class GameStratego: public Game< StateStratego, LogicStratego< BoardStratego >, 
 
    GameStratego(
       const std::array< size_t, 2 > &shape,
-      const std::map< position_type, role_type > &setup_0,
-      const std::map< position_type, role_type > &setup_1,
+      const std::map< position_type, token_type > &setup_0,
+      const std::map< position_type, token_type > &setup_1,
       const sptr< Agent< state_type > > &ag0,
       const sptr< Agent< state_type > > &ag1);
 
    GameStratego(
       size_t shape,
-      const std::map< position_type, role_type > &setup_0,
-      const std::map< position_type, role_type > &setup_1,
+      const std::map< position_type, token_type > &setup_0,
+      const std::map< position_type, token_type > &setup_1,
       const sptr< Agent< state_type > > &ag0,
       const sptr< Agent< state_type > > &ag1);
 

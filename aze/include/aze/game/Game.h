@@ -12,13 +12,13 @@
 #include "aze/utils/utils.h"
 #include "aze/types.h"
 
-template < class StateType, class LogicType, class Derived, size_t nr_players = 2 >
+template < class StateType, class LogicType, class Derived, size_t nr_teams = 2 >
 class Game {
   public:
    using state_type = StateType;
    using logic_type = LogicType;
    using piece_type = typename state_type::piece_type;
-   using role_type = typename state_type::role_type;
+   using token_type = typename state_type::token_type;
    using position_type = typename state_type::position_type;
    using move_type = typename state_type::move_type;
    using board_type = typename state_type::board_type;
@@ -29,13 +29,13 @@ class Game {
    virtual ~Game() = default;
 
   private:
-   static const size_t n_players = nr_players;
+   static const size_t n_teams = nr_teams;
    state_type m_game_state;
-   std::array< sptr< Agent< state_type > >, n_players > m_agents;
-   std::array< std::vector< sptr_piece_type >, n_players > m_setups;
+   std::array< sptr< Agent< state_type > >, n_teams > m_agents;
+   std::array< std::vector< sptr_piece_type >, n_teams > m_setups;
 
    std::vector< sptr_piece_type > extract_pieces_from_setup(
-      const std::map< position_type, role_type > &setup, int team);
+      const std::map< position_type, token_type > &setup, int team);
 
    std::vector< sptr_piece_type > extract_pieces_from_setup(
       const std::map< position_type, sptr_piece_type > &setup, int team);
@@ -72,7 +72,7 @@ class Game {
    void set_setup(const std::vector< sptr_piece_type > &setup, int team) { m_setups[team] = setup; }
 
    auto get_agents() { return m_agents; }
-   auto get_agent(int player) { return m_agents.at(player); }
+   auto get_agent(Team team) { return m_agents.at(team); }
    auto get_state() const { return m_game_state; }
    auto &get_state() { return m_game_state; }
 
@@ -84,8 +84,8 @@ class Game {
    }
 };
 
-template < class StateType, class LogicType, class Derived, size_t n_players >
-Game< StateType, LogicType, Derived, n_players >::Game(
+template < class StateType, class LogicType, class Derived, size_t n_teams >
+Game< StateType, LogicType, Derived, n_teams >::Game(
    board_type &&board,
    sptr< Agent< state_type > > ag0,
    sptr< Agent< state_type > > ag1,
@@ -98,8 +98,8 @@ Game< StateType, LogicType, Derived, n_players >::Game(
 {
 }
 
-template < class StateType, class LogicType, class Derived, size_t n_players >
-Game< StateType, LogicType, Derived, n_players >::Game(
+template < class StateType, class LogicType, class Derived, size_t n_teams >
+Game< StateType, LogicType, Derived, n_teams >::Game(
    const board_type &board,
    sptr< Agent< state_type > > ag0,
    sptr< Agent< state_type > > ag1,
@@ -108,8 +108,8 @@ Game< StateType, LogicType, Derived, n_players >::Game(
 {
 }
 
-template < class StateType, class LogicType, class Derived, size_t n_players >
-Game< StateType, LogicType, Derived, n_players >::Game(
+template < class StateType, class LogicType, class Derived, size_t n_teams >
+Game< StateType, LogicType, Derived, n_teams >::Game(
    const state_type &state,
    sptr< Agent< state_type > > ag0,
    sptr< Agent< state_type > > ag1)
@@ -117,8 +117,8 @@ Game< StateType, LogicType, Derived, n_players >::Game(
 {
 }
 
-template < class StateType, class LogicType, class Derived, size_t n_players >
-Game< StateType, LogicType, Derived, n_players >::Game(
+template < class StateType, class LogicType, class Derived, size_t n_teams >
+Game< StateType, LogicType, Derived, n_teams >::Game(
    state_type &&state,
    sptr< Agent< state_type > > ag0,
    sptr< Agent< state_type > > ag1)
@@ -126,27 +126,27 @@ Game< StateType, LogicType, Derived, n_players >::Game(
 {
 }
 
-template < class StateType, class LogicType, class Derived, size_t n_players >
-std::vector< typename Game< StateType, LogicType, Derived, n_players >::sptr_piece_type >
-Game< StateType, LogicType, Derived, n_players >::extract_pieces_from_setup(
-   const std::map< position_type, role_type > &setup, int team)
+template < class StateType, class LogicType, class Derived, size_t n_teams >
+std::vector< typename Game< StateType, LogicType, Derived, n_teams >::sptr_piece_type >
+Game< StateType, LogicType, Derived, n_teams >::extract_pieces_from_setup(
+   const std::map< position_type, token_type > &setup, int team)
 {
-   using val_type = typename std::map< position_type, role_type >::value_type;
+   using val_type = typename std::map< position_type, token_type >::value_type;
    std::vector< sptr_piece_type > pc_vec;
    pc_vec.reserve(setup.size());
    std::transform(
       setup.begin(),
       setup.end(),
       std::back_inserter(pc_vec),
-      [&](const val_type &pos_role) -> piece_type {
-         return std::make_shared< piece_type >(pos_role.first, pos_role.second, team);
+      [&](const val_type &pos_token) -> piece_type {
+         return std::make_shared< piece_type >(pos_token.first, pos_token.second, team);
       });
    return pc_vec;
 }
 
-template < class StateType, class LogicType, class Derived, size_t n_players >
-std::vector< typename Game< StateType, LogicType, Derived, n_players >::sptr_piece_type >
-Game< StateType, LogicType, Derived, n_players >::extract_pieces_from_setup(
+template < class StateType, class LogicType, class Derived, size_t n_teams >
+std::vector< typename Game< StateType, LogicType, Derived, n_teams >::sptr_piece_type >
+Game< StateType, LogicType, Derived, n_teams >::extract_pieces_from_setup(
    const std::map< position_type, sptr_piece_type > &setup, int team)
 {
    using val_type = typename std::map< position_type, sptr_piece_type >::value_type;
@@ -168,8 +168,8 @@ Game< StateType, LogicType, Derived, n_players >::extract_pieces_from_setup(
    return pc_vec;
 }
 
-template < class StateType, class LogicType, class Derived, size_t n_players >
-void Game< StateType, LogicType, Derived, n_players >::reset(bool fixed_setups)
+template < class StateType, class LogicType, class Derived, size_t n_teams >
+void Game< StateType, LogicType, Derived, n_teams >::reset(bool fixed_setups)
 {
    auto curr_board_ptr = m_game_state.get_board();
    if(! fixed_setups) {
@@ -180,22 +180,22 @@ void Game< StateType, LogicType, Derived, n_players >::reset(bool fixed_setups)
       curr_board_ptr->get_shape(), curr_board_ptr->get_starts(), m_setups[0], m_setups[1]));
 }
 
-template < class StateType, class LogicType, class Derived, size_t n_players >
-int Game< StateType, LogicType, Derived, n_players >::run_step()
+template < class StateType, class LogicType, class Derived, size_t n_teams >
+int Game< StateType, LogicType, Derived, n_teams >::run_step()
 {
    size_t turn = (m_game_state.get_turn_count() + 1) % 2;
    auto move = m_agents[turn]->decide_move(
       m_game_state, logic_type::get_legal_moves(*m_game_state.get_board(), turn));
    LOGD2("Possible Moves", logic_type::get_legal_moves(*m_game_state.get_board(), turn));
-   LOGD2("Selected Move by player " + std::to_string(turn), move);
+   LOGD2("Selected Move by team " + std::to_string(turn), move);
 
    int outcome = m_game_state.do_move(move);
 
    return outcome;
 }
 
-template < class StateType, class LogicType, class Derived, size_t n_players >
-int Game< StateType, LogicType, Derived, n_players >::run_game(bool show)
+template < class StateType, class LogicType, class Derived, size_t n_teams >
+int Game< StateType, LogicType, Derived, n_teams >::run_game(bool show)
 {
    while(true) {
       if(show)

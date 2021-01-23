@@ -15,18 +15,18 @@ class State {
   public:
    using board_type = BoardType;
    using piece_type = typename BoardType::piece_type;
-   using role_type = typename BoardType::role_type;
+   using token_type = typename BoardType::token_type;
    using position_type = typename BoardType::position_type;
    using move_type = Move< position_type >;
    using history_type = HistoryType;
-   using graveyard_type = std::array< std::unordered_set< role_type >, 2 >;
+   using graveyard_type = std::array< std::unordered_set< token_type >, 2 >;
 
   private:
    sptr< board_type > m_board;
 
-   int m_terminal;
-   bool m_terminal_checked;
-   int m_turn_count;
+   Status m_status;
+   bool m_status_checked;
+   size_t m_turn_count;
 
    std::vector< history_type > m_move_history;
    unsigned int m_rounds_without_fight;
@@ -46,7 +46,7 @@ class State {
 
    State(
       sptr< board_type > board,
-      int m_terminal,
+      int status,
       bool m_terminal_checked = false,
       int m_turn_count = 0,
       const std::vector< history_type > &m_move_history = {},
@@ -73,7 +73,7 @@ class State {
    }
 
    [[nodiscard]] inline int get_turn_count() const { return m_turn_count; }
-   [[nodiscard]] inline int is_terminal() { return m_terminal; }
+   [[nodiscard]] inline int is_terminal() { return m_status; }
    [[nodiscard]] inline auto get_history() const { return m_move_history; }
    [[nodiscard]] inline auto &get_history() { return m_move_history; }
    [[nodiscard]] inline auto get_nr_rounds_without_fight() const { return m_rounds_without_fight; }
@@ -82,32 +82,33 @@ class State {
    [[nodiscard]] inline auto get_graveyard(int team) const { return m_graveyard[team]; }
 
    inline void set_board(sptr< board_type > brd) { m_board = std::move(brd); }
-   inline void set_terminality(int val)
+   inline void set_status(Status status)
    {
-      m_terminal = val;
-      m_terminal_checked = true;
+      m_status = status;
+      m_status_checked = true;
    }
-   virtual std::string string_representation(int player, bool hide_unknowns);
+   virtual std::string string_representation(Team team, bool hide_unknowns);
 };
 
-template < class BoardType >
-int State< BoardType >::_do_move(const State::move_type &move)
+template < typename BoardType, typename HistoryType >
+int State< BoardType, HistoryType >::_do_move(
+   const State< BoardType, HistoryType >::move_type &move)
 {
    m_board->update_board(move[1], (*m_board)[move[0]]);
    m_board->update_board(move[0], std::make_shared< piece_type >(move[0]));
    return 0;
 }
 
-template < class BoardType >
+template < typename BoardType, typename HistoryType >
 template < size_t dim >
-State< BoardType >::State(
+State< BoardType, HistoryType >::State(
    const std::array< size_t, dim > &shape, const std::array< int, dim > &board_starts)
     : State(std::make_shared< board_type >(shape, board_starts))
 {
 }
 
-template < class BoardType >
-void State< BoardType >::undo_last_rounds(int n)
+template < typename BoardType, typename HistoryType >
+void State< BoardType, HistoryType >::undo_last_rounds(int n)
 {
    // rwf = rounds without fight
    bool recompute_rwf = false;
@@ -132,14 +133,14 @@ void State< BoardType >::undo_last_rounds(int n)
    }
 }
 
-template < class BoardType >
-void State< BoardType >::restore_to_round(int round)
+template < typename BoardType, typename HistoryType >
+void State< BoardType, HistoryType >::restore_to_round(int round)
 {
    undo_last_rounds(m_turn_count - round);
 }
 
-template < class BoardType >
-int State< BoardType >::do_move(const State::move_type &move)
+template < typename BoardType, typename HistoryType >
+int State< BoardType, HistoryType >::do_move(const State::move_type &move)
 {
    // save all info to the history
    sptr< piece_type > piece_from = (*m_board)[move[0]];
@@ -150,23 +151,23 @@ int State< BoardType >::do_move(const State::move_type &move)
       {move,
        {std::make_shared< piece_type >(*piece_from), std::make_shared< piece_type >(*piece_to)}});
 
-   m_terminal_checked = false;
+   m_status_checked = false;
    m_turn_count += 1;
 
    return _do_move(move);
 }
 
-template < class BoardType >
-std::string State< BoardType >::string_representation(int player, bool hide_unknowns)
+template < typename BoardType, typename HistoryType >
+std::string State< BoardType, HistoryType >::string_representation(Team team, bool hide_unknowns)
 {
    std::stringstream sstream;
-   sstream << get_board()->print_board(player, hide_unknowns) << "\n";
+   sstream << get_board()->print_board(team, hide_unknowns) << "\n";
    sstream << "turn count" << m_turn_count << "\n";
    //    sstream << "rounds without fight" << m_rounds_without_fight << "\n";
    return sstream.str();
 }
-template < class BoardType >
-void State< BoardType >::_recompute_rounds_without_fight()
+template < typename BoardType, typename HistoryType >
+void State< BoardType, HistoryType >::_recompute_rounds_without_fight()
 {
    m_rounds_without_fight = 0;
    for(auto hist_rev_iter = m_move_history.rbegin(); hist_rev_iter != m_move_history.rend();
@@ -180,19 +181,19 @@ void State< BoardType >::_recompute_rounds_without_fight()
    }
 }
 
-template < class BoardType >
-State< BoardType >::State(
+template < typename BoardType, typename HistoryType >
+State< BoardType, HistoryType >::State(
    sptr< board_type > board,
-   int m_terminal,
-   bool m_terminal_checked,
-   int m_turn_count,
+   Status status,
+   bool status_checked,
+   size_t turn_count,
    const std::vector< history_type > &m_move_history,
    unsigned int m_rounds_without_fight,
    const graveyard_type &graveyard)
     : m_board(std::move(board)),
-      m_terminal(m_terminal),
-      m_terminal_checked(m_terminal_checked),
-      m_turn_count(m_turn_count),
+      m_status(status),
+      m_status_checked(status_checked),
+      m_turn_count(turn_count),
       m_move_history(m_move_history),
       m_rounds_without_fight(m_rounds_without_fight),
       m_graveyard(graveyard)

@@ -11,7 +11,7 @@
 namespace {
 using piece_type = PieceStratego;
 using position_type = typename piece_type::position_type;
-using role_type = typename piece_type::role_type;
+using token_type = typename piece_type::token_type;
 
 using state_type = StateStratego;
 using move_type = typename state_type::move_type;
@@ -19,8 +19,8 @@ using move_type = typename state_type::move_type;
 
 class StateStrategoTest: public ::testing::Test {
   protected:
-   std::map< position_type, role_type > setup0;
-   std::map< position_type, role_type > setup1;
+   std::map< position_type, token_type > setup0;
+   std::map< position_type, token_type > setup1;
    state_type state;
 
    void SetUp() override

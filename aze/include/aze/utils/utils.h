@@ -84,7 +84,7 @@ std::string board_str_rep(
       if(piece.is_null())
          return std::string(static_cast< unsigned long >(H_SIZE_PER_PIECE), ' ');
       std::string reset = "\x1B[0m";
-      std::string color = "\x1B[44m";  // blue by default (for player 1)
+      std::string color = "\x1B[44m";  // blue by default (for team 1)
       if(piece.get_team() == 99)
          return "\x1B[30;47m" + center("", H_SIZE_PER_PIECE, " ") + "\x1B[0m";
       else if(piece.get_team(flip_board) == 0) {
@@ -100,7 +100,7 @@ std::string board_str_rep(
          if(hide_unknowns && piece.get_flag_hidden() && piece.get_team(flip_board)) {
             return color + std::string(static_cast< unsigned long >(H_SIZE_PER_PIECE), ' ') + reset;
          }
-         //                std::cout << "PieceType: type " << piece.get_role() <<
+         //                std::cout << "PieceType: type " << piece.get_token() <<
          //                "." << piece.get_version() << " at (" <<
          //                                                                                                          piece.get_position()[0] << ", " << piece.get_position()[1] <<") \n";
          return color

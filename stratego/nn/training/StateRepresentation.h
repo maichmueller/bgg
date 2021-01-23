@@ -50,7 +50,7 @@ inline bool check_condition(
       if(! hidden) {
          // if it is about m_team 0, the 'hidden' status is unimportant
          // (since the alpha zero agent always plays from the perspective
-         // of player 0, therefore it can see all its own pieces)
+         // of team 0, therefore it can see all its own pieces)
          bool eq_team = team_piece == team;
          bool eq_type = piece->get_type() == type;
          bool eq_vers = piece->get_version() == version;
@@ -90,7 +90,7 @@ template < typename Board >
 inline torch::Tensor b2s_cond_check(
    const Board& board,
    const std::vector< std::tuple< int, int, int, bool > >& conditions,
-   int player = 0)
+   team team = 0)
 {
    /**
     * We are trying to build a state representation of a Stratego board.
@@ -108,7 +108,7 @@ inline torch::Tensor b2s_cond_check(
     * @param board, the board whose representation we want
     * @param conditions, std::vector of tuples for the conditions,
     *      on which to check the board
-    * @param player, int deciding which player's representation we're seeking
+    * @param team, int deciding which team's representation we're seeking
     *
     * Returns
     * -------
@@ -121,7 +121,7 @@ inline torch::Tensor b2s_cond_check(
 
    int board_len = board.get_board_len();
    int state_dim = conditions.size();
-   bool flip_teams = static_cast< bool >(player);
+   bool flip_teams = static_cast< bool >(team);
 
    if(flip_teams) {
       canonize_pos = &pos_invert;

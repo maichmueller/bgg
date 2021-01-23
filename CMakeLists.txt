@@ -122,7 +122,7 @@ set(TQDM_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/deps/tqdm/include")
 set(AZE_SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/aze/cppsrc")
 set(AZE_INCLUDE_DIR
         ${CMAKE_CURRENT_SOURCE_DIR}/aze/include)
-add_library(aze STATIC)
+add_library(aze STATIC aze/include/aze/game/Defs.h)
 add_subdirectory(aze)
 
 set(STRATEGO_SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/stratego")

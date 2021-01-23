@@ -21,12 +21,12 @@ struct Logic {
       return DerivedType::is_legal_move_(board, move);
    };
    static std::vector< move_type > get_legal_moves(
-      const board_type& board, int player, bool flip_board = false)
+      const board_type& board, Team team, bool flip_board = false)
    {
-      return DerivedType::get_legal_moves_(board, player, flip_board);
+      return DerivedType::get_legal_moves_(board, team, flip_board);
    }
-   static bool has_legal_moves(const board_type& board, int player)
+   static bool has_legal_moves(const board_type& board, Team team)
    {
-      return DerivedType::has_legal_moves_(board, player);
+      return DerivedType::has_legal_moves_(board, team);
    }
 };

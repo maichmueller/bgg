@@ -32,11 +32,11 @@ TEST_F(LogicStrategoTest, LogicStrategoTest_poss_moves_Test)
       poss_moves_1.begin(), poss_moves_1.end());
    //
    //    std::cout << state_start.get_board()->print_board(false, false);
-   //    std::cout << "player 0, calculated moves:\n";
+   //    std::cout << "team 0, calculated moves:\n";
    //    for(auto move : poss_moves_set_0) {
    //        std::cout << move.to_string() << std::endl;
    //    }
-   //    std::cout << "player 1, calculated moves:\n";
+   //    std::cout << "team 1, calculated moves:\n";
    //    for(auto move : poss_moves_set_1) {
    //        std::cout << move.to_string() << std::endl;
    //    }
@@ -82,11 +82,11 @@ TEST_F(LogicStrategoTest, LogicStrategoTest_poss_moves_Test)
       poss_moves_mid_1.begin(), poss_moves_mid_1.end());
 
    //    std::cout << state_mid.get_board()->print_board(false, false);
-   //    std::cout << "player 0, calculated moves:\n";
+   //    std::cout << "team 0, calculated moves:\n";
    //    for(auto move : poss_moves_set_mid_0) {
    //        std::cout << move.to_string() << std::endl;
    //    }
-   //    std::cout << "player 1, calculated moves:\n";
+   //    std::cout << "team 1, calculated moves:\n";
    //    for(auto move : poss_moves_set_mid_1) {
    //        std::cout << move.to_string() << std::endl;
    //    }

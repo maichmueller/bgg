@@ -6,7 +6,7 @@
 #include "aze/nn/representation/Representer.h"
 
 MCTS::MCTS(sptr< NetworkWrapper > nnet_sptr, int num_mcts_sims, double cpuct)
-    : m_nnet_sptr(std::move(nnet_sptr)),
+    : m_network_sptr(std::move(nnet_sptr)),
       m_cpuct(cpuct),
       m_num_mcts_sims(num_mcts_sims),
       m_NTPVs(),

@@ -23,8 +23,8 @@
 *   the board whose representation we want
 * conditions: std::vector of tuples,
     the conditions, on which to check the board
-* player: int,
-    deciding which player's representation we're seeking
+* team: int,
+    deciding which team's representation we're seeking
 *
 * Returns
 * -------
@@ -34,7 +34,7 @@
 **/
 RepresenterStratego::condition_container RepresenterStratego::_build_conditions(size_t shape)
 {
-   std::vector< std::tuple< role_type, int, bool > > conditions(0);
+   std::vector< std::tuple< token_type, int, bool > > conditions(0);
    int own_team = 0;
    auto counter = utils::counter(LogicStratego< board_type >::get_available_types(shape));
    // own m_team 0
@@ -42,42 +42,42 @@ RepresenterStratego::condition_container RepresenterStratego::_build_conditions(
    for(const auto& entry : counter) {
       int type = entry.first;
       for(decltype(entry.second) version = 0; version < entry.second; ++version) {
-         conditions.emplace_back(std::make_tuple(role_type(type, version), own_team, false));
+         conditions.emplace_back(std::make_tuple(token_type(type, version), own_team, false));
       }
    }
    // [all own pieces] HIDDEN
    // Note: type and version info are unused
    // in the check in this case (thus -1)
-   conditions.emplace_back(std::make_tuple(role_type(-1, -1), own_team, true));
+   conditions.emplace_back(std::make_tuple(token_type(-1, -1), own_team, true));
 
    // enemy m_team 1
    // [flag, 1, 2, 3, 4, ..., 10, bombs] UNHIDDEN
    for(const auto& entry : counter) {
       int type = entry.first;
       for(decltype(entry.second) version = 0; version < entry.second; ++version) {
-         conditions.emplace_back(std::make_tuple(role_type(type, version), 1 - own_team, false));
+         conditions.emplace_back(std::make_tuple(token_type(type, version), 1 - own_team, false));
       }
    }
    // [all enemy pieces] HIDDEN
    // Note: type and version info are unused
    // in the check in this case (thus -1)
-   conditions.emplace_back(std::make_tuple(role_type(-1, -1), 1 - own_team, true));
+   conditions.emplace_back(std::make_tuple(token_type(-1, -1), 1 - own_team, true));
    return conditions;
 }
 
 std::tuple<
    std::vector< RepresenterStratego::action_type >,
    std::unordered_map<
-      RepresenterStratego::role_type,
+      RepresenterStratego::token_type,
       std::vector< RepresenterStratego::action_type > > >
 RepresenterStratego::_build_actions(size_t shape)
 {
    std::vector< action_type > actions;
-   std::unordered_map< role_type, std::vector< action_type > > role_to_action_map;
+   std::unordered_map< token_type, std::vector< action_type > > token_to_action_map;
 
    const auto& available_types = LogicStratego< board_type >::get_available_types(shape);
-   int curr_role = -1;
-   int curr_role_version = -1;
+   int curr_token = -1;
+   int curr_token_version = -1;
    /*
        we want to iterate over every type of piece (as often as this type
       exists) and add the actions corresponding to its possible moves.
@@ -85,13 +85,13 @@ RepresenterStratego::_build_actions(size_t shape)
    size_t index = 0;
    for(auto& type : available_types) {
       if(0 < type && type < 11) {
-         if(curr_role != type) {
-            curr_role = type;
-            curr_role_version = 0;
+         if(curr_token != type) {
+            curr_token = type;
+            curr_token_version = 0;
          } else
-            curr_role_version += 1;
+            curr_token_version += 1;
 
-         // if its of role 2 it can reach further -> encoded in the max_steps
+         // if its of token 2 it can reach further -> encoded in the max_steps
          size_t max_steps = 1;
          if(type == 2)
             max_steps = shape - 1;
@@ -100,17 +100,17 @@ RepresenterStratego::_build_actions(size_t shape)
          acts.reserve(max_steps);
          std::vector< size_t > curr_indices;
          curr_indices.reserve(max_steps);
-         role_type role(curr_role, curr_role_version);
+         token_type token(curr_token, curr_token_version);
          for(unsigned int i = 1; i < max_steps + 1; ++i) {
-            acts.emplace_back(action_type(position_type(0, i), role, index));
-            acts.emplace_back(action_type(position_type(i, 0), role, index + 1));
-            acts.emplace_back(action_type(position_type(-i, 0), role, index + 2));
-            acts.emplace_back(action_type(position_type(0, -i), role, index + 3));
+            acts.emplace_back(action_type(position_type(0, i), token, index));
+            acts.emplace_back(action_type(position_type(i, 0), token, index + 1));
+            acts.emplace_back(action_type(position_type(-i, 0), token, index + 2));
+            acts.emplace_back(action_type(position_type(0, -i), token, index + 3));
             index = index + 4;
          }
          actions.insert(std::end(actions), std::begin(acts), std::end(acts));
-         role_to_action_map[role] = acts;
+         token_to_action_map[token] = acts;
       }
    }
-   return std::make_tuple(actions, role_to_action_map);
+   return std::make_tuple(actions, token_to_action_map);
 }

@@ -21,13 +21,13 @@ struct EvaluatedGameTurn {
    torch::Tensor m_board_tensor;
    std::vector< double > m_pi;
    double m_v;
-   int m_player;
+   int m_team;
 
    bool converted = false;
 
    EvaluatedGameTurn(
-      sptr< state_type > state, std::vector< double > pi, double v, int player)
-       : m_state(std::move(state)), m_board_tensor(), m_pi(std::move(pi)), m_v(v), m_player(player)
+      sptr< state_type > state, std::vector< double > pi, double v, Team team)
+       : m_state(std::move(state)), m_board_tensor(), m_pi(std::move(pi)), m_v(v), m_team(team)
    {
    }
 
@@ -36,7 +36,7 @@ struct EvaluatedGameTurn {
    {
       /*
        * Conversion function for turning a Board object into a torch tensor.
-       * This is needed, because the training turns are stored as original Board
+       * This is needed, because the training m_turns are stored as original Board
        * objects, so that they can be reused, in case the state representation
        * changes later on, which were to render an already converted state
        * tensor useless.
@@ -55,7 +55,7 @@ struct EvaluatedGameTurn {
 
    [[nodiscard]] double get_evaluation() const { return m_v; }
 
-   [[nodiscard]] int get_player() const { return m_player; }
+   [[nodiscard]] int get_team() const { return m_team; }
 };
 
 template < class GameType, class NetworkType >
@@ -163,13 +163,13 @@ Coach< GameType, NetworkType >::execute_episode(
       ep_step += 1;
       auto expl_rate = static_cast< unsigned int >(ep_step < m_exploration_rate);
 
-      int player = state->get_turn_count() % 2;
-      std::vector< double > pi = mcts.get_policy_vec(state, player, action_repper, expl_rate);
+      Team team = state->get_turn_count() % 2;
+      std::vector< double > pi = mcts.get_policy_vec(state, team, action_repper, expl_rate);
 
       // append the evaluated state to the episode examples we have gathered so
       // far.
       ep_examples.emplace_back(evaluated_turn_type(
-         std::static_pointer_cast< state_type >(state->clone()), pi, null_v, player));
+         std::static_pointer_cast< state_type >(state->clone()), pi, null_v, team));
 
       size_t best_action = 0;
       double best_prob = -std::numeric_limits< double >::infinity();
@@ -180,7 +180,7 @@ Coach< GameType, NetworkType >::execute_episode(
             best_action = a;
          }
       }
-      move_type best_move = action_repper.action_to_move(*state, best_action, player);
+      move_type best_move = action_repper.action_to_move(*state, best_action, team);
 
       state->do_move(best_move);
 
@@ -188,8 +188,8 @@ Coach< GameType, NetworkType >::execute_episode(
          for(auto &train_turn : ep_examples) {
             // since v is always returned as -v from the MCTS _search (the
             // end-value as seen from the opponent's side), we will have to
-            // adapt the value in each turn to reflect the changing player.
-            train_turn.m_v = player != train_turn.m_player ? r : -r;
+            // adapt the value in each turn to reflect the changing team.
+            train_turn.m_v = team != train_turn.m_team ? r : -r;
          }
 
          return ep_examples;
@@ -246,7 +246,7 @@ void Coach< GameType, NetworkType >::teach(
 
       if(! skip_first_self_play || epoch > 0) {
          tqdm ep_bar;
-         ep_bar.set_label("Selfplay evaluated " + std::to_string(0) + " turns");
+         ep_bar.set_label("Selfplay evaluated " + std::to_string(0) + " m_turns");
          for(size_t episode = 0; episode < m_num_episodes; ++episode) {
             ep_bar.progress(episode, m_num_episodes);
             for(auto &&evaluated_turn : execute_episode(
@@ -256,7 +256,7 @@ void Coach< GameType, NetworkType >::teach(
                // move is needed or else evaluated turn will be seen as lvalue (and copied).
                train_data.emplace_back(std::move(evaluated_turn));
             }
-            ep_bar.set_label("Selfplay evaluated " + std::to_string(train_data.size()) + " turns");
+            ep_bar.set_label("Selfplay evaluated " + std::to_string(train_data.size()) + " m_turns");
             //            LOGD2("NUMBER OF EVALUATED TURNS", train_data.size())
          }
          ep_bar.finish();

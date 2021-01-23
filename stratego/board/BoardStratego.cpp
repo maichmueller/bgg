@@ -35,12 +35,12 @@ std::vector< sptr< typename BoardStratego::piece_type > > BoardStratego::adapt_s
       // the first piece of its kind. Afterwards it will keep the count
       // correctly for us.
       int version = version_count[type]++;
-      vector_out.push_back(std::make_shared< piece_type >(pos, role_type(type, version), 0));
+      vector_out.push_back(std::make_shared< piece_type >(pos, token_type(type, version), 0));
    }
    return vector_out;
 }
 
-std::string BoardStratego::print_board(int player, bool hide_unknowns) const
+std::string BoardStratego::print_board(Team team, bool hide_unknowns) const
 {
    int H_SIZE_PER_PIECE = 9;
    int V_SIZE_PER_PIECE = 3;
@@ -55,16 +55,16 @@ std::string BoardStratego::print_board(int player, bool hide_unknowns) const
    // "-1 \n
    // 10.1 \n
    //   1"
-   auto create_piece_str = [&H_SIZE_PER_PIECE, &mid, &player, &hide_unknowns](
+   auto create_piece_str = [&H_SIZE_PER_PIECE, &mid, &team, &hide_unknowns](
                               const piece_type &piece, int line) {
       if(piece.is_null())
          return std::string(static_cast< unsigned long >(H_SIZE_PER_PIECE), ' ');
 
-      std::string color = BLUE;  // blue by default (for player 0)
+      std::string color = BLUE;  // blue by default (for team 0)
       if(piece.get_team() == -1 && ! piece.is_null())
          // piece is an obstacle (return a gray colored field)
          return "\x1B[30;47m" + utils::center("", H_SIZE_PER_PIECE, " ") + RESET;
-      else if(piece.get_team(player) == 1) {
+      else if(piece.get_team(team) == 1) {
          color = RED;  // background red, text "white"
       }
       if(line == mid - 1) {
@@ -73,13 +73,13 @@ std::string BoardStratego::print_board(int player, bool hide_unknowns) const
          return color + utils::center(h, H_SIZE_PER_PIECE, " ") + RESET;
       } else if(line == mid) {
          // type and version info line
-         if(hide_unknowns && piece.get_flag_hidden() && piece.get_team(player)) {
+         if(hide_unknowns && piece.get_flag_hidden() && piece.get_team(team)) {
             return color + std::string(static_cast< unsigned long >(H_SIZE_PER_PIECE), ' ') + RESET;
          }
-         const auto &role = piece.get_role();
+         const auto &token = piece.get_token();
          return color
                 + utils::center(
-                   std::to_string(role[0]) + '.' + std::to_string(role[1]), H_SIZE_PER_PIECE, " ")
+                   std::to_string(token[0]) + '.' + std::to_string(token[1]), H_SIZE_PER_PIECE, " ")
                 + RESET;
       } else if(line == mid + 1)
          // team info line
@@ -110,7 +110,7 @@ std::string BoardStratego::print_board(int player, bool hide_unknowns) const
       std::vector< std::stringstream > line_streams(static_cast< unsigned int >(V_SIZE_PER_PIECE));
 
       for(int col = m_starts[0]; col < dim_x; ++col) {
-         if(player) {
+         if(team) {
             curr_piece = (*this)[{dim_x - 1 - row, dim_y - 1 - col}];
          } else
             curr_piece = (*this)[{row, col}];
@@ -160,7 +160,7 @@ void BoardStratego::_add_obstacles()
 {
    auto obstacle_positions = LogicStratego< BoardStratego >::get_obstacle_positions(m_shape[0]);
    for(const auto &obstacle_pos : obstacle_positions) {
-      m_map[obstacle_pos] = std::make_shared< piece_type >(obstacle_pos, role_type{99, 99}, -1);
+      m_map[obstacle_pos] = std::make_shared< piece_type >(obstacle_pos, token_type{99, 99}, -1);
    }
 }
 

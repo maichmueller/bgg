@@ -62,19 +62,19 @@ const std::map< std::array< int, 2 >, int >
 // by -1). This becomes necessary,
 // * since the action representation will need to be consistent for the neural
 // net. As such, the action_mask for
-// * player 1 needs to have the correct action associated for a flipped board.
+// * team 1 needs to have the correct action associated for a flipped board.
 // The example further demonstrates
 // * this need.
 // *
 // * Example:
 // * Imagine a board (table) in which the top row is index 0 and the leftmost
 // column is index 0
-// *      For player 0: The move m := (0,4) -> (2,4) means 'move 2 rows DOWN' ->
+// *      For team 0: The move m := (0,4) -> (2,4) means 'move 2 rows DOWN' ->
 // action effect (2,0)
-// *      For player 1: The move n := (4,0) -> (2,0) means 'move 2 rows UP'   ->
+// *      For team 1: The move n := (4,0) -> (2,0) means 'move 2 rows UP'   ->
 // action effect (-2,0)
 // * However as the NN needs its representation always from the perspective of
-// player 0, the move n of player 1
+// team 0, the move n of team 1
 // * is translated to move m, and as such the action effect needs to be flipped.
 // *
 // * @param action_mask binary vector of action validity. Position i says action
@@ -88,7 +88,7 @@ const std::map< std::array< int, 2 >, int >
 // represented move.
 // * @param pos the starting positon.
 // * @param pos_to the target position.
-// * @param flip_board switch to flip the for player 1.
+// * @param flip_board switch to flip the for team 1.
 // */
 // void LogicStratego::enable_action_if_legal(std::vector<int>& action_mask,
 // const Board& board,
@@ -121,17 +121,17 @@ const std::map< std::array< int, 2 >, int >
 // std::vector<int> LogicStratego::get_action_mask(
 //        const Board &board, const std::vector<strat_move_base_t >& action_arr,
 //        const std::map<std::array<int, 2>, std::tuple<int, std::vector<int>>>&
-//        piece_act_map, int player) {
+//        piece_act_map, Team team) {
 //
 //    std::vector<int> action_mask(action_arr.size(), 0);
 //    int board_len = board.get_shape();
 //
 //    for( auto elem = board.begin(); elem != board.end(); ++elem) {
 //        sptr<Piece> piece = elem->second;
-//        if(!piece->is_null() && piece->get_team() == player &&
+//        if(!piece->is_null() && piece->get_team() == team &&
 //        piece->get_flag_can_move()) {
 //
-//            std::array<int, 2> type_ver = {piece->get_role(),
+//            std::array<int, 2> type_ver = {piece->get_token(),
 //            piece->get_version()}; const auto& [start_idx, act_range] =
 //            piece_act_map.at(type_ver);
 //
@@ -139,7 +139,7 @@ const std::map< std::array< int, 2 >, int >
 //            Position pos = piece->get_position();
 //
 //            std::vector<Position> all_pos_targets(4);
-//            if(piece->get_role() == 2) {
+//            if(piece->get_token() == 2) {
 //                all_pos_targets.resize(board_len - pos[0] - 1 + board_len -
 //                pos[1] - 1 + pos[0] + pos[1]); auto all_pos_targets_it =
 //                all_pos_targets.begin();
@@ -174,7 +174,7 @@ const std::map< std::array< int, 2 >, int >
 //                LogicStratego::_enable_action_if_legal(action_mask, board,
 //                                                       start_idx, action_arr,
 //                                                       act_range, pos, pos_to,
-//                                                       player);
+//                                                       team);
 //            }
 //        }
 //    }

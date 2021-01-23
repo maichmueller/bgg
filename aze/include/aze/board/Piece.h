@@ -9,27 +9,27 @@
 #include "aze/utils/utils.h"
 
 template < size_t NrIds >
-struct Role {
+struct Token {
    using container_type = std::array< int, NrIds >;
 
    std::array< int, NrIds > specifiers;
    constexpr static const size_t nr_identifiers = NrIds;
 
-   explicit Role(std::array< int, NrIds > sp) : specifiers(std::move(sp)) {}
+   explicit Token(std::array< int, NrIds > sp) : specifiers(std::move(sp)) {}
 
-   explicit Role() : specifiers() { std::fill(specifiers.begin(), specifiers.end(), 404); };
+   explicit Token() : specifiers() { std::fill(specifiers.begin(), specifiers.end(), 404); };
 
    template <
       typename... Types,
       typename std::enable_if< sizeof...(Types) == NrIds, int >::type = 0 >
-   Role(Types &&... vals)
-       : Role(std::index_sequence_for< Types... >{}, std::forward< Types >(vals)...)
+   Token(Types &&... vals)
+       : Token(std::index_sequence_for< Types... >{}, std::forward< Types >(vals)...)
    {
    }
 
   private:
    template < std::size_t... Indices, typename... Types >
-   Role(std::index_sequence< Indices... >, Types &&... vals)
+   Token(std::index_sequence< Indices... >, Types &&... vals)
    {
       (static_cast< void >(specifiers[Indices] = vals), ...);
    }
@@ -49,7 +49,7 @@ struct Role {
 
    auto end() const { return specifiers.end(); }
 
-   bool operator==(const Role &other) const
+   bool operator==(const Token &other) const
    {
       for(size_t i = 0; i < NrIds; ++i) {
          if(specifiers[i] != other[i])
@@ -58,7 +58,7 @@ struct Role {
       return true;
    }
 
-   bool operator!=(const Role &other) const { return ! (this == other); }
+   bool operator!=(const Token &other) const { return ! (this == other); }
 
    std::string to_string()
    {
@@ -74,16 +74,16 @@ struct Role {
 
 namespace std {
 template < size_t NrIds >
-struct hash< Role< NrIds > > {
+struct hash< Token< NrIds > > {
    constexpr static const auto last_prime_iter = primes::primes_list.end() - 1;
-   constexpr size_t operator()(const Role< NrIds > &role) const
+   constexpr size_t operator()(const Token< NrIds > &token) const
    {
       // ( x*p1 xor y*p2 xor z*p3) mod n is supposedly a better spatial hash
       // function
       // https://matthias-research.github.io/pages/publications/tetraederCollision.pdf
-      long int hash_value = role[0] * (*last_prime_iter);
+      long int hash_value = token[0] * (*last_prime_iter);
       for(size_t i = 1; i < NrIds; ++i) {
-         hash_value ^= role[i] * (*(last_prime_iter - i));
+         hash_value ^= token[i] * (*(last_prime_iter - i));
       }
       return hash_value % primes::primes_list[0];
    }
@@ -106,11 +106,11 @@ class Piece {
 
   public:
    using position_type = Position;
-   using role_type = Role< NrIdentifiers >;
+   using token_type = Token< NrIdentifiers >;
 
   protected:
    position_type m_position;
-   role_type m_role;
+   token_type m_token;
    //    unsigned int m_uuid = UUID::get_unique_id();
    int m_team;
    bool m_null_piece = false;
@@ -118,12 +118,12 @@ class Piece {
    bool m_has_moved;
 
   public:
-   Piece(position_type pos, role_type type, int team, bool hidden, bool has_moved)
-       : m_position(pos), m_role(type), m_team(team), m_hidden(hidden), m_has_moved(has_moved)
+   Piece(position_type pos, token_type type, int team, bool hidden, bool has_moved)
+       : m_position(pos), m_token(type), m_team(team), m_hidden(hidden), m_has_moved(has_moved)
    {
    }
 
-   Piece(position_type position, role_type type, int team)
+   Piece(position_type position, token_type type, int team)
        : Piece(position, type, team, true, false)
    {
    }
@@ -131,7 +131,7 @@ class Piece {
    // a Null Piece Constructor
    explicit Piece(const position_type &position)
        : m_position(position),
-         m_role(),
+         m_token(),
          m_team(-1),
          m_null_piece(true),
          m_hidden(false),
@@ -156,7 +156,7 @@ class Piece {
       return (flip_team) ? 1 - m_team : m_team;
    }
 
-   [[nodiscard]] role_type get_role() const { return m_role; }
+   [[nodiscard]] token_type get_token() const { return m_token; }
 
    [[nodiscard]] bool get_flag_hidden() const { return m_hidden; }
 
@@ -164,7 +164,7 @@ class Piece {
 
    bool operator==(const Piece &other) const
    {
-      return other.get_position() == m_position && m_role == other.get_role()
+      return other.get_position() == m_position && m_token == other.get_token()
              && m_team == other.get_team() && m_hidden == other.get_flag_hidden()
              && m_has_moved == other.get_flag_has_moved();
    }

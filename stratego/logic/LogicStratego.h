@@ -27,20 +27,20 @@ struct LogicStratego: public Logic< BoardType, LogicStratego< BoardType > > {
    using move_type = typename base_type::move_type;
    using position_type = typename base_type::position_type;
    using piece_type = typename board_type::piece_type;
-   using role_type = typename board_type::role_type;
+   using token_type = typename board_type::token_type;
 
    static bool is_legal_move_(const board_type &board, const move_type &move);
 
    static std::vector< move_type > get_legal_moves_(
-      const board_type &board, int player, bool flip_board = false);
+      const board_type &board, Team team, bool flip_board = false);
 
-   static bool has_legal_moves_(const board_type &board, int player);
+   static bool has_legal_moves_(const board_type &board, Team team);
 
    static auto get_battle_matrix() { return BattleMatrix::battle_matrix; }
 
    static int fight_outcome(piece_type attacker, piece_type defender)
    {
-      return fight_outcome(std::array{attacker.get_role()[0], defender.get_role()[0]});
+      return fight_outcome(std::array{attacker.get_token()[0], defender.get_token()[0]});
    }
 
    static int fight_outcome(std::array< int, 2 > att_def)
@@ -125,20 +125,20 @@ bool LogicStratego< BoardType >::is_legal_move_(const board_type &board, const m
 
    if(p_b->is_null())
       return false;
-   if(int type = p_b->get_role()[0]; type == 0 || type == 11) {
+   if(int type = p_b->get_token()[0]; type == 0 || type == 11) {
       return false;
    }
    if(! p_a->is_null()) {
       if(p_a->get_team() == p_b->get_team())
          return false;  // cant fight pieces of own team
-      if(p_a->get_role()[0] == 99) {
+      if(p_a->get_token()[0] == 99) {
          return false;  // cant fight obstacle
       }
    }
 
    int move_dist = abs(pos_after[1] - pos_before[1]) + abs(pos_after[0] - pos_before[0]);
    if(move_dist > 1) {
-      if(p_b->get_role()[0] != 2)
+      if(p_b->get_token()[0] != 2)
          return false;  // not of type 2 , but is supposed to go far
 
       if(pos_after[0] == pos_before[0]) {
@@ -165,7 +165,7 @@ bool LogicStratego< BoardType >::is_legal_move_(const board_type &board, const m
 
 template < class BoardType >
 std::vector< typename LogicStratego< BoardType >::move_type >
-LogicStratego< BoardType >::get_legal_moves_(const board_type &board, int player, bool flip_board)
+LogicStratego< BoardType >::get_legal_moves_(const board_type &board, Team team, bool flip_board)
 {
    int shape_x = board.get_shape()[0];
    int shape_y = board.get_shape()[1];
@@ -174,11 +174,11 @@ LogicStratego< BoardType >::get_legal_moves_(const board_type &board, int player
    std::vector< move_type > moves_possible;
    for(auto elem = board.begin(); elem != board.end(); ++elem) {
       sptr< piece_type > piece = elem->second;
-      if(! piece->is_null() && piece->get_team() == player) {
+      if(! piece->is_null() && piece->get_team() == team) {
          // the position we are dealing with
          Position pos = piece->get_position();
 
-         if(piece->get_role()[0] == 2) {
+         if(piece->get_token()[0] == 2) {
             // all possible moves to the right until board ends
             for(int i = 1; i < starts_x + shape_x - pos[0]; ++i) {
                position_type pos_to{pos[0] + i, pos[1]};
@@ -238,7 +238,7 @@ LogicStratego< BoardType >::get_legal_moves_(const board_type &board, int player
 }
 
 template < class BoardType >
-bool LogicStratego< BoardType >::has_legal_moves_(const board_type &board, int player)
+bool LogicStratego< BoardType >::has_legal_moves_(const board_type &board, Team team)
 {
    int shape_x = board.get_shape()[0];
    int shape_y = board.get_shape()[1];
@@ -246,13 +246,13 @@ bool LogicStratego< BoardType >::has_legal_moves_(const board_type &board, int p
    int starts_y = board.get_starts()[1];
    for(auto elem = board.begin(); elem != board.end(); ++elem) {
       sptr< piece_type > piece = elem->second;
-      if(int essential_role = piece->get_role()[0];
-         ! piece->is_null() && piece->get_team() == player && essential_role != 0
-         && essential_role != 11) {
+      if(int essential_token = piece->get_token()[0];
+         ! piece->is_null() && piece->get_team() == team && essential_token != 0
+         && essential_token != 11) {
          // the position we are dealing with
          Position pos = piece->get_position();
 
-         if(piece->get_role()[0] == 2) {
+         if(piece->get_token()[0] == 2) {
             // all possible moves to the right until board ends
             for(int i = 1; i < starts_x + shape_x - pos[0]; ++i) {
                position_type pos_to{pos[0] + i, pos[1]};

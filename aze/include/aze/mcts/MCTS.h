@@ -17,7 +17,7 @@
  * iteratively evaluate states using the evaluation function of a neural
  * network.
  *
- * By iteratively training the neural network with these evaluated turns, the
+ * By iteratively training the neural network with these evaluated m_turns, the
  * overall evaluation function of the game can be fully trained. This class
  * doesn't put a restriction on the types of games that can be evaluated. Any
  * state type with a board, a string representation, and certain utilty methods
@@ -36,7 +36,7 @@ class MCTS {
       std::vector< double > policy;
       std::vector< unsigned int > validity_mask;
 
-      bool operator==(const StateData &other)
+      bool operator==(const StateData &other) const
       {
          return count == other.count && terminal_value == other.terminal_value
                 && policy == other.policy && validity_mask == other.validity_mask;
@@ -55,7 +55,7 @@ class MCTS {
       size_t count = 0;
       double qvalue;
 
-      bool operator==(const StateActionData &other)
+      bool operator==(const StateActionData &other) const
       {
          return count == other.count && qvalue == other.qvalue;
       }
@@ -65,7 +65,7 @@ class MCTS {
 
    /// The neural network is provided via a shared_ptr on construction.
    /// It is assumed the network is allocated and deallocated outside.
-   sptr< NetworkWrapper > m_nnet_sptr;
+   sptr< NetworkWrapper > m_network_sptr;
    /// a parameter determining the amount of exploration (needs to be checked in
    /// paper)
    double m_cpuct;
@@ -93,35 +93,35 @@ class MCTS {
     *
     * In every step the evaluated turn will be stored and the chosen best action
     * applied to the state. If the state is not terminal, then the search will
-    * call itself anew for the next player's state to evaluate.
+    * call itself anew for the next team's state to evaluate.
     *
     * @tparam StateType type that holds and updates the game state.
     * @tparam ActionRepresenterType this type needs to be compatible the
     * provided state type in order to translate the state into a torch tensor.
     * @param state the current game state.
-    * @param player the player whose turn is being evaluated.
+    * @param team the team whose turn is being evaluated.
     * @param action_repper the reference to the action representer translating
     * the state to tensor.
     * @param root a flag to decide whether this search step is the initial one.
-    * @return the value of the initially passed state and active player at root
+    * @return the value of the initially passed state and active team at root
     * level.
     */
    template < typename StateType, typename ActionRepresenterType >
    double _search(
       StateType &state,
-      int player,
+      Team team,
       RepresenterBase< StateType, ActionRepresenterType > &action_repper,
       bool root = false);
 
    /**
     * Private method that evaluates a current state tensor through the neural
-    * network for active player.
+    * network for active team.
     *
     * @tparam StateType type that holds and updates the game state.
     * @tparam ActionRepresenterType this type needs to be compatible the
     * provided state type in order to translate the state into a torch tensor.
     * @param state the current game state.
-    * @param player the player whose turn is being evaluated.
+    * @param team the team whose turn is being evaluated.
     * @param action_repper the reference to the action representer translating
     * the state to tensor.
     * @return
@@ -129,7 +129,7 @@ class MCTS {
    template < typename StateType, typename ActionRepresenterType >
    std::tuple< std::vector< double >, std::vector< unsigned int >, double > _evaluate_new_state(
       StateType &state,
-      int player,
+      Team team,
       RepresenterBase< StateType, ActionRepresenterType > &action_repper);
 
   public:
@@ -147,7 +147,7 @@ class MCTS {
    template < typename StateType, typename ActionRepresenterType >
    std::vector< double > get_policy_vec(
       sptr< StateType > &state,
-      int player,
+      Team team,
       RepresenterBase< StateType, ActionRepresenterType > &action_repper,
       double expl_rate = 1.);
 };
@@ -155,7 +155,7 @@ class MCTS {
 template < typename StateType, typename ActionRepresenterType >
 std::vector< double > MCTS::get_policy_vec(
    sptr< StateType > &state,
-   int player,
+   Team team,
    RepresenterBase< StateType, ActionRepresenterType > &action_repper,
    double expl_rate)
 {
@@ -163,11 +163,11 @@ std::vector< double > MCTS::get_policy_vec(
    for(int i = 0; i < m_num_mcts_sims; ++i) {
       //      bar.progress(i, m_num_mcts_sims);
       search_depth = -1;
-      _search(*state, player, action_repper, /*root=*/true);
+      _search(*state, team, action_repper, /*root=*/true);
    }
    //   bar.finish();
 
-   std::string state_rep = state->string_representation(player, true);
+   std::string state_rep = state->string_representation(team, true);
 
    std::vector< int > counts(action_repper.get_actions().size());
 
@@ -230,19 +230,19 @@ std::vector< double > MCTS::get_policy_vec(
 template < typename StateType, typename ActionRepresenterType >
 double MCTS::_search(
    StateType &state,
-   int player,
+   Team team,
    RepresenterBase< StateType, ActionRepresenterType > &action_repper,
    bool root)
 {
    search_depth += 1;
-   // for the state rep we flip the board if player == 1 and we dont if
-   // player == 0! all the hidden enemy pieces wont be printed out
+   // for the state rep we flip the board if team == 1 and we dont if
+   // team == 0! all the hidden enemy pieces wont be printed out
    // -> unknown pieces are also hidden for the neural net
-   std::string s = state.string_representation(player, true);
+   std::string s = state.string_representation(team, true);
    auto state_data_iter = m_NTPVs.find(s);
    if(state_data_iter == m_NTPVs.end()) {
       auto [Ps_filtered, action_mask, v] = std::move(
-         _evaluate_new_state(state, player, action_repper));
+         _evaluate_new_state(state, team, action_repper));
       m_NTPVs.emplace(s, StateData{0, state.is_terminal(), Ps_filtered, action_mask});
       return -v;
    } else if(int terminal_value = state_data_iter->second.terminal_value; terminal_value != 404) {
@@ -305,12 +305,12 @@ double MCTS::_search(
       }
    }
 
-   auto move = action_repper.action_to_move(state, best_action, player);
+   auto move = action_repper.action_to_move(state, best_action, team);
    state.do_move(move);
 
    double v = _search(
       state,
-      (player + 1) % 2,
+      (team + 1) % 2,
       action_repper,
       /*root=*/false);
 
@@ -336,18 +336,19 @@ double MCTS::_search(
 
 template < typename StateType, typename ActionRepresenterType >
 std::tuple< std::vector< double >, std::vector< unsigned int >, double > MCTS::_evaluate_new_state(
-   StateType &state, int player, RepresenterBase< StateType, ActionRepresenterType > &action_repper)
+   StateType &state,
+   Team team, RepresenterBase< StateType, ActionRepresenterType > &action_repper)
 {
    auto board = state.get_board();
    // convert State to torch tensor representation
-   const torch::Tensor state_tensor = action_repper.state_representation(state, player);
+   const torch::Tensor state_tensor = action_repper.state_representation(state, team);
 
-   auto [log_Ps, v] = m_nnet_sptr->evaluate(state_tensor);
+   auto [log_Ps, v] = m_network_sptr->evaluate(state_tensor);
    // move to cpu (as we need to work with it) and flatten the tensor.
    // First dim is batch size (== 1 here)
    log_Ps = log_Ps.cpu().view(-1);
 
-   const auto action_mask = action_repper.get_action_mask(*board, player);
+   const auto action_mask = action_repper.get_action_mask(*board, team);
    std::vector< double > Ps_filtered(action_mask.size());
 
    // mask invalid actions

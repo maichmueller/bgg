@@ -9,8 +9,8 @@ void fill_mask(
    MaskContainer &mask)
 {
    for(const auto &move : moves) {
-      auto actions_for_move = action_rep.get_actions_by_role(
-         state[move[0]]->get_role());
+      auto actions_for_move = action_rep.get_actions_by_token(
+         state[move[0]]->get_token());
       auto move_effect = move[1] - move[0];
       for(const auto &action : actions_for_move) {
          if(move_effect == action.get_effect()) {

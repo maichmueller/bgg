@@ -6,8 +6,8 @@ using namespace BoardTest;
 
 TEST(BoardTest, BoardTest_Constructor_Ints_2D)
 {
-   std::map< position_type, role_type > setup0;
-   std::map< position_type, role_type > setup1;
+   std::map< position_type, token_type > setup0;
+   std::map< position_type, token_type > setup1;
 
    setup0[{0, 0}] = {11, 11};
    setup0[{0, 1}] = {22, 22};
@@ -16,7 +16,7 @@ TEST(BoardTest, BoardTest_Constructor_Ints_2D)
    setup0[{1, 1}] = {55, 55};
    setup0[{1, 2}] = {66, 66};
 
-   role_type test_kin{20, 1};
+   token_type test_kin{20, 1};
    position_type test_pos{3, 2};
    sptr< piece_type > test_piece = std::make_shared< piece_type >(
       test_pos, test_kin, 1);
@@ -35,11 +35,11 @@ TEST(BoardTest, BoardTest_Constructor_Ints_2D)
    // check access operator
    EXPECT_EQ(*b[test_pos], *test_piece);
 
-   // check get all pieces of one player method
+   // check get all pieces of one team method
    std::vector< sptr< piece_type > > pieces_0 = b.get_pieces(0);
 
    // check update board method
-   role_type new_test_kin{5, 1};
+   token_type new_test_kin{5, 1};
    sptr< piece_type >
       new_test_piece = std::make_shared< piece_type >(
          test_pos, new_test_kin, 1);
